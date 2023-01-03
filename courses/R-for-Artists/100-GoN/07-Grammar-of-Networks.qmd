@@ -8,13 +8,14 @@ format:
     code-summary: Code
     code-tools: true
     code-line-numbers: true
+    highlight-style: dracula
 ---
 
 ```{r}
 #| label: setup
 #| include: false
 #| 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(extrafont)
 # Run this one time
 #extrafont::font_import()
@@ -59,21 +60,19 @@ All RMarkdown files combine code, text, web-images, and figures
 developed using code. Everything is text; code chunks are enclosed in
 **fences** (\`\`\`)
 
-# Goals
+# Goals {#sec-goals}
 
 At the end of this Lab session, we should:
 
-\- know the types and structures of `network data` and be able to work
-with them
-
-\- understand the basics of modern network packages in R
-
-\- be able to create network visualizations using `tidygraph`, `ggraph`(
-static visualizations ) and `visNetwork` (interactive visualizations)
-
-\- see directions for how the network metaphor applies in a variety of
-domains (e.g. biology/ecology, ideas/influence, technology,
-transportation, to name a few)
+-   know the types and structures of `network data` and be able to work
+    with them
+-   understand the basics of modern network packages in R
+-   be able to create network visualizations using `tidygraph`,
+    `ggraph`( static visualizations ) and `visNetwork` (interactive
+    visualizations)
+-   see directions for how the network metaphor applies in a variety of
+    domains (e.g. biology/ecology, ideas/influence, technology,
+    transportation, to name a few)
 
 # Pedagogical Note
 
@@ -120,13 +119,13 @@ Network graphs are characterized by two key terms: **nodes** and
 In R, we create network representations using node and edge information.
 *One way* in which these could be organized are:
 
-\- `Node list`: a data frame with a single column listing the node IDs
-found in the edge list. You can also add **attribute columns** to the
-data frame such as the names of the nodes or grouping variables. ( Type?
-Class? Family? Country? Subject? Race? )
+-   `Node list`: a data frame with a single column listing the node IDs
+    found in the edge list. You can also add **attribute columns** to
+    the data frame such as the names of the nodes or grouping variables.
+    ( Type? Class? Family? Country? Subject? Race? )
 
 |     |            |                                                          |
-|--------------|--------------|-------------------------------------------|
+|------------------|------------------|-----------------------------------|
 | ID  | Node Name  | Attribute? Qualities?Categories? Family? Country?Planet? |
 | 1   | Ned        | Nursery School Teacher                                   |
 | 2   | Jaguar Paw | Main Character, Apocalypto                               |
@@ -142,11 +141,11 @@ Class? Family? Country? Subject? Race? )
     aspect for an edge. If the edges have a magnitude attribute the
     graph is considered weighted.
 
-| From | To  | Relationship       | Weightage |
-|------|-----|--------------------|-----------|
-| 1    | 3   | Financial Dealings | 6         |
-| 2    | 1   | History Lessons    | 2         |
-| 2    | 3   | Vaccination        | 15        |
+| From | To  | Relationship       | Weight |
+|------|-----|--------------------|--------|
+| 1    | 3   | Financial Dealings | 6      |
+| 2    | 1   | History Lessons    | 2      |
+| 2    | 3   | Vaccination        | 15     |
 
 : Edges Table
 
@@ -163,7 +162,7 @@ Class? Family? Country? Subject? Race? )
         springs.(BTW, are the Spring Constants K the same for all
         springs?...)
 
-8.  `Directed and undirected network graph`: If the distinction between
+-   `Directed and undirected network graph`: If the distinction between
     source and target is meaningful, the network is **directed.** If the
     distinction is not meaningful, the network is **undirected**.
     **Directed edges** represent an ordering of nodes, like a
@@ -245,18 +244,16 @@ grey_edges %>%
   )
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #1:
-:::
+::: {#QI-1 .callout-note}
+## Questions and Inferences #1:
 
-::: panel-body
-Look at the console output thumbnail. What does for example
-`name = col_character` mean? What attributes (i.e. extra information)
-are seen for Nodes and Edges? Understand the data in both nodes and
-edges as shown in the second and third thumbnails. Write some comments
-and inferences here.
-:::
+Look at the console output thumbnail.
+
+-   What does for example `name = col_character` mean?
+-   What attributes (i.e. extra information) are seen for Nodes and
+    Edges?
+-   Understand the data in both nodes and edges as shown in the second
+    and third thumbnails. Write some comments and inferences here.
 :::
 
 ## Step 2.Create a network object using tidygraph:
@@ -276,15 +273,11 @@ ga <- tbl_graph(nodes = grey_nodes,
 ga
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #2:
-:::
+::: {#QI-2 .callout-note}
+## Questions and Inferences #2:
 
-::: panel-body
-**Questions and Inferences**: What information does the graph object
-contain? What attributes do the nodes have? What about the edges?
-:::
+-   What information does the graph object contain?
+-   What attributes do the nodes have? What about the edges?
 :::
 
 ## Step 3. Plot using `ggraph`
@@ -298,16 +291,12 @@ autograph(ga)
 
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #3:
-:::
+::: {#QI-3 .callout-note}
+## Questions and Inferences #3:
 
-::: panel-body
-**Questions and Inferences**: Describe this graph, in simple words here.
-Try to use some of the new domain words we have just acquired:
-nodes/edges, connected/disconnected, directed/undirected.
-:::
+-   Describe this graph, in simple words here.
+-   Try to use some of the new domain words we have just acquired:
+    `nodes/edges, connected/disconnected, directed/undirected`.
 :::
 
 3b. More elaborate plot
@@ -361,16 +350,12 @@ ggraph(graph = ga,  layout = "kk") +
 
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #3:
-:::
+::: {#QI-4 .callout-note}
+## Questions and Inferences #4:
 
-::: panel-body
-**Questions and Inferences**: What parameters have been changed here,
-compared to the earlier graph? Where do you see these changes in the
-code above?
-:::
+-   What parameters have been changed here, compared to the earlier
+    graph?
+-   Where do you see these changes in the code above?
 :::
 
 Let us **Play** with this graph and see if we can make some small
@@ -392,15 +377,12 @@ ggraph(graph = ga,  layout = "kk") +
        classes...")
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #4:
-:::
+::: {#QI-5 .callout-note}
+## Questions and Inferences #5:
 
-::: panel-body
-**Questions and Inferences**: What did the `shape` parameter achieve?
-What are the possibilities with `shape`? How about including `alpha`?
-:::
+-   What did the `shape` parameter achieve?
+-   What are the possibilities with `shape`?
+-   How about including `alpha`?
 :::
 
 3c. Aesthetic Mapping from Node and Edge attribute columns
@@ -416,21 +398,27 @@ Don't try to use more than 2 aesthetic mappings simultaneously!!
 
 The node elements we can tweak are:
 
--   Types of Nodes: `geom_node_****()`\
--   Node Parameters: inside `geom_node_****(aes(...............))`\
-    -`aes(alpha  = node-variable)` : opacity; a value between 0 and 1\
-    -`aes(shape  = node-variable)` : node shape\
-    -`aes(colour = node-variable)` : node colour\
-    -`aes(fill   = node-variable)` : fill colour for node\
-    -`aes(size   = node-variable)` : size of node
+-   Types of Nodes: `geom_node_****()`
+-   Node Parameters: inside `geom_node_****(aes(...............))`
+    -   `aes(alpha  = node-variable)` : opacity; a value between 0 and 1
+
+    -   `aes(shape  = node-variable)` : node shape
+
+    -   `aes(colour = node-variable)` : node colour
+
+    -   `aes(fill   = node-variable)` : fill colour for node
+
+    -   `aes(size   = node-variable)` : size of node
 
 The edge elements we can tweak are:
 
--   Type of Edges" `geom_edge_****()`\
--   Edge Parameters: inside `geom_edge_****(aes(...............))`\
-    -`aes(colour = edge-variable)` : colour of the edge\
-    -`aes(width  = edge-variable)` : width of the edge\
-    -`aes(label  = some_variable)` : labels for the edge
+-   Type of Edges" `geom_edge_****()`
+-   Edge Parameters: inside `geom_edge_****(aes(...............))`
+    -   `aes(colour = edge-variable)` : colour of the edge
+
+    -   `aes(width  = edge-variable)` : width of the edge
+
+    -   `aes(label  = some_variable)` : labels for the edge
 
 Type `?geom_node_point` and `?geom-edge_link` in your Console for more
 information.
@@ -450,16 +438,16 @@ ggraph(graph = ga, layout = "fr") +
   labs(title = "Whoo Hoo! Yet another Grey's Anatomy graph in R!")
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #5:
-:::
+**Questions and Inferences**: What did the `shape` parameter achieve?
+What are the possibilities with `shape`? How about including `alpha`?
 
-::: panel-body
-**Questions and Inferences**: Describe some of the changes here. What
-types of edges worked? Which variables were you able to use for nodes
-and edges and how? What did not work with either of the two?
-:::
+::: {#QI-6 .callout-note}
+## Questions and Inferences #6:
+
+-   Describe some of the changes here.
+-   What types of edges worked?
+-   Which variables were you able to use for nodes and edges and how?
+-   did not work with either of the two?
 :::
 
 # Predict/Reuse/Infer-2
@@ -475,16 +463,13 @@ ggraph(ga, layout = "linear") +
   theme(legend.position = "top")
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #6:
-:::
+::: {#QI-7 .callout-note}
+## Questions and Inferences #7:
 
-::: panel-body
-**Questions and Inferences**: How does this graph look "metaphorically"
-different? Do you see a difference in the relationships between people
-here? Why?
-:::
+-   How does this graph look "metaphorically" different?
+-   Do you see a difference in the relationships between people here?
+-   If so, Why?
+-   If not, why not?
 :::
 
 ```{r Coord-Diagram-circular}
@@ -501,16 +486,13 @@ ggraph(ga, layout = "linear", circular = TRUE) +
         aspect.ratio = 1)
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #7:
-:::
+::: {#QI-8 .callout-note}
+## Questions and Inferences #8:
 
-::: panel-body
-**Questions and Inferences**: How does this graph look "metaphorically"
-different? Do you see a difference in the relationships between people
-here? Why?
-:::
+-   How does this graph look "metaphorically" different?
+-   Do you see a difference in the relationships between people here?
+-   If so, Why?
+-   If not, why not?
 :::
 
 # Hierarchical layouts
@@ -565,15 +547,13 @@ ggraph(graph, layout = "partition", circular = TRUE) +
   labs(title = "Circular Icicle")
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #8:
-:::
+::: {#QI-9 .callout-note}
+## Questions and Inferences #9:
 
-::: panel-body
-**Questions and Inferences**: How do graphs look "metaphorically"
-different? Do they reveal different aspects of the group? How?
-:::
+-   How does this graph look "metaphorically" different?
+-   Do you see a difference in the relationships between people here?
+-   If so, Why?
+-   If not, why not?
 :::
 
 # Faceting
@@ -606,15 +586,12 @@ ggraph(ga,layout = "linear", circular = TRUE) +
   th_foreground(border = TRUE)+ theme(aspect.ratio = 1)
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #9:
-:::
+::: {#QI-10 .callout-note}
+## Questions and Inferences #10:
 
-::: panel-body
-**Questions and Inferences**: Does splitting up the main graph into
-subnetworks give you more insight? Describe some of these.
-:::
+-   Does splitting up the main graph into subnetworks give you more
+    insight?
+-   Describe some of these.
 :::
 
 # Network analysis with tidygraph
@@ -634,7 +611,9 @@ Centrality is a an "ill-defined" metric of **node and edge importance**
 in a network. It is therefore calculated in many ways. Type
 `?centrality` in your Console.
 
-![Standards](https://imgs.xkcd.com/comics/standards.png)
+
+![Standards](standards.png){fig-alt="XKCD comic showing the
+proliferation of Network Centrality Measures" fig-align="center"}
 
 Let's add a few columns to the nodes and edges based on network
 centrality measures:
@@ -688,17 +667,13 @@ ga %>%
                        high = "red")
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #10:
-:::
+::: {#QI-11 .callout-note}
+## Questions and Inferences #11:
 
-::: panel-body
-**Questions and Inferences**: How do the Centrality Measures show up in
-the graph? Would you "agree" with the way we have done it? Try to modify
-the aesthetics by copy-pasting this chunk below and see how you can make
-an alternative representation.
-:::
+-   How do the Centrality Measures show up in the graph?
+-   Would you "agree" with the way we have done it?
+-   Try to modify the aesthetics by copy-pasting this chunk below and
+    see how you can make an alternative representation.
 :::
 
 ## Analyse and visualize network: communities
@@ -720,16 +695,12 @@ ga %>%
 
 ```
 
-::: {.panel .panel-success}
-::: panel-heading
-Questions and Inferences #11:
-:::
+::: {#QI-12 .callout-note}
+## Questions and Inferences #12:
 
-::: panel-body
-**Questions and Inferences**: Is the Community depiction clear? How
-would you do it, with which aesthetic? Copy Paste this chunk below and
-try.
-:::
+-   Is the Community depiction clear?
+-   How would you do it, with which aesthetic?
+-   Copy Paste this chunk below and try an alternative representation.
 :::
 
 # Interactive Graphs with `visNetwork`
@@ -1100,5 +1071,3 @@ Network Datasets <https://icon.colorado.edu/#!/networks>
 
 Yunran Chen, [Introduction to Network Analysis Using
 R](https://yunranchen.github.io/intro-net-r/index.html)
-
-
