@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Arvind Venkatadri">
+<meta name="dcterms.date" content="2022-01-30">
+<title>The Foundation Series in Quarto - Using Permutation Tests in Undergraduate Stats Class</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<meta property="og:title" content="The Foundation Series in Quarto - Using Permutation Tests in Undergraduate Stats Class">
+<meta property="og:description" content="Using Permutation Tests">
+<meta property="og:site-name" content="The Foundation Series in Quarto">
+<meta name="twitter:title" content="The Foundation Series in Quarto - Using Permutation Tests in Undergraduate Stats Class">
+<meta name="twitter:description" content="Using Permutation Tests">
+<meta name="twitter:creator" content="@arvind_v">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">The Foundation Series in Quarto</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../blog.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Using Permutation Tests in Undergraduate Stats Class</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../blog.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../content/courses/Data-Analytics/index.html" class="sidebar-item-text sidebar-link">Data Analytics</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../content/courses/R-for-Artists/index.html" class="sidebar-item-text sidebar-link">R for Artists</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../content/posts/posts.html" class="sidebar-item-text sidebar-link">Posts</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../content/projects/projects.html" class="sidebar-item-text sidebar-link">Projects</a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#structure" id="toc-structure" class="nav-link" data-scroll-target="#structure">Structure</a></li>
+  <li>
+<a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a>
+  <ul class="collapse">
+<li><a href="#basic-plots" id="toc-basic-plots" class="nav-link" data-scroll-target="#basic-plots">Basic Plots</a></li>
+  </ul>
+</li>
+  <li><a href="#preliminary-observations" id="toc-preliminary-observations" class="nav-link" data-scroll-target="#preliminary-observations">Preliminary Observations</a></li>
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
+  <li><a href="#permutation-tests" id="toc-permutation-tests" class="nav-link" data-scroll-target="#permutation-tests">Permutation Tests</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title d-none d-lg-block">Using Permutation Tests in Undergraduate Stats Class</h1>
+<p class="subtitle lead">Using Permutation Tests</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Arvind Venkatadri </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 30, 2022</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">January 10, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>This project is a quick analysis of the Design of Experiments class carried out in the Order and Chaos course, FSP-2021-2022, at SMI MAHE, Bangalore.</p>
+<p>The methodology followed was that in A.J. Lawrance’s paper <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> describing a Statistics module based on the method of Design of Experiments. The inquiry relates to Short Term Memory (STM) among students.</p>
+</section><section id="structure" class="level2"><h2 class="anchored" data-anchor-id="structure">Structure</h2>
+<p>The total number of students were 17. Eight Pairs of students were created randomly to create eight different Test tools for Short Term Memory testing.</p>
+<p>The binary ( two - level ) variables/parameters that were used in the tests, were, following Lawrance:</p>
+<ul>
+<li>WL: Word List Length ( 7 and 15 words )<br>
+</li>
+<li>SL: Syllables in the Words ( 2 and 5 syllables )<br>
+</li>
+<li>ST: Study Time allowed for the Respondents ( 15 and 30 seconds )</li>
+</ul>
+<p>Other parameters considered were a) Language b) Structure/Depiction of the Word Lists ( e.g.&nbsp;word clouds, matrices, columns…), c) Whether the words would be shown or read aloud, and d) whether the respondents had to speak out, or write down, the recollected words. These parameters were discussed and abandoned as too complex to mechanize, though they could have had an impact on the STM scores.</p>
+<p>Hence a total of <strong>8 Tests</strong> were created by 8 pairs of students, and each team tested the remaining 15 students ( Due to COVID restrictions, this testing was carried out entirely online on MS Teams, using individual breakout rooms for the Test Teams. )</p>
+<p>The data were entered into a Google Sheet and the STM scores were converted to <em>percentages</em> so as to be comparable across WL.</p>
+<p>The data was then “flattened” for each of the binary parameters; this was logical to do since for each parameter, the other two parameters were balanced out by the Test structure. For instance, for WL = 5, the SL and ST parameters used all the four combinations ( SL = 5, 15 ) and (ST = 15, 30 ). Hence the “common sense” analysis could proceed for each of the parameters individually. Joint effects were not considered for this preliminary class.</p>
+</section><section id="data" class="level2"><h2 class="anchored" data-anchor-id="data">Data</h2>
+<div class="cell">
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["syllable_2"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["syllable_5"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["study_time_15"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["study_time_30"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["list_length_7"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["list_length_15"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.7142857","2":"0.57142857","3":"0.71428571","4":"0.7142857","5":"0.7142857","6":"0.26670000"},{"1":"0.4285714","2":"0.57142857","3":"0.42857143","4":"0.5714286","5":"0.4285714","6":"0.20000000"},{"1":"0.5714286","2":"0.71428571","3":"0.57142857","4":"0.5714286","5":"0.5714286","6":"0.06670000"},{"1":"0.7142857","2":"1.00000000","3":"0.71428571","4":"0.5714286","5":"0.7142857","6":"0.13330000"},{"1":"0.7142857","2":"1.00000000","3":"0.71428571","4":"1.0000000","5":"0.7142857","6":"0.20000000"},{"1":"0.7142857","2":"0.85714286","3":"0.71428571","4":"0.7142857","5":"0.7142857","6":"0.13330000"},{"1":"0.5714286","2":"0.57142857","3":"0.57142857","4":"0.5714286","5":"0.5714286","6":"0.33340000"},{"1":"0.5714286","2":"0.71428571","3":"0.57142857","4":"0.5714286","5":"0.5714286","6":"0.53330000"},{"1":"0.5714286","2":"0.85714286","3":"0.57142857","4":"1.0000000","5":"0.5714286","6":"0.20000000"},{"1":"0.5714286","2":"1.00000000","3":"0.57142857","4":"0.4285714","5":"0.5714286","6":"0.13330000"},{"1":"0.7142857","2":"0.85714286","3":"0.71428571","4":"0.4285714","5":"0.7142857","6":"0.26670000"},{"1":"0.7142857","2":"0.71428571","3":"0.71428571","4":"0.4285714","5":"0.7142857","6":"0.26670000"},{"1":"0.7142857","2":"0.57142857","3":"0.71428571","4":"0.5714286","5":"0.7142857","6":"0.06670000"},{"1":"0.7142857","2":"0.57142857","3":"0.71428571","4":"0.7142857","5":"0.7142857","6":"0.13330000"},{"1":"0.4285714","2":"0.57142857","3":"0.42857143","4":"0.5714286","5":"0.4285714","6":"0.26670000"},{"1":"0.7142857","2":"0.57100000","3":"0.57142857","4":"0.5710000","5":"0.5714286","6":"0.33333333"},{"1":"0.5714286","2":"0.57100000","3":"0.57142857","4":"0.5710000","5":"0.5714286","6":"0.13333333"},{"1":"0.5714286","2":"0.71400000","3":"0.71428571","4":"0.7140000","5":"0.7142857","6":"0.13333333"},{"1":"0.5714286","2":"0.28500000","3":"1.00000000","4":"0.2850000","5":"1.0000000","6":"0.13333333"},{"1":"1.0000000","2":"0.51400000","3":"1.00000000","4":"0.5140000","5":"1.0000000","6":"0.20000000"},{"1":"0.7142857","2":"0.71400000","3":"0.85714286","4":"0.7140000","5":"0.8571429","6":"0.33333333"},{"1":"0.5714286","2":"0.42800000","3":"0.57142857","4":"0.4280000","5":"0.5714286","6":"0.13333333"},{"1":"0.5714286","2":"0.57100000","3":"0.71428571","4":"0.5710000","5":"0.7142857","6":"0.20000000"},{"1":"1.0000000","2":"0.71400000","3":"0.85714286","4":"0.7140000","5":"0.8571429","6":"0.20000000"},{"1":"0.4285714","2":"0.57100000","3":"1.00000000","4":"0.5710000","5":"1.0000000","6":"0.20000000"},{"1":"0.4285714","2":"0.57000000","3":"0.85714286","4":"0.5700000","5":"0.8571429","6":"0.13333333"},{"1":"0.4285714","2":"0.28500000","3":"0.71428571","4":"0.2850000","5":"0.7142857","6":"0.06666667"},{"1":"0.5714286","2":"0.42800000","3":"0.57142857","4":"0.4280000","5":"0.5714286","6":"0.13333333"},{"1":"0.7142857","2":"0.42800000","3":"0.57142857","4":"0.4280000","5":"0.5714286","6":"0.20000000"},{"1":"0.5714286","2":"0.42800000","3":"0.57142857","4":"0.4280000","5":"0.5714286","6":"0.26666667"},{"1":"0.2667000","2":"0.33333333","3":"0.26670000","4":"0.4666667","5":"0.7142857","6":"0.46666667"},{"1":"0.2000000","2":"0.13333333","3":"0.20000000","4":"0.4666667","5":"0.5714286","6":"0.46666667"},{"1":"0.0667000","2":"0.13333333","3":"0.06670000","4":"0.4666667","5":"0.5714286","6":"0.46666667"},{"1":"0.1333000","2":"0.13333333","3":"0.13330000","4":"0.4000000","5":"0.5714286","6":"0.40000000"},{"1":"0.2000000","2":"0.20000000","3":"0.20000000","4":"0.5333333","5":"1.0000000","6":"0.53333333"},{"1":"0.1333000","2":"0.33333333","3":"0.13330000","4":"0.4666667","5":"0.7142857","6":"0.46666667"},{"1":"0.3334000","2":"0.13333333","3":"0.33340000","4":"0.6000000","5":"0.5714286","6":"0.60000000"},{"1":"0.5333000","2":"0.20000000","3":"0.53330000","4":"0.4666667","5":"0.5714286","6":"0.46666667"},{"1":"0.2000000","2":"0.20000000","3":"0.20000000","4":"0.4666667","5":"1.0000000","6":"0.46666667"},{"1":"0.1333000","2":"0.20000000","3":"0.13330000","4":"0.5333333","5":"0.4285714","6":"0.53333333"},{"1":"0.2667000","2":"0.13333333","3":"0.26670000","4":"0.8000000","5":"0.4285714","6":"0.80000000"},{"1":"0.2667000","2":"0.06666667","3":"0.26670000","4":"0.6666667","5":"0.4285714","6":"0.66666667"},{"1":"0.0667000","2":"0.13333333","3":"0.06670000","4":"0.4666667","5":"0.5714286","6":"0.46666667"},{"1":"0.1333000","2":"0.20000000","3":"0.13330000","4":"0.4666667","5":"0.7142857","6":"0.46666667"},{"1":"0.2667000","2":"0.26666667","3":"0.26670000","4":"0.2666667","5":"0.5714286","6":"0.26666667"},{"1":"0.4666667","2":"0.26666667","3":"0.33333333","4":"0.2666667","5":"0.5710000","6":"0.26666667"},{"1":"0.4666667","2":"0.80000000","3":"0.13333333","4":"0.8000000","5":"0.5710000","6":"0.80000000"},{"1":"0.4666667","2":"0.86666667","3":"0.13333333","4":"0.8666667","5":"0.7140000","6":"0.86666667"},{"1":"0.4000000","2":"0.46666667","3":"0.13333333","4":"0.4666667","5":"0.2850000","6":"0.46666667"},{"1":"0.5333333","2":"0.40000000","3":"0.20000000","4":"0.4000000","5":"0.5140000","6":"0.40000000"},{"1":"0.4666667","2":"0.20000000","3":"0.33333333","4":"0.2000000","5":"0.7140000","6":"0.20000000"},{"1":"0.6000000","2":"0.40000000","3":"0.13333333","4":"0.4000000","5":"0.4280000","6":"0.40000000"},{"1":"0.4666667","2":"0.40000000","3":"0.20000000","4":"0.4000000","5":"0.5710000","6":"0.40000000"},{"1":"0.4666667","2":"0.53333333","3":"0.20000000","4":"0.5333333","5":"0.7140000","6":"0.53333333"},{"1":"0.5333333","2":"0.20000000","3":"0.20000000","4":"0.2000000","5":"0.5710000","6":"0.20000000"},{"1":"0.8000000","2":"0.33333333","3":"0.13333333","4":"0.3333333","5":"0.5700000","6":"0.33333333"},{"1":"0.6666667","2":"0.53333333","3":"0.06666667","4":"0.5333333","5":"0.2850000","6":"0.53333333"},{"1":"0.4666667","2":"0.66666667","3":"0.13333333","4":"0.6666667","5":"0.4280000","6":"0.66666667"},{"1":"0.4666667","2":"0.53333333","3":"0.20000000","4":"0.5333333","5":"0.4280000","6":"0.53333333"},{"1":"0.2666667","2":"0.33333333","3":"0.26666667","4":"0.3333333","5":"0.4280000","6":"0.33333333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>The data has scores that have been combined into single columns for each setting for each of the parameters. For example, the column <code>syllable_2</code> contains STM scores for <strong>all</strong> tests that used SL = 2-syllables in their tests. The Word Length WL and Study Time ST go through all their combinations in this column. The other columns are constructed similarly.</p>
+<section id="basic-plots" class="level3"><h3 class="anchored" data-anchor-id="basic-plots">Basic Plots</h3>
+<p>We will use Box Plots and Density Plots to compare the STM score distributions for each Parameter. To do this we need to <code>pivot_longer</code> the adjacent columns ( e.g.&nbsp;<code>syllable_2</code> and syllable_5) and use these names as categorical variables:</p>
+<section id="syllable-parameter-sl" class="level4"><h4 class="anchored" data-anchor-id="syllable-parameter-sl">Syllable Parameter SL</h4>
+<div class="cell">
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["syllable"],"name":[1],"type":["chr"],"align":["left"]},{"label":["syl_scores"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.42857143"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.71428571"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"1.00000000"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"1.00000000"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.85714286"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.71428571"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.85714286"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"1.00000000"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.85714286"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.71428571"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.42857143"},{"1":"syllable_5","2":"0.57142857"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.57100000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.57100000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.71400000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.28500000"},{"1":"syllable_2","2":"1.00000000"},{"1":"syllable_5","2":"0.51400000"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.71400000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.42800000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.57100000"},{"1":"syllable_2","2":"1.00000000"},{"1":"syllable_5","2":"0.71400000"},{"1":"syllable_2","2":"0.42857143"},{"1":"syllable_5","2":"0.57100000"},{"1":"syllable_2","2":"0.42857143"},{"1":"syllable_5","2":"0.57000000"},{"1":"syllable_2","2":"0.42857143"},{"1":"syllable_5","2":"0.28500000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.42800000"},{"1":"syllable_2","2":"0.71428571"},{"1":"syllable_5","2":"0.42800000"},{"1":"syllable_2","2":"0.57142857"},{"1":"syllable_5","2":"0.42800000"},{"1":"syllable_2","2":"0.26670000"},{"1":"syllable_5","2":"0.33333333"},{"1":"syllable_2","2":"0.20000000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.06670000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.13330000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.20000000"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.13330000"},{"1":"syllable_5","2":"0.33333333"},{"1":"syllable_2","2":"0.33340000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.53330000"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.20000000"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.13330000"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.26670000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.26670000"},{"1":"syllable_5","2":"0.06666667"},{"1":"syllable_2","2":"0.06670000"},{"1":"syllable_5","2":"0.13333333"},{"1":"syllable_2","2":"0.13330000"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.26670000"},{"1":"syllable_5","2":"0.26666667"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.26666667"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.80000000"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.86666667"},{"1":"syllable_2","2":"0.40000000"},{"1":"syllable_5","2":"0.46666667"},{"1":"syllable_2","2":"0.53333333"},{"1":"syllable_5","2":"0.40000000"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.60000000"},{"1":"syllable_5","2":"0.40000000"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.40000000"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.53333333"},{"1":"syllable_2","2":"0.53333333"},{"1":"syllable_5","2":"0.20000000"},{"1":"syllable_2","2":"0.80000000"},{"1":"syllable_5","2":"0.33333333"},{"1":"syllable_2","2":"0.66666667"},{"1":"syllable_5","2":"0.53333333"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.66666667"},{"1":"syllable_2","2":"0.46666667"},{"1":"syllable_5","2":"0.53333333"},{"1":"syllable_2","2":"0.26666667"},{"1":"syllable_5","2":"0.33333333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/plots-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section><section id="study-time-parameter-st" class="level4"><h4 class="anchored" data-anchor-id="study-time-parameter-st">Study Time Parameter ST</h4>
+<div class="cell">
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["study"],"name":[1],"type":["chr"],"align":["left"]},{"label":["study_scores"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.71428571"},{"1":"study_time_15","2":"0.42857143"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"1.00000000"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.71428571"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"1.00000000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.42857143"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.42857143"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.42857143"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.71428571"},{"1":"study_time_15","2":"0.42857143"},{"1":"study_time_30","2":"0.57142857"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.57100000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.57100000"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.71400000"},{"1":"study_time_15","2":"1.00000000"},{"1":"study_time_30","2":"0.28500000"},{"1":"study_time_15","2":"1.00000000"},{"1":"study_time_30","2":"0.51400000"},{"1":"study_time_15","2":"0.85714286"},{"1":"study_time_30","2":"0.71400000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.42800000"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.57100000"},{"1":"study_time_15","2":"0.85714286"},{"1":"study_time_30","2":"0.71400000"},{"1":"study_time_15","2":"1.00000000"},{"1":"study_time_30","2":"0.57100000"},{"1":"study_time_15","2":"0.85714286"},{"1":"study_time_30","2":"0.57000000"},{"1":"study_time_15","2":"0.71428571"},{"1":"study_time_30","2":"0.28500000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.42800000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.42800000"},{"1":"study_time_15","2":"0.57142857"},{"1":"study_time_30","2":"0.42800000"},{"1":"study_time_15","2":"0.26670000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.06670000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.13330000"},{"1":"study_time_30","2":"0.40000000"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.53333333"},{"1":"study_time_15","2":"0.13330000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.33340000"},{"1":"study_time_30","2":"0.60000000"},{"1":"study_time_15","2":"0.53330000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.13330000"},{"1":"study_time_30","2":"0.53333333"},{"1":"study_time_15","2":"0.26670000"},{"1":"study_time_30","2":"0.80000000"},{"1":"study_time_15","2":"0.26670000"},{"1":"study_time_30","2":"0.66666667"},{"1":"study_time_15","2":"0.06670000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.13330000"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.26670000"},{"1":"study_time_30","2":"0.26666667"},{"1":"study_time_15","2":"0.33333333"},{"1":"study_time_30","2":"0.26666667"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.80000000"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.86666667"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.46666667"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.40000000"},{"1":"study_time_15","2":"0.33333333"},{"1":"study_time_30","2":"0.20000000"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.40000000"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.40000000"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.53333333"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.20000000"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.33333333"},{"1":"study_time_15","2":"0.06666667"},{"1":"study_time_30","2":"0.53333333"},{"1":"study_time_15","2":"0.13333333"},{"1":"study_time_30","2":"0.66666667"},{"1":"study_time_15","2":"0.20000000"},{"1":"study_time_30","2":"0.53333333"},{"1":"study_time_15","2":"0.26666667"},{"1":"study_time_30","2":"0.33333333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/plots-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section><section id="word-list-length-parameter-wl" class="level4"><h4 class="anchored" data-anchor-id="word-list-length-parameter-wl">Word List Length Parameter WL</h4>
+<div class="cell">
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["list"],"name":[1],"type":["chr"],"align":["left"]},{"label":["list_scores"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.26670000"},{"1":"list_length_7","2":"0.42857143"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.06670000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.13330000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.13330000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.33340000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.53330000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.13330000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.26670000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.26670000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.06670000"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.13330000"},{"1":"list_length_7","2":"0.42857143"},{"1":"list_length_15","2":"0.26670000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.33333333"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"1.00000000"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"1.00000000"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.85714286"},{"1":"list_length_15","2":"0.33333333"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.85714286"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"1.00000000"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.85714286"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.06666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.13333333"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.26666667"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.40000000"},{"1":"list_length_7","2":"1.00000000"},{"1":"list_length_15","2":"0.53333333"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.60000000"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"1.00000000"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.42857143"},{"1":"list_length_15","2":"0.53333333"},{"1":"list_length_7","2":"0.42857143"},{"1":"list_length_15","2":"0.80000000"},{"1":"list_length_7","2":"0.42857143"},{"1":"list_length_15","2":"0.66666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.71428571"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.57142857"},{"1":"list_length_15","2":"0.26666667"},{"1":"list_length_7","2":"0.57100000"},{"1":"list_length_15","2":"0.26666667"},{"1":"list_length_7","2":"0.57100000"},{"1":"list_length_15","2":"0.80000000"},{"1":"list_length_7","2":"0.71400000"},{"1":"list_length_15","2":"0.86666667"},{"1":"list_length_7","2":"0.28500000"},{"1":"list_length_15","2":"0.46666667"},{"1":"list_length_7","2":"0.51400000"},{"1":"list_length_15","2":"0.40000000"},{"1":"list_length_7","2":"0.71400000"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.42800000"},{"1":"list_length_15","2":"0.40000000"},{"1":"list_length_7","2":"0.57100000"},{"1":"list_length_15","2":"0.40000000"},{"1":"list_length_7","2":"0.71400000"},{"1":"list_length_15","2":"0.53333333"},{"1":"list_length_7","2":"0.57100000"},{"1":"list_length_15","2":"0.20000000"},{"1":"list_length_7","2":"0.57000000"},{"1":"list_length_15","2":"0.33333333"},{"1":"list_length_7","2":"0.28500000"},{"1":"list_length_15","2":"0.53333333"},{"1":"list_length_7","2":"0.42800000"},{"1":"list_length_15","2":"0.66666667"},{"1":"list_length_7","2":"0.42800000"},{"1":"list_length_15","2":"0.53333333"},{"1":"list_length_7","2":"0.42800000"},{"1":"list_length_15","2":"0.33333333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/plots-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section></section></section><section id="preliminary-observations" class="level2"><h2 class="anchored" data-anchor-id="preliminary-observations">Preliminary Observations</h2>
+<p>Clearly, based on visual inspection of the Plots, the Word Count seems to have a large effect on STM Test Scores, with fewer words ( 7 ) being easier to recall. Study Time ( 15 and 30 seconds ) also seems to have a more modest positive effect on STM scores, while Syllable Count ( 2 or 5 syllables ) seems to have a modest negative effect on STM scores.</p>
+</section><section id="analysis" class="level2"><h2 class="anchored" data-anchor-id="analysis">Analysis</h2>
+<p>We wish to establish the significance of the effect size due to each of the Parameters. Already from the Density Plots, we can see that <em>none</em> of the scores are normally distributed. A quick <em>Shapiro-Wilkes Test</em> for each of them confirms that the scores are <em>not</em> normally distributed.</p>
+<p>Hence we go for a Permutation Test to check for significance of effect.</p>
+<p>On the other hand, as remarked in Ernst<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>, the non-parametric permutation test can be both <em>exact</em> and also <strong>intuitively easier</strong> for students to grasp, as I can testify from direct observation in this class. There is no need to discuss sampling distributions and means, t-tests and the like. Permutations are easily executed in R, using packages such as <code>mosaic</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$syllable_2
+W = 0.95508, p-value = 0.02716</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$syllable_5
+W = 0.95321, p-value = 0.02211</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$study_time_15
+W = 0.9068, p-value = 0.0002348</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$study_time_30
+W = 0.95539, p-value = 0.0281</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$list_length_7
+W = 0.90542, p-value = 0.0002085</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  stm$list_length_15
+W = 0.92806, p-value = 0.001645</code></pre>
+</div>
+</div>
+</section><section id="permutation-tests" class="level2"><h2 class="anchored" data-anchor-id="permutation-tests">Permutation Tests</h2>
+<p>We proceed with a Permutation Test for each of the Parameters. We start with the Syllable Parameter SL. We shuffle the labels ( SL- = 2 and SL+ = 5) between the scores and determine the null distribution. This is then compared with the difference in <em>mean scores</em> between the unpermuted sets. We continue similarly for the other two parameters.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0153731</code></pre>
+</div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["syllable_5"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.0187589683","_rn_":"1"},{"1":"0.0218969048","_rn_":"2"},{"1":"0.0701878571","_rn_":"3"},{"1":"-0.0018778571","_rn_":"4"},{"1":"-0.0003619841","_rn_":"5"},{"1":"-0.0037719841","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.08526183</code></pre>
+</div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["study_time_30"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.016818968","_rn_":"1"},{"1":"-0.008551508","_rn_":"2"},{"1":"-0.004424841","_rn_":"3"},{"1":"0.024788492","_rn_":"4"},{"1":"0.076832143","_rn_":"5"},{"1":"-0.046966746","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2887539</code></pre>
+</div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["list_length_7"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.002535476","_rn_":"1"},{"1":"-0.041579444","_rn_":"2"},{"1":"-0.117740238","_rn_":"3"},{"1":"0.008550397","_rn_":"4"},{"1":"-0.030408968","_rn_":"5"},{"1":"-0.016791508","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/null-plots-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/null-plots-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/null-plots-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section><section id="conclusions" class="level2"><h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<p>From the above null distribution plots obtained using Permutation tests, it is clear that both Study Time ( ST ) and List Word Length ( WL) have significant effects on the Short Term Memory Scores. The probability that the <strong>observed value</strong> is obtained or exceeded by any permutation of scores is very low in both cases.</p>
+<p>On the other hand, Syllable Count (SL) does not seem to affect the STM scores significantly.</p>
+</section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
+
+
+</section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+<ol>
+<li id="fn1"><p>Lawrance, A. J. 1996. “A Design of Experiments Workshop as an Introduction to Statistics.” American Statistician 50 (2): 156–58. doi:10.1080/00031305.1996.10474364.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Ernst, Michael D. 2004. “Permutation Methods: A Basis for Exact Inference.” Statistical Science 19 (4): 676–85. doi:10.1214/088342304000000396.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+      }
+    }
+});
+</script><script src="https://utteranc.es/client.js" repo="arvindvenkatadri/my-quarto-website" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
