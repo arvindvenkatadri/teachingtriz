@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Arvind Venkatadri">
+<meta name="dcterms.date" content="2023-01-12">
+<title>The Foundation Series in Quarto - Correlations in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../../../">
+<script src="../../../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<meta property="og:title" content="The Foundation Series in Quarto - Correlations in R">
+<meta property="og:description" content="We will craate Tables for Correlations, and graphs for Correlations in R. As always, we will consistently use the Project Mosaic ecosystem of packages in R (mosaic, mosaicData and ggformula).">
+<meta property="og:site-name" content="The Foundation Series in Quarto">
+<meta name="twitter:title" content="The Foundation Series in Quarto - Correlations in R">
+<meta name="twitter:description" content="We will craate Tables for Correlations, and graphs for Correlations in R. As always, we will consistently use the Project Mosaic ecosystem of packages in R (mosaic, mosaicData and ggformula).">
+<meta name="twitter:creator" content="@arvind_v">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../../../../index.html">
+    <span class="navbar-title">The Foundation Series in Quarto</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../../../../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../../../../blog.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Correlations in R</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title d-none d-lg-block">Correlations in R</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Arvind Venkatadri </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">January 12, 2023</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../blog.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/Descriptive-Analytics/listing.html" class="sidebar-item-text sidebar-link">Descriptive Analytics</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/Basics-of-Modeling/listing.html" class="sidebar-item-text sidebar-link">Basics of Modelling</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/R-for-Artists/listing.html" class="sidebar-item-text sidebar-link">R for Artists</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/posts/posts.html" class="sidebar-item-text sidebar-link">Posts</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/projects/projects.html" class="sidebar-item-text sidebar-link">Projects</a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="introduction" class="level1"><h1>Introduction</h1>
+<p>We will craate Tables for Correlations, and graphs for Correlations in R. As always, we will consistently use the <a href="https://mosaic-web.org"><strong>Project Mosaic</strong></a> ecosystem of packages in R (<code>mosaic</code>, <code>mosaicData</code> and <code>ggformula</code>).</p>
+<div class="cell">
+
+</div>
+<div id="note" class="illustration" style="background: beige">
+<p>Note the standard method for all commands from the <code>mosaic</code> package:</p>
+<p>goal( y ~ x | z, data = mydata, …)</p>
+</div>
+<section id="case-study--1-dataset-from-mosaicdata" class="level2"><h2 class="anchored" data-anchor-id="case-study--1-dataset-from-mosaicdata">Case Study -1: Dataset from <code>mosaicData</code>
+</h2>
+<p>Let us inspect what datasets are available in the package <code>mosaicData</code>. Run this command in your Console:</p>
+<div class="cell">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Run in Console</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"mosaicData"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The popup tab shows a lot of datasets we could use. Let us continue to use the famous <code>Galton</code> dataset and <code>inspect</code> it:</p>
+<div class="cell">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"Galton"</span><span class="op">)</span></span>
+<span><span class="fu">inspect</span><span class="op">(</span><span class="va">Galton</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; categorical variables:  </span></span>
+<span><span class="co">#&gt;     name  class levels   n missing</span></span>
+<span><span class="co">#&gt; 1 family factor    197 898       0</span></span>
+<span><span class="co">#&gt; 2    sex factor      2 898       0</span></span>
+<span><span class="co">#&gt;                                    distribution</span></span>
+<span><span class="co">#&gt; 1 185 (1.7%), 166 (1.2%), 66 (1.2%) ...        </span></span>
+<span><span class="co">#&gt; 2 M (51.8%), F (48.2%)                         </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; quantitative variables:  </span></span>
+<span><span class="co">#&gt;     name   class min Q1 median   Q3  max      mean       sd   n missing</span></span>
+<span><span class="co">#&gt; 1 father numeric  62 68   69.0 71.0 78.5 69.232851 2.470256 898       0</span></span>
+<span><span class="co">#&gt; 2 mother numeric  58 63   64.0 65.5 70.5 64.084410 2.307025 898       0</span></span>
+<span><span class="co">#&gt; 3 height numeric  56 64   66.5 69.7 79.0 66.760690 3.582918 898       0</span></span>
+<span><span class="co">#&gt; 4  nkids integer   1  4    6.0  8.0 15.0  6.135857 2.685156 898       0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>inspect</code> command already gives us a series of statistical measures of different variables of interest. As discussed previously, we can retain the output of <code>inspect</code> and use it in our reports: (there are ways of dressing up these tables too)</p>
+<div class="cell">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="va">galton_describe</span> <span class="op">&lt;-</span> <span class="fu">inspect</span><span class="op">(</span><span class="va">Galton</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">galton_describe</span><span class="op">$</span><span class="va">categorical</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
+<span><span class="co">#&gt;   name   class  levels     n missing distribution                               </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;   &lt;int&gt; &lt;int&gt;   &lt;int&gt; &lt;chr&gt;                                      </span></span>
+<span><span class="co">#&gt; 1 family factor    197   898       0 "185 (1.7%), 166 (1.2%), 66 (1.2%) ...    …</span></span>
+<span><span class="co">#&gt; 2 sex    factor      2   898       0 "M (51.8%), F (48.2%)                     …</span></span>
+<span><span class="va">galton_describe</span><span class="op">$</span><span class="va">quantitative</span></span>
+<span><span class="co">#&gt; # A tibble: 4 × 11</span></span>
+<span><span class="co">#&gt;   name   class     min    Q1 median    Q3   max  mean    sd     n missing</span></span>
+<span><span class="co">#&gt; * &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1 father numeric    62    68   69    71    78.5 69.2   2.47   898       0</span></span>
+<span><span class="co">#&gt; 2 mother numeric    58    63   64    65.5  70.5 64.1   2.31   898       0</span></span>
+<span><span class="co">#&gt; 3 height numeric    56    64   66.5  69.7  79   66.8   3.58   898       0</span></span>
+<span><span class="co">#&gt; 4 nkids  integer     1     4    6     8    15    6.14  2.69   898       0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Try <code>help("Galton")</code> in your Console. The dataset is described as:</p>
+<blockquote class="blockquote">
+<p>A data frame with 898 observations on the following variables.<br>
+- <code>family</code> a factor with levels for each family<br>
+- <code>father</code> the father’s height (in inches)<br>
+- <code>mother</code> the mother’s height (in inches)<br>
+- <code>sex</code> the child’s sex: F or M<br>
+- <code>height</code> the child’s height as an adult (in inches)<br>
+- <code>nkids</code> the number of adult children in the family, or, at least, the number whose heights Galton recorded.</p>
+</blockquote>
+<p>There is a lot of Description generated by the <code><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">mosaic::inspect()</a></code> command ! What can we say about the dataset and its variables? How big is the dataset? How many variables? What types are they, Quant or Qual? If they are Qual, what are the <em>levels</em>? Are they <em>ordered</em> levels? Discuss!</p>
+</section><section id="correlations-and-plots" class="level2"><h2 class="anchored" data-anchor-id="correlations-and-plots">Correlations and Plots</h2>
+<p>What Questions might we have, that we could answer with a Statistical Measure, or Correlation chart?</p>
+<p>Q.1 Which are the variables that have significant pair-wise correlations? What polarity are these correlations?</p>
+<div class="cell">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="co"># Pulling out the list of Quant variables from NHANES</span></span>
+<span><span class="va">galton_quant</span> <span class="op">&lt;-</span> <span class="va">galton_describe</span><span class="op">$</span><span class="va">quantitative</span></span>
+<span><span class="va">galton_quant</span><span class="op">$</span><span class="va">name</span></span>
+<span><span class="co">#&gt; [1] "father" "mother" "height" "nkids"</span></span>
+<span></span>
+<span><span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
+<span>  <span class="va">Galton</span>,</span>
+<span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"father"</span>, <span class="st">"mother"</span>, <span class="st">"height"</span>, <span class="st">"nkids"</span><span class="op">)</span>,</span>
+<span>  diag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"densityDiag"</span><span class="op">)</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Galton Data Correlations Plot"</span></span>
+<span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Can we plot a Correlogram for this dataset?</p>
+<div class="cell">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#library(corrplot)</span></span>
+<span></span>
+<span><span class="va">galton_num_var</span> <span class="op">&lt;-</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu">select</span><span class="op">(</span><span class="va">father</span>, <span class="va">mother</span>, <span class="va">height</span>, <span class="va">nkids</span><span class="op">)</span></span>
+<span><span class="va">galton_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">galton_num_var</span><span class="op">)</span></span>
+<span><span class="va">galton_correlogram</span> <span class="op">&lt;-</span> <span class="va">galton_cor</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">corrplot</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ellipse"</span>,</span>
+<span>           type <span class="op">=</span> <span class="st">"lower"</span>,</span>
+<span>           main <span class="op">=</span> <span class="st">"Correlogram for Galton dataset"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">galton_correlogram</span></span>
+<span><span class="co">#&gt; $corr</span></span>
+<span><span class="co">#&gt;             father      mother     height       nkids</span></span>
+<span><span class="co">#&gt; father  1.00000000  0.07366461  0.2753548 -0.16002294</span></span>
+<span><span class="co">#&gt; mother  0.07366461  1.00000000  0.2016549 -0.02002964</span></span>
+<span><span class="co">#&gt; height  0.27535483  0.20165489  1.0000000 -0.12691012</span></span>
+<span><span class="co">#&gt; nkids  -0.16002294 -0.02002964 -0.1269101  1.00000000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $corrPos</span></span>
+<span><span class="co">#&gt;     xName  yName x y        corr</span></span>
+<span><span class="co">#&gt; 1  father father 1 4  1.00000000</span></span>
+<span><span class="co">#&gt; 2  father mother 1 3  0.07366461</span></span>
+<span><span class="co">#&gt; 3  father height 1 2  0.27535483</span></span>
+<span><span class="co">#&gt; 4  father  nkids 1 1 -0.16002294</span></span>
+<span><span class="co">#&gt; 5  mother mother 2 3  1.00000000</span></span>
+<span><span class="co">#&gt; 6  mother height 2 2  0.20165489</span></span>
+<span><span class="co">#&gt; 7  mother  nkids 2 1 -0.02002964</span></span>
+<span><span class="co">#&gt; 8  height height 3 2  1.00000000</span></span>
+<span><span class="co">#&gt; 9  height  nkids 3 1 -0.12691012</span></span>
+<span><span class="co">#&gt; 10  nkids  nkids 4 1  1.00000000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $arg</span></span>
+<span><span class="co">#&gt; $arg$type</span></span>
+<span><span class="co">#&gt; [1] "lower"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Clearly <code>height</code> is positvely correlated to <code>father</code> and <code>mother</code>; interestingly, <code>height</code> is negatively correlated ( slightly) with <code>nkids</code>.</p>
+<p>Q.2: Let us confirm with a test:</p>
+<div class="cell">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">Galton</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and father</span></span>
+<span><span class="co">#&gt; t = 8.5737, df = 896, p-value &lt; 2.2e-16</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.2137851 0.3347455</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.2753548</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">Galton</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and mother</span></span>
+<span><span class="co">#&gt; t = 6.1628, df = 896, p-value = 1.079e-09</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.1380554 0.2635982</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.2016549</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Q.3 What does this correlation look when split by <code>sex</code> of Child?</p>
+<div class="cell">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="co"># For the sons</span></span>
+<span><span class="fu">cor_test</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"M"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and father</span></span>
+<span><span class="co">#&gt; t = 9.1498, df = 463, p-value &lt; 2.2e-16</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.3114667 0.4656805</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.3913174</span></span>
+<span><span class="fu">cor_test</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"M"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and mother</span></span>
+<span><span class="co">#&gt; t = 7.628, df = 463, p-value = 1.367e-13</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.2508178 0.4125305</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.3341309</span></span>
+<span></span>
+<span><span class="co"># For the daughters</span></span>
+<span><span class="fu">cor_test</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and father</span></span>
+<span><span class="co">#&gt; t = 10.719, df = 431, p-value &lt; 2.2e-16</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.3809944 0.5300812</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.4587605</span></span>
+<span><span class="fu">cor_test</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  height and mother</span></span>
+<span><span class="co">#&gt; t = 6.8588, df = 431, p-value = 2.421e-11</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.2261463 0.3962226</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor </span></span>
+<span><span class="co">#&gt; 0.3136984</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Q.4. How can we show this correlation in a set of Scatter Plots + Regression Lines? Can we recreate Galton’s famous diagram?</p>
+<div class="cell">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># For the sons</span></span>
+<span><span class="fu">gf_point</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"M"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">gf_point</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"M"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span></span>
+<span><span class="co"># For the daughters</span></span>
+<span><span class="fu">gf_point</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">gf_point</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">Galton</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>An approximation to Galton’s famous plot (see Wikipedia):</p>
+<div class="cell">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">gf_point</span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="op">(</span><span class="va">father</span> <span class="op">+</span> <span class="va">mother</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, data <span class="op">=</span> <span class="va">Galton</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_density_2d</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">8</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">gf_abline</span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="correlations_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>How would you interpret this plot?</p>
+</section><section id="case-study--2-dataset-from-nhanes" class="level2"><h2 class="anchored" data-anchor-id="case-study--2-dataset-from-nhanes">Case Study -2: Dataset from <code>NHANES</code>
+</h2>
+<p>We will “live code” this in class!</p>
+</section></section><section id="conclusion" class="level1"><h1>Conclusion</h1>
+<p>We have a decent Correlations related <em>workflow</em> in R:<br>
+- load the dataset<br>
+- <code>inspect</code> the dataset, identify Quant and Qual variables<br>
+- Develop Pair-Wise plots + Correlations using <code><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">GGally::ggpairs()</a></code><br>
+- Develop Correlogram <code><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html">corrplot::corrplot</a></code><br>
+- Check everything with a <code>cor_test</code><br>
+- Plot scatter plots using <code>gf_point</code> if needed.<br>
+- Add extra lines using <code>gf_abline()</code> to compare hypotheses that you may have.</p>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+      }
+    }
+});
+</script><script src="https://utteranc.es/client.js" repo="arvindvenkatadri/Issues" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="../../../../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
