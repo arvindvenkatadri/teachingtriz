@@ -1,0 +1,486 @@
+---
+title: "Linear Models: Comparing Means"
+author: "Arvind Venkatadri"
+date: 26/Nov/2022
+date-modified: "`r Sys.Date()`"
+order: 40
+format: html
+#fig-format: retina
+code-fold: true
+code-summary: Show the Code
+code-tools: true
+code-line-numbers: true
+code-overflow: wrap
+code-copy: true
+fig-align: center
+reference-location: margin
+cap-location: margin
+highlight-style: dracula
+df-print: paged
+section-divs: true
+number-sections: true
+execute: 
+  freeze: auto
+keywords: Statistics ; Tests; p-value; Feynman Technique
+abstract: This module is intended to assist with making statistically significant insights that drive business decisions. This document deals with the basics of stats. The method followed is that of Jonas Lindoloev, wherein every stat test is treated as a linear model `y = mx + c`.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.align = "center", fig.width = 7, fig.height = 5)
+# CRAN Packages
+library(tidyverse)
+library(broom)
+library(patchwork)
+library(kableExtra)
+
+library(mosaic)
+library(mosaicCore)
+library(mosaicData)
+
+library(openintro) # datasets and methods
+library(statsExpressions) # datasets and methods
+library(ggstatsplot) # special stats plots
+library(ggExtra)
+
+# Non-CRAN Packages
+# remotes::install_github("easystats/easystats")
+library(easystats)
+
+```
+
+# Structure of this document
+
+We will follow the following structure: Each kind of Test is described
+in a separate Chapter. The Test *Model* is laid out in formula
+$y = mx + c$ and in *Code*.
+
+# The Linear Model
+
+The premise here is that **many common statistical tests are special
+cases of the linear model**. So what *is* the linear model?
+
+A **linear model** estimates the relationship between dependent variable
+or "response" variable ($y$) and an explanatory variable or "predictor"
+($x$).
+
+(It is also possible that there is more than one explanatory variable:
+this is **multiple regression.**. We will get there later).
+
+It is assumed that the relationship is **linear**:
+
+$$
+y = \beta_0 + \beta_1 *x
+$$
+
+$\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear
+fit, that **predicts** the value of y based the value of x.
+
+Each prediction leaves a small "residual" error between the actual and
+predicted values. $\beta_0$ and $\beta_1$ are calculated based on
+minimizing the *sum of square*s of these residuals, and hence this
+method is called "ordinary least squares" regression.
+
+![Least Squares](images/OLS.png)
+
+The net *area* of all the shaded squares is minimized in the calculation
+of $\beta_0$ and $\beta_1$.
+
+$$
+y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
+$$
+
+where each of the $\beta_i$ are slopes defining the relationship between
+y and $x_i$. Together, the RHS of that equation defines an n-dimensional
+*plane*.
+
+As per Lindoloev, many statistical tests, going from one-sample t-tests
+to two-way ANOVA, are special cases of this system.
+
+Also see [Jeffrey Walker "A
+linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables)
+
+## Linear Models as Hypothesis Tests
+
+Using linear models is based on the idea of **Testing of Hypotheses**.
+The Hypothesis Testing method typically defines a NULL Hypothesis where
+the statements read as "**there is no relationship**" between the
+variables at hand, explanatory and responses. The Alternative Hypothesis
+typically states that there *is* a relationship between the variables.
+
+Accordingly, in fitting a linear model, we follow the process as
+follows:
+
+1.  Make the following hypotheses: $$
+    y = \beta_0 + \beta_1 *x \\
+    NULL\ Hypothesis\ H_0 => x\ and\ y\ are\ unrelated.\ (\beta_1 = 0)
+    $$ $$
+    y = \beta_0 + \beta_1 *x \\
+    Alternate\ Hypothesis\ H_1 => x\ and\ y\ are\ linearly\ related\ (\beta_1 \ne 0)
+    $$
+2.  We "assume" that $H_0$ is true.
+3.  We calculate $\beta_1$.
+4.  We then find probability **p** that \[$\beta_1 = Estimated\ Value$\]
+    **when the NULL Hypothesis** is **assumed** TRUE. This is the
+    **p-value**. If that probability is **p\>=0.05**, we say we "cannot
+    reject" $H_0$ and there is unlikely to be significant linear
+    relationship.
+
+However, if **p\<= 0.05** can we reject the NULL hypothesis, and say
+that there could be a significant linear relationship,because
+$\beta_1 = Estimated\ Value$ by mere chance under $H_0$ is very small.
+
+## Assumptions in Linear Models
+
+1.  **L**: $\color{blue}{linear}$ relationship
+2.  **I**: Errors are **independent** (across observations)
+3.  **N**: y is $\color{red}{normally}$ distributed at each "level" of
+    x.  
+4.  **E**: equal variance at all levels of x. No *heteroscedasticity*.
+    ![OLS Assumptions](images/ols_assumptions.png)
+
+Let us now see which standard statistical tests can be re-formulated as
+Linear Models.
+
+# Data
+
+## Sample Values
+
+Most examples in this exposition are based on three "imaginary" samples,
+$x, y, y2$. Each is normally distributed and made up of 50 observations.
+The means are ($mu = c(0,0.3,0.5)$), and the sds ($sd = c(1,2,1.5)$) are
+
+```{r data_genr}
+rnorm_fixed  <- function(N, mu = 0, sd = 1) {
+  scale(rnorm(N))* sd + mu
+}
+params <- tibble(mu = c(0, 0.3, 0.5), sd = c(1,2,1.5))
+params
+```
+
+```{r toy_data}
+set.seed(40) # for replication
+
+# Data as vectors ( for t.tests etc)
+x <- rnorm_fixed(50, mu = 0.0, sd = 1) #explanatory
+y1 <- rnorm_fixed(50, mu = 0.3, sd = 2) # dependent #1
+y2 <- rnorm_fixed(50, mu = 0.5, sd = 1.5) # dependent #2
+
+# Make a tibble with all variables
+mydata_wide <- tibble(x = x, y1 = y1, y2 = y2)
+
+# Long form data
+mydata_long <- 
+  mydata_wide %>%
+  pivot_longer(., cols = c(x,y1,y2), 
+               names_to = "group", 
+               values_to = "value")
+
+# Long form data with only dependent variables
+mydata_long_y <- 
+  mydata_wide %>% 
+  select(-x) %>% 
+  pivot_longer(., cols = c(y1,y2), 
+               names_to = "group", 
+               values_to = "value")
+```
+
+Let us look at our toy data in three ways:
+
+```{r}
+mydata_wide
+```
+
+```{r}
+mydata_long
+```
+
+```{r}
+mydata_long_y
+```
+
+## "Signed Rank" Values
+
+Most statistical tests use the **actual values** of the data variables.
+However, in some *non-parametric* statistical tests, the data are used
+in **rank-transformed** sense/order. In some cases the **signed-rank**
+of the data values is used instead of the data itself.
+
+Signed Rank is calculated as follows:\
+1. Take the absolute value of each observation in a sample\
+2. Place the <u>*ranks*</u> in order of (absolute magnitude). The
+smallest number has *rank = 1* and so on.\
+3. Give each of the ranks the sign of the original observation ( + or -
+)
+
+```{r signed_rank_function}
+signed_rank <- function(x) {sign(x) * rank(abs(x))}
+```
+
+## Plotting Original and Signed Rank Data
+
+A quick plot:
+
+```{r data_plots}
+p1 <- ggplot(mydata_long,aes(x = group, y = value)) +
+  geom_jitter(width = 0.02, height = 0,aes(colour = group), size = 4) +
+  geom_segment(data = mydata_wide, aes(y = 0, yend = 0, 
+                                       x = .75, 
+                                       xend = 1.25 )) + 
+  geom_text(aes(x = 1, y = 0.5, label = "0")) +
+  geom_segment(data = mydata_wide, aes(y = 0.3, yend = 0.3, 
+                                       x = 1.75 , 
+                                       xend = 2.25 )) + 
+  geom_text(aes(x = 2, y = 0.6, label = "0.3")) +
+  geom_segment(data = mydata_wide, aes(y = 0.5, yend = 0.5, 
+                                       x = 2.75, 
+                                       xend = 3.25 )) + 
+  geom_text(aes(x = 3, y = 0.8, label = "0.5")) +
+  labs(title = "Original Data") +
+  ylab("Response Variable")
+
+p2 <- mydata_long %>% 
+  group_by(group) %>% 
+  mutate( s_value = signed_rank(value)) %>% 
+  ggplot(., aes(x = group, y = s_value)) + 
+  geom_jitter(width = 0.02, height = 0,aes(colour = group), size = 4) + 
+  stat_summary(fun = "mean", geom = "point", colour = "red", 
+               size = 8) + 
+  labs(title = "Signed Rank of Data") +
+  ylab("Signed Rank of Response Variable")
+
+patchwork::wrap_plots(p1,p2, nrow = 1, guides = "collect")
+
+```
+
+## How does Sign-Rank data work?
+
+TBD: need to add some explanation here.
+
+# Tests for Correlation {.tabset}
+
+Correlation **r** is a measure of *strength* and *direction* of *linear
+association* between two variables. **r** is between \[-1,+1\], with 0
+implying no association/correlation.
+
+From this definition, the *linear model* lends itself in a
+straightforward way as a model to interpret *correlation*. Intuitively,
+the slope of the linear model could be related to the correlation
+between y and x.
+
+Now we look at the numbers.
+
+## Pearson Correlation {.tabset}
+
+### Model
+
+The model for Pearson Correlation tests is exactly the Linear Model:
+
+$$
+y = \beta_0 + \beta_1 * x 
+\\
+H_0: \beta_1 = 0
+$$
+
+See the Code section for further insights into the relationship between
+the Correlation Score and the Slope of the Linear Model.
+
+### Code
+
+```{r Pearson_Correlation}
+# Pearson (built-in test)
+cor <- cor.test(y1,x,method = "pearson") %>% 
+  broom::tidy() %>% select(estimate, p.value)
+
+# Linear Model
+lin <- lm(y1 ~ 1 + x, data = mydata_wide) %>% 
+  broom::tidy() %>% select(estimate, p.value)
+
+# Scaled linear model
+lin_scl <- lm(scale(y1) ~ 1 + scale(x), data = mydata_wide) %>% 
+  broom::tidy() %>% select(estimate, p.value)
+
+print(cor)
+print(lin)
+print(lin_scl)
+
+# All together
+rbind(cor, lin, lin_scl) %>% print()
+
+```
+
+Notes: 1. The *p-value* for Pearson Correlation and that for the *slope*
+in the linear model is the same ( 0.1053 ). Which means we cannot reject
+the NULL hypothesis of "no relationship".
+
+2.  Here is the relationship between the slope and correlation:
+
+$$
+Slope\ \beta_1 = \frac{sd_y}{sd_x} * r
+$$
+
+When both x and y have the same standard deviation, the slope and
+correlation are the same. Here, since x has twice the `sd` of y, the
+ratio of **slope** = `r lin$estimate[2]` to **r** = `r cor$estimate` is
+0.5. Hence a linear model using `scale()` for both variables will show
+slope = **r**.
+
+Slope_Scaled: `r lin_scl$estimate[2]` = Correlation: `r cor$estimate`
+
+### Example
+
+We choose to look at the `gpa_study_hours` dataset. It has two numeric
+columns `gpa` and `study_hours`:
+
+```{r gpa_study_hours}
+glimpse(gpa_study_hours)
+```
+
+```{r Pearson_example_1}
+# Checks for Normal/Symmetric distributions
+p1 <- ggplot(gpa_study_hours) + geom_histogram(aes(gpa))
+p2 <- ggplot(gpa_study_hours) + geom_histogram(aes(study_hours))
+p3 <- ggplot(gpa_study_hours) + geom_point(aes(gpa, study_hours))
+(p1 + p2) / p3
+
+```
+
+Hmm...not normally distributed, and the relationship is also not linear,
+and there is some evidence of heterscedasticity, so Pearson correlation
+would not be the best idea here.
+
+```{r Pearson_example_2}
+
+# Pearson Correlation as Linear Model
+lm(gpa ~ study_hours, data = gpa_study_hours) %>% summary()
+
+# Other ways using other packages
+mosaic::cor_test(gpa ~ study_hours, data = gpa_study_hours)
+
+statsExpressions::corr_test(data = gpa_study_hours, 
+                            x = study_hours, 
+                            y = gpa)
+```
+
+The correlation estimate is $0.133$; the `p-value` is 0.065 and the
+confidence interval includes 0. Hence we fail to reject the NULL
+hypothesis that `study_hours` and `gpa` have no relationship.
+
+We can use a later package `ggstaplot` to plot this:
+
+```{r Pearson_example_3}
+
+ggstatsplot::ggscatterstats(data = gpa_study_hours, 
+                            x = study_hours, 
+                            y = gpa,
+                            type = "robust",
+                            marginal = TRUE,
+                            title = "GPA vs Study Hours")
+
+```
+
+## Spearman Correlation
+
+### Model
+
+In some cases the **LINE** assumptions may not hold. Nonlinear
+relationships, non-normally distributed data ( with large outliers ) and
+working with *ordinal* rather than continuous data: these situations
+necessitate the use of Spearman's *ranked* correlation scores.
+(**Ranked**, not **sign-ranked**.)
+
+$$
+rank(y) = \beta_0 + \beta_1 * rank(x) \\
+H_0: \beta_1 = 0
+$$
+
+Spearman correlation = Pearson correlation using the rank of the data
+observations. Let's check how this holds for a our x and y data:
+
+```{r Spearman_Plot}
+# Plot the data
+p1 <- ggplot(mydata_wide, aes(x, y1)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle(" Pearson Correlation\n and Linear Models")
+
+# Plot ranked data
+p2 <- mydata_wide %>% 
+  mutate(x_rank = rank(x),
+         y_rank = rank(y1)) %>%
+  ggplot(.,aes(x_rank, y_rank)) + 
+  geom_point(shape = 15, size = 2) +
+  geom_smooth(method = "lm") + 
+  ggtitle(" Spearman Ranked Correlation\n and Linear Models")
+
+patchwork::wrap_plots(p1,p2, nrow = 1, guides = "collect")
+```
+
+Slopes are almost identical, \~ 0.25.
+
+### Code
+
+```{r Spearman_Correlation}
+# Spearman
+cor1 <- cor.test(y1,x, method = "spearman") %>% 
+  broom::tidy() %>% select(estimate, p.value)
+
+# Pearson using ranks
+cor2 <- cor.test(rank(y1), rank(x), method = "pearson") %>% 
+broom::tidy() %>% select(estimate, p.value)
+
+# Linear Models using rank
+cor3 <- lm(rank(y1) ~ 1 + rank(x),data = mydata_wide) %>% 
+  broom::tidy() %>% select(estimate, p.value)
+
+rbind(cor1, cor2, cor3) %>% print()
+```
+
+Notes:
+
+1.  When ranks are used, the slope of the linear model ($\beta_1$) has
+    the same value as the correlation coefficient ( $\rho$ ).
+
+2.  Note that the slope from the linear model now has an intuitive
+    interpretation: **the number of ranks y changes for each change in
+    rank of x**. ( Ranks are "independent" of `sd` )
+
+### Example
+
+We examine the `cars93` data, where the numeric variables of interest
+are `weight` and `price`.
+
+```{r Spearman_example_1}
+cars93 %>% 
+  ggplot(aes(weight, price)) + 
+  geom_point() + geom_smooth(method = "lm", se = FALSE, lty = 2) + 
+  labs(title = "Car Weight and Car Price have a nonlinear relationship")
+```
+
+Let us try a Spearman Correlation score for these variables, since the
+data are not linearly related and the variance of `price` also is not
+constant over `weight`
+
+```{r Spearman_example_2}
+cor.test(cars93$price, cars93$weight, method = "spearman") %>% broom::tidy()
+
+# Using linear Model
+lm(rank(price) ~ rank(weight), data = cars93) %>% summary()
+
+# Stats Plot
+ggstatsplot::ggscatterstats(data = cars93, x = weight, 
+                            y = price,
+                            type = "nonparametric",
+                            title = "Cars93: Weight vs Price",
+                            subtitle = "Spearman Correlation")
+```
+
+We see that using ranks of the `price` variable, we obtain a Spearman's
+$\rho = 0.882$ with a `p-value` that is very small. Hence we are able to
+reject the NULL hypothesis and state that there is a relationship
+between these two variables. The **linear** relationship is evaluated as
+a correlation of `0.882`.
+
+## Conclusion
+
+Hopefully, interpreting Statistical Tests in terms of the Linear Model
+has benefits of improved intuitive understanding.
