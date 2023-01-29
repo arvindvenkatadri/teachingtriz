@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Arvind Venkatadri">
+<meta name="dcterms.date" content="2022-11-14">
+<title>The Foundation Series - 💭 The Simplex Method - Intuitively</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+<script src="../../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../../../">
+<script src="../../../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<meta property="og:title" content="The Foundation Series - 💭 The Simplex Method - Intuitively">
+<meta property="og:description" content="We will look at developing an intuitive understanding of the Simplex Method for Linear Programming.">
+<meta property="og:site-name" content="The Foundation Series">
+<meta name="twitter:title" content="The Foundation Series - 💭 The Simplex Method - Intuitively">
+<meta name="twitter:description" content="We will look at developing an intuitive understanding of the Simplex Method for Linear Programming.">
+<meta name="twitter:creator" content="@arvind_v">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../../../../index.html">
+    <span class="navbar-title">The Foundation Series</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../../../../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../../../../blog.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">💭 The Simplex Method - Intuitively</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title d-none d-lg-block">💭 The Simplex Method - Intuitively</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Arvind Venkatadri </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">November 14, 2022</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">January 29, 2023</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  <div>
+    <div class="abstract">
+      <div class="abstract-title">Abstract</div>
+      We will look at developing an intuitive understanding of the Simplex Method for Linear Programming.
+    </div>
+  </div>
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../blog.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/R-for-Artists/listing.html" class="sidebar-item-text sidebar-link">R for Artists</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">Posts</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">Projects</a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="what-is-the-simplex-method" class="level2"><h2 class="anchored" data-anchor-id="what-is-the-simplex-method">What is the Simplex Method?</h2>
+<p>To be written up.</p>
+</section><section id="a-random-walk-with-the-simplex-method" class="level2"><h2 class="anchored" data-anchor-id="a-random-walk-with-the-simplex-method">A <del>Random</del> Walk with the Simplex Method</h2>
+<p>Let us try to form a geometric intuition for the Simplex method.</p>
+<p>We will define an LP problem, and geometrically traverse the steps the Simplex method might take to solve for the optimum solution.</p>
+<p>Let us define a problem:</p>
+<p><span class="math display">\[
+Maximise\ 7.75x_1 + 10x_2\\
+\]</span> <span class="math display">\[
+Subject\ to\\
+  \begin{cases}
+    C1: -3x_1 + 2x_2 &amp;&lt;= 3\\
+    C2: 2x_1 + 4x_2 &amp;&lt;= 27\\
+    C3: 9x_1 + 10x_2 &amp;&lt;= 90\\
+    x_1, x_2 &gt;= 0
+  \end{cases}
+\]</span></p>
+<p>The Objective function is: <span class="math inline">\(7.75x_1 + 10x_2\)</span></p>
+<p>The Constraints are defined by the three <em>inequalities</em> <span class="math inline">\(C1::C3\)</span>. In order to plot these, we <em>convert the inequalities to equalities</em> and plot these as lines. Each line splits the <span class="math inline">\(x_1:x_2\)</span> plane into two half-planes. The inequality part is then taken into account by choosing the appropriate <em>half-plane</em> created by the equation. The <em>intersection</em> of all the half-planes defined by the constraints is the <strong>Feasibility Region</strong>.</p>
+<div class="cell" data-layout-align="center">
+
+</div>
+<p>The Feasibility region for this LP problem is plotted below:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="images/SimplexMethod-1.png" class="img-fluid figure-img" width="1500"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The corner points of the Feasibility Region are:</p>
+<div class="cell" data-layout-align="center">
+<pre><code>#   name     x1     x2
+# 1    A  0.000 0.0000
+# 2    B 10.000 0.0000
+# 3    C  5.625 3.9375
+# 4    D  2.625 5.4375
+# 5    E  0.000 1.5000</code></pre>
+</div>
+<p>Recall that:</p>
+<ul>
+<li>The optimum in an LP problem is found <strong>on</strong> the boundary, at one of the vertices</li>
+<li>At each of these vertices one or more constraints (<span class="math inline">\(C1::C_n\)</span>) is <em>tight</em>, i.e.&nbsp;there is no slack.</li>
+</ul></section><section id="procedure" class="level2"><h2 class="anchored" data-anchor-id="procedure">Procedure</h2>
+<ol type="1">
+<li><p>We start with an arbitrary point on the edge of the Feasibility Region. <span class="math inline">\(A = (0,0)\)</span> is a common choice. At this point, since all variables are <span class="math inline">\(0\)</span>, the objective function is also <span class="math inline">\(0\)</span>.</p></li>
+<li><p>We (arbitrarily) decide to <strong>move along the boundary</strong> of the Feasibility Region, to another FSP. We arbitrarily chose the <span class="math inline">\(x_1\)</span> axis, and set/keep <span class="math inline">\(x_2 = 0\)</span>. We now wish to find out the <span class="math inline">\(x_1\)</span> coordinate of the next FSP point. This would be at the intersection of the <span class="math inline">\(x_1\)</span> axis and <em>one of</em> the Constraint lines.<br>
+All the three Constraint Lines would possibly intersect the <span class="math inline">\(x_1\)</span> axis. We need to choose that <em>intercept point</em> that has the smallest, non-negative <span class="math inline">\(x_1\)</span> intercept value. (Why?)<br>
+So, which <em>Constraint Line</em> intersects the <span class="math inline">\(x_1\)</span> axis at the <strong>smallest value</strong>? Is it point B, or point F?<br>
+To find out, we substitute <span class="math inline">\(x_2 = 0\)</span> in each of the Constraint equations, and solve for the <span class="math inline">\(x_1\)</span>:<br><span class="math display">\[
+\begin{cases}
+C1: -3x_1 + 2 \times 0 = 3 \ =&gt; x_1 = \color{red}{-1}\\
+C2: 2x_1 + 4\times0 = 27 \ =&gt; x_1 = 13.5\ Point\ F\\
+   {\mathbf{ \color{lightgreen}{C3}: 9x_1 + 10\times0 = 90 \ =&gt; x_1 = 10\  \color{lightgreen}{Point\ B}}}
+\end{cases}
+\]</span><br>
+Negative values for any variable are not permitted. So the smallest value of intercept is <span class="math inline">\(x_1 = 10\)</span> for Constraint <span class="math inline">\(C3\)</span>. We therefore move to point <span class="math inline">\(B(10,0)\)</span>. At this point the objective function has improved to:</p></li>
+</ol>
+<p><span class="math display">\[
+Objective = 7.75\times 10 + 10\times0 = 77.5\ at\ Point\ B
+\]</span></p>
+<ol start="3" type="1">
+<li>We now start from Point B, and move to the next nearest point. In identical fashion to Step2, we “imagine” that we move along <em>a new axis</em> defined by:<br><span class="math display">\[
+Intercept = Point\&nbsp;B(10,0)\\
+\]</span> <span class="math display">\[
+Equation = Constraint\&nbsp;C3:&nbsp;9x_1 + 10x_2 = 90\\
+\]</span> We express <span class="math inline">\(x_1\)</span> in terms of <span class="math inline">\(x_2\)</span> with <span class="math inline">\(C3\)</span>: <span class="math display">\[
+\hat C3:&nbsp;x_1 = \frac{90 - 10x_2}{9}
+\]</span> As in Step 2, we substitute this equation <span class="math inline">\(\hat C3\)</span> into the other two constraints, <span class="math inline">\(C1\)</span> and <span class="math inline">\(C2\)</span>: <span class="math display">\[
+\begin{cases}
+C1: -3\times \frac{90 - 10x_2}{9} + 2x_2 = 3 \ =&gt; x_2 = 6.18\ Point\ K\\
+{\mathbf{ \color{lightgreen}{C2}: 2\times \frac{90 - 10x_2}{9}+ 4x_2 = 27 =&gt; x_2 = 3.93\ \color{lightgreen}{Point\ C}}}
+\end{cases}
+\]</span> As before we choose the smaller of the two intercepts, so <span class="math inline">\(x_2 = 3.93\)</span>. Calculating for <span class="math inline">\(x_1\)</span>, we get point <span class="math inline">\(C(5.63, 3.93)\)</span>. At this point the objective function has improved to:</li>
+</ol>
+<p><span class="math display">\[
+7.75\times 5.63 + 10\times 3.93 = 82.9\ at\ Point\ C
+\]</span></p>
+<ol start="4" type="1">
+<li>We now proceed along the constraint line <span class="math inline">\(C2\)</span> towards the next point. In identical fashion to Step 2 and 3, we “imagine” that we move along <em>a new axis</em> defined by: <span class="math display">\[
+Intercept = Point\&nbsp;C(5.63,3.93)
+\]</span> <span class="math display">\[
+Equation = Constraint\&nbsp;C2:&nbsp;2x_1 + 4x_2 = 27 \\
+\]</span> Again, We express <span class="math inline">\(x_1\)</span> in terms of <span class="math inline">\(x_2\)</span> with <span class="math inline">\(C2\)</span> this time: <span class="math display">\[
+\hat C2:&nbsp;x_1 = \frac{27 - 4x_2}{2}
+\]</span> As in Step 2 and, we substitute this equation <span class="math inline">\(\hat C2\)</span> into the other constraint, the only remaining <span class="math inline">\(C1\)</span>: <span class="math display">\[
+{\mathbf C1: -3\times \frac{27 - 4x_2}{2} + 2x_2 = 3 \ =&gt; x_2 = 5.44\ Point\ D\\}
+\]</span> Calculating for <span class="math inline">\(x_1\)</span>, we get point <span class="math inline">\(C(2.63, 5.44)\)</span>. At this point the objective function has <del>improved</del> decreased to: <span class="math display">\[
+7.75\times 2.63 + 10\times 5.44 = 74.8\&nbsp;at\&nbsp;Point\&nbsp;D
+\]</span> Since this value for the Objective function is <strong>smaller</strong> than that at the previous point, our search terminates and we decide that Point <span class="math inline">\(C(5.63,3.93)\)</span> is the optimal point.<br>
+So the final result is: <span class="math display">\[
+   x_1(max) = 5.63\\
+\]</span> <span class="math display">\[
+   x_2(max) = 3.93\\
+\]</span> <span class="math display">\[
+   Maximum\&nbsp;Objective\&nbsp;Function\&nbsp;Value = 82.9
+\]</span> The final result is plotted below:</li>
+</ol>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="summary" class="level2"><h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>The essence of this “intuitive method” can be captured as follows:</p>
+<ol type="1">
+<li>Start from a known simple point on the edge of Feasibility Region, e.g.&nbsp;(0,0), since the two coordinate axes frequently form two edges to the Feasibility Region.<br>
+</li>
+<li>Move along one of the axis to find a first adjacent edge point. This adjacent point corresponds to the “tightening” of one or other of the Constraint equations(i.e.&nbsp;slack = 0 for that Constraint)<br>
+</li>
+<li>Calculate the Objective function at that point.<br>
+</li>
+<li>Use this new point as the next starting point and move along the Constraint line from the previous step.<br>
+</li>
+<li>Repeat step 2 and 3, calculating the Objective function each time.<br>
+</li>
+<li>Keep the solution point where the objective function hits a maximum, i.e.&nbsp;when moving to the next point <em>reduces</em> the value of the Objective function.</li>
+</ol>
+<hr>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+      }
+    }
+});
+</script><script src="https://utteranc.es/client.js" repo="arvindvenkatadri/Issues" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="../../../../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

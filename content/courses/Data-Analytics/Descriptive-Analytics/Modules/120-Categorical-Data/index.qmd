@@ -1,0 +1,335 @@
+---
+title: "\U0001F409 Visualizing Categorical Data"
+author: "Arvind Venkatadri"
+date: 27/Dec/2022
+date-modified: "`r Sys.Date()`"
+abstract: Types, Categories, and Counts
+order: 120
+format: html
+#fig-format: retina
+code-fold: true
+code-summary: Show the Code
+code-tools: true
+code-line-numbers: true
+code-overflow: scroll
+code-block-border-left: true
+code-block-bg: "beige"
+code-copy: true
+fig-align: center
+reference-location: margin
+cap-location: margin
+highlight-style: tango
+df-print: paged
+section-divs: true
+number-sections: true
+execute: 
+  freeze: auto
+tags:
+- Proportions
+- Frequency Tables
+- Contingency Tables
+- Numerical Data in Groups
+- Margins
+- Likert Scale data
+- Bar Plots (for Contingency Tables)
+- Mosaic Plots
+- Balloon Plots
+- Pie Charts
+- Correspondence Analysis
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(blogdown)
+library(tidyverse)
+library(skimr)
+library(vcd) # Michael Friendly's package, Visualizing Categorical Data
+library(vcdExtra) # Categorical Data Sets
+library(sjPlot) # Likert Scale Plots
+library(ggpubr) # Colours, Themes and geometries in ggplot
+library(ca) # Correspondence Analysis
+
+## Making Tables
+library(kableExtra) # html styled tables
+library(gt) # MAking Cool Tables
+library(patchwork) # To arrange plots on a grid and other things
+
+```
+
+## Introduction
+
+To recall, a categorical **variable** is one for which the possible
+measured or assigned values consist of a discrete set of categories,
+which may be `ordered` or `unordered`. Some typical examples are:
+
+-   Gender, with categories "Male," "Female."
+-   Marital status, with categories "Never married," "Married,"
+    "Separated," "Divorced," "Widowed."
+-   Fielding position (in ~~baseball~~ cricket), with categories
+    "Slips,"Cover ","Mid-off "Deep Fine Leg", "Close-in", "Deep"...
+-   Side effects (in a pharmacological study), with categories "None,"
+    "Skin rash," "Sleep disorder," "Anxiety," . . ..
+-   Political attitude, with categories "Left," "Center," "Right."
+-   Party preference (in India), with categories "BJP" "Congress,"
+    "AAP," "TMC"...
+-   Treatment outcome, with categories "no improvement," "some
+    improvement," or "marked improvement."
+-   Age, with categories "0--9," "10--19," "20--29," "30--39," . . . .
+-   Number of children, with categories 0, 1, 2, . . . .
+
+As these examples suggest, categorical variables differ in the number of
+categories: we often distinguish binary variables (or dichotomous
+variables) such as Gender from those with more than two categories
+(called polytomous variables).
+
+{{< video, https://www.youtube.com/embed/7NhNeADL8fA >}}
+
+## Categorical Data
+
+From the `{vcd package}` vignette:
+
+> The first thing you need to know is that categorical data can be
+> represented in **three different forms in R**, and it is sometimes
+> necessary to convert from one form to another, for carrying out
+> statistical tests, fitting models or visualizing the results.
+
+-   Case Data
+-   Frequency Data
+-   Cross-Tabular Count Data
+
+Let us first see examples of each.
+
+### Case Form
+
+Containing *individual observations* with one or more **categorical**
+factors, used as classifying variables. The total number of observations
+is `nrow(X)`, and the number of variables is `ncol(X)`.
+
+```{r Arthritis-Dataset}
+
+names(Arthritis)
+class(Arthritis)
+glimpse(Arthritis)
+
+```
+
+From Michael Friendly [Discrete Data Analysis and Visualization](/pdf/DataAnalytics/Michael-Friendly-DDAS.pdf) :
+
+> In many circumstances, data is recorded on each individual or
+> experimental unit. Data in this form is called case data, or data in
+> case form.
+
+```{r, case-form-data, echo=FALSE}
+
+head(Arthritis) %>% 
+  kbl(caption = "Arthritis Treatments and Effects (first 6 entries)",centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F,)
+
+```
+
+The `Arthritis` data set has three factors and two integer\* variables.
+One of the three factors `Improved` is an **ordered factor**.
+
+1)  ID
+2)  Treatment: a factor; Placebo or Treated
+3)  Sex: a factor, M / F
+4)  Age: integer
+5)  Improved: **Ordinal factor**; None \< Some \< Marked
+
+### Frequency Data
+
+Data in frequency form has already been tabulated, by counting over the
+(combinations of ) categories of the table variables. When the data are
+in **case form**, we can always trace any observation back to its
+individual identifier or data record, since each row is a unique
+observation or *case*; the reverse is rarely possible.
+
+Frequency Data is usually a data frame, with columns of categorical
+variables and at least one column containing `frequency` or `count`
+information.
+
+```{r}
+str(GSS)
+GSS %>% 
+  kbl(caption = "General Social Survey",centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F,)
+
+```
+
+Respondents in the GSS survey were classified by `sex` and `party`
+identification.
+
+### Table form
+
+> Table Form Data can be a `matrix`, `array` or `table object`, whose
+> elements are the frequencies in an **n-way table**. The variable names
+> (factors) and their levels are given by `dimnames(X)`.
+
+```{r Table-Form, results='hold'}
+
+HairEyeColor
+class(HairEyeColor)
+
+```
+
+`HairEyeColor` is a "two-way" table, consisting of **two tables**, one
+for `Sex = Female` and the other for `Sex = Male`. The total number of
+observations is `sum(X)`. The number of dimensions of the table is
+`length(dimnames(X))`, and the table sizes are given by
+`sapply(dimnames(X), length)`. The data looks like a n-dimensional cube
+and needs n-way tables to represent.
+
+```{r exploring-tables,results='hold'}
+
+sum(HairEyeColor)
+dimnames(HairEyeColor)
+sapply(dimnames(HairEyeColor), length)
+
+```
+
+We may need to convert the (multiple) tables into a data frame:
+
+```{r tables-to-data-frame}
+
+## Convert the two tables into a data frame
+HairEyeColor %>% 
+  as_tibble() %>% # Convert
+  head() %>% # Take first few rows to show
+  kbl(caption = "Hair Eye and Color (First 6 Entries)") %>% 
+  kable_classic_2(html_font = "Cambria", full_width = F)
+
+```
+
+## Creating Contingency Tables
+
+Most plots for Categorical Data ( as we shall see ) require that the data be converted into a *Contigency Table*; even Statistical tests for Proportions ( the $ \chi^2 $ test ) need Contingency Tables. The *Frequency Table* we encountered earlier is very close to being a full-fledged Contingency Table. 
+
+In this section we understand how to make Contingency Tables from each of the three forms.
+
+
+## What sort of Plots can we make for Categorical Data?
+
+We have already seen bar plots, which allow us to plot counts of categorical data. However, if there are a large number* of categorical variables or if thecategorical variables have many levels, the bar plot is not adequate. 
+
+From Michael Friendly:
+
+> The familiar techniques for displaying raw data are often
+> disappointing when applied to categorical data. The simple
+> scatterplot, for example, widely used to show the relation between
+> quantitative response and predictors, when applied to discrete
+> variables, gives a display of the category combinations, with all
+> identical values overplotted, and no representation of their
+> frequency.
+
+> Instead, frequencies of categorical variables are often best
+> represented graphically using **areas** rather than as **position
+> along a scale**. Using the visual attribute:
+
+$$\pmb{area \sim frequency}$$
+
+> allows creating novel graphical displays of frequency data for special
+> circumstances.
+
+Let us not look at some sample plots that embody this "area-frequency\*
+principle.
+
+### Mosaic Plots
+
+A mosaicplot is basically an area-proportional visualization of (typically observed) frequencies, consisting of tiles (corresponding to the cells) created by vertically and horizontally splitting a rectangle recursively. Thus, the area of each tile is proportional to the corresponding cell entry given the dimensions of previous splits.
+
+The `vcd::mosaic()` function needs the data in *contingency table* form. We will use `vcd::structable()` function to construct one:
+
+```{r mosaic-plot-using-vcd}
+
+art <- vcd::structable(~ Treatment + Improved, data = Arthritis)
+art
+vcd::mosaic(art, gp = shading_max)
+
+### Or
+### vcd::mosaic(structable(~ Treatment + Improved, data = Arthritis), gp = shading_max, split_vertical = TRUE)
+ 
+
+```
+
+### Balloon Plots
+
+```{r balloon-plot-using-ggpubr}
+housetasks <- read.delim(
+  system.file("demo-data/housetasks.txt", package = "ggpubr"),
+  row.names = 1
+  )
+head(housetasks, 4)
+
+ggballoonplot(housetasks, fill = "value")+
+  scale_fill_viridis_c(option = "C")
+
+
+```
+
+```{r}
+df <- as.data.frame(HairEyeColor)
+ggballoonplot(df, x = "Hair", y = "Eye", size = "Freq",
+              fill = "Freq", facet.by = "Sex",
+              ggtheme = theme_bw()) +
+  scale_fill_viridis_c(option = "C")
+
+```
+
+### Plots for Likert Data
+
+In many business situations, we perform surveys to get Likert scale
+data, where several respondents rate a product or a service on a scale
+of `Very much like`, `somewhat like`, `neutral`, `Dislike` and
+`Very much dislike`. Such data may look for example as follows:
+
+```{r}
+data(efc)
+head(efc, 20)
+```
+
+`efc` is a German data set from a European study on family care of older people.  Following a common protocol, data were collected from national samples of approximately 1,000 family carers (i.e. caregivers) per country and clustered into comparable subgroups to facilitate cross-national analysis. One of the *research questions* in [**this EUROFAM study**](https://doi.org/10.1093/geront/48.6.752) was:
+
+> What are the main difficulties carers experience accessing the services
+used? 
+What prevents carers from accessing unused
+supports that they need? 
+What causes them to stop using still-needed services?
+
+We will select the variables from the `efc` data set that related to *coping* (on part of care-givers) and plot their responses after inspecting them:
+
+```{r}
+efc %>% select(dplyr::contains("cop")) %>% str()
+
+```
+
+The `cop`ing related variables have responses on the Likert Scale `(1,2,3,4)` which correspong to `(never, sometimes, often, always)`,  **and** each variable also has a `label` defining each variable. We can plot this data using the `plot_likert` function from package `sjPlot`:
+
+```{r}
+
+efc %>% select(dplyr::contains("cop")) %>% 
+  sjPlot::plot_likert(title = "Caregiver Survey from EUROFAM")
+
+```
+
+So there we are with Categorical data ! There are a few other plots with this type of data, which are useful in very specialized circumstances. One example of this is the `agreement plot` which captures the agreement between two (sets) of evaluators, on ratings given on a shared ordinal scale to a set of items. An example from the field of medical diagnosis is the opinions of two specialists on a common set of patients. 
+
+## Conclusion
+
+How are these bar plots different from histograms? 
+Why don't "regular" plots simply work for Categorical data?
+Discuss!
+
+
+## References
+
+1. Using the `strcplot` command from `vcd`, <https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf>
+
+1. Creating Frequency Tables with `vcd`, <https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html>
+
+1. Creating mosaic plots with `vcd`, <https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html>
+
+1. 
+
+
+
