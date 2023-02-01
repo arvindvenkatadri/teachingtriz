@@ -8,16 +8,16 @@ order: 30
 abstract: "How one variable changes with another"
 format: html
 #fig-format: retina
-code-fold: true
+code-fold: false
 code-summary: Show the Code
 code-tools: true
 code-line-numbers: true
-code-overflow: wrap
+code-overflow: scroll
 code-copy: true
 fig-align: center
 reference-location: margin
 cap-location: margin
-highlight-style: dracula
+highlight-style: tango
 df-print: paged
 section-divs: true
 number-sections: true
@@ -31,34 +31,30 @@ tags:
 - Regression Lines  
 ---
 
-{{< fa folder-open >}} Slides and Tutorials
+# {{< fa folder-open >}} Slides and Tutorials
 
-<a 
-href="./files/correlations.qmd">
-<i class="fa-solid fa-file-powerpoint fa-2x"></i></a> .nbsp;.nbsp; <a 
-href="./files/correlations.ows">
-<iconify-icon icon="icon-park-solid:orange"></iconify-icon></a>
-.nbsp;.nbsp; <a
-href="./files/correlations.qmd"> <i class="fa-solid fa-person-rays"></i>
-.nbsp;.nbsp; <a
-href="./data/data.zip"> <i class="fa-solid fa-database"></i> </a>
+|                                                                    |                                                                                                                         |                                                                                                   |                                                                                        |
+|---------------|--------------------|----------------|---------------|
+| <a href="./files/correlations.qmd"><i class="fa-brands             
+             fa-r-project"></i> R Tutorial</a>                       | <a href="./files/correlations.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/correlations.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
-```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = FALSE)
-library(blogdown)
+
+# Setup the Packages
+
+```{r setup,message=FALSE}
 library(tidyverse)
-library(downloadthis)
 library(palmerpenguins)
 library(patchwork)
-library(ggridges)
 library(ggformula)
 library(mosaic)
 library(GGally)
-library(grid)
+library(corrplot)
+
+#library(grid)
 
 ```
 
-## What graphs will we see today?
+# What graphs will we see today?
 
 Some of the very basic and commonly used plots for data are:
 
@@ -69,7 +65,7 @@ Some of the very basic and commonly used plots for data are:
 
 ## What Correlation Charts can we plot with Numerical / Quantitative Data?
 
-```{r charts, echo=FALSE, warning=FALSE,message=FALSE}
+```{r charts, warning=FALSE,message=FALSE}
 mpg <- mpg %>% mutate(drv= as_factor(drv))
 p <- ggplot(mpg, alpha = 0.3) 
 p1 <- gf_point(cty ~ hwy, fill = ~drv, colour = ~drv, data = mpg) %>% gf_smooth(method = "lm", title = "Scatter Plot with Correlation/Regression/Trend Line")
@@ -78,13 +74,13 @@ p1 + p2
 
 ```
 
-```{r pairs-charts, echo=FALSE, warning=FALSE,message=FALSE}
+```{r pairs-charts, warning=FALSE,message=FALSE}
 p2 <- GGally::ggpairs(mpg, columns = c("hwy", "cty", "displ","cyl"), diag = list("densityDiag"), title = "Pairwise Correlations Plot")
 p2
 
 ```
 
-```{r cor-plot, echo=FALSE, warning=FALSE,message=FALSE}
+```{r cor-plot, warning=FALSE,message=FALSE}
 library(corrplot)
 
 mpg_num <- mpg %>% select(hwy, cty, displ, cyl)
@@ -106,47 +102,15 @@ corrplot.mixed(mydata_cor,
 
 How does one calculate and visualize Correlations in Orange?
 
-{{< "youtube", "Bd7n9FdY3g0" >}}
+{{< video https://youtu.be/Bd7n9FdY3g0 >}}
 
 Here is the help page on Correlations in Orange:
 
-```{r}
+```{r,echo=FALSE}
 knitr::include_url("https://orange3.readthedocs.io/projects/orange-visual-programming/en/latest/widgets/data/correlations.html")
 
 ```
 
-Download the Orange Workflow file by clicking the icon below, and open
-it in Orange.
-
-{r, echo=FALSE} download_file( path = "files/correlations.ows",
-output_extension = ".ows", output_name = "Orange Workflow", button_label
-= "Download Orange Workflow", button_type = "danger", has_icon = TRUE,
-icon = "fa fa-save", self_contained = FALSE )
-
-## A Workflow in Radiant
-
-Download the Radiant Workflow statefile by clicking the icon above, and
-upload/open it in Radiant. You need to start radiant from the `Add-In`
-menu in RStudio.
-
-{r, echo=FALSE} download_file( path = "files/correlation.rda",
-output_extension = ".rda", output_name = "radiant-correlation",
-button_label = "Download Radiant Workflow", button_type = "danger",
-has_icon = TRUE, icon = "fa fa-save", self_contained = FALSE )
-
-## A Workflow in R
-
-Download the RMarkdown tutorial file by clicking the icon above and open
-it in RStudio or rstudio.cloud.
-
-{r, echo=FALSE} download_file( path = "files/correlations.Rmd",
-output_extension = ".Rmd", output_name = "R Markdown Workflow",
-button_label = "Download Orange Workflow", button_type = "danger",
-has_icon = TRUE, icon = "fa fa-save", self_contained = FALSE )
-
-## Conclusion
-
-## Your Turn
 
 ## References
 
