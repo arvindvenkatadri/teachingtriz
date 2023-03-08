@@ -1,0 +1,156 @@
+---
+title: Basics of Machine Learning - Regression
+subtitle: ""
+date: "2021-08-09"
+external_link: ""
+image: featured.jpg
+caption: The Tight Rope Walker (Seiltänzer) (1923) by Paul Klee
+focal_point: Smart
+weight: 3
+# links:
+# - icon: twitter
+#   icon_pack: fab
+#   name: Follow
+#   url: https://twitter.com/arvind_v
+slides:
+summary: We will look at the basic models for Linear Regression.
+tags:
+- Machine Learning
+- tidymodels
+# url_code: "code/course-related/example/regression.ows"
+# url_pdf: ""
+# url_slides: "slides/new/index.html"
+# url_video: ""
+---
+
+```{r include=FALSE}
+library(blogdown)
+library(tidyverse)
+library(palmerpenguins)
+library(plotly)
+library(reshape2)
+```
+
+### Introduction: Mixing Colours
+
+Interpolation:
+
+-   between TWO colours, both colours inclusive using a straight line
+    between them\
+-   between several different colours?
+    -   by mixing "equal proportions" of each\
+    -   Proportions based on "distance" from each colour\
+    -   On a "plane" with these points
+
+### Some Examples from Drama
+
+1.  Legally Blonde:
+
+`r blogdown::shortcode("youtube", "aVRUfPRUKtU")`
+
+2.  Greek Chorus Explained:
+
+`r blogdown::shortcode("youtube", "orXPMdCU-6s")`
+
+3.  Sutradhar in Indian Drama
+
+https://www.britannica.com/art/theater-building/Developments-in-Asia#ref463835
+
+### Discussion
+
+-   Interpolation
+-   Extrapolation
+-   Calculating the *optimum* values for **m** and **c**, given **x
+    and** y\*\*, for $y = mx + c$
+
+### Playing with Orange: Paint My Data
+
+```{r, echo=FALSE, out.height= "250px", out.width= "350px"}
+
+knitr::include_graphics("LinearRegression.png")
+
+```
+
+Let us "draw inspiration" from the picture above, and see if we can
+replicate it. We will fire up Orange, **paint some data** and see if we
+can fit a **linear regression ML model** to it.
+
+Here is the Orange file for you to download. Open <u>[**this
+file**](LinearRegression.ows)</u> in Orange.
+
+### Regression Plane
+
+```{r, echo=FALSE}
+
+library("plot3D")
+
+# x, y, z variables
+x <- mtcars$wt
+y <- mtcars$disp
+z <- mtcars$mpg
+# Compute the linear regression (z = ax + by + d)
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 18, cex = 2, 
+    theta = 20, phi = 20, ticktype = "detailed",
+    xlab = "wt", ylab = "disp", zlab = "mpg",  
+    surf = list(x = x.pred, y = y.pred, z = z.pred,  
+    facets = NA, fit = fitpoints), main = "mtcars")
+```
+
+### Interactive Regression Plane
+
+```{r echo=FALSE,warning=FALSE}
+#load data
+
+my_df <- penguins %>% drop_na()
+penguin_lm <- lm(body_mass_g ~ 0 + flipper_length_mm + bill_length_mm, data = my_df)
+```
+
+```{r echo=FALSE,warning=FALSE}
+#Graph Resolution (more important for more complex shapes)
+graph_reso <- 0.5
+
+#Setup Axis
+axis_x <- seq(min(my_df$flipper_length_mm), max(my_df$flipper_length_mm), by = graph_reso)
+axis_y <- seq(min(my_df$bill_length_mm), max(my_df$bill_length_mm), by = graph_reso)
+
+#Sample points
+penguin_lm_surface <- expand.grid(flipper_length_mm = axis_x, bill_length_mm = axis_y,KEEP.OUT.ATTRS = F)
+penguin_lm_surface$body_mass_g <- predict.lm(penguin_lm, newdata = penguin_lm_surface)
+penguin_lm_surface <- acast(penguin_lm_surface, bill_length_mm ~ flipper_length_mm, value.var = "body_mass_g") #y ~ x
+
+```
+
+```{r echo=FALSE,warning=FALSE}
+hcolors=c("red","blue","green")[my_df$species]
+penguins_plot <- plot_ly(my_df, 
+                     x = ~flipper_length_mm, 
+                     y = ~bill_length_mm, 
+                     z = ~body_mass_g,
+                     text = ~species, # EDIT: ~ added
+                     type = "scatter3d", 
+                     mode = "markers",
+                     marker = list(color = hcolors)) %>% 
+                     layout(title = "Penguins: Body Mass predicted by Flipper Length and Bill Length")
+
+## and then add the surface:
+
+penguins_plot <- add_trace(p = penguins_plot,
+                       z = penguin_lm_surface,
+                       x = axis_x,
+                       y = axis_y,
+                       type = "surface")
+
+penguins_plot
+
+```

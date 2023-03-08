@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="dcterms.date" content="2021-08-09">
+<title>The Foundation Series - Basics of Machine Learning - Classification</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<script src="../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<script src="../../../../site_libs/htmlwidgets-1.6.1/htmlwidgets.js"></script><script src="../../../../site_libs/viz-1.8.2/viz.js"></script><link href="../../../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="../../../../site_libs/grViz-binding-1.0.9/grViz.js"></script>
+<meta property="og:title" content="The Foundation Series - Basics of Machine Learning - Classification">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://av-quarto.netlify.app/content\courses\ML-for-Artists\3-Classification-with-Orange\featured.jpg">
+<meta property="og:site-name" content="The Foundation Series">
+<meta name="twitter:title" content="The Foundation Series - Basics of Machine Learning - Classification">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://av-quarto.netlify.app/content\courses\ML-for-Artists\3-Classification-with-Orange\featured.jpg">
+<meta name="twitter:creator" content="@arvind_v">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">The Foundation Series</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../../blog.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Basics of Machine Learning - Classification</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../blog.html" class="sidebar-item-text sidebar-link">Home</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Data Analytics</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">
+<li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/courses/Data-Analytics/Descriptive-Analytics/listing.html" class="sidebar-item-text sidebar-link">Descriptive Analytics</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/courses/Data-Analytics/Basics-of-Modeling/listing.html" class="sidebar-item-text sidebar-link">Basics of Modelling</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/courses/Data-Analytics/Predictive-Analytics/listing.html" class="sidebar-item-text sidebar-link">Predictive Analytics</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/courses/Data-Analytics/Prescriptive-Analytics/listing.html" class="sidebar-item-text sidebar-link">Prescriptive Analytics</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+      </ul>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/courses/R-for-Artists/listing.html" class="sidebar-item-text sidebar-link">R for Artists</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">Posts</a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">Projects and Blogs</a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#a-childhood-game" id="toc-a-childhood-game" class="nav-link active" data-scroll-target="#a-childhood-game">A Childhood Game</a></li>
+  <li><a href="#twenty-questions-game-as-a-play-with-data" id="toc-twenty-questions-game-as-a-play-with-data" class="nav-link" data-scroll-target="#twenty-questions-game-as-a-play-with-data">Twenty Questions Game as a Play with Data…</a></li>
+  <li><a href="#what-is-a-decision-tree" id="toc-what-is-a-decision-tree" class="nav-link" data-scroll-target="#what-is-a-decision-tree">What is a Decision Tree?</a></li>
+  <li>
+<a href="#twenty-times-20-questions" id="toc-twenty-times-20-questions" class="nav-link" data-scroll-target="#twenty-times-20-questions">Twenty times 20 Questions !!</a>
+  <ul class="collapse">
+<li><a href="#decision-tree-in-orange" id="toc-decision-tree-in-orange" class="nav-link" data-scroll-target="#decision-tree-in-orange">Decision Tree in Orange</a></li>
+  </ul>
+</li>
+  <li><a href="#how-do-we-make-predictions-using-our-decision-tree" id="toc-how-do-we-make-predictions-using-our-decision-tree" class="nav-link" data-scroll-target="#how-do-we-make-predictions-using-our-decision-tree">How do we Make Predictions using our Decision Tree</a></li>
+  <li><a href="#how-many-trees-do-we-need-enter-the-random-forest" id="toc-how-many-trees-do-we-need-enter-the-random-forest" class="nav-link" data-scroll-target="#how-many-trees-do-we-need-enter-the-random-forest">How Many Trees do we Need? Enter the Random Forest!</a></li>
+  <li><a href="#an-introduction-to-random-forests" id="toc-an-introduction-to-random-forests" class="nav-link" data-scroll-target="#an-introduction-to-random-forests">An Introduction to Random Forests</a></li>
+  <li><a href="#random-forest-classification-for-heart-patients" id="toc-random-forest-classification-for-heart-patients" class="nav-link" data-scroll-target="#random-forest-classification-for-heart-patients">Random Forest Classification for Heart Patients</a></li>
+  <li><a href="#how-good-is-my-random-forest" id="toc-how-good-is-my-random-forest" class="nav-link" data-scroll-target="#how-good-is-my-random-forest">How good is my Random Forest?</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title d-none d-lg-block">Basics of Machine Learning - Classification</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 9, 2021</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header><section id="a-childhood-game" class="level2"><h2 class="anchored" data-anchor-id="a-childhood-game">A Childhood Game</h2>
+<p>Have you played a Childhood Game called <strong>20 Questions</strong>? Someone has a “target” entity in mind ( a person or a thing or a literary character) and the others need to discover that entity by asking 20 questions.</p>
+<ul>
+<li>How does one create questions in the game?
+<ul>
+<li>Categories?</li>
+<li>Numbers? How?</li>
+<li>Comparisons?</li>
+</ul>
+</li>
+<li>What sort of answers can you expect for each question?</li>
+</ul></section><section id="twenty-questions-game-as-a-play-with-data" class="level2"><h2 class="anchored" data-anchor-id="twenty-questions-game-as-a-play-with-data">Twenty Questions Game as a Play with Data…</h2>
+<p>Assuming we think of a 20Q Target as say, celebrity singer like Taylor Swift, or a cartoon character like Thomas the Tank Engine, what would an underlying “data structure” look like? We would ask Questions for instance in the following order to find the target of Taylor Swift:<br>
+- Human?(Yes)<br>
+- Living?(Yes)<br>
+- Male?(No)<br>
+- Celebrity?(Yes)<br>
+- Music?(Yes)<br>
+- USA?(Yes)</p>
+<p>Oh…Taylor Swift!!!</p>
+<p>Let us try to construct the “datasets” underlying this game!</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-1_cb288e104f99f2a38f297ad5ecec7d26">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 13%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 15%">
+<col style="width: 16%">
+<col style="width: 24%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">name</th>
+<th style="text-align: left;">Occupation</th>
+<th style="text-align: left;">Sex</th>
+<th style="text-align: left;">Living</th>
+<th style="text-align: left;">Nationality</th>
+<th style="text-align: left;">genre</th>
+<th style="text-align: left;">pet</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td style="text-align: left;">Taylor Swift</td>
+<td style="text-align: left;">Singer</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: left;">USA</td>
+<td style="text-align: left;">country/rock</td>
+<td style="text-align: left;">Scottish Fold Cats</td>
+</tr></tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 21%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 10%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Living</th>
+<th style="text-align: left;">human</th>
+<th style="text-align: left;">Nationality</th>
+<th style="text-align: left;">colour</th>
+<th style="text-align: left;">material</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td style="text-align: left;">Thomas, the Tank Engine</td>
+<td style="text-align: left;">Cartoon Character</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">UK</td>
+<td style="text-align: left;">blue</td>
+<td style="text-align: left;">metal</td>
+</tr></tbody>
+</table>
+</div>
+</div>
+<p>It should be fairly clear that the Questions we ask are based on the COLUMNs in the respective <strong>1-row datasets</strong>! The TARGET Column in both cases is the <strong>name</strong> column.</p>
+</section><section id="what-is-a-decision-tree" class="level2"><h2 class="anchored" data-anchor-id="what-is-a-decision-tree">What is a Decision Tree?</h2>
+<p>Can you imagine how the <strong>20 Questions</strong> Game can be shown as a <strong>tree</strong>?</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-2_767ddf12a9f00f86367e623b8c8612a0">
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-a8df537e8d349b93d793" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-a8df537e8d349b93d793">{"x":{"diagram":"\ndigraph tree_diagram {\n\n  # a \"graph\" statement\n  graph [overlap = false, fontsize = 10]\n\n  # several \"node\" statements\n  node [shape = circle,\n        fontname = Helvetica,\n        label = root]\n  A; \n\n  node [shape = circle,\n        fixedsize = true,\n        label = nodes,\n        fillcolor = purple,\n        width = 0.9] // sets as circles\n  B; C; \n\nnode [shape = diamond,\n        fixedsize = true,\n        label = leaf,\n        color = springgreen,\n        width = 0.9] \n  D;E;\n\n  # several \"edge\" statements\n  A->B[color = blue, label = yes]; A->C[color = red,label = no]; \nB->D[color = blue,label = yes]; B->E[color = red,label = no]\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Each Question we ask, based on one of the Feature columns, begets a Yes/NO answer and we turn the left or right accordingly. When we arrive at the leaf, we should be in a position to <em>guess</em> the answer !</p>
+</section><section id="twenty-times-20-questions" class="level2"><h2 class="anchored" data-anchor-id="twenty-times-20-questions">Twenty times 20 Questions !!</h2>
+<p>What if the dataset we had contained <strong>many</strong> rows, instead of just one row? How would we play the 20Q Game in this situation? Here is a sample of the famous <em>penguins</em> dataset:</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-3_2cdf15e0ececd2a3483046fd4bcd7333">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 16%">
+<col style="width: 15%">
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 7%">
+<col style="width: 5%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">species</th>
+<th style="text-align: left;">island</th>
+<th style="text-align: right;">bill_length_mm</th>
+<th style="text-align: right;">bill_depth_mm</th>
+<th style="text-align: right;">flipper_length_mm</th>
+<th style="text-align: right;">body_mass_g</th>
+<th style="text-align: left;">sex</th>
+<th style="text-align: right;">year</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">41.1</td>
+<td style="text-align: right;">18.1</td>
+<td style="text-align: right;">205</td>
+<td style="text-align: right;">4300</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2008</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">40.8</td>
+<td style="text-align: right;">18.4</td>
+<td style="text-align: right;">195</td>
+<td style="text-align: right;">3900</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Torgersen</td>
+<td style="text-align: right;">42.1</td>
+<td style="text-align: right;">19.1</td>
+<td style="text-align: right;">195</td>
+<td style="text-align: right;">4000</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2008</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">41.1</td>
+<td style="text-align: right;">19.0</td>
+<td style="text-align: right;">182</td>
+<td style="text-align: right;">3425</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Biscoe</td>
+<td style="text-align: right;">38.2</td>
+<td style="text-align: right;">18.1</td>
+<td style="text-align: right;">185</td>
+<td style="text-align: right;">3950</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">39.5</td>
+<td style="text-align: right;">16.7</td>
+<td style="text-align: right;">178</td>
+<td style="text-align: right;">3250</td>
+<td style="text-align: left;">female</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Torgersen</td>
+<td style="text-align: right;">36.7</td>
+<td style="text-align: right;">19.3</td>
+<td style="text-align: right;">193</td>
+<td style="text-align: right;">3450</td>
+<td style="text-align: left;">female</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gentoo</td>
+<td style="text-align: left;">Biscoe</td>
+<td style="text-align: right;">46.2</td>
+<td style="text-align: right;">14.4</td>
+<td style="text-align: right;">214</td>
+<td style="text-align: right;">4650</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2008</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">39.7</td>
+<td style="text-align: right;">17.9</td>
+<td style="text-align: right;">193</td>
+<td style="text-align: right;">4250</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2009</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chinstrap</td>
+<td style="text-align: left;">Dream</td>
+<td style="text-align: right;">42.4</td>
+<td style="text-align: right;">17.3</td>
+<td style="text-align: right;">181</td>
+<td style="text-align: right;">3600</td>
+<td style="text-align: left;">female</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Gentoo</td>
+<td style="text-align: left;">Biscoe</td>
+<td style="text-align: right;">44.5</td>
+<td style="text-align: right;">14.3</td>
+<td style="text-align: right;">216</td>
+<td style="text-align: right;">4100</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2007</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: left;">Torgersen</td>
+<td style="text-align: right;">45.8</td>
+<td style="text-align: right;">18.9</td>
+<td style="text-align: right;">197</td>
+<td style="text-align: right;">4150</td>
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">2008</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>As before, we would need to look at the dataset as containing a <strong>TARGET</strong> column which we want to predict using several other <strong>FEATURE</strong> columns. Let us choose <strong>species</strong>.</p>
+<p>When we look at the FEATURE columns, We would need to formulate questions based on <em>entire columns</em> at a time. For instance:</p>
+<ul>
+<li>
+<em>“Is the bill_length_mm* greater than 45mm?” considers the entire </em>bill_length_mm* FEATURE column</li>
+<li>Is the <em>sex</em> female? considers the entire <em>sex</em> column</li>
+</ul>
+<p>If the specific <strong>FEATURE</strong> column is a <strong>Numerical</strong> (N) variable, the question would use some “thresholding” as shown in the question above, to convert the Numerical Variable into a Categorical variable.</p>
+<p>If a specific <strong>FEATURE</strong> column is a <strong>Categorical</strong> (C) variable, the question would be like a <em>filter</em> operation in Excel.</p>
+<p>Either way, we end up answering with a <strong>smaller and smaller subset of rows in the dataset</strong>, to which the questions are answered with a Yes. It is as if we played <strong>many</strong> 20 Questions games in parallel, <strong><em>since there are so many simultaneous “answers”</em></strong>!</p>
+<p>Once we exhaust <strong>all</strong> the FEATURE columns, then what remains is a subset (i.e.&nbsp;rows) of the original dataset and we read off the TARGET column, which should now contain a set of identical entries, e.g. “Adelie”. Thus we can extend a <em>single-target</em> 20Q game to a <strong>multiple-target</strong> one using a larger dataset. ( Note how the multiple targets are all the same: “Adelie”, or “Gentoo”, or “Chinstrap”)</p>
+<p>This forms the basic intuition for a Machine Learning Algorithm called a <strong>Decision Tree</strong>.</p>
+<section id="decision-tree-in-orange" class="level3"><h3 class="anchored" data-anchor-id="decision-tree-in-orange">Decision Tree in Orange</h3>
+<p>Let us visualize this Decision Tree in Orange. Look at the now famous <code>penguins</code> dataset, available here:</p>
+<p><a href="https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv" class="uri">https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv</a></p>
+<p>We see that there are three <code>species</code> of penguins, that live on three <code>islands</code>. The measurements for each penguin are <code>flipper_length_mm</code>, <code>bill_length_mm</code>, <code>bill_depth_mm</code>, and <code>body_mass_g</code>.</p>
+<ol type="1">
+<li><p><strong>Task 1:</strong> Create a few data visualizations for the variables, and pairs of variables from this dataset.</p></li>
+<li><p><strong>Task 2:</strong> Can you inspect the visualizations and imagine how each of this dataset can be used in a <code>20 Questions Game</code>, to create a <strong>Decision Tree</strong> for this dataset as shown below?</p></li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="penguins.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Penguins Decision Tree!</figcaption><p></p>
+</figure>
+</div>
+<section id="what-did-we-learn" class="level4"><h4 class="anchored" data-anchor-id="what-did-we-learn">What did we learn?</h4>
+<ul>
+<li>The 20Q Game can be viewed as a “Decision Tree” of Questions and Answers,</li>
+<li>Each <strong>fork</strong> in the game is a Question.</li>
+<li>Depending upon whether the current answer is <strong>yes or no</strong>, we turn in one direction or the other.</li>
+<li>Each of our questions is <strong>based</strong> on the information available in one or other of the columns!!</li>
+<li>We arrive at a final “answer” or “target” after a particular sequence of yes/no answers. This is the one of the <strong>leaf</strong> nodes in the Tree.</li>
+<li>The <code>island</code> and the <code>species</code> columns are <strong>categories</strong> and are especially suited to being the <strong>targets</strong> for a 20 Questions Game.</li>
+<li>We can therefore use an <strong>entire column</strong> of data as our 20Questions <strong>target</strong>, rather than just one entity, person.</li>
+</ul>
+<p>This is how we will use this Game as a Model for our first ML algorithm, <strong>classification</strong> using Decision Trees.</p>
+</section></section></section><section id="how-do-we-make-predictions-using-our-decision-tree" class="level2"><h2 class="anchored" data-anchor-id="how-do-we-make-predictions-using-our-decision-tree">How do we Make Predictions using our Decision Tree</h2>
+<p>Our aim is to make <code>predictions</code>. Predictions of what? When we are given new unseen data in the same format, we should be able to predict TARGET variable using the same FEATURE columns.</p>
+<p>NOTE: This that is usually a <strong>class/category</strong> (We <strong>CAN</strong> also predict a <strong>numerical value</strong> with a Decision Tree; but we will deal with that later.)</p>
+<p>In order to make predictions with completely unseen data, we need to first check if the algorithm is working well with <strong>known</strong> data. The way to do this is to use a large portion of data to <strong>design the tree</strong>, and then use the tree to predict some aspect of the remaining, but similar, data. Let us split the <code>penguins</code> dataset into two pieces: a <code>training set</code> to design our tree, and a <code>test set</code> to check how it is working.</p>
+<p>Download this <u><a href="penguins-tree.ows"><strong>penguin tree file</strong></a></u> and open it in Orange.</p>
+<p>How good are the Predictions? What is the <strong>Classification Error Rate</strong>?</p>
+</section><section id="how-many-trees-do-we-need-enter-the-random-forest" class="level2"><h2 class="anchored" data-anchor-id="how-many-trees-do-we-need-enter-the-random-forest">How Many Trees do we Need? Enter the Random Forest!</h2>
+<p>Check all your individual Decision Trees: do they ask the same Questions? Do they fork in the same way? Yes, they all seem to use the same set of parameters to reach the target. So they are capable of being “biased” and make the <strong>same mistakes</strong>. So we ask: Does it help to use more than one tree, if all the questions/forks in the Trees are similar?</p>
+<p>No…we need different Trees to be able to <strong>ask different questions</strong>, based on different <strong>variables</strong> or <strong>features</strong> in the data. That will make the Trees as different as possible and so…unbiased. This is what we also saw when we played 20Q: offbeat questions opened up some avenues for predicting the answer/target.</p>
+<p>A forest of such trees is called <del><strong>the Wild Wood</strong></del> <strong>a Random Forest</strong> !</p>
+</section><section id="an-introduction-to-random-forests" class="level2"><h2 class="anchored" data-anchor-id="an-introduction-to-random-forests">An Introduction to Random Forests</h2>
+<p>In the Random Forest method, we do as follows:</p>
+<ol type="1">
+<li>Split the dataset into <code>training</code> and <code>test</code> subsets (70::30 proportion is very common). Keep aside the <code>testing</code> dataset for final testing.</li>
+<li>Decide on a number of trees, say 100-500 in the forest.</li>
+<li>Take the training dataset and repeatedly sample some of the rows in it. Rows can be <strong>repeated</strong> too; this is called <strong>bootstrap sampling</strong>.</li>
+<li>Give this sampled training set to each tree. Each tree develops a question from this dataset, in a <strong>random fashion</strong>, using a <strong>randomly chosen</strong> variable. E.g. with <code>penguins</code>, if our target is <code>species</code>, then some trees will will use <code>island</code>, some others will use <code>body_mass_g</code> and some others may use <code>bill_length_mm</code>.</li>
+<li>Each tree will “grow its questions” in a unique way !! Since the questions are possibly based on a different variable at each time, the trees will grow in very different ways.</li>
+<li>Stop when the required accuracy has been achieved (the sets contain observations/rows from only one <code>species</code> predominantly)</li>
+<li>With the <code>test set</code> let each tree vote on which <code>species</code> it has decided upon. Take the majority vote.</li>
+</ol>
+<p>Phew!!</p>
+<p>Let’s get a visual sense of how all this works:</p>
+<p><a href="https://waternova.github.io/random-forest-viz/" class="uri">https://waternova.github.io/random-forest-viz/</a></p>
+</section><section id="random-forest-classification-for-heart-patients" class="level2"><h2 class="anchored" data-anchor-id="random-forest-classification-for-heart-patients">Random Forest Classification for Heart Patients</h2>
+<p>Do you want to develop an ML model for heart patients? We have a dataset of heart patients at the <a href="https://archive.ics.uci.edu/ml/datasets/heart+disease"><strong>University of California, <del>Arvind</del> Irvine ML Dataset Repository</strong></a></p>
+<p><a href="https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"><strong>Heart Patient Data</strong></a>. Import into Orange !!</p>
+<p>What are the variables?</p>
+<ol type="1">
+<li>(age): age in years<br>
+</li>
+<li>(sex): 1 = male; 0 = female<br>
+</li>
+<li>(cp): chest-pain type( 4 types, 1/2/3/4)<br>
+</li>
+<li>(trestbps): resting blood pressure (in mm Hg on admission to the hospital)</li>
+<li>(chol) : serum cholesterol in mg/dl</li>
+<li>(fbs): (fasting blood sugar &gt; 120 mg/dl) (1 = true; 0 = false)</li>
+<li>(restecg): resting electrocardiograph results (0 = normal; 1= ST-T wave abnormality; 3 = LV hypertrophy)</li>
+<li>(thalach): maximum heart rate achieved</li>
+<li>(exang): exercise induced angina (1 = yes; 0 = no) (remember <strong>Puneet Rajkumar</strong>)<br>
+</li>
+<li>(oldpeak): ST depression induced by exercise relative to rest</li>
+<li>(slope): the slope of the peak exercise ST segment<br><ul>
+<li>Value 1: upsloping<br>
+</li>
+<li>Value 2: flat<br>
+</li>
+<li>Value 3: downsloping<br>
+</li>
+</ul>
+</li>
+<li>(ca): number of major vessels (0-3) colored by fluoroscopy<br>
+</li>
+<li>(thal): 3 = normal; 6 = fixed defect; 7 = reversible defect<br>
+</li>
+<li>(num) : <strong>the target attribute</strong>, diagnosis of heart disease (angiographic disease status)<br><ul>
+<li>Value 0: &lt; 50% diameter narrowing<br>
+</li>
+<li>Value 1: &gt; 50% diameter narrowing<br>
+(in any major vessel: attributes 59 through 68 are vessels)</li>
+</ul>
+</li>
+</ol>
+<p>We will create a Random Forest Model for this dataset, and compare with the Desision Tree for the same dataset.</p>
+</section><section id="how-good-is-my-random-forest" class="level2"><h2 class="anchored" data-anchor-id="how-good-is-my-random-forest">How good is my Random Forest?</h2>
+<ol type="1">
+<li>Classification Error<br>
+</li>
+<li>Gini Impurity<br>
+</li>
+<li>Cross Entropy</li>
+</ol></section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p>https://towardsdatascience.com/data-science-made-easy-data-modeling-and-prediction-using-orange-f451f17061fa</p></li>
+<li><p>The beauty of Random Forests: https://orangedatamining.com/blog/2016/12/22/the-beauty-of-random-forest/</p></li>
+<li><p>Pythagorean Trees for Random Forests: https://orangedatamining.com/blog/2016/07/29/pythagorean-trees-and-forests/</p></li>
+<li><p><em>data.tree</em> sample applications, Christoph Glur, 2020-07-31. <a href="https://cran.r-project.org/web/packages/data.tree/vignettes/applications.html" class="uri">https://cran.r-project.org/web/packages/data.tree/vignettes/applications.html</a></p></li>
+</ol>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+      }
+    }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="../../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
