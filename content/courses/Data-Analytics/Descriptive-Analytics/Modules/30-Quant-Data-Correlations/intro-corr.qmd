@@ -1,0 +1,104 @@
+---
+title: "\U0001F4CE Correlations"
+subtitle: "Correlations"
+author: "Arvind Venkatadri"
+date: 22/Nov/2022
+date-modified: "`r Sys.Date()`"
+order: 30
+abstract: "How one variable changes with another"
+image: preview.jpg
+image-alt: image from rawpixel.com
+categories:
+- Correlations  
+- Scatter Plots
+- Bubble Plots  
+- 2D Density Plots  
+- Heatmaps  
+- Regression Lines  
+---
+
+# {{< fa folder-open >}} Slides and Tutorials
+
+|                                                                          |                                                                                                                         |                                                                                                   |                                                                                        |
+|------------------|--------------------|------------------|------------------|
+| <a href="./files/correlations.qmd"><i class="fa-brands                   
+                   fa-r-project"></i> R Tutorial</a>                       | <a href="./files/correlations.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/correlations.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+
+# Setup the Packages
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(palmerpenguins)
+library(patchwork)
+library(ggformula)
+library(mosaic)
+library(GGally)
+library(corrplot)
+
+#library(grid)
+
+```
+
+# What graphs will we see today?
+
+Some of the very basic and commonly used plots for data are:
+
+-   Scatter Plot
+-   Contour Plot
+-   Correlogram
+-   Heatmap
+
+## What Correlation Charts can we plot with Numerical / Quantitative Data?
+
+```{r charts, warning=FALSE,message=FALSE}
+mpg <- mpg %>% mutate(drv= as_factor(drv))
+p <- ggplot(mpg, alpha = 0.3) 
+p1 <- gf_point(cty ~ hwy, fill = ~drv, colour = ~drv, data = mpg) %>% gf_smooth(method = "lm", title = "Scatter Plot with Correlation/Regression/Trend Line")
+p2 <- gf_density_2d(cty~hwy, data = mpg, title = "2D Density Plot")
+p1 + p2
+
+```
+
+```{r pairs-charts, warning=FALSE,message=FALSE}
+p2 <- GGally::ggpairs(mpg, columns = c("hwy", "cty", "displ","cyl"), diag = list("densityDiag"), title = "Pairwise Correlations Plot")
+p2
+
+```
+
+```{r cor-plot, warning=FALSE,message=FALSE}
+library(corrplot)
+
+mpg_num <- mpg %>% select(hwy, cty, displ, cyl)
+mydata_cor <- cor(mpg_num)
+corrplot(mydata_cor,method = "ellipse",type = "lower",main = "Correlogram")
+
+# Heatmap with numbers
+corrplot.mixed(mydata_cor, 
+               lower = "color",
+               upper = "number",
+               bg = "wheat",
+               tl.pos = "d",
+               main = "Heatmap?")
+
+
+```
+
+## A Workflow in Orange
+
+How does one calculate and visualize Correlations in Orange?
+
+{{< video https://youtu.be/Bd7n9FdY3g0 >}}
+
+Here is the help page on Correlations in Orange:
+
+```{r,echo=FALSE}
+knitr::include_url("https://orange3.readthedocs.io/projects/orange-visual-programming/en/latest/widgets/data/correlations.html")
+
+```
+
+## References
+
+1.  Minimal R using `mosaic`.
+    <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>

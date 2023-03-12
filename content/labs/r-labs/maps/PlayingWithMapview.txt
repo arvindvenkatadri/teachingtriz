@@ -1,0 +1,307 @@
+---
+title: "Playing With Mapview"
+author: "Arvind Venkatadri"
+date: "`r Sys.Date()`"
+format: html
+#fig-format: retina
+code-fold: false
+code-summary: Show the Code
+code-block-border-left: true
+code-overflow: scroll
+code-block-bg: "beige"
+code-tools: true
+code-line-numbers: true
+code-copy: true
+fig-align: center
+reference-location: margin
+cap-location: margin
+highlight-style: tango
+df-print: paged
+section-divs: true
+number-sections: true
+number-depth: 2
+smooth-scroll: true
+self-contained: true
+self-contained-math: true
+standalone: true
+keywords: maps, mapview, interactive
+toc-title: Contents
+editor: visual
+execute: 
+  freeze: auto
+abstract: "Making Interactive maps in R, using the mapview package"
+---
+
+# Introduction
+
+In this tutorial, we will learn to create interactive maps in R, using a
+package called `mapview`, which is a simpler way to access `leaflet`,
+which is a well-known package to create interactive maps.
+
+> Leaflet is a JavaScript library for creating dynamic maps that support
+> panning and zooming along with various annotations like markers,
+> polygons, and popups.
+
+Whereas `leaflet`s code becomes lengthy fairly quickly, `mapview` allows
+full functionality of leaflet using sensible defaults. Type `?mapview`
+in the console for more help.
+
+# More Information
+
+More information on `mapview` is available at
+<https://r-spatial.github.io/mapview/>.
+
+There are also two wonderful talks by Tim Appelhans, the creator of
+`mapview` that are available here:
+
+1.  [Mapview package tutorial (Part 1) - TIB
+    AV-Portal](https://av.tib.eu/en/media/49557)
+2.  [Mapview package tutorial (Part 2) - TIB
+    AV-Portal](https://av.tib.eu/en/media/49554)
+
+```{r}
+#| label: setup
+#| include: true
+#| 
+library(tidyverse)
+library(sf)
+
+# Mapview and allied packages
+library(mapview)
+
+library(leafem) # Provides extensions for packages 'leaflet' & 'mapdeck', many of which are used by package 'mapview'.
+
+library(leafgl) #High-Performance 'WebGl' Rendering for Package 'leaflet' 
+
+library(leafsync) # Create small multiples of several leaflet web maps with (optional) synchronised panning and zooming control. 
+
+library(slideview) # Create a side-by-side view of raster(image)s with an interactive slider to switch between regions of the images.
+
+library(cubeview) # View 3D Raster Cubes Interactively
+library(plainview) # Provides methods for plotting potentially large (raster) images interactively on a plain HTML canvas.
+
+# Data
+library(osmdata) # Import OSM Vector Data into R
+library(osmplotr) # Creating maps with OSM data in R
+
+```
+
+# Basic Maps using mapview
+
+`franconia` , `trails`, and `breweries` are geospatial datasets of class
+`sf` from the `mapview` package. `franconia` contains MULTIPOLYGON,
+`trails` contains MULTILINESTRING, and `breweries` contains POINT
+geometries.
+
+```{r}
+class(franconia)
+head(franconia,1)
+```
+
+```{r}
+class(trails)
+head(trails,1)
+```
+
+```{r}
+class(breweries)
+head(breweries,1)
+```
+
+Plotting these is a simple one-liner:
+
+```{r}
+mapview(franconia) 
+mapview(breweries)
+mapview(trails)
+
+```
+
+`mapview` has automagically added shapes to the map by detecting the
+geometry column in each `sf` dataframe. (rather like `geom_sf` in
+`ggplot`). The map is interactive and clicking on any of the shapes
+provides a popup containing all the remaining attribute information (
+from the non-geometry columns)
+
+Note that there are multiple *basemaps* available by default in
+`mapview`. The layers icon on the left allows the user to interactively
+choose the base map style. There are other basemaps that can be
+specified programmatically.
+
+We can also plot these maps as overlays ( since they all pertain to the
+same geographical area.) Each of the maps can also be given a `layer`
+name:
+
+```{r}
+# Single overlay plot with layer names
+mapview(franconia, layer.name = "1-Franconia")  + 
+  mapview(trails, layer.name = "2-Brewery Trails") + 
+  mapview(breweries,layer.name = "3-Breweries")
+
+```
+
+## Add Colours to Shapes
+
+`mapview` offers a simple way of adding colours to shapes, based on any
+of the other *columns* in the respective dataframe, by passing that
+column name(in quotes!) to the parameter `zcol` in `mapview()`:
+
+```{r}
+mapview(franconia, zcol = "district",
+        col.regions = grDevices::hcl.colors) + # set colour palette
+  mapview(breweries, col.regions = "red")
+```
+
+Note that legends are created by default. They can be turned off with
+`legend = FALSE` inside the `mapview()` function. Note also the *home
+button* at the bottom right: that recentres and resets the map.
+
+One can get a **stack of maps** where the shapes are coloured by *all*
+variables simultaneously by using `, burst = TRUE` instead of `zcol`:
+
+```{r}
+mapview(franconia, burst = TRUE)
+```
+
+# Using mapview with external geospatial data
+
+On to something more complex. We want to plot a known set of locations
+on a mapview map. `mapview` takes in geographical data in many ways and
+we will explore most of them.
+
+## Data Sources for mapview
+
+> Objects of the following spatial classes are supported in `mapview`:
+>
+> -   [sf](https://cran.r-project.org/package=sf)
+> -   [raster](https://cran.r-project.org/package=raster) (Layer, Stack,
+>     Brick and SpatialPixels\* / SpatialGridDataFrame)
+> -   [stars](https://cran.r-project.org/package=stars)
+> -   [sp](https://cran.r-project.org/package=sp) (Points, Polygons,
+>     Lines and their DataFrame version)
+> -   [satellite](https://cran.r-project.org/package=satellite)
+
+Which means we cannot give `mapview` simple vectors / matrices/
+dataframes containing *lon / lat* information: they need to be converted
+into `sf` format first. (Leaflet could natively do this! Hmm...)
+
+Let us read in the data set from `data.world` that gives us POINT
+locations of all airports in India in a `data frame` / `tibble`. The
+dataset is available at [India Airports
+Locations](https://query.data.world/s/ahtyvnm2ybylf65syp4rsb5tulxe6a "From data.world").
+
+You can either download it, save a copy, and read it in as usual, or use
+the URL itself to read it in directly from `data.world`. In the latter
+case, you will need the package `data.world` and also need to register
+your credentials for that page with RStudio. The (very simple!)
+instructions are available here at
+[data.world](https://data.world/integrations/r-and-r-studio "Take me there!!")
+
+```{r}
+#| label: data.world_leaflet_example
+#| message: false
+
+#library(devtools)
+#devtools::install_github("datadotworld/data.world-r", build_vignettes = TRUE)
+
+library(data.world)
+
+india_airports <-
+  read_csv(file = "https://query.data.world/s/ahtyvnm2ybylf65syp4rsb5tulxe6a") %>%
+  slice(-1) %>%  # Drop the first row which contains labels
+
+  dplyr::mutate(
+    id = as.integer(id),
+    latitude_deg = as.numeric(latitude_deg),
+    longitude_deg = as.numeric(longitude_deg),
+    elevation_ft = as.integer(elevation_ft)
+  ) %>%
+  
+  rename("lon" = longitude_deg, "lat" = latitude_deg) %>%
+  
+  # Remove four locations which seem to be in the African Atlantic
+  filter(!id %in% c(330834, 330867, 325010, 331083)) %>% 
+  
+  # Convert to `sf` dataframe
+  st_as_sf(
+    coords = c("lon", "lat"),
+    remove = FALSE,# retain the original lon and lat columns
+    sf_column_name = "geometry",
+    crs = 4326 # specify Projection,else no basemap will be plotted
+  )
+
+india_airports %>% head()
+
+```
+
+Let us plot this in `mapview`, using an ESRI National Geographic style
+map instead of the OSM Base Map. We will also place small circle markers
+for each airport.
+
+```{r}
+# Change the order of basemaps in mapview
+# Make OpenTopoMap the default
+mapviewOptions(basemaps = c("OpenTopoMap", "CartoDB.Positron", "CartoDB.DarkMatter", "OpenStreetMap", "Esri.WorldImagery" ))
+
+mapview(india_airports,
+        zcol = "type")
+```
+
+## Using popups and labels
+
+By default, `mapview` provides a mouseover label information
+(`feature ID`, or a `zcol` attribute if `zcol` has been set), and a
+popup table containing *all* attribute fields. This can be customized to
+show the user wants. There are various options for popups in `mapview`:
+
+-   `popup = popupTable()` Text/table based popup
+
+-   `popup = popupImage()` Images in popups
+
+-   `popup = popupGraph()` a data visualization in the popup
+
+-   `popup = popupIframe()` URL, Image, Video in a popup using *iframe*
+
+    We will download a small dataset of restaurants in say Malleswaram,
+    Bangalore and plot them with `mapview`, adding popups and labels:
+
+```{r}
+#| cache: true
+#library(osmdata)
+#library(osmplotr)
+
+bbox<- osmdata::getbb("Malleswaram, Bengaluru")
+bbox
+
+restaurants <- osmplotr::extract_osm_objects(
+  bbox = bbox,
+  key = "amenity",
+  value = "restaurant",
+  return_type = "point") 
+
+restaurants <- restaurants %>% 
+  dplyr::filter(cuisine == "indian")
+
+restaurants %>% names() # look at column names
+
+```
+
+Let us add popups containing the restaurant `name` and `cuisine`; we
+need to add the R package `leafpop` to add popups
+
+```{r}
+library(leafpop)
+
+mapviewOptions(basemaps = "OpenStreetMap") # set basemap to OSM
+mapview(
+  restaurants,
+  col.regions = "green",# Point Fill colour
+  cex = 10, # Point Size
+  color = "red", # Points Border
+  fill = "green",
+  popup = popupTable(x = restaurants,
+                     zcol = c("name", "cuisine")))
+
+```
+
+That should give us a flavour of `mapview` !!
