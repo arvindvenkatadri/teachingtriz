@@ -1,0 +1,160 @@
+---
+title: "\U0001F4CE Correlations"
+subtitle: "Correlations"
+author: "Arvind Venkatadri"
+date: 22/Nov/2022
+date-modified: "`r Sys.Date()`"
+order: 30
+abstract: "How one variable changes with another"
+image: preview.jpg
+image-alt: image from rawpixel.com
+categories:
+- Correlations  
+- Scatter Plots
+- Bubble Plots  
+- 2D Density Plots  
+- Heatmaps  
+- Regression Lines  
+---
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+|                                                                                     |                                                                                                                         |                                                                                                   |                                                                                       |
+|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| <a href="./files/correlations.qmd"><i class="fa-brands                              
+                              fa-r-project"></i> R Tutorial</a>                       | <a href="./files/correlations.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/correlations.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-sold fa-database"></i> Datasets</a> |
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+
+library(tidyverse) # Tidy data processing and plotting
+library(palmerpenguins) # Our favourite dataset
+library(patchwork) # Arranging plots side by side
+library(ggformula) # Formula based plots
+library(mosaic) # Our go to package
+library(GGally) # Corr plots
+library(corrplot) # More corrplots
+
+#library(grid)
+
+```
+
+## What is Correlation?
+
+One of the basic Questions we would have of our data is: Does some
+variable depend upon another in some way? Does $y$ depend upon $x$? A
+**Correlation Test** is designed to answer exactly this question.
+
+The word correlation is used in everyday life to denote some form of
+association. We might say that we have noticed a correlation between
+rainy days and reduced sales at supermarkets. However, in statistical
+terms we use correlation to denote association between two quantitative
+variables. We also assume that the association is **linear**, that one
+variable increases or decreases a fixed amount for a unit increase or
+decrease in the other. The other technique that is often used in these
+circumstances is regression, which involves estimating the best straight
+line to summarise the association.
+
+## Correlation coefficient
+
+The degree of association is measured by a *correlation coefficient*,
+denoted by r. It is sometimes called Pearson's correlation coefficient
+after its originator and is a measure of linear association. (If a
+curved line is needed to express the relationship, other and more
+complicated measures of the correlation must be used.)
+
+The correlation coefficient is measured on a scale that varies from + 1
+through 0 to -- 1. Complete correlation between two variables is
+expressed by either + 1 or -1. When one variable increases as the other
+increases the correlation is positive; when one decreases as the other
+increases it is negative.
+
+In formal terms, the correlation between two variables $x$ and $y$ is
+defined as
+
+$$
+\rho = E\left[\frac{(x - \mu_{x}) * (y - \mu_{y})}{(\sigma_x)*(\sigma_y)}\right]
+$$
+
+where $E$ is the expectation operator ( i.e taking mean ). Think of this
+as the average of the products of two scaled variables. (We can see
+$(x-\mu_x)/\sigma_x$ is a centering and scaling of the variable $x$. It
+is called the `z-score` of x.)
+
+## What graphs will we see today?
+
+Some of the very basic and commonly used plots for data are:
+
+-   Scatter Plot
+-   Contour Plot
+-   Correlogram
+-   Heatmap
+
+## What Correlation Charts can we plot with Numerical / Quantitative Data?
+
+### Scatter Plot
+
+```{r}
+#| label: charts
+mpg <- mpg %>% mutate(drv= as_factor(drv))
+
+p1 <- gf_point(cty ~ hwy, fill = ~drv, 
+               colour = ~drv, 
+               data = mpg) %>% 
+  gf_smooth(method = "lm", 
+            title = "Scatter Plot",
+            subtitle = "Correlation/Regression/Trend Line")
+
+p2 <- gf_density_2d(cty ~ hwy, 
+                    data = mpg, 
+                    title = "2D Density Plot")
+p1 + p2
+
+```
+
+### Pairwise Correlation Plot
+
+```{r pairs-charts, warning=FALSE,message=FALSE}
+p2 <- GGally::ggpairs(mpg, 
+                      columns = c("hwy", "cty", "displ","cyl"), 
+                      diag = list("densityDiag"), 
+                      title = "Pairwise Correlations Plot")
+p2
+
+```
+
+### Pairwise Correlogram
+
+In this chart, the correlation between pairs of variables is shown
+*symbolically* as coloured ellipses. The direction of the semi-major
+axis + the colour of the ellipse indicate whether the correlation score
+is positive or negative. And the more *eccentric* the ellipse, the
+higher is the correlation score in value.
+
+```{r cor-plot, warning=FALSE,message=FALSE}
+library(corrplot)
+
+mpg_num <- mpg %>% select(hwy, cty, displ, cyl)
+mydata_cor <- cor(mpg_num)
+
+corrplot(mydata_cor,method = "ellipse",
+         type = "lower",
+         main = "Correlogram")
+
+# Heatmap with numbers
+corrplot.mixed(mydata_cor, 
+               lower = "color",
+               upper = "number",
+               bg = "wheat",
+               tl.pos = "d",
+               main = "Heatmap?")
+
+
+```
+
+## References
+
+1.  Minimal R using `mosaic`.
+    <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>
