@@ -1,12 +1,13 @@
 ---
 title: "Lab-12: Time is a Him!!"
-date: "`r Sys.Date()`"
+date: 14 Feb 2022
+date-modified: "`r Sys.Date()`"
 subtitle: "Time Series in R"
 summary: "Time Series in R"
 author: Arvind Venkatadri
 order: 120
 featured: no
-tags:
+categories:
   - Line Charts
   - Boxplot Charts
   - Heatmaps
@@ -15,13 +16,6 @@ tags:
   - Exponential Smoothing
   - ARIMA models
   - Forecasting
-format: 
-  html:
-    code-fold: true
-    code-link: true
-    code-tools: true
-    code-summary: Code
-    df-print: paged
 links:
 - icon: flask
   icon_pack: fas
@@ -33,7 +27,7 @@ links:
 #   url: /slides/R-for-Artists/07-networks/07-Networks-in-R.html
 ---
 
-![](featured.jpg)
+<center>![](featured.jpg){width="261"}</center>
 
 ## Introduction
 
@@ -41,19 +35,29 @@ Time Series data are important in data visualization where events have a
 temporal dimension, such as with finance, transportation, music,
 telecommunications for example.
 
-```{r setup, include=FALSE}
-library(tufte)
-# invalidate cache when the tufte version changes
-knitr::opts_chunk$set(cache.extra = packageVersion('tufte'))
-options(htmltools.dir.version = FALSE)
+```{r}
+#| label: setup
+#| include: true
 library(tidyverse)
-
-# Invoke core Time Series Packages
+library(mosaic)
+library(ggformula)
+##########################################
+# Install core TimeSeries Packages
+# library(ctv)
+# ctv::install.views("TimeSeries", coreOnly = TRUE)
+# To update core TimeSeries packages
+# ctv::update.views("TimeSeries")
+# Time Series Core Packages
+##########################################
 library(tsibble)
-library(tsibbledata)
 library(feasts) # Feature Extraction and Statistics for Time Series
 library(fable) # Forecasting Models for Tidy Time Series
-# library(tseries) # Time Series Analysis and Computational Finance
+library(tseries) # Time Series Analysis and Computational Finance
+library(forecast)
+library(zoo)
+##########################################
+library(tsibbledata) # Time Series Demo Datasets 
+
 
 ```
 
@@ -61,30 +65,25 @@ library(fable) # Forecasting Models for Tidy Time Series
 
 There are multiple formats for time series data.
 
--   Tibble format: the simplest is of course the standard tibble /
-    dataframe, with a `time` variable to indicate that the other
-    variables vary with time.
-
--   The `ts` format: The `stats::ts()` function will convert a numeric
-    vector into an R time series object. The format is
+-   The base `ts` format: The `stats::ts()` function will convert a
+    numeric vector into an R time series object. The format is
     `ts(vector, start=, end=, frequency=)` where start and end are the
     times of the first and last observation and frequency is the number
     of observations per unit time (1=annual, 4=quarterly, 12=monthly,
-    etc.).
-
--   The modern `tsibble` format: this is a new format for time series
-    analysis, and is used by the [tidyverts](https://tidyverts.org) set
-    of packages.
-
--   The base `ts` object is used by established packages like `forecast`
-
--   The standard tibble object is used by `timetk` & `modeltime`
-
--   The special `tsibble` object ("time series tibble") is used by the
-    more recently created packages from the `tidyverts` set (`fable`,
+    etc.). Used by established packages like `forecast`
+-   Tibble format: the simplest is of course the standard tibble /
+    dataframe, with a `time` variable to indicate that the other
+    variables vary with time. Used by more recent packages such as
+    `timetk` & `modeltime`
+-   The modern `tsibble` (time series tibble) format: this is a new
+    format for time series analysis, and is used by the
+    [tidyverts](https://tidyverts.org) set of packages (`fable`,
     `feasts` and others).
+-   There is also a `tsbox` package from
+    [ROpenScience](https://docs.ropensci.org/tsbox/) that allows easy
+    inter-conversion between these ( and other! ) formats!
 
-## Creating a time series
+## Creating time series
 
 In this first example, we will use simple `ts` data, and then do another
 with a `tibble` dataset, and then a third example with an `tsibble`
@@ -112,17 +111,14 @@ plot(AirPassengers)
 Let us take data that is "time oriented" but not in `ts` format, and
 convert it to `ts`: the syntax of `ts()` is:
 
-    Syntax:  objectName <- ts(data, start, end, frequency)
+Syntax: `objectName <- ts(data, start, end, frequency)` where, - `data`
+represents the data vector - `start` represents the first observation in
+time series - `end` represents the last observation in time series -
+`frequency` represents number of observations per unit time. For
+example, frequency=1 for monthly data.
 
-    where,
-
-        `data` represents the data vector
-        `start` represents the first observation in time series
-        `end` represents the last observation in time series
-        frequency represents number of observations per unit time. For 
-        example, frequency=1 for monthly data.
-
-We will pick simple **numerical vector data** `ChickWeight`:
+We will pick simple **numerical vector data** ( i.e. not a timeseries )
+`ChickWeight`:
 
 ```{r ChickWeights-ts}
 
@@ -132,9 +128,13 @@ plot(ChickWeight_ts)
 
 ```
 
+::: callout-caution
+## The \`ts\` format
+
 The `ts` format is not recommended for new analysis since it does not
 permit inclusion of multiple time series in one dataset, nor other
 *categorical variables* for grouping etc.
+:::
 
 ### `tibble` format data
 
@@ -145,29 +145,37 @@ package:
 ```{r}
 
 data(walmart_sales_weekly, package = "timetk")
-walmart_sales_weekly %>% head()
+walmart_sales_weekly
 
 ```
 
-This dataset is a tibble with a `Date` column. Let us plot the data
-using this column on the time/X-axis:
+This dataset is a tibble with a `Date` column. The `Dept` column is
+clearly a *categorical* column that allows us to distinguish separate
+time series, i.e. one for each value of `Dept`. We will convert that to
+a factor( it is an double precision number ) and then plot the data
+using this column on the `Date` on the $x$-axis:
 
 ```{r}
+#| column: page
 walmart_sales_weekly %>% 
+  
   # convert Dept number to a **categorical factor**
   mutate(Dept = forcats::as_factor(Dept)) %>% 
-  ggplot(aes(x = Date, y = Weekly_Sales, group = Dept)) + 
-  geom_point(aes(colour = Dept)) +
-  geom_line(aes(colour = Dept))
+  
+  gf_point(Weekly_Sales ~ Date, 
+           group = ~ Dept, 
+           colour = ~ Dept, data = .) %>% 
+  gf_line() %>% 
+  gf_theme(theme_minimal())
 
 ```
-
-### `tsibble` format data
 
 For more analysis and forecasting etc., it is useful to convert this
 tibble into a `tsibble`:
 
-```{r tibble-as-tsibble}
+```{r}
+#| label: tibble-as-tsibble
+#| column: page
 walmart_tsibble <- as_tsibble(walmart_sales_weekly,
                          index = Date,
                          key = c(id, Dept))
@@ -181,33 +189,54 @@ other *numerical variables* are time-varying quantities. The
 separate time series in the data, and these have 7 combinations hence
 are 7 time series in this data, as indicated.
 
+::: column-margin
 Let us plot `Weekly_Sales`, colouring the time series by `Dept`:
 
-```{r fig-together, fig.cap="Walmart Time Series", fig.show='hold', cache=TRUE, message=FALSE}
+```{r}
+#| label: fig-together
+#| fig.cap: "Walmart Time Series"
+#| fig.show: 'hold'
+#| cache: TRUE
+#| message: FALSE
 
 walmart_tsibble %>% 
-  ggplot(aes( x = Date, y = Weekly_Sales, colour = Dept)) + 
-           geom_line() + 
-           geom_point() + 
-           labs(title = "Weekly Sales by Dept at Walmart")
+  gf_line(Weekly_Sales ~ Date, 
+          colour = ~ as_factor(Dept), data = .) %>% 
+  gf_point() %>% 
+  labs(title = "Weekly Sales by Dept at Walmart")
 
 ```
-
-This first plot is that of *all* series together. There does seem to be
-an annual variation, which we should investigate later.
-
-Note the blue trend lines that are automatically plotted in the second
-graph. This is caused by the argument `.smooth = TRUE`.
-
-`r margin_note("We can also do a quick *autoplot* that seems to offer  less control and is also not interactive.")`
+:::
 
 ::: column-margin
+We can also do a quick *autoplot* that seems to offer less control and
+is also not interactive.
+
 ```{r}
 walmart_tsibble %>% 
   dplyr::group_by(Dept) %>% 
   autoplot(Weekly_Sales)
 ```
 :::
+
+### `tsibble` format data
+
+In the packages `tsibbledata` and `fpp3` we have a good choice of
+`tsibble` format data. Let us pick one:
+
+```{r}
+#| column: page
+
+hh_budget
+```
+
+There are 4 keys ( id variables ) here, one for each country. Six other
+*quantitative* columns are the individual series. Let us plot the
+timeseries:
+
+```{r}
+
+```
 
 ## One more example
 

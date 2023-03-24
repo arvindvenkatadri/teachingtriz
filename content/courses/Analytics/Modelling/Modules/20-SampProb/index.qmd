@@ -1,28 +1,32 @@
 ---
-title: "Samples, Populations, Statistics and Inference"
+title: "\U0001F3B2 Samples, Populations, Statistics and Inference"
 author: "Arvind Venkatadri"
 date: 25/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 20
 abstract: "How much ~~Land~~ Data does a Man need?"
-tags:
+image: preview.jpg
+categories:
 - Sampling
 - Central Limit Theorem
 - Standard Error
+- Confidence Intervals
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                       |                                                                                                 |                                                                             |                                                                     |
-|------------------|--------------------|-----------------|-----------------|
-| <a href="./files/sampling.qmd"> <i class="fa-solid fa-file-powerpoint fa-2x"></i></a> | <a href="./files/sampling.ows"> <iconify-icon icon="icon-park-solid:orange"></iconify-icon></a> | <a href="./files/sampling.rda"> <i class="fa-solid fa-person-rays"></i></a> | <a href="./data/data.zip"> <i class="fa-solid fa-database"></i></a> |
+|                                                                                    |                                                                                                                     |                                                                                               |                                                                                        |
+|------------------|-------------------|------------------|------------------|
+| <a href="./files/sampling.qmd"><i class="fa-brands                                 
+                                 fa-r-project"></i> R Tutorial</a>                   | <a href="./files/sampling.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/sampling.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
-```{r setup, include = FALSE}
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
 set.seed(123456)
-knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80),warning = FALSE)
 
-
-library(tidyverse)
+library(tidyverse) # Data Processing in R
 library(mosaic) # Our workhorse for stats, sampling
 library(ggformula) # Formula interface for graphs
 
@@ -51,6 +55,10 @@ A *population parameter* is some numerical summary about the population
 that is unknown but you wish you knew. For example, when this quantity
 is a mean like the average height of all Bangaloreans, the population
 parameter of interest is the population mean.
+
+::: callout-important
+Populations *P*arameters are usually indicated by Greek Letters.
+:::
 
 A *census* is an exhaustive enumeration or counting of all N individuals
 in the population. We do this in order to compute the population
@@ -84,8 +92,13 @@ guides to population parameters?**
 This act of generalizing from sample to population is at the heart of
 **statistical inference**.
 
-NOTE: there is an *alliterative mnemonic* here: **S**amples have
-**S**tatistics; **P**opulations have **P**arameters.
+::: callout-important
+NOTE: there is an
+[*alliterative*](https://www.grammarly.com/blog/alliteration/)
+[*mnemonic*](https://www.merriam-webster.com/dictionary/mnemonic) here:
+
+**S**amples have **S**tatistics; **P**opulations have **P**arameters.
+:::
 
 ## Sampling
 
@@ -108,22 +121,24 @@ NHANES <-
   distinct(ID, .keep_all = TRUE) 
 
 #create a dataset of only adults
-NHANES_adult <- 
-  NHANES %>%
-  filter( 
-    Age >= 18
-  ) %>%
+NHANES_adult <-  NHANES %>%
+  filter(Age >= 18) %>%
   drop_na(Height)
 
 glimpse(NHANES_adult)
 
 ```
 
+::: callout-important
+## Population
+
 For now, we will **treat** this dataset as our **Population**. So each
 variable in the dataset is a population for that particular
 quantity/category, with appropriate *population parameters* such as
-means, sd-s, and proportions. Let us calculate the **population
-parameters** for the `Height` data:
+means, sd-s, and proportions.
+:::
+
+Let us calculate the **population parameters** for the `Height` data:
 
 ```{r}
 
@@ -141,18 +156,31 @@ with **population parameters** on the basis of this ONE sample of 50:
 
 ```{r, fig.cap="Single-Sample Mean and Population Mean", fig.id=TRUE}
 
-sample_height <- sample(NHANES_adult, size = 50) %>% select(Height)
+sample_height <- sample(NHANES_adult, size = 50) %>% 
+  select(Height)
 sample_height
 
 sample_mean_height <- mean(~ Height, data = sample_height)
 sample_mean_height
 
 # Plotting the histogram of this sample
-sample_height %>% gf_histogram(~ Height) %>% 
-  gf_vline(xintercept = sample_mean_height, color = "red") %>% 
-  gf_vline(xintercept = pop_mean_height, colour = "blue") %>% 
-  gf_text(1 ~ (pop_mean_height + 5), label = "Population Mean Height", color = "blue") %>% 
-  gf_text(2 ~ (sample_mean_height-5), label = "Sample Mean Height", color = "red")
+sample_height %>% 
+  gf_histogram(~ Height) %>% 
+  
+  gf_vline(xintercept = sample_mean_height, 
+           color = "red") %>% 
+  
+  gf_vline(xintercept = pop_mean_height, 
+           colour = "blue") %>% 
+  
+  gf_text(1 ~ (pop_mean_height + 5), 
+          label = "Population Mean Height", 
+          color = "blue") %>% 
+  
+  gf_text(2 ~ (sample_mean_height-5), 
+          label = "Sample Mean Height", color = "red")  %>% 
+  
+  gf_theme(theme = theme_minimal)
 
 ```
 
@@ -162,7 +190,10 @@ samples each of size 50. And calculate their mean as the *sample
 statistic*, giving us a dataframe containing 5000 `sample means`. We
 will then compare if these 500 means are close to the `pop_mean_height`:
 
-```{r,fig.cap="Multiple Sample-Means and Population Mean", fig.id=TRUE}
+```{r}
+#| fig-cap: "Multiple Sample-Means and Population Mean"
+#| fig-align: center
+#| 
 
 sample_height_500 <- do(500) * {
   sample(NHANES_adult, size = 50) %>%
@@ -178,6 +209,7 @@ dim(sample_height_500)
 
 sample_height_500 %>%
   gf_point(.index ~ sample_mean_500, color = "red") %>%
+  
   gf_segment(
     .index + .index ~ sample_min_500 + sample_max_500,
     color = "red",
@@ -186,8 +218,14 @@ sample_height_500 %>%
     ylab = "Sample Index (1-500)",
     xlab = "Sample Means"
   ) %>%
-  gf_vline(xintercept = ~ pop_mean_height, color = "blue") %>%
-  gf_label(-15 ~ pop_mean_height, label = "Population Mean", color = "blue")
+  
+  gf_vline(xintercept = ~ pop_mean_height, 
+           color = "blue") %>%
+  
+  gf_label(-15 ~ pop_mean_height, label = "Population Mean", 
+           color = "blue") %>% 
+  
+  gf_theme(theme = theme_minimal)
 
 ```
 
@@ -209,26 +247,45 @@ and standard deviation. Do not get confused ;-D
 We will also plot the position of the population mean `pop_mean_height`
 parameter, the means of the `Height` variable.
 
-```{r,Sampling-Mean-Distribution, fig.cap="Sampling Mean Distribution", fig.id=TRUE}
+```{r}
+#| label: Sampling-Mean-Distribution
+#| fig.cap: "Sampling Mean Distribution"
 
-sample_height_500 %>% gf_dhistogram(~ sample_mean_500) %>% 
-  gf_vline(xintercept = pop_mean_height, color = "blue") %>% 
-   gf_label(0.01 ~ pop_mean_height, label = "Population Mean", color = "blue")
+sample_height_500 %>% 
+  gf_dhistogram(~ sample_mean_500) %>% 
+  
+  gf_vline(xintercept = pop_mean_height, 
+           color = "blue") %>% 
+  
+   gf_label(0.01 ~ pop_mean_height, 
+            label = "Population Mean", 
+            color = "blue")
 
 ```
 
 How does this **distribution of sample-means** compare with that of the
 overall distribution of the population?
 
-```{r, fig.cap="Sampling Means and Population Distributions", fig.id=TRUE}
+```{r}
+#| fig.cap: "Sampling Means and Population Distributions"
 
-sample_height_500 %>% gf_dhistogram(~ sample_mean_500) %>% 
-  gf_vline(xintercept = pop_mean_height, color = "blue") %>% 
-   gf_label(0.01 ~ pop_mean_height, label = "Population Mean", color = "blue") %>% 
+sample_height_500 %>% 
+  gf_dhistogram(~ sample_mean_500) %>% 
+  
+  gf_vline(xintercept = pop_mean_height, 
+           color = "blue") %>% 
+  
+   gf_label(0.01 ~ pop_mean_height, 
+            label = "Population Mean", 
+            color = "blue") %>% 
 
   ## Add the population histogram
-  gf_histogram(~ Height, data = NHANES_adult, alpha = 0.2, fill = "blue", bins = 50) %>% 
-  gf_label(0.025 ~ (pop_mean_height + 20), label = "Population Distribution", color = "blue")
+  gf_histogram(~ Height, data = NHANES_adult, 
+               alpha = 0.2, fill = "blue", 
+               bins = 50) %>% 
+  
+  gf_label(0.025 ~ (pop_mean_height + 20), 
+           label = "Population Distribution", color = "blue")
 
 
 ```
@@ -258,9 +315,12 @@ samples each time, take the means and plot these 1000 means:
 set.seed(12345)
 
 
-samples_height_16 <- do(1000,) * mean(resample(NHANES_adult$Height, size = 16))
+samples_height_16 <- do(1000) * mean(resample(NHANES_adult$Height, size = 16))
+
 samples_height_32 <- do(1000) * mean(resample(NHANES_adult$Height, size = 32))
+
 samples_height_64 <- do(1000) * mean(resample(NHANES_adult$Height, size = 64))
+
 samples_height_128 <- do(1000) * mean(resample(NHANES_adult$Height, size = 128))
 
 # Quick Check
@@ -271,23 +331,31 @@ head(samples_height_16)
 
 ```
 
-Now let's create separate Q-Q plots for the different sample sizes.
+Now let's create separate `Q-Q plots` for the different sample sizes.
 
-```{r,echo=FALSE, warning=FALSE}
+```{r}
 
 
 # Now let's create separate Q-Q plots for the different sample sizes.
 #
-p1 <- gf_qq( ~ mean,data = samples_height_16,title = "N = 16", color = "cornsilk") %>%
+p1 <- gf_qq( ~ mean,data = samples_height_16,
+             title = "N = 16", 
+             color = "cornsilk") %>%
   gf_qqline()
 
-p2 <-gf_qq( ~ mean,data = samples_height_32,title = "N = 32", color = "sienna") %>%
+p2 <- gf_qq( ~ mean,data = samples_height_32,
+            title = "N = 32", 
+            color = "sienna") %>%
   gf_qqline()
 
-p3 <-gf_qq( ~ mean,data = samples_height_32,title = "N = 64", color = "tomato2") %>%
+p3 <- gf_qq( ~ mean,data = samples_height_32,
+            title = "N = 64", 
+            color = "tomato2") %>%
   gf_qqline()
 
-p4 <-gf_qq( ~ mean,data = samples_height_128,title = "N = 128", color = "violetred") %>%
+p4 <- gf_qq( ~ mean,data = samples_height_128,
+            title = "N = 128", 
+            color = "violetred") %>%
   gf_qqline()
 
 cowplot::plot_grid(p1, p2, p3, p4)
@@ -306,38 +374,42 @@ p5 <- gf_dhistogram(~ mean,
   gf_fitdistr() %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
-  gf_label(-0.01 ~ pop_mean_height, label = "Population Mean", color = "blue")
+  gf_label(-0.01 ~ pop_mean_height, 
+           label = "Population Mean", 
+           color = "blue")
 
 p6 <- gf_dhistogram(~ mean,
-              data = samples_height_32 ,
+              data = samples_height_32,
               color = "black",
               fill = "sienna",title = "N = 32") %>%
   gf_fitdistr() %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, label = "Population Mean", color = "blue")
+  gf_label(-.01 ~ pop_mean_height, 
+           label = "Population Mean", 
+           color = "blue")
 
-p7 <- gf_dhistogram(
-  ~ mean,
-  data = samples_height_64 ,
-  na.rm = TRUE,
-  color = "black",
-  fill = "tomato2",title = "N = 64") %>%
+p7 <- gf_dhistogram(~ mean,
+                    data = samples_height_64 ,
+                    na.rm = TRUE,
+                    color = "black",
+                    fill = "tomato2",title = "N = 64") %>%
   gf_fitdistr() %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, label = "Population Mean", color = "blue")
+  gf_label(-.01 ~ pop_mean_height, 
+           label = "Population Mean", color = "blue")
 
-p8 <- gf_dhistogram(
-  ~ mean,
-  data = samples_height_128 ,
-  na.rm = TRUE,
-  color = "black",
-  fill = "violetred",title = "N = 128") %>% 
+p8 <- gf_dhistogram(~ mean, 
+                    data = samples_height_128,
+                    na.rm = TRUE,
+                    color = "black",
+                    fill = "violetred",title = "N = 128") %>% 
   gf_fitdistr() %>% 
   gf_vline(xintercept = pop_mean_height,
          color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, label = "Population Mean", color = "blue")
+  gf_label(-.01 ~ pop_mean_height, 
+           label = "Population Mean", color = "blue")
 
 cowplot::plot_grid(p5,p6,p7,p8)
 
@@ -417,16 +489,21 @@ pop_mean_height
 
 ```
 
+::: callout-note
+## Central Limit Theorem
+
+This is the **Central Limit Theorem (CLT)**
+
 -   the sample-means become "more normally distributed" with sample
     length, as shown by the (small but definite) improvements in the Q-Q
     plots with sample-size.
-
 -   the sample-mean distributions narrow with sample length.
+-   This is regardless of the distribution of the *population* itself.
+:::
 
-This is regardless of the distribution of the *population* itself. ( The
-`Height` variable seems to be normally distributed at population level.
-We will try other non-normal population variables as an exercise). This
-is the \*\* Central Limit Theorem (CLT) \*\*.
+The `Height` variable seems to be normally distributed at population
+level. We will try other non-normal population variables as an
+exercise).
 
 As we saw above, the standard deviations of the sample-mean
 distributions reduce with sample size. In fact their SDs are defined by:
@@ -476,13 +553,12 @@ degree of confidence about the **population mean**, based on the
 evaluation of **one** sample mean,not a whole large number of them. Give
 that sample-means are normally distributed around the **population
 means**, we can say that $68\%$ of *all possible sample-mean* lie within
-\$ \\pm 1 SE\$ of the *population mean*; and further that $95%$ of of
-*all possible sample-mean* lie within \$ \\pm 1.5\* SE\$ of the
-*population mean*.
+$\pm SE$of the *population mean*; and further that $95 \%$ of *all
+possible sample-mean* lie within $\pm 1.5*SE$ of the *population mean*.
 
-These two intervals **\[sample-mean +/- SE\]** and **\[sample-mean +/-
-1.5SE\]** are called the **confidence intervals** for the population
-mean, at levels 68% and 95% respectively.
+These two intervals $sample.mean \pm SE$ and $sample.mean \pm 1.5*SE$
+are called the **confidence intervals** for the population mean, at
+levels $68\%$ and $95 \%$ probability respectively.
 
 Thus if we want to estimate a *population mean*:
 
