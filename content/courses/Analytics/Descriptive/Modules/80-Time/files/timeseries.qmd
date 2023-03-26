@@ -1,5 +1,5 @@
 ---
-title: "Analysis and Plotting of Time Series in R"
+title: "Analysis of Time Series in R"
 author: "Arvind Venkatadri"
 date: 28/Dec/2022
 date-modified: "`r Sys.Date()`"
@@ -11,32 +11,23 @@ date-modified: "`r Sys.Date()`"
 #| label: setup
 #| include: true
 
-knitr::opts_chunk$set(echo = TRUE)
-
 library(tidyverse) # For tidy data processing and plotting
 library(lubridate)  # Deal with dates
 
 library(mosaic) # Out go to package for everything
 
-library(tsibble) # Create and manipulate Time Series in R
-library(tsibbledata) # Tsibble Time Series Datasets
-library(fable) # Modelling Time Series in R
-library(fabletools)
-library(feasts) # Feature Extraction and Statistics for Time Series.
+library(fpp3) # Robert Hyndman's time series analysis package
 library(timetk)  # Convert data frames to time series-specific objects
 library(forecast)  # Make forecasts and decompose time series
 
 # devtools::install_github("FinYang/tsdl")
 library(tsdl) # Time Series Data Library from Rob Hyndman
 
-# Don't install this if you are a student !! ;-D
-library(downloadthis)
-
 ```
 
 ## Introduction
 
-As discussed, a time series can be broken down to its components so as
+We will see how a time series can be broken down to its components so as
 to systematically understand, analyze, model and forecast it. We have to
 begin by answering fundamental questions such as:
 
@@ -98,27 +89,29 @@ The data is described as:
 Very cool to know that `mosaic::inspect()` identifies `date` variables
 separately!
 
-NOTE: 1. This is still a `data.frame`, with a time-oriented variable of
-course, and not yet a time-series object. Note that this data frame has
-the YMD columns repeated for each `Dept`. 2. The `Date` column has
-repeated entries for each `Dept`! To deal with this repetition, we will
-always need to split the `Weekly_Sales` by the `Dept` column before we
-plot or analyze.
+::: callout-note
+NOTE:
+
+This is still a `tibble`, with a time-oriented variable of course, but
+not yet a time-series object. The data frame has the YMD columns
+repeated for each `Dept`, giving us what is called "long" form data. To
+deal with this repetition, we will always need to split the
+`Weekly_Sales` by the `Dept` column before we plot or analyze.
+:::
 
 Since our sales are *weekly*, we will convert Date to `yearweek` format:
 
 ```{r}
-
+#|label: walmart sales tsibble
 walmart_time <- walmart_sales_weekly %>% 
   # mutate(Date = as.Date(Date)) %>% 
   as_tsibble(index = Date, # Time Variable
-             key = Dept 
+             key = Dept)
              
   #  Identifies unique "subject" who are measures
   #  All other variables such as Weekly_sales become "measured variable"
   #  Each observation should be uniquely identified by index and key
 
-             )
 walmart_time
 
 ```
@@ -131,7 +124,8 @@ numerical column:
 
 ```{r feasts-basic-plot}
 
-autoplot(walmart_time,.vars = Weekly_Sales)
+autoplot(walmart_time,
+         .vars = Weekly_Sales)
 
 
 ```
@@ -245,14 +239,15 @@ Trend($T_t$), Cyclic, and Error($e_t$) (a.k.a White Noise).
     factors (e.g., the quarter of the year, the month, or day of the
     week).
 -   Cyclic: pattern exists when data exhibit rises and falls that are
-    not of fixed period (duration usually of at least 2 years).
+    not of fixed period (duration usually of at least 2 years). Often
+    combined with Trend into "Trend-Cycle".
 -   Error or Noise: Random component
 
 Decomposing **non-seasonal data**s means breaking it up into *trend* and
-*irregular* components.To estimate the trend component of a non-seasonal
-time series that can be described using an additive model, it is common
-to use a **smoothing method**, such as calculating the *simple moving
-average of the time series*.
+*irregular* components. To estimate the trend component of a
+non-seasonal time series that can be described using an additive model,
+it is common to use a **smoothing method**, such as calculating the
+*simple moving average of the time series*.
 
 `timetk` has the ability to achieve this: Let us plot the `trend`,
 `seasonal`, `cyclic` and `irregular` aspects of `Weekly_Sales` for Dept
@@ -262,7 +257,9 @@ average of the time series*.
 
 walmart_time %>% 
   filter(Dept == "38") %>% 
-  timetk::plot_stl_diagnostics(.date_var = Date, .value = Weekly_Sales)
+  timetk::plot_stl_diagnostics(.data = .,
+                               .date_var = Date, 
+                               .value = Weekly_Sales)
 
 ```
 
@@ -274,7 +271,7 @@ walmart_decomposed <-
   walmart_time %>% 
   
   # If we want to filter, we do it here
-  # filter(Dept == "38") %>% 
+  filter(Dept == "38") %>% 
   # 
 
 fabletools::model(stl = STL(Weekly_Sales))
@@ -326,7 +323,10 @@ flights_delay_ts <- flights %>%
   mutate(arr_delay = replace_na(arr_delay, 0), 
          dep_delay = replace_na(dep_delay, 0)) %>% 
   
-  select(time_hour, arr_delay, dep_delay, carrier, origin, dest, flight, tailnum) %>% 
+  select(time_hour, arr_delay, dep_delay, 
+         carrier, origin, dest, 
+         flight, tailnum) %>% 
+  
   tsibble::as_tsibble(index = time_hour, 
                       # All the remaining identify unique entries
                       # Along with index
@@ -355,13 +355,15 @@ mean_arr_delays_by_carrier <-
   # year / quarter / month/ week, or day...
   # which IS different from traditional dplyr
   
-  summarise(mean_arr_delay = mean(arr_delay, na.rm = TRUE)
+  summarise(mean_arr_delay = 
+              mean(arr_delay, na.rm = TRUE)
   )
 
 mean_arr_delays_by_carrier
 
 mean_arr_delays_by_carrier %>%
   timetk::plot_time_series(
+    .data = .,
     .date_var = month,
     .value = mean_arr_delay,
     .facet_vars = carrier,

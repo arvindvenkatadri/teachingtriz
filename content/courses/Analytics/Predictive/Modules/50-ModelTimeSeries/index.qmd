@@ -246,10 +246,10 @@ the form of $\alpha(1-\alpha)^i$, where $i$ defines how old the sample
 is compared to the present one, thus forming a set of weights that
 decrease *exponentially* with delay. Values of $\alpha, \beta. \gamma$
 that are close to 0 mean that significant weightage is placed on
-observations in the past.(Memory is "stronger").To express this in
+observations in the past.(Memory is "stronger"). To express this in
 mathematical notation we now need three equations: one for level, one
 for the trend and one to combine the level and trend to get the expected
-$\hat y$ .
+$\hat y$.
 
 To make forecasts using simple exponential smoothing in R, we can use
 the `HoltWinters()` function in R, or the `forecast::ets()` function
@@ -305,10 +305,15 @@ weekly sales for one of the Departments.
 
 data("walmart_sales_weekly")
 walmart_wide <- walmart_sales_weekly %>% 
-  pivot_wider(., id_cols = c(Date), names_from = Dept, values_from = Weekly_Sales,names_prefix = "Sales_")
+  pivot_wider(., id_cols = c(Date), 
+              names_from = Dept, 
+              values_from = Weekly_Sales,
+              names_prefix = "Sales_")
 
 ## forecast::auto.arima needs a SINGLE time series, so we pick one, Dept95
-sales_95_ts <- walmart_wide %>% select(Sales_95) %>% ts(start = c(2010,1), end = c(2012,52),frequency = 52)
+sales_95_ts <- walmart_wide %>% 
+  select(Sales_95) %>% 
+  ts(start = c(2010,1), end = c(2012,52),frequency = 52)
 sales_95_ts
 
 arima_dept_95 <- forecast::auto.arima(y = sales_95_ts)

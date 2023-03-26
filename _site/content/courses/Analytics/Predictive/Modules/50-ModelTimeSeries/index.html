@@ -340,7 +340,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 15, 2023</p>
+      <p class="date-modified">March 25, 2023</p>
     </div>
   </div>
     
@@ -514,7 +514,7 @@ Y_t = S_t × T_t × ϵ_t
 <p>The idea behind <strong>triple exponential smoothing</strong>, or the <em>Holt-Winters Smoothing Model</em>, is to apply exponential smoothing to the seasonal components in addition to level and trend.</p>
 <p><strong>What does “Exponential” mean?</strong></p>
 <p>All three models use <strong>memory</strong>: at each time instant in the Time Series, a set of past values, along with the present sample is used to make a prediction of the relevant parameter ( level / slope / seasonal). These are then added together to make the <strong>forecast</strong>.</p>
-<p>The memory in each case controlled by a parameter: <code>alpha</code> for the estimate of the level <code>beta</code> for the slope estimate, and <code>gamma</code> for the seasonal component estimate at the current time point. All these parameters are between <code>0</code> and <code>1</code>. The model takes a <strong>weighted average</strong> of past values of each parameter. The weights are derived in the form of <span class="math inline">\(\alpha(1-\alpha)^i\)</span>, where <span class="math inline">\(i\)</span> defines how old the sample is compared to the present one, thus forming a set of weights that decrease <em>exponentially</em> with delay. Values of <span class="math inline">\(\alpha, \beta. \gamma\)</span> that are close to 0 mean that significant weightage is placed on observations in the past.(Memory is “stronger”).To express this in mathematical notation we now need three equations: one for level, one for the trend and one to combine the level and trend to get the expected <span class="math inline">\(\hat y\)</span> .</p>
+<p>The memory in each case controlled by a parameter: <code>alpha</code> for the estimate of the level <code>beta</code> for the slope estimate, and <code>gamma</code> for the seasonal component estimate at the current time point. All these parameters are between <code>0</code> and <code>1</code>. The model takes a <strong>weighted average</strong> of past values of each parameter. The weights are derived in the form of <span class="math inline">\(\alpha(1-\alpha)^i\)</span>, where <span class="math inline">\(i\)</span> defines how old the sample is compared to the present one, thus forming a set of weights that decrease <em>exponentially</em> with delay. Values of <span class="math inline">\(\alpha, \beta. \gamma\)</span> that are close to 0 mean that significant weightage is placed on observations in the past.(Memory is “stronger”). To express this in mathematical notation we now need three equations: one for level, one for the trend and one to combine the level and trend to get the expected <span class="math inline">\(\hat y\)</span>.</p>
 <p>To make forecasts using simple exponential smoothing in R, we can use the <code><a href="https://rdrr.io/r/stats/HoltWinters.html">HoltWinters()</a></code> function in R, or the <code><a href="https://pkg.robjhyndman.com/forecast/reference/ets.html">forecast::ets()</a></code> function from <code>forecasts</code>. This latter function is more powerful.</p>
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-6_95fbddd2914ac67e531563eb7c897add">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">args</span>(HoltWinters)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -564,14 +564,19 @@ NULL</code></pre>
 </div>
 </div>
 <p>We will use the familiar Walmart Sales dataset, and try to predict weekly sales for one of the Departments.</p>
-<div class="cell" data-hash="index_cache/html/ARIMA_18ffaebecdb29b7c447613400d51b4fa">
+<div class="cell" data-hash="index_cache/html/ARIMA_0b6981e47938db75136d8aa89b13c8e4">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">data</span>(<span class="st">"walmart_sales_weekly"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2"></a>walmart_wide <span class="ot">&lt;-</span> walmart_sales_weekly <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">pivot_wider</span>(., <span class="at">id_cols =</span> <span class="fu">c</span>(Date), <span class="at">names_from =</span> Dept, <span class="at">values_from =</span> Weekly_Sales,<span class="at">names_prefix =</span> <span class="st">"Sales_"</span>)</span>
-<span id="cb10-4"><a href="#cb10-4"></a></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="do">## forecast::auto.arima needs a SINGLE time series, so we pick one, Dept95</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>sales_95_ts <span class="ot">&lt;-</span> walmart_wide <span class="sc">%&gt;%</span> <span class="fu">select</span>(Sales_95) <span class="sc">%&gt;%</span> <span class="fu">ts</span>(<span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">1</span>), <span class="at">end =</span> <span class="fu">c</span>(<span class="dv">2012</span>,<span class="dv">52</span>),<span class="at">frequency =</span> <span class="dv">52</span>)</span>
-<span id="cb10-7"><a href="#cb10-7"></a>sales_95_ts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">pivot_wider</span>(., <span class="at">id_cols =</span> <span class="fu">c</span>(Date), </span>
+<span id="cb10-4"><a href="#cb10-4"></a>              <span class="at">names_from =</span> Dept, </span>
+<span id="cb10-5"><a href="#cb10-5"></a>              <span class="at">values_from =</span> Weekly_Sales,</span>
+<span id="cb10-6"><a href="#cb10-6"></a>              <span class="at">names_prefix =</span> <span class="st">"Sales_"</span>)</span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="do">## forecast::auto.arima needs a SINGLE time series, so we pick one, Dept95</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>sales_95_ts <span class="ot">&lt;-</span> walmart_wide <span class="sc">%&gt;%</span> </span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">select</span>(Sales_95) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">ts</span>(<span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2010</span>,<span class="dv">1</span>), <span class="at">end =</span> <span class="fu">c</span>(<span class="dv">2012</span>,<span class="dv">52</span>),<span class="at">frequency =</span> <span class="dv">52</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a>sales_95_ts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Time Series:
 Start = c(2010, 1) 
