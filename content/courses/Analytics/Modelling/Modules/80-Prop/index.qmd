@@ -5,7 +5,7 @@ date: 10/Nov/2022
 date-modified: "`r Sys.Date()`"
 abstract: "Using Permutation Tests to check the equivalence of two proportions"
 order: 80
-tags:
+categories:
 - Permutation
 - Monte Carlo Simulation
 - Random Number Generation
@@ -13,9 +13,19 @@ tags:
 - Generating Parallel Worlds
 ---
 
+## {{< fa folder-open >}} Slides and Tutorials
+
+| <a href="./files/two-props.qmd"><i class="fa-brands                  
+                  fa-r-project"></i> R Tutorial</a>                    | <a href="./files/two-props.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/two-props.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/sim-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+|-----------------|---------------------|-----------------|-----------------|
+
+## {{< iconify noto-v1 package >}} Setting up R packages
+
 ```{r}
-#|label: setup
-#|include: true
+#| label: setup
+#| include: true
+#| message: false
+#| warning: false
 knitr::opts_chunk$set(echo = TRUE,message = TRUE,warning = TRUE, fig.align = "center")
 options(digits=2)
 library(tidyverse)
@@ -28,13 +38,7 @@ library(resampledata)
 
 ```
 
-## {{< fa folder-open >}} Slides and Tutorials
-
-| <a href="./files/two-props.qmd"><i class="fa-brands                
-                fa-r-project"></i> R Tutorial</a>                    | <a href="./files/two-props.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/two-props.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/sim-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
-|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-
-# Introduction
+## Introduction
 
 We saw from the diagram created by Allen Downey that *there is only one
 test*! We will now use this philosophy to develop a technique that
@@ -48,10 +52,10 @@ of this, including visualization. In my opinion, the code is a little
 too high-level and does not offer quite the detailed insight that the
 `mosaic` package does).
 
-# Testing for Two or More Proportions
+## Testing for Two or More Proportions
 
 Let us try a dataset with Qualitative / Categorical data. This is the
-General Social Survey GSS dataset, and we have people with different
+`General Social Survey GSS dataset`, and we have people with different
 levels of `Education` stating their opinion on the `Death Penalty`. We
 want to know if these two Categorical variables have a correlation, i.e.
 can the opinions in favour of the `Death Penalty` be explained by the
@@ -103,14 +107,7 @@ The Contingency Table can be plotted, as we have seen, using a `mosaic`
 plot using several packages:
 
 ::: panel-tabset
-### Using `vcd`
-
-```{r}
-vcd::mosaic(gss_table, gp = shading_hsv)
-
-```
-
-### Using `ggplot`
+### Using `ggformula`
 
 Need a little more work, to convert the Contigency Table into a tibble:
 
@@ -135,25 +132,33 @@ gss_summary <- gss2002 %>%
          edu_prop = count / sum(count)) %>%
   ungroup() 
 
-###################################
-
-
-ggplot(data = gss_summary, aes( x = Education, y = edu_prop)) +
+gf_col(edu_prop ~ Education, data = gss_summary,
+       width = ~ edu_count, 
+       fill = ~ DeathPenalty,
+       stat = "identity", 
+       position = "fill", 
+       color = "black") %>% 
   
-  geom_bar(aes(width = edu_count, fill = DeathPenalty), 
-           stat = "identity", 
-           position = "fill", 
-           colour = "black") +
+  gf_text(edu_prop ~ Education, 
+          label = ~ scales::percent(edu_prop),
+          position = position_stack(vjust = 0.5)) %>% 
   
-  geom_text(aes(label = scales::percent(edu_prop)), 
-            position = position_stack(vjust = 0.5)) +
+  gf_facet_grid(~ Education, 
+                scales = "free_x", 
+                space = "free_x") %>% 
+  
+  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
+  gf_theme(theme_void())
+  
 
+ 
 
-# if labels are desired
- facet_grid(~ Education, scales = "free_x", space = "free_x") + 
-  theme(scale_fill_brewer(palette = "RdYlGn")) + 
-  # theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars
-  theme_void() 
+```
+
+### Using `vcd`
+
+```{r}
+vcd::mosaic(gss_table, gp = shading_hsv)
 
 ```
 
@@ -163,7 +168,8 @@ ggplot(data = gss_summary, aes( x = Education, y = edu_prop)) +
 #library(ggmosaic)
 
 ggplot(data = gss2002) +
-  geom_mosaic(aes(x = product(DeathPenalty, Education), fill = DeathPenalty))
+  geom_mosaic(aes(x = product(DeathPenalty, Education), 
+                  fill = DeathPenalty))
 
 ```
 :::
@@ -177,7 +183,7 @@ used.
 ### Code
 
 Let us now perform the base `chisq test`: We need a `table` and then the
-`chisq` test: We see that our observed $X^2 = 23.45$:
+`chisq` test:
 
 ```{r}
 
@@ -193,13 +199,15 @@ stats::chisq.test(tally(DeathPenalty ~ Education, data = gss2002))
 
 ```
 
+We see that our observed $X^2 = 23.45$:
+
 ### Intuitive Explanation
 
 Let us look at the Contingency Table that we have:
 
 ```{r echo=FALSE}
 
-gss_table %>% addmargins()
+gss_table %>% addmargins() %>% kableExtra::kable()
 
 ```
 
@@ -224,7 +232,7 @@ the total number of entries:
 &= p_{row_1} * p_{col_1} * \text{Total Scores}\\\
 &= \frac{\text{Row-1-Total}}{\text{Total Scores}} * \frac{\text{Col-1-Total}}{\text{Total Scores}} * \text{Total Scores}\\\
 &= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
-&= 130.45
+&= 130
 
 
 \end{align}
@@ -242,8 +250,8 @@ gss_exp <- gss_table * gss_table / ((
   prop.table(gss_table, margin = 2) * prop.table(gss_table, margin = 1)
 ) * 1307)
 
-gss_exp %>% addmargins()
-gss_table %>% addmargins()
+gss_exp %>% addmargins() %>% kableExtra::kable(digits = 0,label = "Expected")
+gss_table %>% addmargins() %>% kableExtra::kable(digits = 0,label = "Actual")
 
 
 
@@ -261,6 +269,7 @@ What would our Hypotheses be?
 
 $$
     H_0: \text{Education does not affect votes for Death Penalty} \\
+    \\
     H_a: \text{Education affects votes for Death Penalty}
 $$
 
@@ -270,12 +279,17 @@ We should now repeat the test with permutations on `Education`:
 
 ```{r}
 
-null_chisq <- do(10000) * chisq.test(tally(DeathPenalty ~ shuffle(Education), data = gss2002))
+null_chisq <- do(10000) * 
+  chisq.test(tally(DeathPenalty ~ shuffle(Education), 
+                   data = gss2002))
 
 head(null_chisq)
 
 gf_histogram( ~ X.squared, data = null_chisq) %>% 
-  gf_vline(xintercept = observedChi2, color = "red")
+  
+  gf_vline(xintercept = observedChi2, 
+           color = "red") %>% 
+  gf_theme(theme = theme_classic())
 
 prop1(~ X.squared >= observedChi2, data = null_chisq)
 
@@ -289,7 +303,7 @@ opinion!
 
 Why would a permutation test be a good idea here?
 
-In our basic X\^2 test, we calculate the test statistic of X\^2 and look
+In our basic $X^2$ test, we calculate the test statistic of $X^2$ and look
 up a *theoretical* null distribution for that statistic, and see how
 unlikely our observed value is.
 
@@ -300,3 +314,4 @@ Contingency Table are fairly high ( \>= 5) the resulting NULL
 distribution is of the $X^2$ variety.
 
 ## References
+
