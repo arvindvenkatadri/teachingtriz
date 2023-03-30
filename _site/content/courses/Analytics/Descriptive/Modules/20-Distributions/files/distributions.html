@@ -310,7 +310,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title d-none d-lg-block">Distributions in R</h1>
+<div class="quarto-title-block"><div><h1 class="title d-none d-lg-block">Distributions in R</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 </div>
 
 
@@ -1168,6 +1168,8 @@ Important
 </ol>
 
 
+<!-- -->
+
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1233,6 +1235,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -1316,7 +1369,321 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
 });
-</script>
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb50" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb50-1"><a href="#cb50-1"></a><span class="co">---</span></span>
+<span id="cb50-2"><a href="#cb50-2"></a><span class="an">title:</span><span class="co"> "Distributions in R"</span></span>
+<span id="cb50-3"><a href="#cb50-3"></a><span class="an">author:</span><span class="co"> "Arvind Venkatadri"</span></span>
+<span id="cb50-4"><a href="#cb50-4"></a><span class="an">date:</span><span class="co"> 19/Nov/2022</span></span>
+<span id="cb50-5"><a href="#cb50-5"></a><span class="an">date-modified:</span><span class="co"> "`r Sys.Date()`"</span></span>
+<span id="cb50-6"><a href="#cb50-6"></a><span class="co">---</span></span>
+<span id="cb50-7"><a href="#cb50-7"></a></span>
+<span id="cb50-8"><a href="#cb50-8"></a><span class="fu">## &lt;iconify-icon icon="noto-v1:package"&gt;&lt;/iconify-icon&gt; Setup the Packages</span></span>
+<span id="cb50-9"><a href="#cb50-9"></a></span>
+<span id="cb50-12"><a href="#cb50-12"></a><span class="in">```{r}</span></span>
+<span id="cb50-13"><a href="#cb50-13"></a><span class="co">#| label: setup</span></span>
+<span id="cb50-14"><a href="#cb50-14"></a><span class="co">#| include: true</span></span>
+<span id="cb50-15"><a href="#cb50-15"></a><span class="co">#| echo: true</span></span>
+<span id="cb50-16"><a href="#cb50-16"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">collapse =</span> T, <span class="at">comment =</span> <span class="st">"#&gt;"</span>, <span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb50-17"><a href="#cb50-17"></a><span class="fu">options</span>(<span class="at">tibble.print_min =</span> 4L, <span class="at">tibble.print_max =</span> 4L)</span>
+<span id="cb50-18"><a href="#cb50-18"></a><span class="fu">library</span>(mosaic) <span class="co"># package for stats, simulations, and basic plots</span></span>
+<span id="cb50-19"><a href="#cb50-19"></a><span class="fu">library</span>(mosaicData) <span class="co"># package containing datasets</span></span>
+<span id="cb50-20"><a href="#cb50-20"></a><span class="fu">library</span>(ggformula) <span class="co"># package for professional looking plots, that use the formula interface from mosaic</span></span>
+<span id="cb50-21"><a href="#cb50-21"></a><span class="fu">library</span>(NHANES) <span class="co"># survey data collected by the US National Center for Health Statistics (NCHS)</span></span>
+<span id="cb50-22"><a href="#cb50-22"></a></span>
+<span id="cb50-23"><a href="#cb50-23"></a><span class="in">```</span></span>
+<span id="cb50-24"><a href="#cb50-24"></a></span>
+<span id="cb50-25"><a href="#cb50-25"></a><span class="fu">## &lt;iconify-icon icon="fxemoji:japanesesymbolforbeginner"&gt;&lt;/iconify-icon&gt; Introduction</span></span>
+<span id="cb50-26"><a href="#cb50-26"></a></span>
+<span id="cb50-27"><a href="#cb50-27"></a>We will create Distributions for data in R. As always, we will</span>
+<span id="cb50-28"><a href="#cb50-28"></a>consistently use the <span class="co">[</span><span class="ot">**Project Mosaic**</span><span class="co">](https://mosaic-web.org)</span></span>
+<span id="cb50-29"><a href="#cb50-29"></a>ecosystem of packages in R (<span class="in">`mosaic`</span>, <span class="in">`mosaicData`</span> and <span class="in">`ggformula`</span>).</span>
+<span id="cb50-30"><a href="#cb50-30"></a></span>
+<span id="cb50-31"><a href="#cb50-31"></a>::: callout-tip</span>
+<span id="cb50-32"><a href="#cb50-32"></a>::: {#note .illustration style="background: beige"}</span>
+<span id="cb50-33"><a href="#cb50-33"></a>Note the standard method for all commands from the <span class="in">`mosaic`</span> package:</span>
+<span id="cb50-34"><a href="#cb50-34"></a></span>
+<span id="cb50-35"><a href="#cb50-35"></a><span class="in">`goal( y ~ x | z, data = mydata, …)`</span></span>
+<span id="cb50-36"><a href="#cb50-36"></a>:::</span>
+<span id="cb50-37"><a href="#cb50-37"></a>:::</span>
+<span id="cb50-38"><a href="#cb50-38"></a></span>
+<span id="cb50-39"><a href="#cb50-39"></a><span class="fu">## Case Study -1: Dataset from `mosaicData`</span></span>
+<span id="cb50-40"><a href="#cb50-40"></a></span>
+<span id="cb50-41"><a href="#cb50-41"></a>Let us inspect what datasets are available in the package <span class="in">`mosaicData`</span>.</span>
+<span id="cb50-42"><a href="#cb50-42"></a>Type <span class="in">`data(package = "mosaicData")`</span> in your Console to see what datasets</span>
+<span id="cb50-43"><a href="#cb50-43"></a>are available.</span>
+<span id="cb50-44"><a href="#cb50-44"></a></span>
+<span id="cb50-45"><a href="#cb50-45"></a>Let us choose the famous <span class="in">`Galton`</span> dataset:</span>
+<span id="cb50-46"><a href="#cb50-46"></a></span>
+<span id="cb50-49"><a href="#cb50-49"></a><span class="in">```{r}</span></span>
+<span id="cb50-50"><a href="#cb50-50"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
+<span id="cb50-51"><a href="#cb50-51"></a><span class="fu">inspect</span>(Galton)</span>
+<span id="cb50-52"><a href="#cb50-52"></a></span>
+<span id="cb50-53"><a href="#cb50-53"></a><span class="in">```</span></span>
+<span id="cb50-54"><a href="#cb50-54"></a></span>
+<span id="cb50-55"><a href="#cb50-55"></a>The data is described as:</span>
+<span id="cb50-56"><a href="#cb50-56"></a></span>
+<span id="cb50-57"><a href="#cb50-57"></a><span class="at">&gt; A data frame with 898 observations on the following variables.</span></span>
+<span id="cb50-58"><a href="#cb50-58"></a><span class="at">&gt;</span></span>
+<span id="cb50-59"><a href="#cb50-59"></a><span class="at">&gt; -   </span><span class="in">`family`</span><span class="at"> a factor with levels for each family</span></span>
+<span id="cb50-60"><a href="#cb50-60"></a><span class="at">&gt; -   </span><span class="in">`father`</span><span class="at"> the father's height (in inches)</span></span>
+<span id="cb50-61"><a href="#cb50-61"></a><span class="at">&gt; -   </span><span class="in">`mother`</span><span class="at"> the mother's height (in inches)</span></span>
+<span id="cb50-62"><a href="#cb50-62"></a><span class="at">&gt; -   </span><span class="in">`sex`</span><span class="at"> the child's sex: F or M</span></span>
+<span id="cb50-63"><a href="#cb50-63"></a><span class="at">&gt; -   </span><span class="in">`height`</span><span class="at"> the child's height as an adult (in inches)</span></span>
+<span id="cb50-64"><a href="#cb50-64"></a><span class="at">&gt; -   </span><span class="in">`nkids`</span><span class="at"> the number of adult children in the family, or, at least,</span></span>
+<span id="cb50-65"><a href="#cb50-65"></a><span class="at">&gt;     the number whose heights Galton recorded.</span></span>
+<span id="cb50-66"><a href="#cb50-66"></a></span>
+<span id="cb50-67"><a href="#cb50-67"></a>There is a lot of Description generated by the <span class="in">`mosaic::inspect()`</span></span>
+<span id="cb50-68"><a href="#cb50-68"></a>command ! What can we say about the dataset and its variables? How big</span>
+<span id="cb50-69"><a href="#cb50-69"></a>is the dataset? How many variables? What types are they, Quant or Qual?</span>
+<span id="cb50-70"><a href="#cb50-70"></a>If they are Qual, what are the *levels*? Are they *ordered* levels?</span>
+<span id="cb50-71"><a href="#cb50-71"></a>Discuss!</span>
+<span id="cb50-72"><a href="#cb50-72"></a></span>
+<span id="cb50-73"><a href="#cb50-73"></a><span class="fu">### Stat Summaries</span></span>
+<span id="cb50-74"><a href="#cb50-74"></a></span>
+<span id="cb50-75"><a href="#cb50-75"></a>As Stigler said, **summaries** are the first thing to look at in data.</span>
+<span id="cb50-76"><a href="#cb50-76"></a>Let us tabulate some quick stat summaries of the important variables in</span>
+<span id="cb50-77"><a href="#cb50-77"></a><span class="in">`Galton`</span>:</span>
+<span id="cb50-78"><a href="#cb50-78"></a></span>
+<span id="cb50-79"><a href="#cb50-79"></a>::: column-inset-page</span>
+<span id="cb50-82"><a href="#cb50-82"></a><span class="in">```{r}</span></span>
+<span id="cb50-83"><a href="#cb50-83"></a><span class="fu">favstats</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton)</span>
+<span id="cb50-84"><a href="#cb50-84"></a><span class="fu">favstats</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
+<span id="cb50-85"><a href="#cb50-85"></a></span>
+<span id="cb50-86"><a href="#cb50-86"></a><span class="in">```</span></span>
+<span id="cb50-87"><a href="#cb50-87"></a>:::</span>
+<span id="cb50-88"><a href="#cb50-88"></a></span>
+<span id="cb50-89"><a href="#cb50-89"></a>::: callout-note</span>
+<span id="cb50-90"><a href="#cb50-90"></a>Q.1 How many families in the data for each value of <span class="in">`nkids`</span>?</span>
+<span id="cb50-91"><a href="#cb50-91"></a>:::</span>
+<span id="cb50-92"><a href="#cb50-92"></a></span>
+<span id="cb50-95"><a href="#cb50-95"></a><span class="in">```{r}</span></span>
+<span id="cb50-96"><a href="#cb50-96"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids, <span class="at">data =</span> Galton)</span>
+<span id="cb50-97"><a href="#cb50-97"></a><span class="in">```</span></span>
+<span id="cb50-98"><a href="#cb50-98"></a></span>
+<span id="cb50-99"><a href="#cb50-99"></a>::: callout-note</span>
+<span id="cb50-100"><a href="#cb50-100"></a>Q.2. What is the break-up by <span class="in">`sex`</span> of the child?</span>
+<span id="cb50-101"><a href="#cb50-101"></a>:::</span>
+<span id="cb50-102"><a href="#cb50-102"></a></span>
+<span id="cb50-105"><a href="#cb50-105"></a><span class="in">```{r}</span></span>
+<span id="cb50-106"><a href="#cb50-106"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
+<span id="cb50-107"><a href="#cb50-107"></a><span class="in">```</span></span>
+<span id="cb50-108"><a href="#cb50-108"></a></span>
+<span id="cb50-109"><a href="#cb50-109"></a><span class="fu">### Distribution Plots</span></span>
+<span id="cb50-110"><a href="#cb50-110"></a></span>
+<span id="cb50-111"><a href="#cb50-111"></a>What Questions might we have, that we could answer with a Distribution?</span>
+<span id="cb50-112"><a href="#cb50-112"></a></span>
+<span id="cb50-113"><a href="#cb50-113"></a>::: callout-note</span>
+<span id="cb50-114"><a href="#cb50-114"></a>Q.1 How many families based on the number of children?</span>
+<span id="cb50-115"><a href="#cb50-115"></a>:::</span>
+<span id="cb50-116"><a href="#cb50-116"></a></span>
+<span id="cb50-119"><a href="#cb50-119"></a><span class="in">```{r}</span></span>
+<span id="cb50-120"><a href="#cb50-120"></a><span class="co"># Convert the tally into a dataframe. See the difference!</span></span>
+<span id="cb50-121"><a href="#cb50-121"></a>family_count <span class="ot">&lt;-</span> <span class="fu">tally</span>( <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-122"><a href="#cb50-122"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb50-123"><a href="#cb50-123"></a>  </span>
+<span id="cb50-124"><a href="#cb50-124"></a>  <span class="co"># Convert nkids from char to int</span></span>
+<span id="cb50-125"><a href="#cb50-125"></a>  <span class="fu">mutate</span>( <span class="at">nkids =</span> <span class="fu">as.integer</span>(nkids))</span>
+<span id="cb50-126"><a href="#cb50-126"></a>family_count</span>
+<span id="cb50-127"><a href="#cb50-127"></a><span class="fu">gf_col</span>(n <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> family_count, <span class="at">fill =</span> <span class="sc">~</span> sex, <span class="at">ylab =</span> <span class="st">"Number of Families"</span>, <span class="at">xlab =</span> <span class="st">"Number of Kids / Family"</span>)</span>
+<span id="cb50-128"><a href="#cb50-128"></a><span class="in">```</span></span>
+<span id="cb50-129"><a href="#cb50-129"></a></span>
+<span id="cb50-130"><a href="#cb50-130"></a>::: callout-note</span>
+<span id="cb50-131"><a href="#cb50-131"></a>Q.2: How are the children's heights distributed?</span>
+<span id="cb50-132"><a href="#cb50-132"></a>:::</span>
+<span id="cb50-133"><a href="#cb50-133"></a></span>
+<span id="cb50-136"><a href="#cb50-136"></a><span class="in">```{r}</span></span>
+<span id="cb50-137"><a href="#cb50-137"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> height, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-138"><a href="#cb50-138"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(Galton<span class="sc">$</span>height))</span>
+<span id="cb50-139"><a href="#cb50-139"></a></span>
+<span id="cb50-140"><a href="#cb50-140"></a><span class="in">```</span></span>
+<span id="cb50-141"><a href="#cb50-141"></a></span>
+<span id="cb50-142"><a href="#cb50-142"></a>::: callout-note</span>
+<span id="cb50-143"><a href="#cb50-143"></a>Q.3: Is there a difference in height distributions between Male and</span>
+<span id="cb50-144"><a href="#cb50-144"></a>Female children?</span>
+<span id="cb50-145"><a href="#cb50-145"></a>:::</span>
+<span id="cb50-146"><a href="#cb50-146"></a></span>
+<span id="cb50-149"><a href="#cb50-149"></a><span class="in">```{r}</span></span>
+<span id="cb50-150"><a href="#cb50-150"></a>measures <span class="ot">&lt;-</span> <span class="fu">favstats</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
+<span id="cb50-151"><a href="#cb50-151"></a>measures</span>
+<span id="cb50-152"><a href="#cb50-152"></a></span>
+<span id="cb50-153"><a href="#cb50-153"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-154"><a href="#cb50-154"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> mean, <span class="at">data =</span> measures)</span>
+<span id="cb50-155"><a href="#cb50-155"></a></span>
+<span id="cb50-156"><a href="#cb50-156"></a><span class="in">```</span></span>
+<span id="cb50-157"><a href="#cb50-157"></a></span>
+<span id="cb50-158"><a href="#cb50-158"></a>::: callout-note</span>
+<span id="cb50-159"><a href="#cb50-159"></a>Q.4: Are Mothers generally shorter than fathers?</span>
+<span id="cb50-160"><a href="#cb50-160"></a>:::</span>
+<span id="cb50-161"><a href="#cb50-161"></a></span>
+<span id="cb50-164"><a href="#cb50-164"></a><span class="in">```{r}</span></span>
+<span id="cb50-165"><a href="#cb50-165"></a><span class="fu">gf_density</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-166"><a href="#cb50-166"></a>  <span class="fu">gf_density</span>( <span class="sc">~</span> mother, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">xlab =</span> <span class="st">"Heights"</span>)</span>
+<span id="cb50-167"><a href="#cb50-167"></a>  </span>
+<span id="cb50-168"><a href="#cb50-168"></a><span class="in">```</span></span>
+<span id="cb50-169"><a href="#cb50-169"></a></span>
+<span id="cb50-170"><a href="#cb50-170"></a>::: callout-note</span>
+<span id="cb50-171"><a href="#cb50-171"></a>Q.5: Are heights of children different based on the number of kids in</span>
+<span id="cb50-172"><a href="#cb50-172"></a>the family? For Male and Female children?</span>
+<span id="cb50-173"><a href="#cb50-173"></a>:::</span>
+<span id="cb50-174"><a href="#cb50-174"></a></span>
+<span id="cb50-177"><a href="#cb50-177"></a><span class="in">```{r}</span></span>
+<span id="cb50-178"><a href="#cb50-178"></a><span class="fu">gf_boxplot</span>(height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton)</span>
+<span id="cb50-179"><a href="#cb50-179"></a></span>
+<span id="cb50-180"><a href="#cb50-180"></a><span class="in">```</span></span>
+<span id="cb50-181"><a href="#cb50-181"></a></span>
+<span id="cb50-182"><a href="#cb50-182"></a>Box plots are used to show distributions of numeric data values,</span>
+<span id="cb50-183"><a href="#cb50-183"></a>especially when you want to compare them between multiple groups.</span>
+<span id="cb50-184"><a href="#cb50-184"></a></span>
+<span id="cb50-185"><a href="#cb50-185"></a>::: callout-note</span>
+<span id="cb50-186"><a href="#cb50-186"></a>Q.6: Does the **mean** height of children in a family vary with the</span>
+<span id="cb50-187"><a href="#cb50-187"></a>number of children in the family? ( family size)</span>
+<span id="cb50-188"><a href="#cb50-188"></a>:::</span>
+<span id="cb50-189"><a href="#cb50-189"></a></span>
+<span id="cb50-192"><a href="#cb50-192"></a><span class="in">```{r}</span></span>
+<span id="cb50-193"><a href="#cb50-193"></a><span class="fu">mean</span>( height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>() <span class="co"># not very inspiring!</span></span>
+<span id="cb50-194"><a href="#cb50-194"></a>by_sex_nkids <span class="ot">&lt;-</span> <span class="fu">favstats</span>( height <span class="sc">~</span> sex <span class="sc">+</span> nkids, <span class="at">data =</span> Galton)</span>
+<span id="cb50-195"><a href="#cb50-195"></a>by_sex_nkids <span class="co"># much better!</span></span>
+<span id="cb50-196"><a href="#cb50-196"></a></span>
+<span id="cb50-197"><a href="#cb50-197"></a><span class="in">```</span></span>
+<span id="cb50-198"><a href="#cb50-198"></a></span>
+<span id="cb50-201"><a href="#cb50-201"></a><span class="in">```{r}</span></span>
+<span id="cb50-202"><a href="#cb50-202"></a><span class="fu">gf_col</span>(mean <span class="sc">~</span> sex.nkids, <span class="at">data =</span> by_sex_nkids)</span>
+<span id="cb50-203"><a href="#cb50-203"></a><span class="in">```</span></span>
+<span id="cb50-204"><a href="#cb50-204"></a></span>
+<span id="cb50-205"><a href="#cb50-205"></a>Hmm...not a *very* informative plot...</span>
+<span id="cb50-206"><a href="#cb50-206"></a></span>
+<span id="cb50-207"><a href="#cb50-207"></a><span class="fu">## Case Study-2: Dataset from `NHANES`</span></span>
+<span id="cb50-208"><a href="#cb50-208"></a></span>
+<span id="cb50-209"><a href="#cb50-209"></a>Let us try the <span class="in">`NHANES`</span> dataset. Try <span class="in">`help(NHANES)`</span> in your Console.</span>
+<span id="cb50-210"><a href="#cb50-210"></a></span>
+<span id="cb50-213"><a href="#cb50-213"></a><span class="in">```{r}</span></span>
+<span id="cb50-214"><a href="#cb50-214"></a><span class="fu">data</span>(<span class="st">"NHANES"</span>)</span>
+<span id="cb50-215"><a href="#cb50-215"></a><span class="fu">names</span>(NHANES)</span>
+<span id="cb50-216"><a href="#cb50-216"></a><span class="in">```</span></span>
+<span id="cb50-217"><a href="#cb50-217"></a></span>
+<span id="cb50-218"><a href="#cb50-218"></a><span class="fu">### Stat Summaries</span></span>
+<span id="cb50-219"><a href="#cb50-219"></a></span>
+<span id="cb50-222"><a href="#cb50-222"></a><span class="in">```{r}</span></span>
+<span id="cb50-223"><a href="#cb50-223"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(NHANES)</span>
+<span id="cb50-224"><a href="#cb50-224"></a><span class="in">```</span></span>
+<span id="cb50-225"><a href="#cb50-225"></a></span>
+<span id="cb50-226"><a href="#cb50-226"></a>Again, lots of data from <span class="in">`inspect`</span>, about the Quant and Qual variables.</span>
+<span id="cb50-227"><a href="#cb50-227"></a>Spend a little time looking through the output of <span class="in">`inspect`</span>. Which</span>
+<span id="cb50-228"><a href="#cb50-228"></a>variables could have been data *given* by each respondent, and which</span>
+<span id="cb50-229"><a href="#cb50-229"></a>ones could have been *measured* data variables? Why do you think so?\</span>
+<span id="cb50-230"><a href="#cb50-230"></a>Why is there so much *missing* data? Which variable are the most</span>
+<span id="cb50-231"><a href="#cb50-231"></a>affected by this?</span>
+<span id="cb50-232"><a href="#cb50-232"></a></span>
+<span id="cb50-235"><a href="#cb50-235"></a><span class="in">```{r}</span></span>
+<span id="cb50-236"><a href="#cb50-236"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Work, <span class="at">data =</span> NHANES)</span>
+<span id="cb50-237"><a href="#cb50-237"></a></span>
+<span id="cb50-238"><a href="#cb50-238"></a><span class="in">```</span></span>
+<span id="cb50-239"><a href="#cb50-239"></a></span>
+<span id="cb50-240"><a href="#cb50-240"></a><span class="fu">### Distribution Plots</span></span>
+<span id="cb50-241"><a href="#cb50-241"></a></span>
+<span id="cb50-242"><a href="#cb50-242"></a>::: callout-note</span>
+<span id="cb50-243"><a href="#cb50-243"></a>Q.1. What is the distribution of Physical Activity Days, across Gender?</span>
+<span id="cb50-244"><a href="#cb50-244"></a>Across Education?</span>
+<span id="cb50-245"><a href="#cb50-245"></a>:::</span>
+<span id="cb50-246"><a href="#cb50-246"></a></span>
+<span id="cb50-249"><a href="#cb50-249"></a><span class="in">```{r}</span></span>
+<span id="cb50-250"><a href="#cb50-250"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Gender)</span>
+<span id="cb50-251"><a href="#cb50-251"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Education)</span>
+<span id="cb50-252"><a href="#cb50-252"></a></span>
+<span id="cb50-253"><a href="#cb50-253"></a><span class="in">```</span></span>
+<span id="cb50-254"><a href="#cb50-254"></a></span>
+<span id="cb50-255"><a href="#cb50-255"></a>::: callout-note</span>
+<span id="cb50-256"><a href="#cb50-256"></a>Q.2. How are people Ages distributed across levels of Education?</span>
+<span id="cb50-257"><a href="#cb50-257"></a>:::</span>
+<span id="cb50-258"><a href="#cb50-258"></a></span>
+<span id="cb50-261"><a href="#cb50-261"></a><span class="in">```{r}</span></span>
+<span id="cb50-262"><a href="#cb50-262"></a><span class="fu">gf_boxplot</span>(Age <span class="sc">~</span> Education, </span>
+<span id="cb50-263"><a href="#cb50-263"></a>           <span class="at">fill =</span> <span class="sc">~</span> Education, <span class="co"># Always a good idea</span></span>
+<span id="cb50-264"><a href="#cb50-264"></a>           <span class="at">data =</span> NHANES)</span>
+<span id="cb50-265"><a href="#cb50-265"></a><span class="in">```</span></span>
+<span id="cb50-266"><a href="#cb50-266"></a></span>
+<span id="cb50-267"><a href="#cb50-267"></a>::: callout-note</span>
+<span id="cb50-268"><a href="#cb50-268"></a>Q.3. How is Education distributed over Race?</span>
+<span id="cb50-269"><a href="#cb50-269"></a>:::</span>
+<span id="cb50-270"><a href="#cb50-270"></a></span>
+<span id="cb50-273"><a href="#cb50-273"></a><span class="in">```{r}</span></span>
+<span id="cb50-274"><a href="#cb50-274"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span>
+<span id="cb50-275"><a href="#cb50-275"></a><span class="in">```</span></span>
+<span id="cb50-276"><a href="#cb50-276"></a></span>
+<span id="cb50-277"><a href="#cb50-277"></a>::: callout-note</span>
+<span id="cb50-278"><a href="#cb50-278"></a>Q.4. What is the distribution of people's BMI, split by Gender? By</span>
+<span id="cb50-279"><a href="#cb50-279"></a>Race1?</span>
+<span id="cb50-280"><a href="#cb50-280"></a>:::</span>
+<span id="cb50-281"><a href="#cb50-281"></a></span>
+<span id="cb50-284"><a href="#cb50-284"></a><span class="in">```{r}</span></span>
+<span id="cb50-285"><a href="#cb50-285"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Gender, <span class="at">data =</span> NHANES)</span>
+<span id="cb50-286"><a href="#cb50-286"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span>
+<span id="cb50-287"><a href="#cb50-287"></a></span>
+<span id="cb50-288"><a href="#cb50-288"></a><span class="in">```</span></span>
+<span id="cb50-289"><a href="#cb50-289"></a></span>
+<span id="cb50-290"><a href="#cb50-290"></a>One can also plot both histograms and densities in an overlay fashion,</span>
+<span id="cb50-291"><a href="#cb50-291"></a>if desired:</span>
+<span id="cb50-292"><a href="#cb50-292"></a></span>
+<span id="cb50-295"><a href="#cb50-295"></a><span class="in">```{r}</span></span>
+<span id="cb50-296"><a href="#cb50-296"></a><span class="co"># Histogram with kernel density</span></span>
+<span id="cb50-297"><a href="#cb50-297"></a><span class="fu">gf_dhistogram</span>( <span class="sc">~</span> BMI, <span class="at">data =</span> NHANES) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-298"><a href="#cb50-298"></a>  <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>)</span>
+<span id="cb50-299"><a href="#cb50-299"></a><span class="in">```</span></span>
+<span id="cb50-300"><a href="#cb50-300"></a></span>
+<span id="cb50-301"><a href="#cb50-301"></a><span class="fu">## Case Study-3: A complete example</span></span>
+<span id="cb50-302"><a href="#cb50-302"></a></span>
+<span id="cb50-303"><a href="#cb50-303"></a>Here is a dataset from Jeremy Singer-Vine's blog, [Data Is</span>
+<span id="cb50-304"><a href="#cb50-304"></a>Plural](https://www.data-is-plural.com/). This is a list of all books</span>
+<span id="cb50-305"><a href="#cb50-305"></a>banned in schools across the US.</span>
+<span id="cb50-306"><a href="#cb50-306"></a></span>
+<span id="cb50-307"><a href="#cb50-307"></a><span class="in">```{r, bar-charts}</span></span>
+<span id="cb50-308"><a href="#cb50-308"></a>banned <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"data/banned.xlsx"</span>,</span>
+<span id="cb50-309"><a href="#cb50-309"></a>                            <span class="at">sheet =</span> <span class="st">"Sorted by Author &amp; Title"</span>)</span>
+<span id="cb50-310"><a href="#cb50-310"></a>banned</span>
+<span id="cb50-311"><a href="#cb50-311"></a></span>
+<span id="cb50-312"><a href="#cb50-312"></a><span class="fu">names</span>(banned)</span>
+<span id="cb50-313"><a href="#cb50-313"></a><span class="in">```</span></span>
+<span id="cb50-314"><a href="#cb50-314"></a></span>
+<span id="cb50-315"><a href="#cb50-315"></a>Clearly the variables are *all* Qualitative, except perhaps for *Date of</span>
+<span id="cb50-316"><a href="#cb50-316"></a>Challenge/Removal, (which in this case has been badly mangled by Excel)</span>
+<span id="cb50-317"><a href="#cb50-317"></a>So we need to make **counts** based on the* levels<span class="sc">\*</span> of the Qual</span>
+<span id="cb50-318"><a href="#cb50-318"></a>variables and plot Bar/Column charts.</span>
+<span id="cb50-319"><a href="#cb50-319"></a></span>
+<span id="cb50-320"><a href="#cb50-320"></a>Let us quickly make some Stat Summaries:</span>
+<span id="cb50-321"><a href="#cb50-321"></a></span>
+<span id="cb50-324"><a href="#cb50-324"></a><span class="in">```{r}</span></span>
+<span id="cb50-325"><a href="#cb50-325"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(banned)</span>
+<span id="cb50-326"><a href="#cb50-326"></a><span class="in">```</span></span>
+<span id="cb50-327"><a href="#cb50-327"></a></span>
+<span id="cb50-328"><a href="#cb50-328"></a>Let us try to answer this question:</span>
+<span id="cb50-329"><a href="#cb50-329"></a></span>
+<span id="cb50-330"><a href="#cb50-330"></a>::: callout-important</span>
+<span id="cb50-331"><a href="#cb50-331"></a>*What is the count of banned books by type and by US state?*</span>
+<span id="cb50-332"><a href="#cb50-332"></a>:::</span>
+<span id="cb50-333"><a href="#cb50-333"></a></span>
+<span id="cb50-336"><a href="#cb50-336"></a><span class="in">```{r}</span></span>
+<span id="cb50-337"><a href="#cb50-337"></a>banned_by_state <span class="ot">&lt;-</span> banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
+<span id="cb50-338"><a href="#cb50-338"></a>banned_by_state</span>
+<span id="cb50-339"><a href="#cb50-339"></a></span>
+<span id="cb50-340"><a href="#cb50-340"></a>banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State, <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(., banned_by_state, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"State"</span> <span class="ot">=</span> <span class="st">"State"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-341"><a href="#cb50-341"></a> <span class="co">#  pivot_wider(.,id_cols = State,</span></span>
+<span id="cb50-342"><a href="#cb50-342"></a> <span class="co">#              names_from = `Type of Ban`,</span></span>
+<span id="cb50-343"><a href="#cb50-343"></a> <span class="co">#              values_from = count) %&gt;% janitor::clean_names() %&gt;% </span></span>
+<span id="cb50-344"><a href="#cb50-344"></a> <span class="co">#  replace_na(list(banned_from_libraries_and_classrooms = 0,</span></span>
+<span id="cb50-345"><a href="#cb50-345"></a> <span class="co">#                  banned_from_libraries = 0,</span></span>
+<span id="cb50-346"><a href="#cb50-346"></a> <span class="co">#                  banned_pending_investigation = 0,</span></span>
+<span id="cb50-347"><a href="#cb50-347"></a> <span class="co">#                  banned_from_classrooms = 0)) %&gt;% </span></span>
+<span id="cb50-348"><a href="#cb50-348"></a> <span class="co"># mutate(total = sum(across(where(is.integer)))) %&gt;%</span></span>
+<span id="cb50-349"><a href="#cb50-349"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(State, total), <span class="at">y =</span> count, <span class="at">fill =</span> <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>)) <span class="sc">+</span> <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()</span>
+<span id="cb50-350"><a href="#cb50-350"></a></span>
+<span id="cb50-351"><a href="#cb50-351"></a><span class="in">```</span></span>
+<span id="cb50-352"><a href="#cb50-352"></a></span>
+<span id="cb50-353"><a href="#cb50-353"></a><span class="fu"># References</span></span>
+<span id="cb50-354"><a href="#cb50-354"></a></span>
+<span id="cb50-355"><a href="#cb50-355"></a><span class="ss">1.  </span>A detailed analysis of the NHANES dataset,</span>
+<span id="cb50-356"><a href="#cb50-356"></a>    <span class="ot">&lt;https://awagaman.people.amherst.edu/stat230/Stat230CodeCompilationExampleCodeUsingNHANES.pdf&gt;</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer">
     <div class="nav-footer-left">Website made with 💜 and <a href="https://quarto.org/">Quarto</a>, by Arvind Venkatadri. License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>   
