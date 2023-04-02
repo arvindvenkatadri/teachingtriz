@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.2.475">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
-<meta name="dcterms.date" content="2023-03-16">
+<meta name="dcterms.date" content="2023-04-01">
 <title>The Foundation Series - Correlations in R</title>
 <style>
 code{white-space: pre-wrap;}
@@ -99,8 +99,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <link href="../../../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="../../../../../../../site_libs/quarto-contrib/nutshell-1.0.0/nutshell.min.js"></script><script id="quarto-search-options" type="application/json">{
+<link href="../../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -318,7 +317,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 16, 2023</p>
+      <p class="date">April 1, 2023</p>
     </div>
   </div>
   
@@ -801,192 +800,193 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb28-3"><a href="#cb28-3"></a><span class="an">author:</span><span class="co"> "Arvind Venkatadri"</span></span>
 <span id="cb28-4"><a href="#cb28-4"></a><span class="an">date:</span><span class="co"> "`r Sys.Date()`"</span></span>
 <span id="cb28-5"><a href="#cb28-5"></a><span class="an">abstract:</span><span class="co"> Tests, Tables, and Graphs for Correlations in R</span></span>
-<span id="cb28-6"><a href="#cb28-6"></a><span class="co">---</span></span>
-<span id="cb28-7"><a href="#cb28-7"></a></span>
-<span id="cb28-8"><a href="#cb28-8"></a><span class="fu"># Introduction</span></span>
-<span id="cb28-9"><a href="#cb28-9"></a></span>
-<span id="cb28-10"><a href="#cb28-10"></a>We will create Tables for Correlations, and graphs for Correlations in</span>
-<span id="cb28-11"><a href="#cb28-11"></a>R. As always, we will consistently use the [**Project</span>
-<span id="cb28-12"><a href="#cb28-12"></a>Mosaic**](https://mosaic-web.org) ecosystem of packages in R (<span class="in">`mosaic`</span>,</span>
-<span id="cb28-13"><a href="#cb28-13"></a><span class="in">`mosaicData`</span> and <span class="in">`ggformula`</span>).</span>
-<span id="cb28-14"><a href="#cb28-14"></a></span>
-<span id="cb28-17"><a href="#cb28-17"></a><span class="in">```{r}</span></span>
-<span id="cb28-18"><a href="#cb28-18"></a><span class="co">#| label: setup</span></span>
-<span id="cb28-19"><a href="#cb28-19"></a><span class="co">#| echo: true</span></span>
-<span id="cb28-20"><a href="#cb28-20"></a></span>
-<span id="cb28-21"><a href="#cb28-21"></a><span class="fu">library</span>(mosaic) <span class="co"># package for stats, simulations, and basic plots</span></span>
-<span id="cb28-22"><a href="#cb28-22"></a><span class="fu">library</span>(mosaicData) <span class="co"># package containing datasets</span></span>
-<span id="cb28-23"><a href="#cb28-23"></a><span class="fu">library</span>(ggformula) <span class="co"># package for professional looking plots, that use the formula interface from mosaic</span></span>
-<span id="cb28-24"><a href="#cb28-24"></a><span class="fu">library</span>(NHANES) <span class="co"># survey data collected by the US National Center for Health Statistics (NCHS)</span></span>
-<span id="cb28-25"><a href="#cb28-25"></a><span class="fu">library</span>(corrplot) <span class="co"># For Correlogram plots</span></span>
-<span id="cb28-26"><a href="#cb28-26"></a></span>
-<span id="cb28-27"><a href="#cb28-27"></a><span class="in">```</span></span>
-<span id="cb28-28"><a href="#cb28-28"></a></span>
-<span id="cb28-29"><a href="#cb28-29"></a>::: callout-important</span>
-<span id="cb28-30"><a href="#cb28-30"></a>Note the standard method for all commands from the <span class="in">`mosaic/ggformula`</span></span>
-<span id="cb28-31"><a href="#cb28-31"></a>packages:</span>
-<span id="cb28-32"><a href="#cb28-32"></a></span>
-<span id="cb28-33"><a href="#cb28-33"></a><span class="in">`goal( y ~ x | z, data = mydata, …)`</span></span>
-<span id="cb28-34"><a href="#cb28-34"></a>:::</span>
-<span id="cb28-35"><a href="#cb28-35"></a></span>
-<span id="cb28-36"><a href="#cb28-36"></a><span class="fu">## Case Study -1: Dataset from `mosaicData`</span></span>
-<span id="cb28-37"><a href="#cb28-37"></a></span>
-<span id="cb28-38"><a href="#cb28-38"></a>Let us inspect what datasets are available in the package <span class="in">`mosaicData`</span>.</span>
-<span id="cb28-39"><a href="#cb28-39"></a>Run this command in your Console:</span>
-<span id="cb28-40"><a href="#cb28-40"></a></span>
-<span id="cb28-41"><a href="#cb28-41"></a><span class="in">```{r, eval=FALSE}</span></span>
-<span id="cb28-42"><a href="#cb28-42"></a><span class="co"># Run in Console</span></span>
-<span id="cb28-43"><a href="#cb28-43"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"mosaicData"</span>)</span>
-<span id="cb28-44"><a href="#cb28-44"></a></span>
-<span id="cb28-45"><a href="#cb28-45"></a><span class="in">```</span></span>
-<span id="cb28-46"><a href="#cb28-46"></a></span>
-<span id="cb28-47"><a href="#cb28-47"></a>The popup tab shows a lot of datasets we could use. Let us continue to</span>
-<span id="cb28-48"><a href="#cb28-48"></a>use the famous <span class="in">`Galton`</span> dataset and <span class="in">`inspect`</span> it:</span>
-<span id="cb28-49"><a href="#cb28-49"></a></span>
-<span id="cb28-52"><a href="#cb28-52"></a><span class="in">```{r}</span></span>
-<span id="cb28-53"><a href="#cb28-53"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
-<span id="cb28-54"><a href="#cb28-54"></a><span class="fu">inspect</span>(Galton)</span>
-<span id="cb28-55"><a href="#cb28-55"></a></span>
-<span id="cb28-56"><a href="#cb28-56"></a><span class="in">```</span></span>
-<span id="cb28-57"><a href="#cb28-57"></a></span>
-<span id="cb28-58"><a href="#cb28-58"></a>The <span class="in">`inspect`</span> command already gives us a series of statistical measures</span>
-<span id="cb28-59"><a href="#cb28-59"></a>of different variables of interest. As discussed previously, we can</span>
-<span id="cb28-60"><a href="#cb28-60"></a>retain the output of <span class="in">`inspect`</span> and use it in our reports: (there are</span>
-<span id="cb28-61"><a href="#cb28-61"></a>ways of dressing up these tables too)</span>
-<span id="cb28-62"><a href="#cb28-62"></a></span>
-<span id="cb28-63"><a href="#cb28-63"></a><span class="in">```{r Galton-inspect}</span></span>
-<span id="cb28-64"><a href="#cb28-64"></a></span>
-<span id="cb28-65"><a href="#cb28-65"></a>galton_describe <span class="ot">&lt;-</span> <span class="fu">inspect</span>(Galton)</span>
-<span id="cb28-66"><a href="#cb28-66"></a></span>
-<span id="cb28-67"><a href="#cb28-67"></a>galton_describe<span class="sc">$</span>categorical</span>
-<span id="cb28-68"><a href="#cb28-68"></a>galton_describe<span class="sc">$</span>quantitative</span>
-<span id="cb28-69"><a href="#cb28-69"></a></span>
-<span id="cb28-70"><a href="#cb28-70"></a><span class="in">```</span></span>
-<span id="cb28-71"><a href="#cb28-71"></a></span>
-<span id="cb28-72"><a href="#cb28-72"></a>Try <span class="in">`help("Galton")`</span> in your Console. The dataset is described as:</span>
-<span id="cb28-73"><a href="#cb28-73"></a></span>
-<span id="cb28-74"><a href="#cb28-74"></a><span class="at">&gt; A data frame with 898 observations on the following variables.\</span></span>
-<span id="cb28-75"><a href="#cb28-75"></a><span class="at">&gt; - </span><span class="in">`family`</span><span class="at"> a factor with levels for each family\</span></span>
-<span id="cb28-76"><a href="#cb28-76"></a><span class="at">&gt; - </span><span class="in">`father`</span><span class="at"> the father's height (in inches)\</span></span>
-<span id="cb28-77"><a href="#cb28-77"></a><span class="at">&gt; - </span><span class="in">`mother`</span><span class="at"> the mother's height (in inches)\</span></span>
-<span id="cb28-78"><a href="#cb28-78"></a><span class="at">&gt; - </span><span class="in">`sex`</span><span class="at"> the child's sex: F or M\</span></span>
-<span id="cb28-79"><a href="#cb28-79"></a><span class="at">&gt; - </span><span class="in">`height`</span><span class="at"> the child's height as an adult (in inches)\</span></span>
-<span id="cb28-80"><a href="#cb28-80"></a><span class="at">&gt; - </span><span class="in">`nkids`</span><span class="at"> the number of adult children in the family, or, at least,</span></span>
-<span id="cb28-81"><a href="#cb28-81"></a><span class="at">&gt; the number whose heights Galton recorded.</span></span>
-<span id="cb28-82"><a href="#cb28-82"></a></span>
-<span id="cb28-83"><a href="#cb28-83"></a>There is a lot of Description generated by the <span class="in">`mosaic::inspect()`</span></span>
-<span id="cb28-84"><a href="#cb28-84"></a>command ! What can we say about the dataset and its variables? How big</span>
-<span id="cb28-85"><a href="#cb28-85"></a>is the dataset? How many variables? What types are they, Quant or Qual?</span>
-<span id="cb28-86"><a href="#cb28-86"></a>If they are Qual, what are the *levels*? Are they *ordered* levels?</span>
-<span id="cb28-87"><a href="#cb28-87"></a>Discuss!</span>
-<span id="cb28-88"><a href="#cb28-88"></a></span>
-<span id="cb28-89"><a href="#cb28-89"></a><span class="fu">## Correlations and Plots</span></span>
-<span id="cb28-90"><a href="#cb28-90"></a></span>
-<span id="cb28-91"><a href="#cb28-91"></a>What Questions might we have, that we could answer with a Statistical</span>
-<span id="cb28-92"><a href="#cb28-92"></a>Measure, or Correlation chart?</span>
-<span id="cb28-93"><a href="#cb28-93"></a></span>
-<span id="cb28-94"><a href="#cb28-94"></a>Q.1 Which are the variables that have significant pair-wise</span>
-<span id="cb28-95"><a href="#cb28-95"></a>correlations? What polarity are these correlations?</span>
-<span id="cb28-96"><a href="#cb28-96"></a></span>
-<span id="cb28-97"><a href="#cb28-97"></a><span class="in">```{r,message=FALSE}</span></span>
-<span id="cb28-98"><a href="#cb28-98"></a></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="an">code-tools:</span><span class="co"> true</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a><span class="co">---</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a></span>
+<span id="cb28-9"><a href="#cb28-9"></a><span class="fu"># Introduction</span></span>
+<span id="cb28-10"><a href="#cb28-10"></a></span>
+<span id="cb28-11"><a href="#cb28-11"></a>We will create Tables for Correlations, and graphs for Correlations in</span>
+<span id="cb28-12"><a href="#cb28-12"></a>R. As always, we will consistently use the [**Project</span>
+<span id="cb28-13"><a href="#cb28-13"></a>Mosaic**](https://mosaic-web.org) ecosystem of packages in R (<span class="in">`mosaic`</span>,</span>
+<span id="cb28-14"><a href="#cb28-14"></a><span class="in">`mosaicData`</span> and <span class="in">`ggformula`</span>).</span>
+<span id="cb28-15"><a href="#cb28-15"></a></span>
+<span id="cb28-18"><a href="#cb28-18"></a><span class="in">```{r}</span></span>
+<span id="cb28-19"><a href="#cb28-19"></a><span class="co">#| label: setup</span></span>
+<span id="cb28-20"><a href="#cb28-20"></a><span class="co">#| echo: true</span></span>
+<span id="cb28-21"><a href="#cb28-21"></a></span>
+<span id="cb28-22"><a href="#cb28-22"></a><span class="fu">library</span>(mosaic) <span class="co"># package for stats, simulations, and basic plots</span></span>
+<span id="cb28-23"><a href="#cb28-23"></a><span class="fu">library</span>(mosaicData) <span class="co"># package containing datasets</span></span>
+<span id="cb28-24"><a href="#cb28-24"></a><span class="fu">library</span>(ggformula) <span class="co"># package for professional looking plots, that use the formula interface from mosaic</span></span>
+<span id="cb28-25"><a href="#cb28-25"></a><span class="fu">library</span>(NHANES) <span class="co"># survey data collected by the US National Center for Health Statistics (NCHS)</span></span>
+<span id="cb28-26"><a href="#cb28-26"></a><span class="fu">library</span>(corrplot) <span class="co"># For Correlogram plots</span></span>
+<span id="cb28-27"><a href="#cb28-27"></a></span>
+<span id="cb28-28"><a href="#cb28-28"></a><span class="in">```</span></span>
+<span id="cb28-29"><a href="#cb28-29"></a></span>
+<span id="cb28-30"><a href="#cb28-30"></a>::: callout-important</span>
+<span id="cb28-31"><a href="#cb28-31"></a>Note the standard method for all commands from the <span class="in">`mosaic/ggformula`</span></span>
+<span id="cb28-32"><a href="#cb28-32"></a>packages:</span>
+<span id="cb28-33"><a href="#cb28-33"></a></span>
+<span id="cb28-34"><a href="#cb28-34"></a><span class="in">`goal( y ~ x | z, data = mydata, …)`</span></span>
+<span id="cb28-35"><a href="#cb28-35"></a>:::</span>
+<span id="cb28-36"><a href="#cb28-36"></a></span>
+<span id="cb28-37"><a href="#cb28-37"></a><span class="fu">## Case Study -1: Dataset from `mosaicData`</span></span>
+<span id="cb28-38"><a href="#cb28-38"></a></span>
+<span id="cb28-39"><a href="#cb28-39"></a>Let us inspect what datasets are available in the package <span class="in">`mosaicData`</span>.</span>
+<span id="cb28-40"><a href="#cb28-40"></a>Run this command in your Console:</span>
+<span id="cb28-41"><a href="#cb28-41"></a></span>
+<span id="cb28-42"><a href="#cb28-42"></a><span class="in">```{r, eval=FALSE}</span></span>
+<span id="cb28-43"><a href="#cb28-43"></a><span class="co"># Run in Console</span></span>
+<span id="cb28-44"><a href="#cb28-44"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"mosaicData"</span>)</span>
+<span id="cb28-45"><a href="#cb28-45"></a></span>
+<span id="cb28-46"><a href="#cb28-46"></a><span class="in">```</span></span>
+<span id="cb28-47"><a href="#cb28-47"></a></span>
+<span id="cb28-48"><a href="#cb28-48"></a>The popup tab shows a lot of datasets we could use. Let us continue to</span>
+<span id="cb28-49"><a href="#cb28-49"></a>use the famous <span class="in">`Galton`</span> dataset and <span class="in">`inspect`</span> it:</span>
+<span id="cb28-50"><a href="#cb28-50"></a></span>
+<span id="cb28-53"><a href="#cb28-53"></a><span class="in">```{r}</span></span>
+<span id="cb28-54"><a href="#cb28-54"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
+<span id="cb28-55"><a href="#cb28-55"></a><span class="fu">inspect</span>(Galton)</span>
+<span id="cb28-56"><a href="#cb28-56"></a></span>
+<span id="cb28-57"><a href="#cb28-57"></a><span class="in">```</span></span>
+<span id="cb28-58"><a href="#cb28-58"></a></span>
+<span id="cb28-59"><a href="#cb28-59"></a>The <span class="in">`inspect`</span> command already gives us a series of statistical measures</span>
+<span id="cb28-60"><a href="#cb28-60"></a>of different variables of interest. As discussed previously, we can</span>
+<span id="cb28-61"><a href="#cb28-61"></a>retain the output of <span class="in">`inspect`</span> and use it in our reports: (there are</span>
+<span id="cb28-62"><a href="#cb28-62"></a>ways of dressing up these tables too)</span>
+<span id="cb28-63"><a href="#cb28-63"></a></span>
+<span id="cb28-64"><a href="#cb28-64"></a><span class="in">```{r Galton-inspect}</span></span>
+<span id="cb28-65"><a href="#cb28-65"></a></span>
+<span id="cb28-66"><a href="#cb28-66"></a>galton_describe <span class="ot">&lt;-</span> <span class="fu">inspect</span>(Galton)</span>
+<span id="cb28-67"><a href="#cb28-67"></a></span>
+<span id="cb28-68"><a href="#cb28-68"></a>galton_describe<span class="sc">$</span>categorical</span>
+<span id="cb28-69"><a href="#cb28-69"></a>galton_describe<span class="sc">$</span>quantitative</span>
+<span id="cb28-70"><a href="#cb28-70"></a></span>
+<span id="cb28-71"><a href="#cb28-71"></a><span class="in">```</span></span>
+<span id="cb28-72"><a href="#cb28-72"></a></span>
+<span id="cb28-73"><a href="#cb28-73"></a>Try <span class="in">`help("Galton")`</span> in your Console. The dataset is described as:</span>
+<span id="cb28-74"><a href="#cb28-74"></a></span>
+<span id="cb28-75"><a href="#cb28-75"></a><span class="at">&gt; A data frame with 898 observations on the following variables.\</span></span>
+<span id="cb28-76"><a href="#cb28-76"></a><span class="at">&gt; - </span><span class="in">`family`</span><span class="at"> a factor with levels for each family\</span></span>
+<span id="cb28-77"><a href="#cb28-77"></a><span class="at">&gt; - </span><span class="in">`father`</span><span class="at"> the father's height (in inches)\</span></span>
+<span id="cb28-78"><a href="#cb28-78"></a><span class="at">&gt; - </span><span class="in">`mother`</span><span class="at"> the mother's height (in inches)\</span></span>
+<span id="cb28-79"><a href="#cb28-79"></a><span class="at">&gt; - </span><span class="in">`sex`</span><span class="at"> the child's sex: F or M\</span></span>
+<span id="cb28-80"><a href="#cb28-80"></a><span class="at">&gt; - </span><span class="in">`height`</span><span class="at"> the child's height as an adult (in inches)\</span></span>
+<span id="cb28-81"><a href="#cb28-81"></a><span class="at">&gt; - </span><span class="in">`nkids`</span><span class="at"> the number of adult children in the family, or, at least,</span></span>
+<span id="cb28-82"><a href="#cb28-82"></a><span class="at">&gt; the number whose heights Galton recorded.</span></span>
+<span id="cb28-83"><a href="#cb28-83"></a></span>
+<span id="cb28-84"><a href="#cb28-84"></a>There is a lot of Description generated by the <span class="in">`mosaic::inspect()`</span></span>
+<span id="cb28-85"><a href="#cb28-85"></a>command ! What can we say about the dataset and its variables? How big</span>
+<span id="cb28-86"><a href="#cb28-86"></a>is the dataset? How many variables? What types are they, Quant or Qual?</span>
+<span id="cb28-87"><a href="#cb28-87"></a>If they are Qual, what are the *levels*? Are they *ordered* levels?</span>
+<span id="cb28-88"><a href="#cb28-88"></a>Discuss!</span>
+<span id="cb28-89"><a href="#cb28-89"></a></span>
+<span id="cb28-90"><a href="#cb28-90"></a><span class="fu">## Correlations and Plots</span></span>
+<span id="cb28-91"><a href="#cb28-91"></a></span>
+<span id="cb28-92"><a href="#cb28-92"></a>What Questions might we have, that we could answer with a Statistical</span>
+<span id="cb28-93"><a href="#cb28-93"></a>Measure, or Correlation chart?</span>
+<span id="cb28-94"><a href="#cb28-94"></a></span>
+<span id="cb28-95"><a href="#cb28-95"></a>Q.1 Which are the variables that have significant pair-wise</span>
+<span id="cb28-96"><a href="#cb28-96"></a>correlations? What polarity are these correlations?</span>
+<span id="cb28-97"><a href="#cb28-97"></a></span>
+<span id="cb28-98"><a href="#cb28-98"></a><span class="in">```{r,message=FALSE}</span></span>
 <span id="cb28-99"><a href="#cb28-99"></a></span>
-<span id="cb28-100"><a href="#cb28-100"></a><span class="co"># Pulling out the list of Quant variables from NHANES</span></span>
-<span id="cb28-101"><a href="#cb28-101"></a>galton_quant <span class="ot">&lt;-</span> galton_describe<span class="sc">$</span>quantitative</span>
-<span id="cb28-102"><a href="#cb28-102"></a>galton_quant<span class="sc">$</span>name</span>
-<span id="cb28-103"><a href="#cb28-103"></a></span>
-<span id="cb28-104"><a href="#cb28-104"></a>GGally<span class="sc">::</span><span class="fu">ggpairs</span>(</span>
-<span id="cb28-105"><a href="#cb28-105"></a>  Galton,</span>
-<span id="cb28-106"><a href="#cb28-106"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"father"</span>, <span class="st">"mother"</span>, <span class="st">"height"</span>, <span class="st">"nkids"</span>),</span>
-<span id="cb28-107"><a href="#cb28-107"></a>  <span class="at">diag =</span> <span class="fu">list</span>(<span class="st">"densityDiag"</span>),</span>
-<span id="cb28-108"><a href="#cb28-108"></a>  <span class="at">title =</span> <span class="st">"Galton Data Correlations Plot"</span></span>
-<span id="cb28-109"><a href="#cb28-109"></a>)</span>
-<span id="cb28-110"><a href="#cb28-110"></a></span>
-<span id="cb28-111"><a href="#cb28-111"></a><span class="in">```</span></span>
-<span id="cb28-112"><a href="#cb28-112"></a></span>
-<span id="cb28-113"><a href="#cb28-113"></a>Can we plot a Correlogram for this dataset?</span>
-<span id="cb28-114"><a href="#cb28-114"></a></span>
-<span id="cb28-117"><a href="#cb28-117"></a><span class="in">```{r}</span></span>
-<span id="cb28-118"><a href="#cb28-118"></a><span class="co">#library(corrplot)</span></span>
-<span id="cb28-119"><a href="#cb28-119"></a></span>
-<span id="cb28-120"><a href="#cb28-120"></a>galton_num_var <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> <span class="fu">select</span>(father, mother, height, nkids)</span>
-<span id="cb28-121"><a href="#cb28-121"></a>galton_cor <span class="ot">&lt;-</span> <span class="fu">cor</span>(galton_num_var)</span>
-<span id="cb28-122"><a href="#cb28-122"></a>galton_cor <span class="sc">%&gt;%</span></span>
-<span id="cb28-123"><a href="#cb28-123"></a>  <span class="fu">corrplot</span>(<span class="at">method =</span> <span class="st">"ellipse"</span>,</span>
-<span id="cb28-124"><a href="#cb28-124"></a>           <span class="at">type =</span> <span class="st">"lower"</span>,</span>
-<span id="cb28-125"><a href="#cb28-125"></a>           <span class="at">main =</span> <span class="st">"Correlogram for Galton dataset"</span>)</span>
-<span id="cb28-126"><a href="#cb28-126"></a></span>
-<span id="cb28-127"><a href="#cb28-127"></a><span class="in">```</span></span>
-<span id="cb28-128"><a href="#cb28-128"></a></span>
-<span id="cb28-129"><a href="#cb28-129"></a>Clearly <span class="in">`height`</span> is positively correlated to <span class="in">`father`</span> and <span class="in">`mother`</span>;</span>
-<span id="cb28-130"><a href="#cb28-130"></a>interestingly, <span class="in">`height`</span> is negatively correlated ( slightly) with</span>
-<span id="cb28-131"><a href="#cb28-131"></a><span class="in">`nkids`</span>.</span>
-<span id="cb28-132"><a href="#cb28-132"></a></span>
-<span id="cb28-133"><a href="#cb28-133"></a>Q.2: Let us confirm with a test:</span>
-<span id="cb28-134"><a href="#cb28-134"></a></span>
-<span id="cb28-137"><a href="#cb28-137"></a><span class="in">```{r}</span></span>
-<span id="cb28-138"><a href="#cb28-138"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton)</span>
-<span id="cb28-139"><a href="#cb28-139"></a><span class="in">```</span></span>
-<span id="cb28-140"><a href="#cb28-140"></a></span>
-<span id="cb28-143"><a href="#cb28-143"></a><span class="in">```{r}</span></span>
-<span id="cb28-144"><a href="#cb28-144"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton)</span>
-<span id="cb28-145"><a href="#cb28-145"></a><span class="in">```</span></span>
-<span id="cb28-146"><a href="#cb28-146"></a></span>
-<span id="cb28-147"><a href="#cb28-147"></a>Q.3 What does this correlation look when split by <span class="in">`sex`</span> of Child?</span>
-<span id="cb28-148"><a href="#cb28-148"></a></span>
-<span id="cb28-149"><a href="#cb28-149"></a>We will use the <span class="in">`mosaic`</span> function <span class="in">`cor_test`</span> to get these results:</span>
-<span id="cb28-150"><a href="#cb28-150"></a></span>
-<span id="cb28-153"><a href="#cb28-153"></a><span class="in">```{r}</span></span>
-<span id="cb28-154"><a href="#cb28-154"></a><span class="co"># For the sons</span></span>
-<span id="cb28-155"><a href="#cb28-155"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>))</span>
-<span id="cb28-156"><a href="#cb28-156"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>))</span>
-<span id="cb28-157"><a href="#cb28-157"></a></span>
-<span id="cb28-158"><a href="#cb28-158"></a><span class="co"># For the daughters</span></span>
-<span id="cb28-159"><a href="#cb28-159"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>))</span>
-<span id="cb28-160"><a href="#cb28-160"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>))</span>
-<span id="cb28-161"><a href="#cb28-161"></a>         </span>
-<span id="cb28-162"><a href="#cb28-162"></a><span class="in">```</span></span>
-<span id="cb28-163"><a href="#cb28-163"></a></span>
-<span id="cb28-164"><a href="#cb28-164"></a>Q.4. How can we show this correlation in a set of Scatter Plots +</span>
-<span id="cb28-165"><a href="#cb28-165"></a>Regression Lines? Can we recreate Galton's famous diagram?</span>
-<span id="cb28-166"><a href="#cb28-166"></a></span>
-<span id="cb28-169"><a href="#cb28-169"></a><span class="in">```{r}</span></span>
-<span id="cb28-170"><a href="#cb28-170"></a><span class="co"># For the sons</span></span>
-<span id="cb28-171"><a href="#cb28-171"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb28-172"><a href="#cb28-172"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb28-173"><a href="#cb28-173"></a></span>
-<span id="cb28-174"><a href="#cb28-174"></a><span class="co"># For the daughters</span></span>
-<span id="cb28-175"><a href="#cb28-175"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb28-176"><a href="#cb28-176"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb28-177"><a href="#cb28-177"></a><span class="in">```</span></span>
-<span id="cb28-178"><a href="#cb28-178"></a></span>
-<span id="cb28-179"><a href="#cb28-179"></a>An approximation to Galton's famous plot (see Wikipedia):</span>
-<span id="cb28-180"><a href="#cb28-180"></a></span>
-<span id="cb28-183"><a href="#cb28-183"></a><span class="in">```{r}</span></span>
-<span id="cb28-184"><a href="#cb28-184"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> (father <span class="sc">+</span> mother)<span class="sc">/</span><span class="dv">2</span>, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-185"><a href="#cb28-185"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-186"><a href="#cb28-186"></a>  <span class="fu">gf_density_2d</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-187"><a href="#cb28-187"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>)</span>
-<span id="cb28-188"><a href="#cb28-188"></a></span>
-<span id="cb28-189"><a href="#cb28-189"></a><span class="in">```</span></span>
-<span id="cb28-190"><a href="#cb28-190"></a></span>
-<span id="cb28-191"><a href="#cb28-191"></a>How would you interpret this plot?</span>
-<span id="cb28-192"><a href="#cb28-192"></a></span>
-<span id="cb28-193"><a href="#cb28-193"></a><span class="fu">## Case Study -2: Dataset from `NHANES`</span></span>
-<span id="cb28-194"><a href="#cb28-194"></a></span>
-<span id="cb28-195"><a href="#cb28-195"></a>We will "live code" this in class!</span>
-<span id="cb28-196"><a href="#cb28-196"></a></span>
-<span id="cb28-197"><a href="#cb28-197"></a><span class="fu"># Conclusion</span></span>
-<span id="cb28-198"><a href="#cb28-198"></a></span>
-<span id="cb28-199"><a href="#cb28-199"></a>We have a decent Correlations related *workflow* in R:\</span>
-<span id="cb28-200"><a href="#cb28-200"></a><span class="ss">- </span>load the dataset\</span>
-<span id="cb28-201"><a href="#cb28-201"></a><span class="ss">- </span><span class="in">`inspect`</span> the dataset, identify Quant and Qual variables\</span>
-<span id="cb28-202"><a href="#cb28-202"></a><span class="ss">- </span>Develop Pair-Wise plots + Correlations using <span class="in">`GGally::ggpairs()`</span>\</span>
-<span id="cb28-203"><a href="#cb28-203"></a><span class="ss">- </span>Develop Correlogram <span class="in">`corrplot::corrplot`</span>\</span>
-<span id="cb28-204"><a href="#cb28-204"></a><span class="ss">- </span>Check everything with a <span class="in">`cor_test`</span>\</span>
-<span id="cb28-205"><a href="#cb28-205"></a><span class="ss">- </span>Plot scatter plots using <span class="in">`gf_point`</span> if needed.\</span>
-<span id="cb28-206"><a href="#cb28-206"></a><span class="ss">- </span>Add extra lines using <span class="in">`gf_abline()`</span> to compare hypotheses that you may</span>
-<span id="cb28-207"><a href="#cb28-207"></a>have.</span>
+<span id="cb28-100"><a href="#cb28-100"></a></span>
+<span id="cb28-101"><a href="#cb28-101"></a><span class="co"># Pulling out the list of Quant variables from NHANES</span></span>
+<span id="cb28-102"><a href="#cb28-102"></a>galton_quant <span class="ot">&lt;-</span> galton_describe<span class="sc">$</span>quantitative</span>
+<span id="cb28-103"><a href="#cb28-103"></a>galton_quant<span class="sc">$</span>name</span>
+<span id="cb28-104"><a href="#cb28-104"></a></span>
+<span id="cb28-105"><a href="#cb28-105"></a>GGally<span class="sc">::</span><span class="fu">ggpairs</span>(</span>
+<span id="cb28-106"><a href="#cb28-106"></a>  Galton,</span>
+<span id="cb28-107"><a href="#cb28-107"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"father"</span>, <span class="st">"mother"</span>, <span class="st">"height"</span>, <span class="st">"nkids"</span>),</span>
+<span id="cb28-108"><a href="#cb28-108"></a>  <span class="at">diag =</span> <span class="fu">list</span>(<span class="st">"densityDiag"</span>),</span>
+<span id="cb28-109"><a href="#cb28-109"></a>  <span class="at">title =</span> <span class="st">"Galton Data Correlations Plot"</span></span>
+<span id="cb28-110"><a href="#cb28-110"></a>)</span>
+<span id="cb28-111"><a href="#cb28-111"></a></span>
+<span id="cb28-112"><a href="#cb28-112"></a><span class="in">```</span></span>
+<span id="cb28-113"><a href="#cb28-113"></a></span>
+<span id="cb28-114"><a href="#cb28-114"></a>Can we plot a Correlogram for this dataset?</span>
+<span id="cb28-115"><a href="#cb28-115"></a></span>
+<span id="cb28-118"><a href="#cb28-118"></a><span class="in">```{r}</span></span>
+<span id="cb28-119"><a href="#cb28-119"></a><span class="co">#library(corrplot)</span></span>
+<span id="cb28-120"><a href="#cb28-120"></a></span>
+<span id="cb28-121"><a href="#cb28-121"></a>galton_num_var <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> <span class="fu">select</span>(father, mother, height, nkids)</span>
+<span id="cb28-122"><a href="#cb28-122"></a>galton_cor <span class="ot">&lt;-</span> <span class="fu">cor</span>(galton_num_var)</span>
+<span id="cb28-123"><a href="#cb28-123"></a>galton_cor <span class="sc">%&gt;%</span></span>
+<span id="cb28-124"><a href="#cb28-124"></a>  <span class="fu">corrplot</span>(<span class="at">method =</span> <span class="st">"ellipse"</span>,</span>
+<span id="cb28-125"><a href="#cb28-125"></a>           <span class="at">type =</span> <span class="st">"lower"</span>,</span>
+<span id="cb28-126"><a href="#cb28-126"></a>           <span class="at">main =</span> <span class="st">"Correlogram for Galton dataset"</span>)</span>
+<span id="cb28-127"><a href="#cb28-127"></a></span>
+<span id="cb28-128"><a href="#cb28-128"></a><span class="in">```</span></span>
+<span id="cb28-129"><a href="#cb28-129"></a></span>
+<span id="cb28-130"><a href="#cb28-130"></a>Clearly <span class="in">`height`</span> is positively correlated to <span class="in">`father`</span> and <span class="in">`mother`</span>;</span>
+<span id="cb28-131"><a href="#cb28-131"></a>interestingly, <span class="in">`height`</span> is negatively correlated ( slightly) with</span>
+<span id="cb28-132"><a href="#cb28-132"></a><span class="in">`nkids`</span>.</span>
+<span id="cb28-133"><a href="#cb28-133"></a></span>
+<span id="cb28-134"><a href="#cb28-134"></a>Q.2: Let us confirm with a test:</span>
+<span id="cb28-135"><a href="#cb28-135"></a></span>
+<span id="cb28-138"><a href="#cb28-138"></a><span class="in">```{r}</span></span>
+<span id="cb28-139"><a href="#cb28-139"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton)</span>
+<span id="cb28-140"><a href="#cb28-140"></a><span class="in">```</span></span>
+<span id="cb28-141"><a href="#cb28-141"></a></span>
+<span id="cb28-144"><a href="#cb28-144"></a><span class="in">```{r}</span></span>
+<span id="cb28-145"><a href="#cb28-145"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton)</span>
+<span id="cb28-146"><a href="#cb28-146"></a><span class="in">```</span></span>
+<span id="cb28-147"><a href="#cb28-147"></a></span>
+<span id="cb28-148"><a href="#cb28-148"></a>Q.3 What does this correlation look when split by <span class="in">`sex`</span> of Child?</span>
+<span id="cb28-149"><a href="#cb28-149"></a></span>
+<span id="cb28-150"><a href="#cb28-150"></a>We will use the <span class="in">`mosaic`</span> function <span class="in">`cor_test`</span> to get these results:</span>
+<span id="cb28-151"><a href="#cb28-151"></a></span>
+<span id="cb28-154"><a href="#cb28-154"></a><span class="in">```{r}</span></span>
+<span id="cb28-155"><a href="#cb28-155"></a><span class="co"># For the sons</span></span>
+<span id="cb28-156"><a href="#cb28-156"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>))</span>
+<span id="cb28-157"><a href="#cb28-157"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>))</span>
+<span id="cb28-158"><a href="#cb28-158"></a></span>
+<span id="cb28-159"><a href="#cb28-159"></a><span class="co"># For the daughters</span></span>
+<span id="cb28-160"><a href="#cb28-160"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>))</span>
+<span id="cb28-161"><a href="#cb28-161"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>))</span>
+<span id="cb28-162"><a href="#cb28-162"></a>         </span>
+<span id="cb28-163"><a href="#cb28-163"></a><span class="in">```</span></span>
+<span id="cb28-164"><a href="#cb28-164"></a></span>
+<span id="cb28-165"><a href="#cb28-165"></a>Q.4. How can we show this correlation in a set of Scatter Plots +</span>
+<span id="cb28-166"><a href="#cb28-166"></a>Regression Lines? Can we recreate Galton's famous diagram?</span>
+<span id="cb28-167"><a href="#cb28-167"></a></span>
+<span id="cb28-170"><a href="#cb28-170"></a><span class="in">```{r}</span></span>
+<span id="cb28-171"><a href="#cb28-171"></a><span class="co"># For the sons</span></span>
+<span id="cb28-172"><a href="#cb28-172"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb28-173"><a href="#cb28-173"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb28-174"><a href="#cb28-174"></a></span>
+<span id="cb28-175"><a href="#cb28-175"></a><span class="co"># For the daughters</span></span>
+<span id="cb28-176"><a href="#cb28-176"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb28-177"><a href="#cb28-177"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb28-178"><a href="#cb28-178"></a><span class="in">```</span></span>
+<span id="cb28-179"><a href="#cb28-179"></a></span>
+<span id="cb28-180"><a href="#cb28-180"></a>An approximation to Galton's famous plot (see Wikipedia):</span>
+<span id="cb28-181"><a href="#cb28-181"></a></span>
+<span id="cb28-184"><a href="#cb28-184"></a><span class="in">```{r}</span></span>
+<span id="cb28-185"><a href="#cb28-185"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> (father <span class="sc">+</span> mother)<span class="sc">/</span><span class="dv">2</span>, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-186"><a href="#cb28-186"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-187"><a href="#cb28-187"></a>  <span class="fu">gf_density_2d</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-188"><a href="#cb28-188"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>)</span>
+<span id="cb28-189"><a href="#cb28-189"></a></span>
+<span id="cb28-190"><a href="#cb28-190"></a><span class="in">```</span></span>
+<span id="cb28-191"><a href="#cb28-191"></a></span>
+<span id="cb28-192"><a href="#cb28-192"></a>How would you interpret this plot?</span>
+<span id="cb28-193"><a href="#cb28-193"></a></span>
+<span id="cb28-194"><a href="#cb28-194"></a><span class="fu">## Case Study -2: Dataset from `NHANES`</span></span>
+<span id="cb28-195"><a href="#cb28-195"></a></span>
+<span id="cb28-196"><a href="#cb28-196"></a>We will "live code" this in class!</span>
+<span id="cb28-197"><a href="#cb28-197"></a></span>
+<span id="cb28-198"><a href="#cb28-198"></a><span class="fu"># Conclusion</span></span>
+<span id="cb28-199"><a href="#cb28-199"></a></span>
+<span id="cb28-200"><a href="#cb28-200"></a>We have a decent Correlations related *workflow* in R:\</span>
+<span id="cb28-201"><a href="#cb28-201"></a><span class="ss">- </span>load the dataset\</span>
+<span id="cb28-202"><a href="#cb28-202"></a><span class="ss">- </span><span class="in">`inspect`</span> the dataset, identify Quant and Qual variables\</span>
+<span id="cb28-203"><a href="#cb28-203"></a><span class="ss">- </span>Develop Pair-Wise plots + Correlations using <span class="in">`GGally::ggpairs()`</span>\</span>
+<span id="cb28-204"><a href="#cb28-204"></a><span class="ss">- </span>Develop Correlogram <span class="in">`corrplot::corrplot`</span>\</span>
+<span id="cb28-205"><a href="#cb28-205"></a><span class="ss">- </span>Check everything with a <span class="in">`cor_test`</span>\</span>
+<span id="cb28-206"><a href="#cb28-206"></a><span class="ss">- </span>Plot scatter plots using <span class="in">`gf_point`</span> if needed.\</span>
+<span id="cb28-207"><a href="#cb28-207"></a><span class="ss">- </span>Add extra lines using <span class="in">`gf_abline()`</span> to compare hypotheses that you may</span>
+<span id="cb28-208"><a href="#cb28-208"></a>have.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
