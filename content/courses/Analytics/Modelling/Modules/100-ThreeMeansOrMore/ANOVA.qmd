@@ -1,43 +1,43 @@
 ---
 title: "Comparing Multiple Means with ANOVA"
 author: "Arvind Venkatadri"
+format: html
+editor: visual
 abstract: "ANOVA to investigate how frogspawn hatching time varies with temperature."
 date: 28/Mar/2023
 date-modified: "`r Sys.Date()`"
 image: preview.jpg
-image-alt: Photo by Towfiqu barbhuiya on Unsplash
-theme: journal
-df-print: paged
-code-fold: show
-code-overflow: scroll
-code-block-bg: "wheat"
-code-line-numbers: true
-code-block-border-left: "black"
-section-divs: true
-section-titles: true
-toc: true
-toc-depth: 3
 ---
-
-## {{< fa folder-open >}} Slides and Tutorials
-
-
-## {{< iconify noto-v1 package >}} Setting up R packages
 
 ```{r}
 #| label: setup
-#| message: false
+#| message: true
 #| warning: false
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
 library(tidyverse)
-library(broom)
 library(ggformula)
 library(mosaic)
 library(infer)
 
 ```
 
+```{css, echo=FALSE}
+
+/*https://stackoverflow.com/questions/73546631/how-to-format-tabset-font-in-quarto
+*/
+
+/*
+.panel-tabset .nav-item {
+   font-size: 20px;
+   font-style: italic
+    }
+*/
+```
+
 ## Introduction
+
+Following the ANOVA tutorial at [Our Coding
+Club](https://ourcodingclub.github.io/tutorials/anova/).
 
 Suppose we have three sales strategies on our website, to sell a certain
 product, say men's shirts. We have website interaction over several
@@ -61,7 +61,9 @@ the wrong decision.
 The trick is of course to make comparisons **all at once** and ANOVA is
 the technique that allows us to do just that. In this tutorial, we will
 compare the Hatching Time of frog spawn[^1], at three different lab
-temperatures. Our research question is:
+temperatures.
+
+In this tutorial, our research question is:
 
 ::: callout-note
 ## Research Question
@@ -124,8 +126,6 @@ frogs_long %>% count(TempFac)
 
 So we have `20` samples for Hatching `Time` per `TempFac` setting.
 
-
-
 ## EDA
 
 Let us set a plot theme:
@@ -163,7 +163,7 @@ gf_histogram(data = frogs_long,
 
 ```
 
-We should also look at boxplots:
+We should also look at boxplots
 
 ```{r}
 
@@ -177,14 +177,11 @@ gf_boxplot(data = frogs_long,
 
 ```
 
-
 ## ANOVA
 
 We will first execute the ANOVA test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
 hand-calculate entire analysis for clear understanding.
-
-
 
 ::: panel-tabset
 ### ANOVA Test with Code
@@ -200,13 +197,10 @@ summary(frogs_anova)
 
 ```
 
-
 The effect of Temperature on Hatching time is significant, with a
 p-value of $<2e-16$. The F-statistic for the ANOVA test is given by
-$385.9$, which is very high.
-
-Clearly `Temperature` has a very significant effect on the hatching
-`Time`.
+$385.9$, which is very high. Clearly `Temperature` has a very
+significant effect on the hatching `Time`.
 
 To find which specific value of `TempFac` has the most effect will
 require *pairwise comparison* of the group means, using a standard
@@ -305,7 +299,7 @@ SSE = \Sigma [(y - \mu_i)^2 +... (y - \mu_k)^2]
 $$ {#eq-SSE}
 
 If the $\mu_A$ and $\mu_B$ are different from $\mu_{tot}$, then what
-would be the relationship between $SSA$ and $SSE$? Clearly if the all
+would be the relationship between $SSA$ and $SSE$ ? Clearly if the all
 means are identical then the $SST$ and $SSE$ are equal, since the two
 coloured lines would be in the same place as the black line. It should
 be clear that if $\mu_A$ and $\mu_B$ are different from the overall
@@ -321,28 +315,26 @@ $$ {#eq-SSA}
 $SSA$ is called the **Treatment Sum of Squares** and is a measure the
 differences in means of observations at different levels of the factor.
 
-$SSA$ can also directly be re-written in a very symmetric fashion to
-@eq-SST as:
+$SSA$ can also directly be re-written in a very symmetric fashion as:
 
-$$
-SSA = \frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} - \frac{\left( \sum_{i=1}^{kn}y_i \right)^2}{kn}
-$$
+$$ SSA =
+\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} -
+\frac{\left( \sum_{i=1}^{kn}
 
-Note that in the first term, we are calculating sums of observations
-within each group in the inner summation, which is like a per-group
-mean(without the division), and squaring these (*square means*). The
-outer summation takes the sum of square-means of these undivided
-summations and divides by $n$, giving us an average squared mean! Whew!
+y_i \right)^2}{kn}
+
+$$ {#eg-SSA}
+
+Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean(without the division). The outer summation takes the sum of squares of these undivided summations and divides by $n$.
 
 Comparing $SSA$ and $SSE$ now provides us with a method that helps us
-decide whether these means are different. The comparison is of course in
-the form of a ratio, the F-statistic.
-
-Since each of these measures uses a different sets of observations, the
-comparison is done after scaling each of $SSA$ and $SSE$ by the number
-of observations influencing them. This means that we need to divide each
-of $SSA$ and $SSE$ by their *degrees of freedom*, which gives us a ratio
-of **variances**:
+decide whether these means are different. The logic is that we compare
+global differences and local differences. The comparison is of course in
+the form of a ratio, the F-statistic. Since each of these measures uses
+a different sets of observations, the comparison is done after scaling
+each of $SSA$ and $SSE$ by the number of observations influencing them.
+This means that we need to divide each of $SSA$ and $SSE$ by their
+*degrees of freedom*, which gives us a ratio of **variances**:
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
@@ -359,8 +351,7 @@ the Bonferroni correction as stated before.
 
 ### ANOVA Manually Demonstrated (Apologies to Spinoza)
 
-Let us also hand-calculate the numbers so we know what the ANOVA test is
-doing.
+Let us hand-calculate the numbers so we know what the test is doing.
 
 Here is the SST:
 
@@ -368,14 +359,13 @@ Here is the SST:
 #| label: SST Total Sum of Squares
 # Calculate overall sum squares SST
 
+
 frogs_overall <- frogs_long %>% 
   summarise(mean_time = mean(Time), 
             # Overall mean across all readings
             # The Black Line
             
             SST = sum((Time - mean_time)^2),
-            
-            # always use n = n() at the end of a summarise!!
             n = n())
 frogs_overall
 
@@ -389,8 +379,6 @@ And here is our plot to understand the SST:
 
 ```{r}
 #| label: Frogs SST Graph
-#| column: margin
-
 frogs_plot <- frogs_long %>% 
   arrange(TempFac) %>% 
            rowid_to_column(var = "index")
@@ -411,25 +399,21 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot, 
              color = "black",
-             frogs_mean$overall_mean + Time ~ index + index) %>% 
-  gf_theme(theme = theme_frogs)
-
+             frogs_mean$overall_mean + Time ~ index + index)
 ```
 
-Here is the SSE:
+And here is the SSE:
 
 ```{r}
 #| label: SSE Within Group Sum of Squares
 
-# First calculate sums of square errors *within* each group
+# Calculate sums of square errors *within* each group
 # with respect to individual group means
-# Then sum them together
-# Be careful of unbalanced groups!
-# Not all groups may have the same number of observations
 
 frogs_within_groups <- frogs_long %>% 
   group_by(TempFac) %>% 
    summarise(mean_time = mean(Time),
+            variance_time = var(Time),
             group_error_squares = sum((Time - mean_time)^2),
             n = n())
 frogs_within_groups
@@ -442,11 +426,8 @@ SSE
 
 ```
 
-What does the SSE look like in a graph?
-
 ```{r}
 #| label: Frogs SSE Plot
-#| column: margin
 frogs_plot <- frogs_long %>% 
   arrange(TempFac) %>% 
            rowid_to_column(var = "index")
@@ -477,10 +458,7 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot %>% filter(TempFac == 25),
              frogs_grouped_means$grouped_means[3] + Time ~ index + index
-             ) %>% 
-  
-  gf_theme(theme = theme_frogs)
-
+             ) 
 ```
 
 OK, we have $SST$ and $SSE$, so let's get $SSA$:
@@ -495,9 +473,9 @@ SSA
 
 We have $SST = 1096$, $SSE = 75.4$ and therefore $SSA = 1020.9$.
 
-In order to calculate the F-Statistic, we need to compute the
-**variances**, using these sum of squares. We obtain variances from
-these Sums of Squares by dividing by their *Degrees of Freedom*:
+In order to calculate the F-Statistic, we need to compute the variances,
+using these sum of squares. We obtain variances by dividing by their
+*Degrees of Freedom*:
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
@@ -506,10 +484,10 @@ $$
 where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
 in SSA and SSE.
 
-Let us calculate these Degrees of Freedom. With $k = 3$ levels in the
+Let us calculate these Degrees of Freedom. With $k = 2$ levels in the
 factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has
-degree of freedom $kn-1 = 59$, since it uses all observations but loses
-one degree to calculate the global mean. (If each level did not have the
+degree of freedom $kn-1$, since it uses all observations but loses one
+degree to calculate the global mean. (If each level did not have the
 same number of points $n$, we simply take all observations less one as
 the degrees of freedom for $SST$).
 
@@ -517,8 +495,7 @@ $SSE$ has $k*(n-1)$ as degrees of freedom, since each of the $k$ groups
 there are $n$ observations and each group loses one degree to calculate
 its own group mean.
 
-And therefore, $SSA$ being their difference, has $k-1$ degrees of
-freedom.
+And therefore $SSA$ has $k-1$ degrees of freedom.
 
 We can still calculate these in R, for the sake of method and clarity:
 
@@ -528,19 +505,15 @@ We can still calculate these in R, for the sake of method and clarity:
 # Error Sum of Squares SSE
 df_SSE <- frogs_long %>% 
   
-# Takes into account "unbalanced" situations
+  # Takes into account "unbalanced" situations
   group_by(TempFac) %>% 
   summarise(per_group_df_SSE = n() - 1) %>% 
-  summarise(df_SSE = sum(per_group_df_SSE)) %>% 
-  
-# Convert df_SSE from tibble to a scalar
-  as.integer()
+  summarise(df_SSE = sum(per_group_df_SSE)) %>% as.numeric()
 
 
 ## Overall Sum of Squares SST
 df_SST <- frogs_long %>% 
-  summarise(df_SST = n() - 1) %>% 
-  as.integer()
+  summarise(df_SST = n() - 1) %>% as.integer()
 
 
 # Treatment Sum of Squares SSA
@@ -580,7 +553,7 @@ F_stat
 ```
 
 The F-stat is compared with a **critical value** of the F-statistic,
-which is computes using the formula for the f-distribution in R. As with
+which is computed using the formula for the f-distribution in R. As with
 our hypothesis tests, we set the significance level to 0.95, and quote
 the two relevant degrees of freedom as parameters to `qf()` which
 computes the critical F value as a **quartile**:
@@ -604,14 +577,13 @@ mosaic::pdist(dist = "f",
 
 ```
 
-Any value of F more than the F_crit occurs with smaller probability than 0,05. Our F_stat is much higher than F_crit, by orders of magnitude! And so we can say with confidence that Temperature has a significant
-effect on spawn Time.
+Any value of F more than the F_crit occurs with smaller probability than
+0,05. Our F_stat is much higher than F_crit, by orders of magnitude! And
+so we can say with confidence that Temperature has a significant effect
+on spawn Time.
 
 And that is how ANOVA computes!
-
 :::
-
-
 
 ## Checking ANOVA Assumptions
 
@@ -638,10 +610,8 @@ shapiro.test(x = frogs_long$Time)
 ```
 
 The p-value is very low and we cannot reject the (alternative)
-hypothesis that the data is **not** normal. Clearly however, the overall
-data **cannot** be normally distributed,especially if there is a strong
-effect of the `TempFac` factor! We therefore need to look for normality
-at each level of the factor:
+hypothesis that the overall data is **not** normal. How about normality
+at each level of the factor?
 
 ```{r}
 frogs_grouped <- frogs_long %>% 
@@ -728,9 +698,8 @@ DescTools::LeveneTest(Time ~ TempFac, data = frogs_long)
 
 ```
 
-It seems that there is no cause for concern here; the p-value is quite
-high and therefore we do not reject the NULL hypothesis that the data
-have similar variances.
+It seems that there is no cause for concern here; the data do not have
+significantly different variances.
 
 ### Independent Observations
 
@@ -808,6 +777,13 @@ We will use `mosaic` and also try with `infer`.
 ::: panel-tabset
 #### Using `mosaic`
 
+`mosaic` offers an easy and intuitive way of doing a repeated
+permutation test, using the `do()` command. We will `shuffle` the
+`TempFac` factor to jumble up the `Time` observations, 10000 times. Each
+time we shuffle, we compute the F_statistic and record it. We then plot
+the 10000 F-statistics and compare that with the real-world observation
+of `F-stat`.
+
 ```{r}
 #| label: permutation test for ANOVA with mosaic
 
@@ -840,7 +816,8 @@ p_value
 
 #### Using `infer`
 
-We calculate the observed F-stat with `infer`:
+We calculate the observed F-stat with `infer`, which also has a very
+direct, if verbose, syntax for doing permutation tests:
 
 ```{r}
 #| label: ANOVA F-statistic with infer
@@ -878,7 +855,7 @@ permutationally generated F-statistics are nowhere near that which was
 observed. The effect of `TempFac` is very strong.
 :::
 
-# Conclusions
+## Conclusions
 
 We have discussed ANOVA as a means of modelling the effects of a
 Categorical variable on a Continuous (Quant) variable. ANOVA can be
@@ -888,24 +865,23 @@ tests can be carried out when these assumptions do not quite hold.
 
 ## References
 
-1.  Michael Crawley, The R Book, second edition, 2013. Chapter 11.
-
-2.  Open Intro Statistics. [ANOVA
-    Calculations](https://www.openintro.org/go/?id=stat_better_understand_anova&referrer=/book/os/index.php)
-
+1.  The ANOVA tutorial at [Our Coding
+    Club](https://ourcodingclub.github.io/tutorials/anova/).
+2.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
 3.  David C Howell, [Permutation Tests for Factorial ANOVA
     Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)
-
 4.  Marti Anderson, [Permutation tests for univariate or multivariate
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-[^1]: The ANOVA tutorial at [Our Coding
-    Club](https://ourcodingclub.github.io/tutorials/anova/).
+[^1]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
 [^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
-[^3]: https://rpubs.com/kerkhoffa/ANOVAbasic
+[^3]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
+    Students to 'Think with Data' Using R." The R Journal, 9(1),
+    77--102.
+    https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
 
 [^4]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
     Inference." Statistical Science 19 (4): 676--85.
