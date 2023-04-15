@@ -26,6 +26,8 @@ TBD.
 
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse) # includes ggplot for plotting
+library(mosaic)
+library(ggformula)
 
 library(ggbump) # Bump Charts
 
@@ -57,9 +59,16 @@ df1 <- tibble(x = LETTERS[1:10],
                  y = sample(20:35, 10, replace = TRUE))
 df1
 
-ggplot(df1) + 
-  geom_segment(aes(x = x, xend = x, y = 0, yend = y)) + 
-  geom_point(aes(x = x, y = y, colour = x), size = 5)
+gf_segment(0 + y ~ x + x, data = df1) %>% 
+# A formula with shape y + yend ~ x + xend.
+  
+  gf_point(y ~ x, colour = ~ x, size = 5)
+
+
+# Compare with ggplot code:
+# ggplot(df1) + 
+#   geom_segment(aes(x = x, xend = x, y = 0, yend = y)) + 
+#   geom_point(aes(x = x, y = y, colour = x), size = 5)
 
 ```
 
@@ -68,16 +77,28 @@ of decreasing ( or increasing ) $y$, using `forcats::fct_reorder`:
 
 ```{r}
 
-ggplot(df1) + 
-  geom_segment(aes(x = fct_reorder(x, -y), # in decreasing order of y
-                   xend = fct_reorder(x, -y), 
-                   y = 0, 
-                   yend = y)) + 
-  geom_point(aes(x = x, y = y, colour = x), size = 5) +
-  coord_flip() + 
-  xlab("Group") +
-  ylab("") +
-  theme_minimal()
+gf_segment(0 + y ~ fct_reorder(x, -y) + fct_reorder(x, -y), 
+           data = df1) %>%
+  # A formula with shape y + yend ~ x + xend.
+  
+  gf_point(y ~ x, colour = ~ x, size = 5) %>%
+  
+  gf_refine(coord_flip()) %>%
+  gf_labs(x = "Group", y = "") %>%
+  gf_theme(theme_minimal())
+
+
+# Compare with ggplot code
+# ggplot(df1) + 
+#   geom_segment(aes(x = fct_reorder(x, -y), # in decreasing order of y
+#                    xend = fct_reorder(x, -y), 
+#                    y = 0, 
+#                    yend = y)) + 
+#   geom_point(aes(x = x, y = y, colour = x), size = 5) +
+#   coord_flip() + 
+#   xlab("Group") +
+#   ylab("") +
+#   theme_minimal()
 
 ```
 
@@ -105,9 +126,11 @@ df2
 ```
 
 We need to use a new package called, what else, `ggbump` to create our
-`Bump Charts`:
+`Bump Charts`: Here again we do not yet have a `ggformula` equivalent .
+Note the `+` syntax with ggplot code!!
 
-```{r bump-1}
+```{r}
+#| label: bump-1
 library(ggbump)
 
 ggplot(df2) +
@@ -123,7 +146,8 @@ ggplot(df2) +
 We can add labels along the "bump lines" and remove the legend
 altogether:
 
-```{r bump-2}
+```{r}
+#| label: bump-2
 
 ggplot(df2) +
   geom_bump(aes(x = x, y = y, color = group)) +

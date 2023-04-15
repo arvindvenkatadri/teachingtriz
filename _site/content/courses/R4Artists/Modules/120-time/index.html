@@ -124,11 +124,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <meta property="og:description" content="Time Series in R">
 <meta property="og:image" content="https://av-quarto.netlify.app/content\courses\R4Artists\Modules\120-time\featured.jpg">
 <meta property="og:site-name" content="The Foundation Series">
-<meta name="twitter:title" content="The Foundation Series - Lab-12: Time is a Him!!">
-<meta name="twitter:description" content="Time Series in R">
-<meta name="twitter:image" content="https://av-quarto.netlify.app/content\courses\R4Artists\Modules\120-time\featured.jpg">
-<meta name="twitter:creator" content="@arvind_v">
-<meta name="twitter:card" content="summary_large_image">
 </head>
 <body class="nav-sidebar docked nav-fixed slimcontent">
 
@@ -216,7 +211,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Basics of Modelling</a>
+  <a href="../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">Statistical Inference</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Inferential Modelling</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -345,7 +346,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 22, 2023</p>
+      <p class="date-modified">April 13, 2023</p>
     </div>
   </div>
     
@@ -357,7 +358,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </center>
 <section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>Time Series data are important in data visualization where events have a temporal dimension, such as with finance, transportation, music, telecommunications for example.</p>
-<div class="cell" data-hash="index_cache/html/setup_7d60ab9b43d8a1262b702078e52d3bf6">
+<div class="cell" data-hash="index_cache/html/setup_8f0244c2b9ae2e6d64bdfa652f379a23">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(mosaic)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(ggformula)</span>
@@ -372,48 +373,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-12"><a href="#cb1-12"></a><span class="fu">library</span>(tsibble)</span>
 <span id="cb1-13"><a href="#cb1-13"></a><span class="fu">library</span>(feasts) <span class="co"># Feature Extraction and Statistics for Time Series</span></span>
 <span id="cb1-14"><a href="#cb1-14"></a><span class="fu">library</span>(fable) <span class="co"># Forecasting Models for Tidy Time Series</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="fu">library</span>(tseries) <span class="co"># Time Series Analysis and Computational Finance</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Registered S3 method overwritten by 'quantmod':
-  method            from
-  as.zoo.data.frame zoo </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'tseries'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:mosaic':
-
-    value</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(forecast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'forecast'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:fabletools':
-
-    accuracy, forecast</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(zoo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'zoo'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:tsibble':
-
-    index</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    as.Date, as.Date.numeric</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="do">##########################################</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="fu">library</span>(tsibbledata) <span class="co"># Time Series Demo Datasets </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="fu">library</span>(tseries) <span class="co"># Time Series Analysis and Computational Finance</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="fu">library</span>(forecast)</span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="fu">library</span>(zoo)</span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="do">##########################################</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="fu">library</span>(tsibbledata) <span class="co"># Time Series Demo Datasets </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="introduction-to-time-series-data-formats" class="level1 page-columns page-full"><h1>Introduction to Time Series: Data Formats</h1>
 <p>There are multiple formats for time series data.</p>
@@ -430,8 +394,8 @@ Attaching package: 'zoo'</code></pre>
 <section id="ts-format-data" class="level3"><h3 class="anchored" data-anchor-id="ts-format-data">
 <code>ts</code> format data</h3>
 <p>There are a few datasets in base R that are in <code>ts</code> format already.</p>
-<div class="cell" data-hash="index_cache/html/ts-data_0891655df65379abb80f3a4da7e6caeb">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>AirPassengers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/ts-data_2b11bf0bcf04919e8221e558995d4316">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>AirPassengers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 1949 112 118 132 129 121 135 148 148 136 119 104 118
@@ -447,23 +411,23 @@ Attaching package: 'zoo'</code></pre>
 1959 360 342 406 396 420 472 548 559 463 407 362 405
 1960 417 391 419 461 472 535 622 606 508 461 390 432</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">str</span>(AirPassengers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">str</span>(AirPassengers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Time-Series [1:144] from 1949 to 1961: 112 118 132 129 121 135 148 148 136 119 ...</code></pre>
 </div>
 </div>
 <p>This can be easily plotted using base R:</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-2_421390b17f6d644a4224a22e5f926cde">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">plot</span>(AirPassengers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-2_db722788f76659ec8f653c9b81e5d25b">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">plot</span>(AirPassengers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Let us take data that is “time oriented” but not in <code>ts</code> format, and convert it to <code>ts</code>: the syntax of <code><a href="https://rdrr.io/r/stats/ts.html">ts()</a></code> is:</p>
 <p>Syntax: <code>objectName &lt;- ts(data, start, end, frequency)</code> where, - <code>data</code> represents the data vector - <code>start</code> represents the first observation in time series - <code>end</code> represents the last observation in time series - <code>frequency</code> represents number of observations per unit time. For example, frequency=1 for monthly data.</p>
 <p>We will pick simple <strong>numerical vector data</strong> ( i.e.&nbsp;not a timeseries ) <code>ChickWeight</code>:</p>
-<div class="cell" data-hash="index_cache/html/ChickWeights-ts_c3f907f6d7d18e419046ea2379858fa3">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>ChickWeight <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/ChickWeights-ts_59b0d421455cacd602333ac71d177ba3">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>ChickWeight <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -472,10 +436,10 @@ Attaching package: 'zoo'</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>ChickWeight_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(ChickWeight<span class="sc">$</span>weight, <span class="at">frequency =</span> <span class="dv">2</span>)</span>
-<span id="cb19-2"><a href="#cb19-2"></a><span class="fu">plot</span>(ChickWeight_ts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>ChickWeight_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(ChickWeight<span class="sc">$</span>weight, <span class="at">frequency =</span> <span class="dv">2</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">plot</span>(ChickWeight_ts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/ChickWeights-ts-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/ChickWeights-ts-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="callout-caution callout callout-style-default callout-captioned">
@@ -494,9 +458,9 @@ The `ts` format
 </section><section id="tibble-format-data" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="tibble-format-data">
 <code>tibble</code> format data</h3>
 <p>Some “time-oriented” datasets are available in <code>tibble</code> form. Let us try to plot one, the <code>walmart_sales_weekly</code> dataset from the <code>timetk</code> package:</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-3_b27e81e73e97fed38b2e1c4f0dafa6f0">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">data</span>(walmart_sales_weekly, <span class="at">package =</span> <span class="st">"timetk"</span>)</span>
-<span id="cb20-2"><a href="#cb20-2"></a>walmart_sales_weekly</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-3_43df37bd3e429385a873f366d1700fd6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">data</span>(walmart_sales_weekly, <span class="at">package =</span> <span class="st">"timetk"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>walmart_sales_weekly</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -507,27 +471,27 @@ The `ts` format
 </div>
 </div>
 <p>This dataset is a tibble with a <code>Date</code> column. The <code>Dept</code> column is clearly a <em>categorical</em> column that allows us to distinguish separate time series, i.e.&nbsp;one for each value of <code>Dept</code>. We will convert that to a factor( it is an double precision number ) and then plot the data using this column on the <code>Date</code> on the <span class="math inline">\(x\)</span>-axis:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-4_5c44637f5718682e891e7e123b453c17">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>walmart_sales_weekly <span class="sc">%&gt;%</span> </span>
-<span id="cb21-2"><a href="#cb21-2"></a>  </span>
-<span id="cb21-3"><a href="#cb21-3"></a>  <span class="co"># convert Dept number to a **categorical factor**</span></span>
-<span id="cb21-4"><a href="#cb21-4"></a>  <span class="fu">mutate</span>(<span class="at">Dept =</span> forcats<span class="sc">::</span><span class="fu">as_factor</span>(Dept)) <span class="sc">%&gt;%</span> </span>
-<span id="cb21-5"><a href="#cb21-5"></a>  </span>
-<span id="cb21-6"><a href="#cb21-6"></a>  <span class="fu">gf_point</span>(Weekly_Sales <span class="sc">~</span> Date, </span>
-<span id="cb21-7"><a href="#cb21-7"></a>           <span class="at">group =</span> <span class="sc">~</span> Dept, </span>
-<span id="cb21-8"><a href="#cb21-8"></a>           <span class="at">colour =</span> <span class="sc">~</span> Dept, <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
-<span id="cb21-9"><a href="#cb21-9"></a>  <span class="fu">gf_line</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb21-10"><a href="#cb21-10"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-4_1c467f21d128a589bc97b0d056459fb2">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>walmart_sales_weekly <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  </span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="co"># convert Dept number to a **categorical factor**</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">mutate</span>(<span class="at">Dept =</span> forcats<span class="sc">::</span><span class="fu">as_factor</span>(Dept)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5"></a>  </span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">gf_point</span>(Weekly_Sales <span class="sc">~</span> Date, </span>
+<span id="cb10-7"><a href="#cb10-7"></a>           <span class="at">group =</span> <span class="sc">~</span> Dept, </span>
+<span id="cb10-8"><a href="#cb10-8"></a>           <span class="at">colour =</span> <span class="sc">~</span> Dept, <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">gf_line</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-page">
-<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>For more analysis and forecasting etc., it is useful to convert this tibble into a <code>tsibble</code>:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/tibble-as-tsibble_b70f4ca398c21a99276b92dab80bc788">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>walmart_tsibble <span class="ot">&lt;-</span> <span class="fu">as_tsibble</span>(walmart_sales_weekly,</span>
-<span id="cb22-2"><a href="#cb22-2"></a>                         <span class="at">index =</span> Date,</span>
-<span id="cb22-3"><a href="#cb22-3"></a>                         <span class="at">key =</span> <span class="fu">c</span>(id, Dept))</span>
-<span id="cb22-4"><a href="#cb22-4"></a>walmart_tsibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/tibble-as-tsibble_29d643d3446a2b9f0f79d92593d4ebda">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>walmart_tsibble <span class="ot">&lt;-</span> <span class="fu">as_tsibble</span>(walmart_sales_weekly,</span>
+<span id="cb11-2"><a href="#cb11-2"></a>                         <span class="at">index =</span> Date,</span>
+<span id="cb11-3"><a href="#cb11-3"></a>                         <span class="at">key =</span> <span class="fu">c</span>(id, Dept))</span>
+<span id="cb11-4"><a href="#cb11-4"></a>walmart_tsibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-page">
 
 <div data-pagedtable="false">
@@ -541,12 +505,12 @@ The `ts` format
 
 <div class="no-row-height column-margin column-container page-columns page-full"><div class="page-columns page-full">
 <p>Let us plot <code>Weekly_Sales</code>, colouring the time series by <code>Dept</code>:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/fig-together_aefd88a87edf402b5eb0574ecb3b9c17">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>walmart_tsibble <span class="sc">%&gt;%</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">gf_line</span>(Weekly_Sales <span class="sc">~</span> Date, </span>
-<span id="cb23-3"><a href="#cb23-3"></a>          <span class="at">colour =</span> <span class="sc">~</span> <span class="fu">as_factor</span>(Dept), <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-4"><a href="#cb23-4"></a>  <span class="fu">gf_point</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb23-5"><a href="#cb23-5"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Weekly Sales by Dept at Walmart"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/fig-together_284854e9e7e40f9ac853530806c3047c">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>walmart_tsibble <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">gf_line</span>(Weekly_Sales <span class="sc">~</span> Date, </span>
+<span id="cb12-3"><a href="#cb12-3"></a>          <span class="at">colour =</span> <span class="sc">~</span> <span class="fu">as_factor</span>(Dept), <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="fu">gf_point</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb12-5"><a href="#cb12-5"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Weekly Sales by Dept at Walmart"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]</code></pre>
 </div>
@@ -560,7 +524,7 @@ attr(,"class")
 </div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-together" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full"><p><img src="index_files/figure-html/fig-together-1.png" class="img-fluid figure-img" width="4200"></p>
+<figure class="figure page-columns page-full"><p><img src="index_files/figure-html/fig-together-1.png" class="img-fluid figure-img" width="672"></p>
 <p></p><figcaption class="figure-caption margin-caption">Figure&nbsp;1: Walmart Time Series</figcaption><p></p>
 </figure>
 </div>
@@ -568,24 +532,24 @@ attr(,"class")
 </div>
 </div><div class="">
 <p>We can also do a quick <em>autoplot</em> that seems to offer less control and is also not interactive.</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-7_0bb998aef241a0a57b3b286287fa283a">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>walmart_tsibble <span class="sc">%&gt;%</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(Dept) <span class="sc">%&gt;%</span> </span>
-<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">autoplot</span>(Weekly_Sales)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-7_8e88579e89da8d4cd8435c6c39b7b3da">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>walmart_tsibble <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(Dept) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">autoplot</span>(Weekly_Sales)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`mutate_if()` ignored the following grouping variables:
 • Column `Dept`</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </div></div>
 </section><section id="tsibble-format-data" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="tsibble-format-data">
 <code>tsibble</code> format data</h3>
 <p>In the packages <code>tsibbledata</code> and <code>fpp3</code> we have a good choice of <code>tsibble</code> format data. Let us pick one:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-8_04297ec0d8acb7210c2f4305ba1ae523">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hh_budget</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-8_d881ad3a1e561c0c2598a1d44c50b61f">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>hh_budget</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-page">
 
 <div data-pagedtable="false">
@@ -596,13 +560,13 @@ attr(,"class")
 </div>
 </div>
 <p>There are 4 keys ( id variables ) here, one for each country. Six other <em>quantitative</em> columns are the individual series. Let us plot the timeseries:</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-9_308d8f9ae1f4a6a259c879c21dc74201">
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-9_1cb90698f952e3fbb92b1ca464355715">
 
 </div>
 </section></section><section id="one-more-example" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="one-more-example">One more example</h2>
 <p>Often we have data in table form, that is time-oriented, with a date like column, and we need to convert it into a <code>tsibble</code> for analysis:</p>
-<div class="cell" data-hash="index_cache/html/prison-data-fpp3_920018cd6a179630ed2f41ec610fe1f2">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>prison <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">"https://OTexts.com/fpp3/extrafiles/prison_population.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/prison-data-fpp3_d1379f4b8e0ee19f874156123bb7d304">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>prison <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">"https://OTexts.com/fpp3/extrafiles/prison_population.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 3072 Columns: 6
 ── Column specification ────────────────────────────────────────────────────────
@@ -614,7 +578,7 @@ date (1): Date
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">glimpse</span>(prison)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">glimpse</span>(prison)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 3,072
 Columns: 6
@@ -627,13 +591,13 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
 </div>
 </div>
 <p>We have a <code>Date</code> column for the time <code>index</code>, and we have unique <code>key</code> variables like <code>State, Gender, Legal</code> and <code>Indigenous</code>. <code>Count</code> is the value that is variable over time. It also appears that the data is <code>quarterly</code>, since <code><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">mosaic::inspect</a></code> reports the <code>max_diff</code> in the <code>Date</code> column as <span class="math inline">\(92\)</span>. (Run <code>mosaic::inspect(prison)</code> in your Console).</p>
-<div class="cell" data-hash="index_cache/html/prison-tsibble_20bd3eab57dd0b604da2fff1462fe3ef">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>prison_tsibble <span class="ot">&lt;-</span> prison <span class="sc">%&gt;%</span> </span>
-<span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">mutate</span>(<span class="at">quarter =</span> <span class="fu">yearquarter</span>(Date)) <span class="sc">%&gt;%</span> </span>
-<span id="cb33-3"><a href="#cb33-3"></a>  <span class="fu">select</span>(<span class="sc">-</span>Date) <span class="sc">%&gt;%</span> <span class="co"># Remove the Date column now that we have quarters</span></span>
-<span id="cb33-4"><a href="#cb33-4"></a>  <span class="fu">as_tsibble</span>(<span class="at">index =</span> quarter, <span class="at">key =</span> <span class="fu">c</span>(State, Gender, Legal, Indigenous))</span>
-<span id="cb33-5"><a href="#cb33-5"></a></span>
-<span id="cb33-6"><a href="#cb33-6"></a>prison_tsibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/prison-tsibble_2bbd309903a504229475f15b6f3b0751">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>prison_tsibble <span class="ot">&lt;-</span> prison <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">mutate</span>(<span class="at">quarter =</span> <span class="fu">yearquarter</span>(Date)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">select</span>(<span class="sc">-</span>Date) <span class="sc">%&gt;%</span> <span class="co"># Remove the Date column now that we have quarters</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">as_tsibble</span>(<span class="at">index =</span> quarter, <span class="at">key =</span> <span class="fu">c</span>(State, Gender, Legal, Indigenous))</span>
+<span id="cb22-5"><a href="#cb22-5"></a></span>
+<span id="cb22-6"><a href="#cb22-6"></a>prison_tsibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -645,8 +609,8 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
 </div>
 <p>(Here, ATSI stands for <em>Aboriginal or Torres Strait Islander</em>.). We have <span class="math inline">\(64\)</span> time series here, organized quarterly.</p>
 <p>Let us examine the <code>key</code> variables:</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-10_750187d45cd84ada4a99877dcc752a53">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>prison_tsibble <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(Indigenous)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-10_322ec23650ced3283ef00b29d7e6b06d">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>prison_tsibble <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(Indigenous)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -655,7 +619,7 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>prison_tsibble <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(State)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>prison_tsibble <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(State)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -666,42 +630,42 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
 </div>
 </div>
 <p>So we can plot the time series, <strong>faceted by / coloured</strong> by <code>State</code>:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-11_6e1a952797e99d8b7c5c1a55fade61aa">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>prison_tsibble <span class="sc">%&gt;%</span> </span>
-<span id="cb36-2"><a href="#cb36-2"></a>  tsibble<span class="sc">::</span><span class="fu">index_by</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb36-3"><a href="#cb36-3"></a>  <span class="fu">group_by</span>(Indigenous, State) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-4"><a href="#cb36-4"></a>  <span class="co">#filter(State == "NSW") %&gt;% </span></span>
-<span id="cb36-5"><a href="#cb36-5"></a>  <span class="fu">summarise</span>(<span class="at">Total =</span> <span class="fu">sum</span>(Count))  <span class="sc">%&gt;%</span></span>
-<span id="cb36-6"><a href="#cb36-6"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> quarter, <span class="at">y =</span> Total, <span class="at">colour =</span> Indigenous, </span>
-<span id="cb36-7"><a href="#cb36-7"></a>             <span class="at">shape =</span> Indigenous)) <span class="sc">+</span> </span>
-<span id="cb36-8"><a href="#cb36-8"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb36-9"><a href="#cb36-9"></a>  <span class="fu">geom_line</span>()  <span class="sc">+</span> </span>
-<span id="cb36-10"><a href="#cb36-10"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> State)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-11_53dec9b83076c4810a2204f0b0d7a15b">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>prison_tsibble <span class="sc">%&gt;%</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  tsibble<span class="sc">::</span><span class="fu">index_by</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb25-3"><a href="#cb25-3"></a>  <span class="fu">group_by</span>(Indigenous, State) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-4"><a href="#cb25-4"></a>  <span class="co">#filter(State == "NSW") %&gt;% </span></span>
+<span id="cb25-5"><a href="#cb25-5"></a>  <span class="fu">summarise</span>(<span class="at">Total =</span> <span class="fu">sum</span>(Count))  <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> quarter, <span class="at">y =</span> Total, <span class="at">colour =</span> Indigenous, </span>
+<span id="cb25-7"><a href="#cb25-7"></a>             <span class="at">shape =</span> Indigenous)) <span class="sc">+</span> </span>
+<span id="cb25-8"><a href="#cb25-8"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a>  <span class="fu">geom_line</span>()  <span class="sc">+</span> </span>
+<span id="cb25-10"><a href="#cb25-10"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> State)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div></div></div>
 <p>Hmm…looks like New South Wales(NSW) as something different going on compared to the rest of the states in Aus.</p>
 </section><section id="decomposing-time-series" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="decomposing-time-series">Decomposing Time Series</h2>
 <p>We can decompose the <code>Weekly_Sales</code> into components representing trends, seasonal events that repeat, and irregular noise. Since each Dept could have a different set of trends, we will do this first for one Dept, say Dept #95:</p>
-<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-12_7ed9312c649bc71ff70fbeea412303bf">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>walmart_decomposed_season <span class="ot">&lt;-</span> walmart_tsibble <span class="sc">%&gt;%</span> </span>
-<span id="cb37-2"><a href="#cb37-2"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Dept <span class="sc">==</span> <span class="st">"95"</span>) <span class="sc">%&gt;%</span> <span class="co"># filter for Dept 95</span></span>
-<span id="cb37-3"><a href="#cb37-3"></a>  <span class="co">#</span></span>
-<span id="cb37-4"><a href="#cb37-4"></a>  <span class="co"># feasts depends upon fabletools.</span></span>
-<span id="cb37-5"><a href="#cb37-5"></a>  <span class="co"># </span></span>
-<span id="cb37-6"><a href="#cb37-6"></a>  fabletools<span class="sc">::</span><span class="fu">model</span>(</span>
-<span id="cb37-7"><a href="#cb37-7"></a>    <span class="at">season =</span> <span class="fu">STL</span>(Weekly_Sales <span class="sc">~</span> <span class="fu">season</span>(<span class="at">window =</span> <span class="st">"periodic"</span>))) </span>
-<span id="cb37-8"><a href="#cb37-8"></a></span>
-<span id="cb37-9"><a href="#cb37-9"></a>walmart_decomposed_ets <span class="ot">&lt;-</span> walmart_tsibble <span class="sc">%&gt;%</span> </span>
-<span id="cb37-10"><a href="#cb37-10"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Dept <span class="sc">==</span> <span class="st">"95"</span>) <span class="sc">%&gt;%</span> <span class="co"># filter for Dept 95</span></span>
-<span id="cb37-11"><a href="#cb37-11"></a>  <span class="co">#</span></span>
-<span id="cb37-12"><a href="#cb37-12"></a>  <span class="co"># feasts depends upon fabletools.</span></span>
-<span id="cb37-13"><a href="#cb37-13"></a>  <span class="co"># </span></span>
-<span id="cb37-14"><a href="#cb37-14"></a>  fabletools<span class="sc">::</span><span class="fu">model</span>(</span>
-<span id="cb37-15"><a href="#cb37-15"></a>    <span class="at">ets =</span> <span class="fu">ETS</span>(<span class="fu">box_cox</span>(Weekly_Sales, <span class="fl">0.3</span>)))</span>
-<span id="cb37-16"><a href="#cb37-16"></a></span>
-<span id="cb37-17"><a href="#cb37-17"></a>walmart_decomposed_season <span class="sc">%&gt;%</span> fabletools<span class="sc">::</span><span class="fu">components</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-12_339e08a4705a9328be65d20591cba240">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>walmart_decomposed_season <span class="ot">&lt;-</span> walmart_tsibble <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Dept <span class="sc">==</span> <span class="st">"95"</span>) <span class="sc">%&gt;%</span> <span class="co"># filter for Dept 95</span></span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="co">#</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="co"># feasts depends upon fabletools.</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a>  <span class="co"># </span></span>
+<span id="cb26-6"><a href="#cb26-6"></a>  fabletools<span class="sc">::</span><span class="fu">model</span>(</span>
+<span id="cb26-7"><a href="#cb26-7"></a>    <span class="at">season =</span> <span class="fu">STL</span>(Weekly_Sales <span class="sc">~</span> <span class="fu">season</span>(<span class="at">window =</span> <span class="st">"periodic"</span>))) </span>
+<span id="cb26-8"><a href="#cb26-8"></a></span>
+<span id="cb26-9"><a href="#cb26-9"></a>walmart_decomposed_ets <span class="ot">&lt;-</span> walmart_tsibble <span class="sc">%&gt;%</span> </span>
+<span id="cb26-10"><a href="#cb26-10"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Dept <span class="sc">==</span> <span class="st">"95"</span>) <span class="sc">%&gt;%</span> <span class="co"># filter for Dept 95</span></span>
+<span id="cb26-11"><a href="#cb26-11"></a>  <span class="co">#</span></span>
+<span id="cb26-12"><a href="#cb26-12"></a>  <span class="co"># feasts depends upon fabletools.</span></span>
+<span id="cb26-13"><a href="#cb26-13"></a>  <span class="co"># </span></span>
+<span id="cb26-14"><a href="#cb26-14"></a>  fabletools<span class="sc">::</span><span class="fu">model</span>(</span>
+<span id="cb26-15"><a href="#cb26-15"></a>    <span class="at">ets =</span> <span class="fu">ETS</span>(<span class="fu">box_cox</span>(Weekly_Sales, <span class="fl">0.3</span>)))</span>
+<span id="cb26-16"><a href="#cb26-16"></a></span>
+<span id="cb26-17"><a href="#cb26-17"></a>walmart_decomposed_season <span class="sc">%&gt;%</span> fabletools<span class="sc">::</span><span class="fu">components</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-page">
 
 <div data-pagedtable="false">
@@ -710,7 +674,7 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>walmart_decomposed_ets <span class="sc">%&gt;%</span> fabletools<span class="sc">::</span><span class="fu">components</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>walmart_decomposed_ets <span class="sc">%&gt;%</span> fabletools<span class="sc">::</span><span class="fu">components</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -719,27 +683,27 @@ $ Count      &lt;dbl&gt; 0, 2, 0, 5, 7, 58, 5, 101, 51, 131, 145, 323, 355, 1617
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># walmart_decomposed_arima &lt;- walmart_tsibble %&gt;% </span></span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="co">#   dplyr::filter(Dept == "95") %&gt;% # filter for Dept 95</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a><span class="co">#     arima = ARIMA(log(Weekly_Sales))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># walmart_decomposed_arima &lt;- walmart_tsibble %&gt;% </span></span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#   dplyr::filter(Dept == "95") %&gt;% # filter for Dept 95</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="co">#     arima = ARIMA(log(Weekly_Sales))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-13_1446419979a4e51546ee7d194be93baf">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>walmart_decomposed_season <span class="sc">%&gt;%</span> </span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">components</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb40-3"><a href="#cb40-3"></a>  <span class="fu">autoplot</span>() <span class="sc">+</span> </span>
-<span id="cb40-4"><a href="#cb40-4"></a>  <span class="fu">labs</span>( <span class="at">title =</span> <span class="st">"Seasonal Variations in Weekly Sales, Dept #95"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell page-columns page-full" data-hash="index_cache/html/unnamed-chunk-13_ebd7999a8278115ce5a0e3dd753e2aa3">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>walmart_decomposed_season <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">components</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">autoplot</span>() <span class="sc">+</span> </span>
+<span id="cb29-4"><a href="#cb29-4"></a>  <span class="fu">labs</span>( <span class="at">title =</span> <span class="st">"Seasonal Variations in Weekly Sales, Dept #95"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-page">
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>walmart_decomposed_ets <span class="sc">%&gt;%</span> </span>
-<span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">components</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb41-3"><a href="#cb41-3"></a>  <span class="fu">autoplot</span>() <span class="sc">+</span> </span>
-<span id="cb41-4"><a href="#cb41-4"></a>  <span class="fu">labs</span>( <span class="at">title =</span> <span class="st">"ETS Variations in Weekly Sales, Dept #95"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>walmart_decomposed_ets <span class="sc">%&gt;%</span> </span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">components</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">autoplot</span>() <span class="sc">+</span> </span>
+<span id="cb30-4"><a href="#cb30-4"></a>  <span class="fu">labs</span>( <span class="at">title =</span> <span class="st">"ETS Variations in Weekly Sales, Dept #95"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing missing values (`geom_line()`).</code></pre>
 </div>
 <div class="cell-output-display column-page">
-<p><img src="index_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="4200"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
@@ -914,12 +878,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <li class="nav-item compact">
     <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com">
       <i class="bi bi-envelope" role="img">
-</i> 
-    </a>
-  </li>  
-    <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../blog.xml">
-      <i class="bi bi-rss" role="img">
 </i> 
     </a>
   </li>  

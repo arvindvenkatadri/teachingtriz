@@ -13,7 +13,7 @@ categories:
   - Fan Charts
   - Donut Charts
   - Grouping
-  - Staacking
+  - Stacking
   - Circular Bar Charts
   - Dot Plots
   - Mosaic Charts
@@ -28,9 +28,11 @@ categories:
 #| include: true
 #| echo: true
 library(tidyverse)
+library(mosaic)
+library(ggformula)
 library(plotrix) # Fan, Pyramid Chart
 library(ggparliament) # Parliament Chart
-library(ggpol) # Parliament, Arc-Bar and other intersting charts
+library(ggpol) # Parliament, Arc-Bar and other interesting charts
 
 # library(waffle) # What it says! See note below: need github version
 # install.packages("waffle", repos = "https://cinc.rud.is")
@@ -72,9 +74,17 @@ alternative, called a `fan chart` which we will explore here.
 
 ```{r}
 pie.sales <- c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12)
-labels <- c("Blueberry", "Cherry",
-    "Apple", "Boston Cream", "Other", "Vanilla Cream")
-pie(x = pie.sales, labels = labels,col =  grDevices::hcl.colors(palette= "Plasma", n = 6)) # default colours
+labels <- c("Blueberry",
+            "Cherry",
+            "Apple",
+            "Boston Cream",
+            "Other",
+            "Vanilla Cream")
+pie(
+  x = pie.sales,
+  labels = labels,
+  col =  grDevices::hcl.colors(palette = "Plasma", n = 6)
+) # default colours
 
 ```
 
@@ -82,27 +92,30 @@ The `fan plot` displays numerical values as arcs of **overlapping
 sectors**. This allows for more effective comparison:
 
 ```{r,echo=TRUE}
-plotrix::fan.plot(x = pie.sales, labels = labels,
-                  col = grDevices::hcl.colors(palette= "Plasma", n = 6),
-                  shrink = 0.03, # How much to shrink each successive sector
-                  label.radius = 1.15,
-                  main = "Fan Plot of Ice Cream Flavours",
-                  # ticks = 360, 
-                  # if we want tick marks on the circumference
-                  
-                  max.span = pi)
-
+plotrix::fan.plot(
+  x = pie.sales,
+  labels = labels,
+  col = grDevices::hcl.colors(palette = "Plasma", n = 6),
+  shrink = 0.03,
+  # How much to shrink each successive sector
+  label.radius = 1.15,
+  main = "Fan Plot of Ice Cream Flavours",
+  # ticks = 360,
+  # if we want tick marks on the circumference
+  
+  max.span = pi
+)
 
 ```
 
 The `donut` chart suffers from the same defects as the pie, so should be
-used with discretion. The `donut` chart is essentially a `geom_rect`
-from ggplot, plotted on a **polar coordinate** set of of axes:
+used with discretion. The `donut` chart is essentially a `gf_rect` from
+`ggformula`, plotted on a **polar coordinate** set of of axes:
 
 ```{r donut-chart}
 
 # Data
-df <- data.frame(group = LETTERS[1:3],
+df <- data_frame(group = LETTERS[1:3],
                  value = c(25, 20, 35))
 
 df <-
@@ -120,26 +133,42 @@ df
 ```
 
 ```{r}
+#| label: donut chart
 
-ggplot(df) + 
-# `geom_rect()` requires aesthetics: xmin, xmax, ymin, and ymax
-  geom_rect(aes(xmin = 2, xmax = 4, ymin = ymin, ymax = ymax, fill = group),colour = "black") + 
-  geom_label( x=3.5, aes(y=labelPosition, label= label), size=4) +
-  coord_polar(theta = "y",direction = 1) + # Upto here will give us a pie chart
-
+gf_rect(ymin + ymax ~ 2 + 4,
+# gf_rect() formula: ymin + ymax ~ xmin + xmax
+        fill = ~ group,
+        colour = "black",
+        data = df) %>%
+  
+  gf_label(labelPosition ~ 3.5, 
+           label = ~ label,
+           size = 4) %>%
+  
 # When switching to polar coords:
 # x maps to r
 # y maps to theta
 # so we create a "hole" in the radius, in in 
-xlim(c(0,4)) + # try to play with the "0"
-theme_void() +
-theme(legend.position = "none")
+  gf_refine(coord_polar(theta = "y", 
+                        direction = 1),
+            
+            # try to play with the "0"
+            xlim(c(0, 4))) %>% 
+  # Upto here will give us a pie chart
+  
+  gf_theme(theme = theme_void()) %>% 
+  gf_theme(legend.position = "none")
+
 
 ```
 
 ## Waffle and Parliament Charts
 
 Waffle charts are often called "square pie charts" !
+
+Here we will need to step outside of `ggformula` and get into `ggplot`
+itself momentarily. ( Remember that `ggformula` is a simplified and
+intuitive method that runs on **top** of `ggplot`.)
 
 ```{r using-waffle, warning=FALSE}
 # install.packages("waffle", repos = "https://cinc.rud.is")
@@ -148,15 +177,24 @@ library(waffle)
 # Data
 df <- data.frame(group = LETTERS[1:3],
                  value = c(25, 20, 35))
+df
 
 # Waffle plot
+# Using ggplot, sadly ot yet ggformula
 ggplot(df, aes(fill = group, values = value)) +
-  geom_waffle(n_rows = 8, size = 0.33, colour = "white") +
-  scale_fill_manual(name = NULL,
-                    values = c("#BA182A", "#FF8288", "#FFDBDD"),
-                    labels = c("A", "B", "C")) +
+  geom_waffle(
+    n_rows = 8,
+    size = 0.33,
+    colour = "white",
+    na.rm = TRUE
+  ) +
+  scale_fill_manual(
+    name = NULL,
+    values = c("#BA182A", "#FF8288", "#FFDBDD"),
+    labels = c("A", "B", "C")
+  ) +
   coord_equal() +
-  theme_void() 
+  theme_void()
 
 ```
 

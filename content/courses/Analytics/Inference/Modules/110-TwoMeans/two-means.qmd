@@ -1,0 +1,403 @@
+---
+title: "\U0001F0CF Testing for Two Independent Means"
+author: "Arvind Venkatadri"
+date: 10/Nov/2022
+subtitle: ""
+date-modified: "`r Sys.Date()`"
+order: 110
+tags:
+- Permutation
+- Monte Carlo Simulation
+- Random Number Generation
+- Distributions
+- Generating Parallel Worlds
+---
+
+```{r}
+#| label: setup
+#| include: true
+
+knitr::opts_chunk$set(echo = FALSE,message = TRUE,
+                      warning = TRUE, 
+                      fig.align = "center")
+library(tidyverse)
+library(mosaic)
+
+### Datasets from Chihara and Hesterberg's book (Second Edition)
+library(resampledata)
+
+```
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+| <a href="./files/two-means.qmd"><i class="fa-brands                   
+                   fa-r-project"></i> R Tutorial</a>                    | <a href="./files/two-means.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/two-means.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/sim-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+|------------------|--------------------|------------------|------------------|
+
+## Introduction
+
+We saw from the diagram created by Allen Downey that *there is only one
+test*! We will now use this philosophy to develop a technique that
+allows us to mechanize several *Statistical Models* in that way, with
+nearly identical code.
+
+We will use two packages in R, `mosaic` and the relatively new `infer`
+package, to develop our intuition for what are called **permutation**
+based statistical tests.
+
+## Hypothesis Testing using Permutation
+
+From Reference #1:
+
+> Hypothesis testing can be thought of as a 4-step process:
+>
+> 1.  State the null and alternative hypotheses.
+>
+> 2.  Compute a test statistic.
+>
+> 3.  Determine the p-value.
+>
+> 4.  Draw a conclusion.
+>
+>     In a traditional introductory statistics course, once this general
+>     framework has been mastered, the main work is in **applying the
+>     correct formula** to compute the standard test statistics in step
+>     2 and using a table or computer to **determine the p-value** based
+>     on the known (usually approximate) **theoretical distribution of
+>     the test statistic** under the null hypothesis.
+>
+>     In a **simulation-based approach**, steps 2 and 3 change. In Step
+>     2, it is no longer required that the test statistic be normalized
+>     to conform with a known, named distribution. Instead, natural test
+>     statistics, like the difference between two sample means $y1 − y2$
+>     can be used.
+>
+>     In Step 3, we use **randomization to approximate the sampling
+>     distribution of the test statistic**. Our lady tasting tea example
+>     demonstrates how this can be done from first principles. More
+>     typically, we will use randomization **to create new simulated
+>     data sets** ( "*Parallel Worlds*") that are like our original data
+>     in some ways, but make the null hypothesis true. For each
+>     simulated data set, we calculate our test statistic, just as we
+>     did for the original sample. Together, this collection of test
+>     statistics computed from the simulated samples constitute our
+>     randomization distribution.
+>
+>     When creating a randomization distribution, we will attempt to
+>     satisfy 3 guiding principles.
+>
+> 5.  Be consistent with the null hypothesis. We need to **simulate a
+>     world** in which the null hypothesis is true. If we don't do this,
+>     we won't be testing our null hypothesis.
+>
+> 6.  Use the data in the **original sample**. The original data should
+>     shed light on some aspects of the distribution that are not
+>     determined by null hypothesis. For example, a null hypothesis
+>     about a mean doesn't tell us about the shape of the population
+>     distribution, but the data give us some indication.
+>
+> 7.  Reflect the way the original data were collected.
+
+From Chihara and Hesterberg:
+
+> This is the core idea of statistical significance or classical
+> hypothesis testing -- to calculate how often pure random chance would
+> give an effect as large as that observed in the data, in the absence
+> of any real effect. If that probability is small enough, we conclude
+> that the data provide convincing evidence of a real effect.
+
+### Permutations tests using mosaic::`shuffle()`
+
+The `mosaic` package provides the `shuffle()` function as a synonym for
+`sample()`. When used without additional arguments, this will permute
+its first argument.
+
+```{r, echo=TRUE}
+
+shuffle(1:10)
+
+```
+
+Applying shuffle() to an *explanatory variable* in a model allows us to
+test the null hypothesis that the explanatory variable has, in fact, no
+explanatory power. This idea can be used to test
+
+-   the equivalence of two or more means,
+-   the equivalence of two or more proportions,
+-   whether a regression parameter is 0.
+
+We will now see examples of each of these models using Permutations.
+
+## Testing for Two or More Means
+
+### Case Study-1: Hot Wings Orders vs Gender (From Chihara and Hesterberg)
+
+A student conducted a study of hot wings and beer consumption at a Bar.
+She asked patrons at the bar to record their consumption of hot wings
+and beer over the course of several hours. She wanted to know if people
+who ate more hot wings would then drink more beer. In addition, she
+investigated whether or not gender had an impact on hot wings or beer
+consumption. Is the mean order value related to the gender of the person
+who is ordering?
+
+```{r echo=FALSE}
+knitr::include_url("https://images.rawpixel.com/image_400/cHJpdmF0ZS9zdGF0aWMvaW1hZ2Uvd2Vic2l0ZS8yMDIyLTA0L2xyL3B4NzE4NDYzLWltYWdlLWt3dnY3emV5LmpwZw.jpg")
+
+```
+
+```{r}
+
+data("Beerwings")
+inspect(Beerwings)
+
+```
+
+Let us calculate the observed difference in `Hotwings` consumption
+between Males and Females ( `Gender`): (using the `mosaic` package)
+
+```{r}
+
+mosaic::mean(Hotwings ~ Gender, data = Beerwings)
+obs_diff_wings <- mosaic::diffmean(data = Beerwings, Hotwings ~ Gender)
+obs_diff_wings 
+
+```
+
+```{r}
+
+gf_boxplot(data = Beerwings, Hotwings ~ Gender, title = "Hotwings Consumption by Gender") %>%  gf_theme(theme_classic)
+
+```
+
+The observed difference in mean consumption of Hotwings between Males
+and Females is 5.2. There is also a "visible" difference in *medians* as
+seen from the pair of box plots above.
+
+Could this have occurred by chance? Here is our formulation of the
+Hypotheses:
+
+$$
+H_0: \mu_M\ = \mu_F\\
+H_a: \mu_M\ \ne \mu_F\\
+$$Note that we have a **two-sided** test: we want to check for
+differences in mean order value, *either way*. So we perform a
+Permutation Test to check: we create a **null distribution** of the
+differences in mean by a `shuffle` operation on `gender`:
+
+```{r}
+
+null_dist_wings <- do(1000) * diffmean(Hotwings ~ shuffle(Gender), data = Beerwings)
+null_dist_wings %>% head()
+
+gf_histogram(data = null_dist_wings, ~ diffmean) %>% 
+  gf_vline(xintercept = obs_diff_wings, colour = "red") %>% gf_theme(theme_classic())
+
+gf_ecdf(data = null_dist_wings, ~ diffmean) %>% 
+  gf_vline(xintercept = obs_diff_wings, colour = "red") %>% gf_theme(theme_classic())
+
+prop1(~ diffmean >= obs_diff_wings, data = null_dist_wings)
+
+```
+
+The $\color{red}{red\ line}$ shows the actual measured mean difference
+in Hot Wings consumption. The probability that our Permutation
+distribution is able to equal or exceed that number is $0.001998002$ and
+we have to reject the Null Hypothesis that the means are identical.
+
+### Matched Pairs: Results from a diving championship.
+
+Sometimes the data is collected on the same set of individual
+categories, e.g. scores by sport persons in two separate tournaments, or
+sales of identical items in two separate locations of a chain store.
+Here we have swimming records across a Semi-Final and a Final:
+
+```{r}
+
+data("Diving2017")
+head(Diving2017)
+inspect(Diving2017)
+
+```
+
+The data is made up of **paired** observations per swimmer. So we need
+to take the difference between the two swim records for *each* swimmer
+and then *shuffle the differences to either polarity*. Another way to
+look at this is to shuffle the records between `Semifinal` and `Final`
+on a per Swimmer basis. There are 12 swimmers and therefore 12 paired
+records.
+
+In order to ensure that the records are `paired`, we use the argument
+`only.2=FALSE` in the `diffmean` function:
+
+```{r}
+
+Diving2017
+Diving2017 %>% diffmean(data = ., Final ~ Semifinal, only.2 = FALSE)
+
+obs_diff_swim <- mean(~ Final - Semifinal, data = Diving2017)
+obs_diff_swim
+
+```
+
+How would we formulate our Hypothesis?
+
+$$
+H_0: \mu_{semifinal} = \mu_{final}\\
+H_a: \mu_{semifinal} \ne \mu_{final}\
+$$
+
+```{r}
+
+polarity <- c(rep(1, 6), rep(-1, 6)) 
+# 12 +/- 1s, 
+# 6 each to make sure there is equal probability
+polarity
+
+
+null_dist_swim <- do(100000) *
+  mean(data = Diving2017,
+       ~ (Final - Semifinal) * resample(polarity, replace = TRUE))
+
+null_dist_swim %>% head()
+
+gf_histogram(data = null_dist_swim, ~ mean) %>%
+  gf_vline(xintercept = obs_diff_swim, colour = "red")
+
+gf_ecdf(data = null_dist_swim, ~ mean) %>%
+  gf_vline(xintercept = obs_diff_swim, colour = "red")
+
+prop1(~ mean >= obs_diff_swim, data = null_dist_swim)
+
+
+```
+
+Hmm...so by generating 100000 shufflings of score differences, with
+polarities, it does appear that we can not only obtain the current
+observed difference but even surpass it frequently. So it does seem that
+there is no difference in means between Semi-Final and Final swimming
+scores.
+
+### Walmart vs Target
+
+Is there a difference in the price of Groceries sold by the two
+retailers Target and Walmart? The data set `Groceries` contains a sample
+of grocery items and their prices advertised on their respective web
+sites on one specific day.
+
+a)  Inspect the data set, then explain why this is an example of matched
+    pairs data.
+b)  Compute summary statistics of the prices for each store.
+c)  Conduct a permutation test to determine whether or not there is a
+    difference in the mean prices.
+d)  Create a ~~histogram~~ bar-chart of the difference in prices. What
+    is unusual about Quaker Oats Life cereal?
+e)  Redo the hypothesis test without this observation. Do you reach the
+    same conclusion?
+
+```{r}
+data("Groceries")
+Groceries <- Groceries %>% mutate(Product = stringr::str_squish(Product))
+head(Groceries)
+inspect(Groceries)
+
+```
+
+We see that the comparison is to be made between two prices for the
+*same* product, and hence this is one more example of `paired data`, as
+in Case Study #4. Let us plot the prices for the products:
+
+```{r}
+
+gf_col(data = Groceries,
+       Target ~ Product,
+       fill = "#0073C299",
+       width = 0.5 ) %>% 
+  gf_col(data = Groceries,
+         -Walmart ~ Product,
+         fill = "#EFC00099",
+         ylab = "Prices",
+         width = 0.5
+       ) %>% 
+  gf_col(data = Groceries %>% filter(Product == "Quaker Oats Life Cereal Original"), 
+         -Walmart ~ Product,
+         fill = "red", 
+         width = 0.5) %>% 
+  gf_theme(theme_classic()) %>%
+  gf_theme(ggplot2::theme(axis.text.x = element_text(
+    size = 8,
+    face = "bold",
+    vjust = 0,
+    hjust = 1
+  ))) %>% gf_theme(ggplot2::coord_flip())
+
+```
+
+We see that the price difference between Walmart and Target prices is
+highest for the `Product` named `Quaker Oats Life Cereal Original`. Let
+us check the mean difference in prices:
+
+```{r}
+
+diffmean(data = Groceries, Walmart ~ Target, only.2 = FALSE)
+obs_diff_price = mean( ~ Walmart - Target, data = Groceries)
+obs_diff_price
+
+```
+
+Let us perform the pair-wise permutation test on prices, by shuffling
+the two store names:
+
+```{r}
+
+polarity <- c(rep(1, 15), rep(-1,15))
+polarity
+null_dist_price <- do(100000) * mean(data = Groceries, 
+                                    ~(Walmart-Target) * resample(polarity,
+                                                    replace = TRUE))
+null_dist_price %>% head()
+gf_histogram(data = null_dist_price, ~mean) %>% 
+  gf_vline(xintercept = obs_diff_price, colour = "red")
+
+2*(sum(null_dist_price >= obs_diff_price + 1)/(100000+1)) #P-value
+
+```
+
+Does not seem to be any significant difference in prices...
+
+Suppose we knock off the Quaker Cereal data item...
+
+```{r}
+
+which(Groceries$Product == "Quaker Oats Life Cereal Original")
+Groceries_less <- Groceries[-2,]
+Groceries_less
+
+
+obs_diff_price_less = mean( ~ Walmart - Target, data = Groceries_less)
+obs_diff_price_less
+polarity_less <- c(rep(1, 15), rep(-1,14)) # Due to resampling this small bias makes no difference
+null_dist_price_less <- do(100000) * mean(data = Groceries_less, 
+                                    ~(Walmart-Target) * resample(polarity_less,
+                                                    replace = TRUE))
+null_dist_price_less %>% head()
+gf_histogram(data = null_dist_price_less, ~mean) %>% 
+  gf_vline(xintercept = obs_diff_price_less, colour = "red")
+
+1- mean(null_dist_price_less >= obs_diff_price_less) #P-value
+
+```
+
+## Conclusion
+
+It should be fairly clear now that we can test for the equivalence of
+two means, using a very simple permutation tests. Given computing power,
+we can always mechanize this test very quickly to get our results. And
+that performing this test yields reliable results without having to rely
+on any assumption relating to underlying distributions and so on.
+
+## References
+
+1.  Randall Pruim, Nicholas J. Horton, Daniel T. Kaplan, [*Start
+    Teaching with
+    R*](https://github.com/ProjectMOSAIC/LittleBooks/raw/master/Starting/MOSAIC-StartTeaching.pdf)
+2.  https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307

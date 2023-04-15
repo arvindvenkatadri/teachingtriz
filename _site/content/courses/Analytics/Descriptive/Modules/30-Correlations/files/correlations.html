@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.2.475">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
-<meta name="dcterms.date" content="2023-04-01">
+<meta name="dcterms.date" content="2023-04-13">
 <title>The Foundation Series - Correlations in R</title>
 <style>
 code{white-space: pre-wrap;}
@@ -123,10 +123,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <meta property="og:title" content="The Foundation Series - Correlations in R">
 <meta property="og:description" content="Tests, Tables, and Graphs for Correlations in R">
 <meta property="og:site-name" content="The Foundation Series">
-<meta name="twitter:title" content="The Foundation Series - Correlations in R">
-<meta name="twitter:description" content="Tests, Tables, and Graphs for Correlations in R">
-<meta name="twitter:creator" content="@arvind_v">
-<meta name="twitter:card" content="summary_large_image">
 </head>
 <body class="nav-sidebar docked nav-fixed">
 
@@ -214,7 +210,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Basics of Modelling</a>
+  <a href="../../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">Statistical Inference</a>
+  </div>
+</li>
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Inferential Modelling</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -317,7 +319,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 1, 2023</p>
+      <p class="date">April 13, 2023</p>
     </div>
   </div>
   
@@ -333,7 +335,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header><section id="introduction" class="level1"><h1>Introduction</h1>
 <p>We will create Tables for Correlations, and graphs for Correlations in R. As always, we will consistently use the <a href="https://mosaic-web.org"><strong>Project Mosaic</strong></a> ecosystem of packages in R (<code>mosaic</code>, <code>mosaicData</code> and <code>ggformula</code>).</p>
-<div class="cell" data-hash="correlations_cache/html/setup_b26e4f959e84f84d0c0b8af6f44527a9">
+<div class="cell" data-hash="correlations_cache/html/setup_ba2cc11e3508bb79383b7f74d0700b05">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(mosaic) <span class="co"># package for stats, simulations, and basic plots</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(mosaicData) <span class="co"># package containing datasets</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(ggformula) <span class="co"># package for professional looking plots, that use the formula interface from mosaic</span></span>
@@ -357,12 +359,12 @@ Important
 <section id="case-study--1-dataset-from-mosaicdata" class="level2"><h2 class="anchored" data-anchor-id="case-study--1-dataset-from-mosaicdata">Case Study -1: Dataset from <code>mosaicData</code>
 </h2>
 <p>Let us inspect what datasets are available in the package <code>mosaicData</code>. Run this command in your Console:</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-2_892a3efa88fc9731d4659d79dc98f8ec">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-2_f287f78803dd428d5d88a22cce054556">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Run in Console</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"mosaicData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The popup tab shows a lot of datasets we could use. Let us continue to use the famous <code>Galton</code> dataset and <code>inspect</code> it:</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-3_654892f026900dde85cb709f5f873539">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-3_b0edde4faa151627d0531a41b7552636">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">inspect</span>(Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -384,7 +386,7 @@ quantitative variables:
 </div>
 </div>
 <p>The <code>inspect</code> command already gives us a series of statistical measures of different variables of interest. As discussed previously, we can retain the output of <code>inspect</code> and use it in our reports: (there are ways of dressing up these tables too)</p>
-<div class="cell" data-hash="correlations_cache/html/Galton-inspect_f1f74649ed777bac8190efb18576baaa">
+<div class="cell" data-hash="correlations_cache/html/Galton-inspect_adaecfd9a6b64c00e24caafb5cd0fa53">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>galton_describe <span class="ot">&lt;-</span> <span class="fu">inspect</span>(Galton)</span>
 <span id="cb5-2"><a href="#cb5-2"></a></span>
 <span id="cb5-3"><a href="#cb5-3"></a>galton_describe<span class="sc">$</span>categorical</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -420,7 +422,7 @@ quantitative variables:
 </section><section id="correlations-and-plots" class="level2"><h2 class="anchored" data-anchor-id="correlations-and-plots">Correlations and Plots</h2>
 <p>What Questions might we have, that we could answer with a Statistical Measure, or Correlation chart?</p>
 <p>Q.1 Which are the variables that have significant pair-wise correlations? What polarity are these correlations?</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-4_b560f95e79468e3e7803eab02819666f">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-4_1c183c6db208a8820996455ba686b3a2">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Pulling out the list of Quant variables from NHANES</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>galton_quant <span class="ot">&lt;-</span> galton_describe<span class="sc">$</span>quantitative</span>
 <span id="cb7-3"><a href="#cb7-3"></a>galton_quant<span class="sc">$</span>name</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -434,11 +436,11 @@ quantitative variables:
 <span id="cb9-5"><a href="#cb9-5"></a>  <span class="at">title =</span> <span class="st">"Galton Data Correlations Plot"</span></span>
 <span id="cb9-6"><a href="#cb9-6"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Can we plot a Correlogram for this dataset?</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-5_c1e302f91bea36714b8a4b9daeef2db9">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-5_3597b5af14303aba38ff4fb28c61bc2e">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">#library(corrplot)</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a></span>
 <span id="cb10-3"><a href="#cb10-3"></a>galton_num_var <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> <span class="fu">select</span>(father, mother, height, nkids)</span>
@@ -448,12 +450,12 @@ quantitative variables:
 <span id="cb10-7"><a href="#cb10-7"></a>           <span class="at">type =</span> <span class="st">"lower"</span>,</span>
 <span id="cb10-8"><a href="#cb10-8"></a>           <span class="at">main =</span> <span class="st">"Correlogram for Galton dataset"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Clearly <code>height</code> is positively correlated to <code>father</code> and <code>mother</code>; interestingly, <code>height</code> is negatively correlated ( slightly) with <code>nkids</code>.</p>
 <p>Q.2: Let us confirm with a test:</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-6_5ce25f0e3efe3115ac3864062db94945">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-6_fd1305c897ff261956e9cbe43748f977">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -469,7 +471,7 @@ sample estimates:
 0.2753548 </code></pre>
 </div>
 </div>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-7_76121c6b008ec607578d0b172c3c3475">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-7_2ac934f72edb6cbba2a5d8a0155179f1">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -487,7 +489,7 @@ sample estimates:
 </div>
 <p>Q.3 What does this correlation look when split by <code>sex</code> of Child?</p>
 <p>We will use the <code>mosaic</code> function <code>cor_test</code> to get these results:</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-8_86e71e2c8850cd6431587bb60046c488">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-8_94393dfd7d641afcf79c78213171d367">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># For the sons</span></span>
 <span id="cb15-2"><a href="#cb15-2"></a>mosaic<span class="sc">::</span><span class="fu">cor_test</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -548,34 +550,34 @@ sample estimates:
 </div>
 </div>
 <p>Q.4. How can we show this correlation in a set of Scatter Plots + Regression Lines? Can we recreate Galton’s famous diagram?</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-9_7ee3d06495fa9a7465ae4e53d97f871a">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-9_058c02599c56fd9796b44f6e65b9146c">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># For the sons</span></span>
 <span id="cb23-2"><a href="#cb23-2"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="co"># For the daughters</span></span>
 <span id="cb25-2"><a href="#cb25-2"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>An approximation to Galton’s famous plot (see Wikipedia):</p>
-<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-10_34efe4f47c08580f4ceae05e0e1f48de">
+<div class="cell" data-hash="correlations_cache/html/unnamed-chunk-10_5c1047c25515c3935fb329392f3dec4e">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> (father <span class="sc">+</span> mother)<span class="sc">/</span><span class="dv">2</span>, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
 <span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb27-3"><a href="#cb27-3"></a>  <span class="fu">gf_density_2d</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb27-4"><a href="#cb27-4"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="correlations_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="4200"></p>
+<p><img src="correlations_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>How would you interpret this plot?</p>
@@ -1009,12 +1011,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <li class="nav-item compact">
     <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com">
       <i class="bi bi-envelope" role="img">
-</i> 
-    </a>
-  </li>  
-    <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../../blog.xml">
-      <i class="bi bi-rss" role="img">
 </i> 
     </a>
   </li>  
