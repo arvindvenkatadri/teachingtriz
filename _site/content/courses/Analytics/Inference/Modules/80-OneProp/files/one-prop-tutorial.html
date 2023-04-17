@@ -344,68 +344,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   
 
 </header><section id="setting-up-the-packages" class="level2"><h2 class="anchored" data-anchor-id="setting-up-the-packages">Setting up the Packages</h2>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/setup_d6c231a5d2009549d373d2cd4fc1e3ce">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.1     ✔ readr     2.1.4
-✔ forcats   1.0.0     ✔ stringr   1.5.0
-✔ ggplot2   3.4.2     ✔ tibble    3.2.1
-✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-✔ purrr     1.0.1     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Registered S3 method overwritten by 'mosaic':
-  method                           from   
-  fortify.SpatialPolygonsDataFrame ggplot2
-
-The 'mosaic' package masks several functions from core packages in order to add 
-additional features.  The original behavior of these functions should not be affected by this.
-
-Attaching package: 'mosaic'
-
-The following object is masked from 'package:Matrix':
-
-    mean
-
-The following objects are masked from 'package:dplyr':
-
-    count, do, tally
-
-The following object is masked from 'package:purrr':
-
-    cross
-
-The following object is masked from 'package:ggplot2':
-
-    stat
-
-The following objects are masked from 'package:stats':
-
-    binom.test, cor, cor.test, cov, fivenum, IQR, median, prop.test,
-    quantile, sd, t.test, var
-
-The following objects are masked from 'package:base':
-
-    max, mean, min, prod, range, sample, sum</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(ggmosaic) <span class="co"># plotting mosaic plots for Categorical Data</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="do">### Dataset from Chihara and Hesterberg's book (Second Edition)</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="fu">library</span>(resampledata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'resampledata'
-
-The following object is masked from 'package:datasets':
-
-    Titanic</code></pre>
-</div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/setup_a4d13bb9be424fb3917399ee0e976e90">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(mosaic)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(ggmosaic) <span class="co"># plotting mosaic plots for Categorical Data</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="do">### Dataset from Chihara and Hesterberg's book (Second Edition)</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(resampledata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>We saw from the diagram created by Allen Downey that <em>there is only one test</em>! We will now use this philosophy to develop a technique that allows us to mechanize several <em>Statistical Models</em> in that way, with nearly identical code.</p>
@@ -413,9 +358,9 @@ The following object is masked from 'package:datasets':
 </section><section id="testing-for-two-or-more-proportions" class="level2"><h2 class="anchored" data-anchor-id="testing-for-two-or-more-proportions">Testing for Two or More Proportions</h2>
 <p>Let us try a dataset with Qualitative / Categorical data. This is the General Social Survey GSS dataset, and we have people with different levels of <code>Education</code> stating their opinion on the <code>Death Penalty</code>. We want to know if these two Categorical variables have a correlation, i.e. can the opinions in favour of the <code>Death Penalty</code> be explained by the <code>Education</code> level?</p>
 <p>Since data is Categorical ( both variables ), we need to take <code>counts</code> in a table, and then implement a <code>chi-square test</code>. In the test, we will permute the <code>Education</code> variable to see if we can see how significant its <em>effect size</em> is.</p>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-2_f696df853efdd0a0de77e4cfc1670c8d">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">data</span>(GSS2002)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="fu">inspect</span>(GSS2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-2_d7c0cfd8459a02521fb8276158abb2f3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">data</span>(GSS2002)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">inspect</span>(GSS2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 categorical variables:  
@@ -468,8 +413,8 @@ quantitative variables:
 </div>
 </div>
 <p>Note how <em>all</em> variables are Categorical !! <code>Education</code> has five <code>levels</code>:</p>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-3_3a242e0474cf95d65c21fa4467072ed6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Education)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-3_26e63542272381bcdaebb270c32ba65c">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Education)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -478,7 +423,7 @@ quantitative variables:
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(DeathPenalty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(DeathPenalty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -490,32 +435,32 @@ quantitative variables:
 </div>
 <p>Let us drop NA entries in <code>Education</code> and <code>Death Penalty</code>. And set up a table for the chi-square test.</p>
 <div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-4_b0383d184d57272a7d9ca1d723b5e102">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="#cb11-2"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a href="#cb11-3"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>(., <span class="fu">c</span>(Education, DeathPenalty))</span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="fu">dim</span>(gss2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>(., <span class="fu">c</span>(Education, DeathPenalty))</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">dim</span>(gss2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1307    2</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb13-3"><a href="#cb13-3"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(</span>
-<span id="cb13-4"><a href="#cb13-4"></a>      Education,</span>
-<span id="cb13-5"><a href="#cb13-5"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>),</span>
-<span id="cb13-6"><a href="#cb13-6"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>)</span>
-<span id="cb13-7"><a href="#cb13-7"></a>    ),</span>
-<span id="cb13-8"><a href="#cb13-8"></a>    <span class="at">DeathPenalty =</span> <span class="fu">as.factor</span>(DeathPenalty)</span>
-<span id="cb13-9"><a href="#cb13-9"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">group_by</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span></span>
-<span id="cb13-11"><a href="#cb13-11"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="co"># This is good for a chisq test</span></span>
-<span id="cb13-12"><a href="#cb13-12"></a>  </span>
-<span id="cb13-13"><a href="#cb13-13"></a>  <span class="co"># Add two more columns to facilitate mosaic/Marrimekko Plot</span></span>
-<span id="cb13-14"><a href="#cb13-14"></a>  <span class="co"># </span></span>
-<span id="cb13-15"><a href="#cb13-15"></a>  <span class="fu">mutate</span>(<span class="at">edu_count =</span> <span class="fu">sum</span>(count), </span>
-<span id="cb13-16"><a href="#cb13-16"></a>         <span class="at">edu_prop =</span> count <span class="sc">/</span> <span class="fu">sum</span>(count)) <span class="sc">%&gt;%</span></span>
-<span id="cb13-17"><a href="#cb13-17"></a>  <span class="fu">ungroup</span>() </span>
-<span id="cb13-18"><a href="#cb13-18"></a></span>
-<span id="cb13-19"><a href="#cb13-19"></a>gss_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(</span>
+<span id="cb8-4"><a href="#cb8-4"></a>      Education,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>),</span>
+<span id="cb8-6"><a href="#cb8-6"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    ),</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">DeathPenalty =</span> <span class="fu">as.factor</span>(DeathPenalty)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">group_by</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="co"># This is good for a chisq test</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>  </span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="co"># Add two more columns to facilitate mosaic/Marrimekko Plot</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="co"># </span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="fu">mutate</span>(<span class="at">edu_count =</span> <span class="fu">sum</span>(count), </span>
+<span id="cb8-16"><a href="#cb8-16"></a>         <span class="at">edu_prop =</span> count <span class="sc">/</span> <span class="fu">sum</span>(count)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="fu">ungroup</span>() </span>
+<span id="cb8-18"><a href="#cb8-18"></a></span>
+<span id="cb8-19"><a href="#cb8-19"></a>gss_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -529,36 +474,36 @@ quantitative variables:
 <p>We can plot a heatmap-like <code>mosaic chart</code> for this table.</p>
 <section id="using-ggplot" class="level3 active"><h3 class="active anchored" data-anchor-id="using-ggplot">Using <code>ggplot</code>
 </h3>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-5_7bd3801d796899e3bef0e744456ecddb">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a></span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss_summary, <span class="fu">aes</span>( <span class="at">x =</span> Education, <span class="at">y =</span> edu_prop)) <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4"></a>  </span>
-<span id="cb14-5"><a href="#cb14-5"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">width =</span> edu_count, <span class="at">fill =</span> DeathPenalty), </span>
-<span id="cb14-6"><a href="#cb14-6"></a>           <span class="at">stat =</span> <span class="st">"identity"</span>, </span>
-<span id="cb14-7"><a href="#cb14-7"></a>           <span class="at">position =</span> <span class="st">"fill"</span>, </span>
-<span id="cb14-8"><a href="#cb14-8"></a>           <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb14-9"><a href="#cb14-9"></a>  </span>
-<span id="cb14-10"><a href="#cb14-10"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> scales<span class="sc">::</span><span class="fu">percent</span>(edu_prop)), </span>
-<span id="cb14-11"><a href="#cb14-11"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb14-12"><a href="#cb14-12"></a></span>
-<span id="cb14-13"><a href="#cb14-13"></a></span>
-<span id="cb14-14"><a href="#cb14-14"></a><span class="co"># if labels are desired</span></span>
-<span id="cb14-15"><a href="#cb14-15"></a> <span class="fu">facet_grid</span>(<span class="sc">~</span> Education, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>) <span class="sc">+</span> </span>
-<span id="cb14-16"><a href="#cb14-16"></a>  <span class="fu">theme</span>(<span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"RdYlGn"</span>)) <span class="sc">+</span> </span>
-<span id="cb14-17"><a href="#cb14-17"></a>  <span class="co"># theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
-<span id="cb14-18"><a href="#cb14-18"></a>  <span class="fu">theme_void</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-5_149f200b86888fb5d6d425bd8f92dc03">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss_summary, <span class="fu">aes</span>( <span class="at">x =</span> Education, <span class="at">y =</span> edu_prop)) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  </span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">width =</span> edu_count, <span class="at">fill =</span> DeathPenalty), </span>
+<span id="cb9-6"><a href="#cb9-6"></a>           <span class="at">stat =</span> <span class="st">"identity"</span>, </span>
+<span id="cb9-7"><a href="#cb9-7"></a>           <span class="at">position =</span> <span class="st">"fill"</span>, </span>
+<span id="cb9-8"><a href="#cb9-8"></a>           <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  </span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> scales<span class="sc">::</span><span class="fu">percent</span>(edu_prop)), </span>
+<span id="cb9-11"><a href="#cb9-11"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a></span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="co"># if labels are desired</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a> <span class="fu">facet_grid</span>(<span class="sc">~</span> Education, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>) <span class="sc">+</span> </span>
+<span id="cb9-16"><a href="#cb9-16"></a>  <span class="fu">theme</span>(<span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"RdYlGn"</span>)) <span class="sc">+</span> </span>
+<span id="cb9-17"><a href="#cb9-17"></a>  <span class="co"># theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a>  <span class="fu">theme_void</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-prop-tutorial_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section><section id="using-ggmosaic" class="level3"><h3 class="anchored" data-anchor-id="using-ggmosaic">Using <code>ggmosaic</code>
 </h3>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/mosaic-plot_413402bb88c0827100204f57f561c13c">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co">#library(ggmosaic)</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss2002) <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4"></a>  <span class="fu">geom_mosaic</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">product</span>(DeathPenalty, Education), <span class="at">fill =</span> DeathPenalty))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/mosaic-plot_eb19e9d3324643110a849ccc9e2e7750">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">#library(ggmosaic)</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss2002) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">geom_mosaic</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">product</span>(DeathPenalty, Education), <span class="at">fill =</span> DeathPenalty))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-prop-tutorial_files/figure-html/mosaic-plot-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -567,24 +512,24 @@ quantitative variables:
 <section id="observed-statistic-the-x2-metric" class="level3"><h3 class="anchored" data-anchor-id="observed-statistic-the-x2-metric">Observed Statistic: the X^2 metric</h3>
 <p>When there are multiple proportions involved, the X^2 test is what is used.</p>
 <p>Let us now perform the base <code>chisq test</code>: We need a <code>table</code> and then the <code>chisq</code> test:</p>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-6_9ec841d64b21017f86b5daaef8d092a2">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>gss_table <span class="ot">&lt;-</span> <span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002)</span>
-<span id="cb16-2"><a href="#cb16-2"></a>gss_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-6_65d559bccf8d06e17a09bd5a35be9d28">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>gss_table <span class="ot">&lt;-</span> <span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>gss_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            Education
 DeathPenalty Left HS  HS Jr Col Bachelors Graduate
       Favor      117 511     71       135       64
       Oppose      72 200     16        71       50</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># Get the observed chi-square statistic</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a>observedChi2 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">chisq</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span>
-<span id="cb18-3"><a href="#cb18-3"></a>observedChi2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Get the observed chi-square statistic</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>observedChi2 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">chisq</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span>
+<span id="cb13-3"><a href="#cb13-3"></a>observedChi2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>X.squared 
  23.45093 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># Actual chi-square test</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a>stats<span class="sc">::</span><span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Actual chi-square test</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>stats<span class="sc">::</span><span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's Chi-squared test
@@ -594,31 +539,32 @@ X-squared = 23.451, df = 4, p-value = 0.0001029</code></pre>
 </div>
 </div>
 <p>What would our Hypotheses be?</p>
-<p>$$ H_0: Education&nbsp;Does&nbsp;Not&nbsp;affect&nbsp;Votes&nbsp;on&nbsp;Death&nbsp;Penalty\<br>
-H_a: Education&nbsp;affects&nbsp;Votes&nbsp;on&nbsp;Death&nbsp;Penalty<br></p>
-<p>$$</p>
+<p><span class="math display">\[
+H_0: Education\ does\ not\ affect\ Votes\ on\ Death\ Penalty\\
+H_a: Education\ affects\ Votes\ on\ Death\ Penalty
+\]</span></p>
 <p>We should now repeat the test with permutations on <code>Education</code>:</p>
-<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-7_4cd127b4677f41bc112dd167ed3cb4d7">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>null_chisq <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> <span class="fu">shuffle</span>(Education), <span class="at">data =</span> gss2002))</span>
-<span id="cb22-2"><a href="#cb22-2"></a></span>
-<span id="cb22-3"><a href="#cb22-3"></a><span class="fu">head</span>(null_chisq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-prop-tutorial_cache/html/unnamed-chunk-7_778b5aeb083eac61acd9c2b677da0f6f">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>null_chisq <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> <span class="fu">shuffle</span>(Education), <span class="at">data =</span> gss2002))</span>
+<span id="cb17-2"><a href="#cb17-2"></a></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="fu">head</span>(null_chisq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["X.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["data"],"name":[6],"type":["chr"],"align":["left"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"2.487540","2":"4","3":"0.64686830","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"1","_rn_":"X-squared...1"},{"1":"4.489655","2":"4","3":"0.34377587","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"2","_rn_":"X-squared...2"},{"1":"1.423878","2":"4","3":"0.84003441","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"3","_rn_":"X-squared...3"},{"1":"8.031221","2":"4","3":"0.09044119","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"4","_rn_":"X-squared...4"},{"1":"3.048334","2":"4","3":"0.54976972","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"5","_rn_":"X-squared...5"},{"1":"4.735987","2":"4","3":"0.31547487","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"6","_rn_":"X-squared...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["X.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["data"],"name":[6],"type":["chr"],"align":["left"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"5.7888277","2":"4","3":"0.21548356","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"1","_rn_":"X-squared...1"},{"1":"5.7694675","2":"4","3":"0.21703876","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"2","_rn_":"X-squared...2"},{"1":"8.4685359","2":"4","3":"0.07584671","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"3","_rn_":"X-squared...3"},{"1":"5.1502052","2":"4","3":"0.27222980","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"4","_rn_":"X-squared...4"},{"1":"0.8386727","2":"4","3":"0.93318954","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"5","_rn_":"X-squared...5"},{"1":"3.2059447","2":"4","3":"0.52397131","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"6","_rn_":"X-squared...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> X.squared, <span class="at">data =</span> null_chisq) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> observedChi2, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> X.squared, <span class="at">data =</span> null_chisq) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> observedChi2, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-prop-tutorial_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> X.squared <span class="sc">&gt;=</span> observedChi2, <span class="at">data =</span> null_chisq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> X.squared <span class="sc">&gt;=</span> observedChi2, <span class="at">data =</span> null_chisq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> prop_TRUE 
-0.00029997 </code></pre>
+<pre><code>prop_TRUE 
+9.999e-05 </code></pre>
 </div>
 </div>
 <p>The <code>p-value</code> is well below our threshold of <span class="math inline">\(0.05%\)</span>, so we would conclude that <code>Education</code> has a significant effect on <code>DeathPenalty</code> opinion!</p>
