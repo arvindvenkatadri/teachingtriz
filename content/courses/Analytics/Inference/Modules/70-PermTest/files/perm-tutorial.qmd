@@ -16,12 +16,44 @@ execute:
 
 ```{r setup, include=FALSE}
 
-knitr::opts_chunk$set(echo = TRUE, out.width="50%", out.height = "50%")
-library(ggplot2)
-library(dplyr)
+knitr::opts_chunk$set(echo = TRUE, out.width="50%", out.height = "50%", fig.align = "center")
+library(ggformula)
+library(tidyverse)
 library(mosaic)
+library(resampledata3)
+library(openintro)
+```
+
+### Permutations tests using mosaic::`shuffle()`
+
+The `mosaic` package provides the `shuffle()` function as a synonym for
+`sample()`. When used without additional arguments, this will permute
+its first argument.
+
+```{r, echo=TRUE}
+# library(mosaic)
+shuffle(1:10)
 
 ```
+
+Applying shuffle() to an *explanatory variable* in a model allows us to
+test the null hypothesis that the explanatory variable has, in fact, no
+explanatory power. This idea can be used to test
+
+-   the equivalence of two or more means,
+-   the equivalence of two or more proportions,
+-   whether a regression parameter is 0. (Correlations between two
+    variables) For example:
+
+```{r}
+
+```
+
+Coupled with `mosaic::do()` we can repeat a `shuffle` many times,
+computing a desired statistic each time we shuffle. The distribution of
+this computed statistic is a NULL distribution, which can then be
+compared with the observed statistic to decide upon the Hypothesis Test
+and p-value.
 
 ## Permutation Tests
 
@@ -87,7 +119,32 @@ in Hot Wings consumption. The probability that our Permutation
 distribution is able to equal or exceed that number is $0.001998002$ and
 we have to reject the Null Hypothesis that the means are identical.
 
+To test whether eating more hotwings would lead to increased beer
+consumption, we need a regression model, which we can again test with a
+permutation test.
+
+```{r}
+lm(Beer ~ Hotwings, data = Beerwings)
+```
+
 ### Case Study-2: Verizon
+
+The following example is used throughout this article. Verizon was an
+Incumbent Local Exchange Carrier (ILEC), responsible for maintaining
+land-line phone service in certain areas. Verizon also sold
+long-distance service, as did a number of competitors, termed
+Competitive Local Exchange Carriers (CLEC). When something went wrong,
+Verizon was responsible for repairs, and was supposed to make repairs as
+quickly for CLEC long-distance customers as for their own. The New York
+Public Utilities Commission (PUC) monitored fairness by comparing repair
+times for Verizon and different CLECs, for different classes of repairs
+and time periods. In each case a hypothesis test was performed at the 1%
+significance level, to determine whether repairs for CLEC's customers
+were significantly slower than for Verizon's customers. There were
+hundreds of such tests. If substantially more than 1% of the tests were
+significant, then Verizon would pay large penalties. These tests were
+performed using t tests; Verizon proposed using permutation tests
+instead.
 
 ```{r}
 
@@ -212,7 +269,7 @@ inspect(flightDelays)
 The variables in the `flightDelays` dataset are:
 
 | Variable     | Description                                                 |
-|--------------------|----------------------------------------------------|
+|--------------|-------------------------------------------------------------|
 | Carrier      | UA=United Airlines, AA=American Airlines                    |
 | FlightNo     | Flight number                                               |
 | Destination  | Airport code                                                |

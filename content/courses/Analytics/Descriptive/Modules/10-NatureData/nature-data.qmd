@@ -33,6 +33,7 @@ filters:
 library(tidyverse)
 library(ggtext)
 library(kableExtra)
+library(ggformula)
 
 ```
 
@@ -111,15 +112,17 @@ Stevens](https://stats.idre.ucla.edu/other/mult-pkg/whatstat/what-is-the-differe
 
 ```{r echo=FALSE,message=FALSE}
 
-g <- diamonds %>% slice_sample(n = 500) %>% ggplot(aes(x = carat, y = price, colour = cut)) + geom_point() +
-  labs(title = "Plot Title", 
+g <- diamonds %>% slice_sample(n = 500) %>% 
+  gf_point(price ~ carat, colour = ~ cut) %>% 
+  gf_labs(title = "Plot Title", 
        subtitle = "Plot Subtitle",
        caption = "Plot Caption",
        x = "x-Axis Title",
-       y = "y-Axis Title") + 
-  guides(colour=guide_legend(title = "Plot Legend", 
-                             colour = "orange")) + theme_bw() +
-  theme(plot.title.position = "panel",
+       y = "y-Axis Title") %>% 
+  gf_refine(guides(colour=guide_legend(title = "Plot Legend", 
+                             colour = "orange"))) %>% 
+  gf_theme(theme_bw()) %>%  
+  gf_theme(plot.title.position = "panel",
         plot.title = element_text(size = 20, 
                                   colour = "orange"),
         legend.title = element_text(colour = "orange", 
@@ -143,7 +146,7 @@ annotation <- tibble(
 )
 
 # Add text
-g + geom_text(data=annotation, aes( x=x, y=y, label=label, angle = angle),                 , 
+g %>% gf_text(data = annotation, y~ x, label= ~ label, angle = ~ angle,
            color="orange", 
            size=7 , fontface="bold" )
 ```

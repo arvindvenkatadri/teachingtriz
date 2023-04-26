@@ -20,10 +20,10 @@ categories:
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                         |                                                                                                                          |                                                                                                    |                                                                                        |
-|-----------------|---------------------|-----------------|-----------------|
-| <a href="./files/distributions.qmd"><i class="fa-brands                                 
-                                 fa-r-project"></i> R Tutorial</a>                        | <a href="./files/distributions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+|                                                                                            |                                                                                                                          |                                                                                                    |                                                                                        |
+|------------------|-------------------|------------------|------------------|
+| <a href="./files/distributions.qmd"><i class="fa-brands                                    
+                                    fa-r-project"></i> R Tutorial</a>                        | <a href="./files/distributions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -36,12 +36,7 @@ library(fontawesome)
 library(tidyverse)
 library(mosaic)
 library(palmerpenguins)
-library(patchwork)
-
-
-# #remotes::install_github("R-CoderDotCom/ridgeline@main")
-library(ridgeline)
-library(ggridges)
+library(ggformula)
 
 ```
 
@@ -108,40 +103,93 @@ is the dataset? How many variables? What types are they, Quant or Qual?
 If they are Qual, what are the *levels*? Are they *ordered* levels?
 Discuss!
 
+::: {.callout-tip style="background: beige"}
+Note the standard method for all commands from the `mosaic` package:
+
+`goal( y ~ x | z, data = mydata, …)`
+
+With `ggformula`, one can create any graph/chart using:
+
+`gf_geometry(y ~ x | z, data = mydata)`
+
+OR
+
+`mydata %>% gf_geometry( y ~ x | z)`
+
+The second method may be preferable, especially if you have done some
+data manipulation first! More later!
+:::
+
 ### Some Sample Charts for Quant Data Distributions
 
 ```{r}
 #| label: charts
-
-# library(tidyverse)
-# library(patchwork)
-# library(ggridges)
-
+#| echo: true
 mpg <- mpg %>% mutate(drv= as_factor(drv))
-p <- ggplot(mpg, alpha = 0.3) 
-p1 <- p + geom_histogram(aes(x = hwy, fill = drv)) + labs(title = "Histogram")
-p2 <- p + geom_density(aes(x = hwy, fill = drv))+ labs(title = "Frequency Density")
-p3 <- p + geom_boxplot(aes(x = drv, y = hwy, fill = drv))+ labs(title = "Boxplot")
-p4 <- p + geom_violin(aes(x = drv, y = hwy, fill = drv))+ labs(title = "Violin")
 
-(p1+p3)/(p2+p4) + plot_layout(nrow = 3) + plot_annotation(title = "Single Quant Variable",subtitle = "And one Qual Variable too", tag_levels = 'A') & theme_minimal()
+p1 <- gf_histogram(~ hwy, 
+                   fill = ~ drv, 
+                   alpha = 0.3, 
+                   data = mpg) %>%
+  gf_labs(title = "Histogram")
+
+p2 <- gf_density(~ hwy, 
+                 fill = ~ drv, 
+                 data = mpg) %>% 
+  gf_labs(title = "Frequency Density")
+
+p3 <- gf_boxplot(hwy ~ drv, 
+                 fill = ~ drv, 
+                 data = mpg) %>% 
+  gf_labs(title = "Boxplot")
+
+p4 <- gf_violin(hwy ~ drv, 
+                fill = ~ drv, 
+                data = mpg) %>% 
+    gf_labs(title = "Violin")
+
+```
+
+```{r}
+#| echo: false
+(p1+p3)/(p2+p4) + 
+  plot_layout(nrow = 3) +
+  plot_annotation(title = "Single Quant Variable",
+                  subtitle = "And one Qual Variable too",
+                  tag_levels = list(c("1","3", "2","4")),tag_prefix = "p") +
+  theme_minimal()
+
 
 ```
 
 ```{r}
 #| label: more-charts
+#| echo: true
 mpg <- mpg %>% mutate(drv= as_factor(drv))
 
-p5 <- p + geom_density_ridges(aes(x = hwy, y = drv, fill = drv), alpha = 0.3, rel_min_height = 0.005) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.01, 0)) +
-  theme_ridges() + labs(title = "Ridge Plot")
+p5 <- gf_density_ridges(drv ~ hwy, 
+                        fill = ~ drv, 
+                        alpha = 0.3, 
+                        rel_min_height = 0.005, data = mpg) %>% 
+  
+  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+            scale_x_continuous(expand = c(0.01, 0))) %>% 
+  gf_theme(theme_minimal()) %>% 
+  gf_labs(title = "Ridge Plot")
 
-p7 <- p + geom_hex(aes(x = hwy, y = cty, fill = drv))+ labs(title = "Hex Bin Plot")
-p8 <- p + geom_density_2d(aes(x = hwy, y = cty))+ labs(title = "2D Density Plot")
+p7 <- gf_hex(cty ~ hwy, fill = ~ drv, data = mpg) %>% 
+  gf_theme(theme_minimal()) %>% 
+  gf_labs(title = "Hex Bin Plot")
 
+p8 <- gf_density_2d(cty ~ hwy, data = mpg) %>% 
+  gf_theme(theme_minimal()) %>% 
+    gf_labs(title = "2D Density Plot")
+```
+
+```{r}
+#| echo: false
 (p7 + p8) / p5 + plot_layout(guides = 'keep') + 
-  plot_annotation(title = "Two Quant Variables",subtitle = "And one Qual Variable too", tag_levels = 'A') & theme_minimal()
+  plot_annotation(title = "Two Quant Variables",subtitle = "And one Qual Variable too", tag_levels = list(c("7", "8", "5")),tag_prefix = "p")
 
 ```
 

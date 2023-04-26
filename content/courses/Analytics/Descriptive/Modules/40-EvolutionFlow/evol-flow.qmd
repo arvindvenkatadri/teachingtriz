@@ -21,7 +21,7 @@ categories:
 ## {{< fa folder-open >}} Slides and Tutorials
 
 |                                                                                        |                                                                                                                       |                                                                                                 |                                                                               |
-|-----------------|---------------------|-----------------|-----------------|
+|------------------|-------------------|------------------|------------------|
 | <a href="./files/evolutions.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a> | <a href="./files/evolutions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/evolutions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial </a> | <a href="./data/data.zip"> <i class="fa-solid fa-database"> </i> Datasets</a> |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -36,7 +36,7 @@ library(ggstream)
 
 # remotes::install_github("corybrunson/ggalluvial@main", build_vignettes = TRUE)
 library(ggalluvial)
-
+library(ggformula)
 ```
 
 ## What Time Evolution Charts can we plot?
@@ -64,15 +64,29 @@ health_filtered <- health %>%
     "Russia",
     "Sweden"
   ))
-p1 <- ggplot(health_filtered,
-         aes(x = Year, y = public_health_expenditure_pc_gdp, colour = Entity)) + geom_line() + labs(y = "Healthcare Budget\n as % of GDP")
+```
+
+
+```{r}
+p1 <- gf_point(data = health_filtered,
+             public_health_expenditure_pc_gdp ~ Year, 
+             colour = ~ Entity, 
+             ylab = "Healthcare Budget\n as % of GDP")
 
 p2 <-  
-  ggplot(health_filtered,
-         aes(x = Year, y = public_health_expenditure_pc_gdp, fill = Entity)) + geom_area()+ labs(y = "Healthcare Budget\n as % of GDP")
+  gf_area(data = health_filtered,
+          public_health_expenditure_pc_gdp ~ Year, 
+          fill = ~ Entity, alpha = 0.3, 
+          ylab = "Healthcare Budget\n as % of GDP") %>% 
+  gf_line(colour = ~ Entity)
+
+```
 
 
-p1 / p2 + plot_layout(nrow = 2) + plot_annotation(title = "Line and Area Charts to show Evolution (over Time )",subtitle = "", tag_levels = 'A') & theme_minimal()
+```{r}
+#| echo: false
+p1 / p2 + plot_layout(nrow = 2) + 
+  plot_annotation(title = "Line and Area Charts to show Evolution (over Time )",subtitle = "", tag_levels = 'A') & theme_minimal()
 
 ```
 
@@ -97,6 +111,13 @@ movement of cricket players from one IPL Team to another !!
 
 ![](images/sankey.png){fig-align="center"}
 
+::: callout-note
+## Switching to ggplot here
+
+For the next few charts, there are ( as yet) no equivalents in
+`ggformula`. Hence we will use `ggplot`.
+:::
+
 ```{r}
 #| label: more-charts
 #| warning: false
@@ -105,18 +126,24 @@ library(ggalluvial)
 data("Titanic")
 Titanic %>% as_tibble() %>% 
 ggplot(data = .,
-       aes(axis1 = Class, axis2 = Sex, axis3 = Age,
+       aes(axis1 = Class, 
+           axis2 = Sex, 
+           axis3 = Age,
            y = n)) +
   geom_alluvium(aes(fill = Survived),size = .25) +
   geom_stratum() + 
   geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  
   scale_x_discrete(limits = c("Class", "Sex", "Age"), 
                    expand = c(.2, .05)) +
+  
   scale_fill_manual(values = c("darkgoldenrod", "purple")) + 
+  
   xlab("Demographic") +
   theme_minimal() +
   ggtitle("passengers on the maiden voyage of the Titanic",
           "stratified by demographics and survival")
+
 ```
 
 Here is another example of a Sankey Diagram: This diagram show how

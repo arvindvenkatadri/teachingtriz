@@ -25,11 +25,21 @@ library(corrplot) # For Correlogram plots
 
 ```
 
-::: callout-important
-Note the standard method for all commands from the `mosaic/ggformula`
-packages:
+::: {.callout-tip style="background: beige"}
+Note the standard method for all commands from the `mosaic` package:
 
 `goal( y ~ x | z, data = mydata, …)`
+
+With `ggformula`, one can create any graph/chart using:
+
+`gf_geometry(y ~ x | z, data = mydata)`
+
+OR
+
+`mydata %>% gf_geometry( y ~ x | z)`
+
+The second method may be preferable, especially if you have done some
+data manipulation first! More later!
 :::
 
 ## Case Study -1: Dataset from `mosaicData`
@@ -129,10 +139,12 @@ Q.2: Let us confirm with a test:
 
 ```{r}
 mosaic::cor_test(height ~ father, data = Galton)
+
 ```
 
 ```{r}
 mosaic::cor_test(height ~ mother, data = Galton)
+
 ```
 
 Q.3 What does this correlation look when split by `sex` of Child?
@@ -156,12 +168,21 @@ Regression Lines? Can we recreate Galton's famous diagram?
 
 ```{r}
 # For the sons
-gf_point(height ~ father, data = Galton %>% filter(sex == "M")) %>% gf_smooth(method = "lm")
-gf_point(height ~ mother, data = Galton %>% filter(sex == "M")) %>% gf_smooth(method = "lm")
+gf_point(height ~ father, data = Galton %>% 
+           filter(sex == "M")) %>% gf_smooth(method = "lm")
+
+gf_point(height ~ mother, data = Galton %>% 
+           filter(sex == "M")) %>% gf_smooth(method = "lm")
 
 # For the daughters
-gf_point(height ~ father, data = Galton %>% filter(sex == "F")) %>% gf_smooth(method = "lm")
-gf_point(height ~ mother, data = Galton %>% filter(sex == "F")) %>% gf_smooth(method = "lm")
+gf_point(height ~ father, data = Galton %>% 
+           filter(sex == "F")) %>% 
+  gf_smooth(method = "lm")
+
+gf_point(height ~ mother, data = Galton %>% 
+           filter(sex == "F")) %>% 
+  gf_smooth(method = "lm")
+
 ```
 
 An approximation to Galton's famous plot (see Wikipedia):

@@ -338,7 +338,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">April 13, 2023</p>
+      <p class="date-modified">April 23, 2023</p>
     </div>
   </div>
     
@@ -358,7 +358,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(mosaic)</span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(infer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-2_6fda897df4f7adcb692fce8b31e3d298">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-2_b1638157241fc6af47a23c535cb8d850">
 <style type="text/css">
 
 /*https://stackoverflow.com/questions/73546631/how-to-format-tabset-font-in-quarto
@@ -373,7 +373,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </style>
 </div>
 <section id="introduction" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Following the ANOVA tutorial at <a href="https://ourcodingclub.github.io/tutorials/anova/">Our Coding Club</a>.</p>
 <p>Suppose we have three sales strategies on our website, to sell a certain product, say men’s shirts. We have website interaction over several months. How do we know which strategy makes people buy the fastest ?</p>
 <p>If there is a University course that is offered in parallel in three different classrooms, is there a difference between the average marks obtained by students in each of the classrooms?</p>
 <p>In each case we have a set of observations in each category: Interaction Time vs Sales Strategy in the first example, and Student Marks vs Classroom in the second. We can take <em>mean</em> scores in each category and decide to compare them. How do we make the comparisons? One way would be to compare them pair-wise. But with this rapidly becomes intractable and also dangerous: with increasing number of <code>groups</code>, the number of mean-comparisons becomes very large <span class="math inline">\(N\choose 2\)</span> and with each comparison the possibility of some difference showing up, <em>just by chance</em>, increases! And we end up making the wrong inference and perhaps the wrong decision.</p>
@@ -394,7 +393,7 @@ Research Question
 </div>
 <section id="read-the-data" class="level3"><h3 class="anchored" data-anchor-id="read-the-data">Read the Data</h3>
 <p>Download the data by clicking the button below:</p>
-<p><a href="#dnldts2010" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQ0KMSwyNCwsDQoyLCwyMSwNCjMsLCwxOA0KNCwyNiwsDQo1LCwyMiwNCjYsLCwxNA0KNywyNywsDQo4LCwyMiwNCjksLCwxNQ0KMTAsMjcsLA0KMTEsLDIxLA0KMTIsLCwxNQ0KMTMsMjYsLA0KMTQsLDIwLA0KMTUsLCwxNg0KMTYsMjcsLA0KMTcsLDIwLA0KMTgsLCwxNg0KMTksMjcsLA0KMjAsLDE5LA0KMjEsLCwxNw0KMjIsMjUsLA0KMjMsLDIxLA0KMjQsLCwxNw0KMjUsMjYsLA0KMjYsLDIzLA0KMjcsLCwxNw0KMjgsMjgsLA0KMjksLDIxLA0KMzAsLCwxNw0KMzEsMjQsLA0KMzIsLDIxLA0KMzMsLCwxOA0KMzQsMjYsLA0KMzUsLDIyLA0KMzYsLCwxNA0KMzcsMjcsLA0KMzgsLDIyLA0KMzksLCwxNQ0KNDAsMjcsLA0KNDEsLDIxLA0KNDIsLCwxNQ0KNDMsMjYsLA0KNDQsLDIwLA0KNDUsLCwxNg0KNDYsMjcsLA0KNDcsLDIwLA0KNDgsLCwxNg0KNDksMjcsLA0KNTAsLDE5LA0KNTEsLCwxNw0KNTIsMjUsLA0KNTMsLDIxLA0KNTQsLCwxNw0KNTUsMjYsLA0KNTYsLDIzLA0KNTcsLCwxNw0KNTgsMjgsLA0KNTksLDIxLA0KNjAsLCwxNw0K').then(res => res.blob()).then(blob => {
+<p><a href="#dnldts17876" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQ0KMSwyNCwsDQoyLCwyMSwNCjMsLCwxOA0KNCwyNiwsDQo1LCwyMiwNCjYsLCwxNA0KNywyNywsDQo4LCwyMiwNCjksLCwxNQ0KMTAsMjcsLA0KMTEsLDIxLA0KMTIsLCwxNQ0KMTMsMjYsLA0KMTQsLDIwLA0KMTUsLCwxNg0KMTYsMjcsLA0KMTcsLDIwLA0KMTgsLCwxNg0KMTksMjcsLA0KMjAsLDE5LA0KMjEsLCwxNw0KMjIsMjUsLA0KMjMsLDIxLA0KMjQsLCwxNw0KMjUsMjYsLA0KMjYsLDIzLA0KMjcsLCwxNw0KMjgsMjgsLA0KMjksLDIxLA0KMzAsLCwxNw0KMzEsMjQsLA0KMzIsLDIxLA0KMzMsLCwxOA0KMzQsMjYsLA0KMzUsLDIyLA0KMzYsLCwxNA0KMzcsMjcsLA0KMzgsLDIyLA0KMzksLCwxNQ0KNDAsMjcsLA0KNDEsLDIxLA0KNDIsLCwxNQ0KNDMsMjYsLA0KNDQsLDIwLA0KNDUsLCwxNg0KNDYsMjcsLA0KNDcsLDIwLA0KNDgsLCwxNg0KNDksMjcsLA0KNTAsLDE5LA0KNTEsLCwxNw0KNTIsMjUsLA0KNTMsLDIxLA0KNTQsLCwxNw0KNTUsMjYsLA0KNTYsLDIzLA0KNTcsLCwxNw0KNTgsMjgsLA0KNTksLDIxLA0KNjAsLCwxNw0K').then(res => res.blob()).then(blob => {
       const downloadURL = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       document.body.appendChild(a);
@@ -402,19 +401,10 @@ Research Question
       a.download = 'frogs.csv'; a.click();
       window.URL.revokeObjectURL(downloadURL);
       document.body.removeChild(a);
-        });"><button class="btn btn-info downloadthis  " id="dnldts2010"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-3_f343ee74dfe55f8d5e9254ad836da31b">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>frogs_orig <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/frogs.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 60 Columns: 4
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-dbl (4): Frogspawn sample id, Temperature13, Temperature18, Temperature25
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>frogs_orig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+        });"><button class="btn btn-info downloadthis  " id="dnldts17876"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-3_688d39b4f4a306df2e5a85991021b321">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>frogs_orig <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/frogs.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>frogs_orig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -424,28 +414,28 @@ dbl (4): Frogspawn sample id, Temperature13, Temperature18, Temperature25
 </div>
 </div>
 </div>
-<p>Our response variable is the hatching <code>Time</code>. Our explanatory variable is a <em>factor</em>, Temperature, with 3 levels: 13°C, 18°C and 25°C. Different samples of spawn were subject to each of these temperatures respectively. The data is badly organized, with a separate column for each Temperature, with NA entries since not all samples of spawn could be subject to all temperatures. Hence, we should <code>pivot_longer()</code> this data, so all Time readings are in one column, and also convert the Temperature into a <code>factor</code>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-4_2bd4e27883755330a7344130b84df49f">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>frogs_long <span class="ot">&lt;-</span> frogs_orig <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">pivot_longer</span>(., <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Temperature"</span>),</span>
-<span id="cb5-3"><a href="#cb5-3"></a>               <span class="at">cols_vary =</span> <span class="st">"fastest"</span>, <span class="co"># new in pivot_longer</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a>               <span class="at">names_to =</span> <span class="st">"Temp"</span>,</span>
-<span id="cb5-5"><a href="#cb5-5"></a>               <span class="at">values_to =</span> <span class="st">"Time"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-7"><a href="#cb5-7"></a>  </span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="co"># knock off the unnecessary "Temperature" word everywhere</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  <span class="fu">separate_wider_regex</span>(<span class="at">cols =</span> Temp,</span>
-<span id="cb5-10"><a href="#cb5-10"></a>                       <span class="at">patterns =</span> <span class="fu">c</span>(<span class="st">"Temperature"</span>, </span>
-<span id="cb5-11"><a href="#cb5-11"></a>                                     <span class="at">TempFac =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>), </span>
-<span id="cb5-12"><a href="#cb5-12"></a>                       <span class="at">cols_remove =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-13"><a href="#cb5-13"></a>  </span>
-<span id="cb5-14"><a href="#cb5-14"></a>  <span class="co"># Convert Temp into TempFac, a 3-level factor</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>  <span class="fu">mutate</span>(<span class="at">TempFac =</span> <span class="fu">factor</span>(<span class="at">x =</span> TempFac,</span>
-<span id="cb5-16"><a href="#cb5-16"></a>                              <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">13</span>,<span class="dv">18</span>,<span class="dv">25</span>), </span>
-<span id="cb5-17"><a href="#cb5-17"></a>                              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"13"</span>, <span class="st">"18"</span>, <span class="st">"25"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-18"><a href="#cb5-18"></a>  <span class="fu">rename</span>(<span class="st">"Id"</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Frogspawn sample id</span><span class="st">`</span>)</span>
-<span id="cb5-19"><a href="#cb5-19"></a></span>
-<span id="cb5-20"><a href="#cb5-20"></a>frogs_long</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Our response variable is the hatching <code>Time</code>. Our explanatory variable is a <em>factor</em>, <code>Temperature</code>, with 3 levels: 13°C, 18°C and 25°C. Different samples of spawn were subject to each of these temperatures respectively. The data is badly organized, with a separate column for each Temperature, with NA entries since not all samples of spawn could be subject to all temperatures. Hence, we should <code>pivot_longer()</code> this data, so all Time readings are in one numerical column, all Temperatures are also in a column that we should convert into a <code>factor</code>:</p>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-4_69d218f3203b6d3cd6c5190706377907">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>frogs_long <span class="ot">&lt;-</span> frogs_orig <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="fu">pivot_longer</span>(., <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Temperature"</span>),</span>
+<span id="cb3-3"><a href="#cb3-3"></a>               <span class="at">cols_vary =</span> <span class="st">"fastest"</span>, <span class="co"># new in pivot_longer</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>               <span class="at">names_to =</span> <span class="st">"Temp"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>               <span class="at">values_to =</span> <span class="st">"Time"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7"></a>  </span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="co"># knock off the unnecessary "Temperature" word everywhere</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="fu">separate_wider_regex</span>(<span class="at">cols =</span> Temp,</span>
+<span id="cb3-10"><a href="#cb3-10"></a>                       <span class="at">patterns =</span> <span class="fu">c</span>(<span class="st">"Temperature"</span>, </span>
+<span id="cb3-11"><a href="#cb3-11"></a>                                     <span class="at">TempFac =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>), </span>
+<span id="cb3-12"><a href="#cb3-12"></a>                       <span class="at">cols_remove =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-13"><a href="#cb3-13"></a>  </span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="co"># Convert Temp into TempFac, a 3-level factor</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="fu">mutate</span>(<span class="at">TempFac =</span> <span class="fu">factor</span>(<span class="at">x =</span> TempFac,</span>
+<span id="cb3-16"><a href="#cb3-16"></a>                              <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">13</span>,<span class="dv">18</span>,<span class="dv">25</span>), </span>
+<span id="cb3-17"><a href="#cb3-17"></a>                              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"13"</span>, <span class="st">"18"</span>, <span class="st">"25"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="fu">rename</span>(<span class="st">"Id"</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Frogspawn sample id</span><span class="st">`</span>)</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>frogs_long</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -455,8 +445,8 @@ dbl (4): Frogspawn sample id, Temperature13, Temperature18, Temperature25
 </div>
 </div>
 </div>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-5_5fdeef2451f4a137c690229daab36267">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>frogs_long <span class="sc">%&gt;%</span> <span class="fu">count</span>(TempFac)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-5_6d32df4148e2769e818391604c33be89">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>frogs_long <span class="sc">%&gt;%</span> <span class="fu">count</span>(TempFac)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -469,63 +459,66 @@ dbl (4): Frogspawn sample id, Temperature13, Temperature18, Temperature25
 <p>So we have <code>20</code> samples for Hatching <code>Time</code> per <code>TempFac</code> setting.</p>
 </section></section><section id="eda" class="level2"><h2 class="anchored" data-anchor-id="eda">EDA</h2>
 <p>Let us set a plot theme:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-6_0af40475ab1f5d3cc5496124ddea5324">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Data visualisation</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a></span>
-<span id="cb7-3"><a href="#cb7-3"></a>theme_frogs <span class="ot">&lt;-</span> <span class="cf">function</span>(){  <span class="co"># Creating a function</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span>  <span class="co"># Using pre-defined theme as base</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axes text      </span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb7-7"><a href="#cb7-7"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axis title</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),  <span class="co"># Taking off the default grid</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>        <span class="at">plot.margin =</span> <span class="fu">unit</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), <span class="at">units =</span> , <span class="st">"cm"</span>),</span>
-<span id="cb7-10"><a href="#cb7-10"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"italic"</span>),  <span class="co"># Customizing legend text</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing legend title</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a>        <span class="at">legend.position =</span> <span class="st">"right"</span>,  <span class="co"># Customizing legend position</span></span>
-<span id="cb7-13"><a href="#cb7-13"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))  <span class="co"># Customizing plot caption</span></span>
-<span id="cb7-14"><a href="#cb7-14"></a>}                                                                              </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-6_a7c7f79e2985454e24c464f20fcf81a3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Data visualisation</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a>theme_frogs <span class="ot">&lt;-</span> <span class="cf">function</span>(){  <span class="co"># Creating a function</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span>  <span class="co"># Using pre-defined theme as base</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axes text      </span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb5-7"><a href="#cb5-7"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axis title</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),  <span class="co"># Taking off the default grid</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>        <span class="at">plot.margin =</span> <span class="fu">unit</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), <span class="at">units =</span> , <span class="st">"cm"</span>),</span>
+<span id="cb5-10"><a href="#cb5-10"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"italic"</span>),  <span class="co"># Customizing legend text</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing legend title</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>        <span class="at">legend.position =</span> <span class="st">"right"</span>,  <span class="co"># Customizing legend position</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))  <span class="co"># Customizing plot caption</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>}                                                                              </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us plot some histograms of Hatching Time:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-7_eeb64f84045024c35605d479193419b0">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> frogs_long, </span>
-<span id="cb8-2"><a href="#cb8-2"></a>             <span class="sc">~</span> Time, </span>
-<span id="cb8-3"><a href="#cb8-3"></a>             <span class="at">fill =</span> <span class="sc">~</span> TempFac,</span>
-<span id="cb8-4"><a href="#cb8-4"></a>             <span class="at">stat =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Hatching Time"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">gf_theme</span>(<span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Temperature level (°C)"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-7_c6bde023384cbd24983910773e4288cc">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> frogs_long, </span>
+<span id="cb6-2"><a href="#cb6-2"></a>             <span class="sc">~</span> Time, </span>
+<span id="cb6-3"><a href="#cb6-3"></a>             <span class="at">fill =</span> <span class="sc">~</span> TempFac,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>             <span class="at">stat =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Hatching Time"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="fu">gf_theme</span>(<span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Temperature level (°C)"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We should also look at boxplots</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-8_441dd185c1af9440dc98cfe5432757c4">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">gf_boxplot</span>(<span class="at">data =</span> frogs_long, </span>
-<span id="cb9-2"><a href="#cb9-2"></a>             Time <span class="sc">~</span> TempFac, </span>
-<span id="cb9-3"><a href="#cb9-3"></a>             <span class="at">fill =</span> <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Hatching Time"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">gf_theme</span>(<span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Temperature level (°C)"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-8_eed392799241c38990b4e1cc05fdd51a">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">gf_boxplot</span>(<span class="at">data =</span> frogs_long, </span>
+<span id="cb7-2"><a href="#cb7-2"></a>             Time <span class="sc">~</span> TempFac, </span>
+<span id="cb7-3"><a href="#cb7-3"></a>             <span class="at">fill =</span> <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Hatching Time"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="fu">gf_theme</span>(<span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Temperature level (°C)"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>The histograms look well separated and the box plots also show very little overlap. So we can reasonably hypothesize that Temperature has a significant effect on Hatching Time.</p>
+<p>Let’s go ahead with our ANOVA test.</p>
 </section><section id="anova" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="anova">ANOVA</h2>
 <p>We will first execute the ANOVA test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding.</p>
 <div class="panel-tabset page-columns page-full">
 <ul class="nav nav-tabs" role="tablist">
 <li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">ANOVA Test with Code</a></li>
 <li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">ANOVA Intuitive</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">ANOVA Manually Demonstrated (Apologies to Spinoza)</a></li>
+<li class="nav-item" role="presentation">
+<a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">ANOVA Manually Demonstrated(Apologies to Spinoza</a><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>)</li>
 </ul>
-<div class="tab-content page-columns page-full">
+<div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Spinoza: Ethics Geometrically Demonstrated: <a href="https://www.earlymoderntexts.com/assets/pdfs/spinoza1665.pdf">spinoza1665.pdf (earlymoderntexts.com)</a></p></li></div><div class="tab-content page-columns page-full">
 <div id="tabset-1-1" class="tab-pane active page-columns page-full" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>R offers a very simple command to execute an ANOVA test: Note the familiar <code>formula</code> of stating the variables:</p>
-<div class="cell" data-hash="ANOVA_cache/html/ANOVA with code_fb6c3777af776c3efb480ce1afcb3586">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>frogs_anova <span class="ot">&lt;-</span> <span class="fu">aov</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span>
-<span id="cb10-2"><a href="#cb10-2"></a>frogs_anova <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/ANOVA with code_0a76eb8dd90730a73194d6a5673a2211">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>frogs_anova <span class="ot">&lt;-</span> <span class="fu">aov</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>frogs_anova <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -534,7 +527,7 @@ dbl (4): Frogspawn sample id, Temperature13, Temperature18, Temperature25
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">summary</span>(frogs_anova)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">summary</span>(frogs_anova)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)    
 TempFac      2 1020.9   510.5   385.9 &lt;2e-16 ***
@@ -544,63 +537,63 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 <p>The effect of Temperature on Hatching time is significant, with a p-value of <span class="math inline">\(&lt;2e-16\)</span>. The F-statistic for the ANOVA test is given by <span class="math inline">\(385.9\)</span>, which is very high. Clearly <code>Temperature</code> has a very significant effect on the hatching <code>Time</code>.</p>
-<div class="page-columns page-full"><p>To find which specific value of <code>TempFac</code> has the most effect will require <em>pairwise comparison</em> of the group means, using a standard t-test. The confidence level for such repeated comparisons will need what is called <strong>Bonferroni correction</strong><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take <span class="math inline">\(\alpha\)</span> the confidence level used and divide it by <span class="math inline">\(K\)</span>, the number of pair-wise comparisons we intend to make. So using an <span class="math inline">\(\alpha = 0.05\)</span> for ANOVA, the pairwise comparisons in our current data will have to use <span class="math inline">\(\alpha/3 = 0.0166\)</span> as the confidence level. We will discuss this more in the section titled “ANOVA Intuitive”.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;https://www.openintro.org/go/?id=anova-supplement&amp;referrer=/book/ahss/index.php</p></li></div></div>
+<div class="page-columns page-full"><p>To find which specific value of <code>TempFac</code> has the most effect will require <em>pairwise comparison</em> of the group means, using a standard t-test. The confidence level for such repeated comparisons will need what is called <strong><em>Bonferroni correction</em></strong><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take <span class="math inline">\(\alpha\)</span> the confidence level used and divide it by <span class="math inline">\(K\)</span>, the number of pair-wise comparisons we intend to make. So using an <span class="math inline">\(\alpha = 0.05\)</span> for ANOVA, the pairwise comparisons in our current data will have to use <span class="math inline">\(\alpha/3 = 0.0166\)</span> as the confidence level. We will discuss this more in the section titled “ANOVA Intuitive”.</p><div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;https://www.openintro.org/go/?id=anova-supplement&amp;referrer=/book/ahss/index.php</p></li></div></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>All that is very well, but what is happening under the hood of the <code><a href="https://rdrr.io/r/stats/aov.html">aov()</a></code> command?</p>
 <p>Consider a data set with a single Quant and a single Qual variable. The Qual variable has two levels, the Quant data has 20 observations per Qual level.</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-10_5e524a1469b8859fcd6c9fc7a1a62778">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb13-2"><a href="#cb13-2"></a>ggplot2<span class="sc">::</span><span class="fu">theme_set</span>(<span class="fu">theme_classic</span>())</span>
-<span id="cb13-3"><a href="#cb13-3"></a>data <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,</span>
-<span id="cb13-4"><a href="#cb13-4"></a>              <span class="at">qual =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="at">x =</span> <span class="st">"A"</span>, <span class="dv">20</span>),<span class="fu">rep</span>(<span class="at">x =</span> <span class="st">"B"</span>, <span class="dv">20</span>)),</span>
-<span id="cb13-5"><a href="#cb13-5"></a>              <span class="at">quant =</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>), </span>
-<span id="cb13-6"><a href="#cb13-6"></a>                        <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">2</span>)))</span>
-<span id="cb13-7"><a href="#cb13-7"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-10_02ad800b54936cec0e0ced51a0336eab">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>ggplot2<span class="sc">::</span><span class="fu">theme_set</span>(<span class="fu">theme_classic</span>())</span>
+<span id="cb11-3"><a href="#cb11-3"></a>data <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,</span>
+<span id="cb11-4"><a href="#cb11-4"></a>              <span class="at">qual =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="at">x =</span> <span class="st">"A"</span>, <span class="dv">20</span>),<span class="fu">rep</span>(<span class="at">x =</span> <span class="st">"B"</span>, <span class="dv">20</span>)),</span>
+<span id="cb11-5"><a href="#cb11-5"></a>              <span class="at">quant =</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>), </span>
+<span id="cb11-6"><a href="#cb11-6"></a>                        <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">2</span>)))</span>
+<span id="cb11-7"><a href="#cb11-7"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["index"],"name":[1],"type":["int"],"align":["right"]},{"label":["qual"],"name":[2],"type":["chr"],"align":["left"]},{"label":["quant"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"A","3":"-0.2652775"},{"1":"2","2":"A","3":"0.4300570"},{"1":"3","2":"A","3":"2.1457823"},{"1":"4","2":"A","3":"2.3413429"},{"1":"5","2":"A","3":"-0.2517365"},{"1":"6","2":"A","3":"-3.8367178"},{"1":"7","2":"A","3":"-0.7449572"},{"1":"8","2":"A","3":"1.1236446"},{"1":"9","2":"A","3":"-4.2420065"},{"1":"10","2":"A","3":"0.2743344"},{"1":"11","2":"A","3":"1.1397045"},{"1":"12","2":"A","3":"0.4571809"},{"1":"13","2":"A","3":"-1.0679276"},{"1":"14","2":"A","3":"-2.6637144"},{"1":"15","2":"A","3":"-0.5125283"},{"1":"16","2":"A","3":"2.1562823"},{"1":"17","2":"A","3":"-1.5864442"},{"1":"18","2":"A","3":"-2.5843869"},{"1":"19","2":"A","3":"1.7756752"},{"1":"20","2":"A","3":"-3.5494323"},{"1":"21","2":"B","3":"9.3551295"},{"1":"22","2":"B","3":"7.8762289"},{"1":"23","2":"B","3":"8.9841912"},{"1":"24","2":"B","3":"7.4177470"},{"1":"25","2":"B","3":"10.0502700"},{"1":"26","2":"B","3":"13.0499953"},{"1":"27","2":"B","3":"10.6927053"},{"1":"28","2":"B","3":"9.0283302"},{"1":"29","2":"B","3":"13.6267632"},{"1":"30","2":"B","3":"10.7570441"},{"1":"31","2":"B","3":"10.4688711"},{"1":"32","2":"B","3":"10.6456896"},{"1":"33","2":"B","3":"9.8127666"},{"1":"34","2":"B","3":"10.6340702"},{"1":"35","2":"B","3":"9.0808733"},{"1":"36","2":"B","3":"13.0622480"},{"1":"37","2":"B","3":"11.3853167"},{"1":"38","2":"B","3":"13.4313985"},{"1":"39","2":"B","3":"9.1207827"},{"1":"40","2":"B","3":"8.0703342"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["index"],"name":[1],"type":["int"],"align":["right"]},{"label":["qual"],"name":[2],"type":["chr"],"align":["left"]},{"label":["quant"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"A","3":"0.2123626"},{"1":"2","2":"A","3":"-1.9736340"},{"1":"3","2":"A","3":"0.7642486"},{"1":"4","2":"A","3":"2.9055007"},{"1":"5","2":"A","3":"-2.0735697"},{"1":"6","2":"A","3":"-0.1433288"},{"1":"7","2":"A","3":"-1.1127117"},{"1":"8","2":"A","3":"1.6749464"},{"1":"9","2":"A","3":"0.3287206"},{"1":"10","2":"A","3":"-1.2787451"},{"1":"11","2":"A","3":"1.3497103"},{"1":"12","2":"A","3":"-2.2582234"},{"1":"13","2":"A","3":"2.3375940"},{"1":"14","2":"A","3":"-0.2810385"},{"1":"15","2":"A","3":"1.1408180"},{"1":"16","2":"A","3":"-2.2530654"},{"1":"17","2":"A","3":"-1.1837884"},{"1":"18","2":"A","3":"0.3895695"},{"1":"19","2":"A","3":"-0.3793643"},{"1":"20","2":"A","3":"-4.8559280"},{"1":"21","2":"B","3":"10.8670587"},{"1":"22","2":"B","3":"9.0949232"},{"1":"23","2":"B","3":"8.4024779"},{"1":"24","2":"B","3":"11.7697830"},{"1":"25","2":"B","3":"6.3929444"},{"1":"26","2":"B","3":"6.6632157"},{"1":"27","2":"B","3":"8.1253639"},{"1":"28","2":"B","3":"11.4149937"},{"1":"29","2":"B","3":"8.3573167"},{"1":"30","2":"B","3":"8.6908781"},{"1":"31","2":"B","3":"12.7605654"},{"1":"32","2":"B","3":"9.2801644"},{"1":"33","2":"B","3":"12.7889674"},{"1":"34","2":"B","3":"7.8749207"},{"1":"35","2":"B","3":"7.4841855"},{"1":"36","2":"B","3":"11.1586144"},{"1":"37","2":"B","3":"10.2953943"},{"1":"38","2":"B","3":"9.9707221"},{"1":"39","2":"B","3":"12.0610623"},{"1":"40","2":"B","3":"8.8036524"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>overall_mean <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(quant))</span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#overall_mean</span></span>
-<span id="cb14-4"><a href="#cb14-4"></a></span>
-<span id="cb14-5"><a href="#cb14-5"></a>grouped_means <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">group_by</span>(qual) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-7"><a href="#cb14-7"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(quant))</span>
-<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#grouped_means</span></span>
-<span id="cb14-9"><a href="#cb14-9"></a></span>
-<span id="cb14-10"><a href="#cb14-10"></a>p1 <span class="ot">&lt;-</span> <span class="fu">gf_point</span>(quant <span class="sc">~</span> index, </span>
-<span id="cb14-11"><a href="#cb14-11"></a>               <span class="at">color =</span> <span class="sc">~</span> qual,</span>
-<span id="cb14-12"><a href="#cb14-12"></a>         <span class="at">data =</span> data) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-13"><a href="#cb14-13"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span>  <span class="sc">~</span> overall_mean,</span>
-<span id="cb14-14"><a href="#cb14-14"></a>             <span class="at">data =</span> overall_mean) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-15"><a href="#cb14-15"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> data, </span>
-<span id="cb14-16"><a href="#cb14-16"></a>             <span class="at">color =</span> <span class="st">"black"</span>,</span>
-<span id="cb14-17"><a href="#cb14-17"></a>             overall_mean<span class="sc">$</span>overall_mean <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index)</span>
-<span id="cb14-18"><a href="#cb14-18"></a></span>
-<span id="cb14-19"><a href="#cb14-19"></a>p2 <span class="ot">&lt;-</span> <span class="fu">gf_point</span>(quant <span class="sc">~</span> index, </span>
-<span id="cb14-20"><a href="#cb14-20"></a>         <span class="at">group =</span> <span class="sc">~</span> qual, </span>
-<span id="cb14-21"><a href="#cb14-21"></a>         <span class="at">colour =</span> <span class="sc">~</span> qual, </span>
-<span id="cb14-22"><a href="#cb14-22"></a>         <span class="at">data =</span> data) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-23"><a href="#cb14-23"></a>  </span>
-<span id="cb14-24"><a href="#cb14-24"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="sc">~</span> mean, </span>
-<span id="cb14-25"><a href="#cb14-25"></a>           <span class="at">colour =</span> <span class="sc">~</span> qual,</span>
-<span id="cb14-26"><a href="#cb14-26"></a>           <span class="at">data =</span> data <span class="sc">%&gt;%</span> </span>
-<span id="cb14-27"><a href="#cb14-27"></a>             <span class="fu">group_by</span>(qual) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-28"><a href="#cb14-28"></a>             <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(quant))) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-29"><a href="#cb14-29"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(qual <span class="sc">==</span> <span class="st">"A"</span>),</span>
-<span id="cb14-30"><a href="#cb14-30"></a>             grouped_means<span class="sc">$</span>grouped_means[<span class="dv">1</span>] <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index</span>
-<span id="cb14-31"><a href="#cb14-31"></a>             ) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-32"><a href="#cb14-32"></a>    <span class="fu">gf_segment</span>(<span class="at">data =</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(qual <span class="sc">==</span> <span class="st">"B"</span>),</span>
-<span id="cb14-33"><a href="#cb14-33"></a>             grouped_means<span class="sc">$</span>grouped_means[<span class="dv">2</span>] <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index</span>
-<span id="cb14-34"><a href="#cb14-34"></a>             ) </span>
-<span id="cb14-35"><a href="#cb14-35"></a></span>
-<span id="cb14-36"><a href="#cb14-36"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> patchwork<span class="sc">::</span><span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>overall_mean <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(quant))</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#overall_mean</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>grouped_means <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="fu">group_by</span>(qual) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-7"><a href="#cb12-7"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(quant))</span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#grouped_means</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a></span>
+<span id="cb12-10"><a href="#cb12-10"></a>p1 <span class="ot">&lt;-</span> <span class="fu">gf_point</span>(quant <span class="sc">~</span> index, </span>
+<span id="cb12-11"><a href="#cb12-11"></a>               <span class="at">color =</span> <span class="sc">~</span> qual,</span>
+<span id="cb12-12"><a href="#cb12-12"></a>         <span class="at">data =</span> data) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-13"><a href="#cb12-13"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span>  <span class="sc">~</span> overall_mean,</span>
+<span id="cb12-14"><a href="#cb12-14"></a>             <span class="at">data =</span> overall_mean) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-15"><a href="#cb12-15"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> data, </span>
+<span id="cb12-16"><a href="#cb12-16"></a>             <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17"></a>             overall_mean<span class="sc">$</span>overall_mean <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index)</span>
+<span id="cb12-18"><a href="#cb12-18"></a></span>
+<span id="cb12-19"><a href="#cb12-19"></a>p2 <span class="ot">&lt;-</span> <span class="fu">gf_point</span>(quant <span class="sc">~</span> index, </span>
+<span id="cb12-20"><a href="#cb12-20"></a>         <span class="at">group =</span> <span class="sc">~</span> qual, </span>
+<span id="cb12-21"><a href="#cb12-21"></a>         <span class="at">colour =</span> <span class="sc">~</span> qual, </span>
+<span id="cb12-22"><a href="#cb12-22"></a>         <span class="at">data =</span> data) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-23"><a href="#cb12-23"></a>  </span>
+<span id="cb12-24"><a href="#cb12-24"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="sc">~</span> mean, </span>
+<span id="cb12-25"><a href="#cb12-25"></a>           <span class="at">colour =</span> <span class="sc">~</span> qual,</span>
+<span id="cb12-26"><a href="#cb12-26"></a>           <span class="at">data =</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb12-27"><a href="#cb12-27"></a>             <span class="fu">group_by</span>(qual) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-28"><a href="#cb12-28"></a>             <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(quant))) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-29"><a href="#cb12-29"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(qual <span class="sc">==</span> <span class="st">"A"</span>),</span>
+<span id="cb12-30"><a href="#cb12-30"></a>             grouped_means<span class="sc">$</span>grouped_means[<span class="dv">1</span>] <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index</span>
+<span id="cb12-31"><a href="#cb12-31"></a>             ) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-32"><a href="#cb12-32"></a>    <span class="fu">gf_segment</span>(<span class="at">data =</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(qual <span class="sc">==</span> <span class="st">"B"</span>),</span>
+<span id="cb12-33"><a href="#cb12-33"></a>             grouped_means<span class="sc">$</span>grouped_means[<span class="dv">2</span>] <span class="sc">+</span> quant <span class="sc">~</span> index <span class="sc">+</span> index</span>
+<span id="cb12-34"><a href="#cb12-34"></a>             ) </span>
+<span id="cb12-35"><a href="#cb12-35"></a></span>
+<span id="cb12-36"><a href="#cb12-36"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> patchwork<span class="sc">::</span><span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -626,31 +619,33 @@ SSA = SST - SSE
 \tag{3}\]</span></span></p>
 <p><span class="math inline">\(SSA\)</span> is called the <strong>Treatment Sum of Squares</strong> and is a measure the differences in means of observations at different levels of the factor.</p>
 <p><span class="math inline">\(SSA\)</span> can also directly be re-written in a very symmetric fashion as:</p>
-<p>$$ SSA = - </p>
-<p>$$ {#eg-SSA}</p>
+<p><span class="math display">\[
+\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} - \frac{\left( \sum_{i=1}^{kn}
+y_i \right)^2}{kn}
+\]</span></p>
 <p>Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean(without the division). The outer summation takes the sum of squares of these undivided summations and divides by <span class="math inline">\(n\)</span>.</p>
-<p>Comparing <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> now provides us with a method that helps us decide whether these means are different. The logic is that we compare global differences and local differences. The comparison is of course in the form of a ratio, the F-statistic. Since each of these measures uses a different sets of observations, the comparison is done after scaling each of <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> by the number of observations influencing them. This means that we need to divide each of <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> by their <em>degrees of freedom</em>, which gives us a ratio of <strong>variances</strong>:</p>
+<p>Comparing <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> now provides us with a method that helps us decide whether these means are different. The logic is that we compare global differences and local differences. The comparison is of course in the form of a ratio, the F-statistic. Since each of these measures uses a different sets of observations, the comparison is done after scaling each of <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> by the number of observations influencing them. This means that we need to divide each of <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span> by their <em>degrees of freedom</em>, which gives us <u>a ratio of <strong>variances</strong>:</u></p>
 <p><span class="math display">\[
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 \]</span></p>
-<p>where <span class="math inline">\(df_{SSA}\)</span> and <span class="math inline">\(df_{SSE}\)</span> are respectively the degrees of freedom in <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span>. And so we are in effect deciding if means are significantly different by analyzing (a ratio of) variances! Hence <em>AN-alysis O-f VA-riance</em>, ANOVA.</p>
+<p>where <span class="math inline">\(df_{SSA}\)</span> and <span class="math inline">\(df_{SSE}\)</span> are respectively the degrees of freedom in <span class="math inline">\(SSA\)</span> and <span class="math inline">\(SSE\)</span>. And so we are in effect deciding if means are significantly different by analyzing (a ratio of) variances! Hence <em>AN-alysis O-f VA-riance</em>, <strong>ANOVA</strong>.</p>
 <p>In order to find which of the means is significantly different from others, we need to make a pair-wise comparison of the means, applying the Bonferroni correction as stated before.</p>
 </div>
 <div id="tabset-1-3" class="tab-pane page-columns page-full" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <p>Let us hand-calculate the numbers so we know what the test is doing.</p>
 <p>Here is the SST:</p>
-<div class="cell" data-hash="ANOVA_cache/html/SST Total Sum of Squares_5529b58695f305e9239b81c9c37b8ab8">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Calculate overall sum squares SST</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a></span>
-<span id="cb15-3"><a href="#cb15-3"></a></span>
-<span id="cb15-4"><a href="#cb15-4"></a>frogs_overall <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb15-5"><a href="#cb15-5"></a>  <span class="fu">summarise</span>(<span class="at">mean_time =</span> <span class="fu">mean</span>(Time), </span>
-<span id="cb15-6"><a href="#cb15-6"></a>            <span class="co"># Overall mean across all readings</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a>            <span class="co"># The Black Line</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a>            </span>
-<span id="cb15-9"><a href="#cb15-9"></a>            <span class="at">SST =</span> <span class="fu">sum</span>((Time <span class="sc">-</span> mean_time)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb15-10"><a href="#cb15-10"></a>            <span class="at">n =</span> <span class="fu">n</span>())</span>
-<span id="cb15-11"><a href="#cb15-11"></a>frogs_overall</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/SST Total Sum of Squares_4827595420683641a709f4cc453d41f0">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Calculate overall sum squares SST</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a></span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>frogs_overall <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="fu">summarise</span>(<span class="at">mean_time =</span> <span class="fu">mean</span>(Time), </span>
+<span id="cb13-6"><a href="#cb13-6"></a>            <span class="co"># Overall mean across all readings</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>            <span class="co"># The Black Line</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>            </span>
+<span id="cb13-9"><a href="#cb13-9"></a>            <span class="at">SST =</span> <span class="fu">sum</span>((Time <span class="sc">-</span> mean_time)<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb13-10"><a href="#cb13-10"></a>            <span class="at">n =</span> <span class="fu">n</span>())</span>
+<span id="cb13-11"><a href="#cb13-11"></a>frogs_overall</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -659,51 +654,51 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>SST <span class="ot">&lt;-</span> frogs_overall<span class="sc">$</span>SST</span>
-<span id="cb16-2"><a href="#cb16-2"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>SST <span class="ot">&lt;-</span> frogs_overall<span class="sc">$</span>SST</span>
+<span id="cb14-2"><a href="#cb14-2"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1096.333</code></pre>
 </div>
 </div>
 <p>And here is our plot to understand the SST:</p>
-<div class="cell" data-hash="ANOVA_cache/html/Frogs SST Graph_5848808cdc110022fe1e87dae9496818">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>frogs_plot <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">arrange</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-3"><a href="#cb18-3"></a>           <span class="fu">rowid_to_column</span>(<span class="at">var =</span> <span class="st">"index"</span>)</span>
-<span id="cb18-4"><a href="#cb18-4"></a></span>
-<span id="cb18-5"><a href="#cb18-5"></a>frogs_mean <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
-<span id="cb18-6"><a href="#cb18-6"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(Time))</span>
-<span id="cb18-7"><a href="#cb18-7"></a></span>
-<span id="cb18-8"><a href="#cb18-8"></a>frogs_grouped_means <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
-<span id="cb18-9"><a href="#cb18-9"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-10"><a href="#cb18-10"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(Time))</span>
-<span id="cb18-11"><a href="#cb18-11"></a></span>
-<span id="cb18-12"><a href="#cb18-12"></a><span class="fu">gf_point</span>(Time <span class="sc">~</span> index, </span>
-<span id="cb18-13"><a href="#cb18-13"></a>         <span class="at">color =</span> <span class="sc">~</span> TempFac,</span>
-<span id="cb18-14"><a href="#cb18-14"></a>         <span class="at">data =</span> frogs_plot) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-15"><a href="#cb18-15"></a>  </span>
-<span id="cb18-16"><a href="#cb18-16"></a> <span class="fu">gf_hline</span>(<span class="at">yintercept =</span>  <span class="sc">~</span> overall_mean,</span>
-<span id="cb18-17"><a href="#cb18-17"></a>             <span class="at">data =</span> frogs_mean) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-18"><a href="#cb18-18"></a>  </span>
-<span id="cb18-19"><a href="#cb18-19"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot, </span>
-<span id="cb18-20"><a href="#cb18-20"></a>             <span class="at">color =</span> <span class="st">"black"</span>,</span>
-<span id="cb18-21"><a href="#cb18-21"></a>             frogs_mean<span class="sc">$</span>overall_mean <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/Frogs SST Graph_c32a3d965f654d9bbbd9202a8b2df585">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>frogs_plot <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">arrange</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3"></a>           <span class="fu">rowid_to_column</span>(<span class="at">var =</span> <span class="st">"index"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4"></a></span>
+<span id="cb16-5"><a href="#cb16-5"></a>frogs_mean <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(Time))</span>
+<span id="cb16-7"><a href="#cb16-7"></a></span>
+<span id="cb16-8"><a href="#cb16-8"></a>frogs_grouped_means <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-10"><a href="#cb16-10"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(Time))</span>
+<span id="cb16-11"><a href="#cb16-11"></a></span>
+<span id="cb16-12"><a href="#cb16-12"></a><span class="fu">gf_point</span>(Time <span class="sc">~</span> index, </span>
+<span id="cb16-13"><a href="#cb16-13"></a>         <span class="at">color =</span> <span class="sc">~</span> TempFac,</span>
+<span id="cb16-14"><a href="#cb16-14"></a>         <span class="at">data =</span> frogs_plot) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-15"><a href="#cb16-15"></a>  </span>
+<span id="cb16-16"><a href="#cb16-16"></a> <span class="fu">gf_hline</span>(<span class="at">yintercept =</span>  <span class="sc">~</span> overall_mean,</span>
+<span id="cb16-17"><a href="#cb16-17"></a>             <span class="at">data =</span> frogs_mean) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-18"><a href="#cb16-18"></a>  </span>
+<span id="cb16-19"><a href="#cb16-19"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot, </span>
+<span id="cb16-20"><a href="#cb16-20"></a>             <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb16-21"><a href="#cb16-21"></a>             frogs_mean<span class="sc">$</span>overall_mean <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/Frogs SST Graph-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And here is the SSE:</p>
-<div class="cell" data-hash="ANOVA_cache/html/SSE Within Group Sum of Squares_811c7813f140cec21f92262b4863e0b0">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># Calculate sums of square errors *within* each group</span></span>
-<span id="cb19-2"><a href="#cb19-2"></a><span class="co"># with respect to individual group means</span></span>
-<span id="cb19-3"><a href="#cb19-3"></a></span>
-<span id="cb19-4"><a href="#cb19-4"></a>frogs_within_groups <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-6"><a href="#cb19-6"></a>   <span class="fu">summarise</span>(<span class="at">mean_time =</span> <span class="fu">mean</span>(Time),</span>
-<span id="cb19-7"><a href="#cb19-7"></a>            <span class="at">variance_time =</span> <span class="fu">var</span>(Time),</span>
-<span id="cb19-8"><a href="#cb19-8"></a>            <span class="at">group_error_squares =</span> <span class="fu">sum</span>((Time <span class="sc">-</span> mean_time)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb19-9"><a href="#cb19-9"></a>            <span class="at">n =</span> <span class="fu">n</span>())</span>
-<span id="cb19-10"><a href="#cb19-10"></a>frogs_within_groups</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/SSE Within Group Sum of Squares_1bbd01bd07ee9d3617f4cbb405494249">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Calculate sums of square errors *within* each group</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="co"># with respect to individual group means</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a></span>
+<span id="cb17-4"><a href="#cb17-4"></a>frogs_within_groups <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-6"><a href="#cb17-6"></a>   <span class="fu">summarise</span>(<span class="at">mean_time =</span> <span class="fu">mean</span>(Time),</span>
+<span id="cb17-7"><a href="#cb17-7"></a>            <span class="at">variance_time =</span> <span class="fu">var</span>(Time),</span>
+<span id="cb17-8"><a href="#cb17-8"></a>            <span class="at">group_error_squares =</span> <span class="fu">sum</span>((Time <span class="sc">-</span> mean_time)<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb17-9"><a href="#cb17-9"></a>            <span class="at">n =</span> <span class="fu">n</span>())</span>
+<span id="cb17-10"><a href="#cb17-10"></a>frogs_within_groups</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -712,63 +707,63 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>frogs_SSE <span class="ot">&lt;-</span> frogs_within_groups <span class="sc">%&gt;%</span> </span>
-<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">summarise</span>(<span class="at">SSE =</span> <span class="fu">sum</span>(group_error_squares))</span>
-<span id="cb20-3"><a href="#cb20-3"></a></span>
-<span id="cb20-4"><a href="#cb20-4"></a>SSE <span class="ot">&lt;-</span> frogs_SSE<span class="sc">$</span>SSE</span>
-<span id="cb20-5"><a href="#cb20-5"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>frogs_SSE <span class="ot">&lt;-</span> frogs_within_groups <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">summarise</span>(<span class="at">SSE =</span> <span class="fu">sum</span>(group_error_squares))</span>
+<span id="cb18-3"><a href="#cb18-3"></a></span>
+<span id="cb18-4"><a href="#cb18-4"></a>SSE <span class="ot">&lt;-</span> frogs_SSE<span class="sc">$</span>SSE</span>
+<span id="cb18-5"><a href="#cb18-5"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 75.4</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="ANOVA_cache/html/Frogs SSE Plot_138379d590c329fafd291d02349b3d19">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>frogs_plot <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">arrange</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>           <span class="fu">rowid_to_column</span>(<span class="at">var =</span> <span class="st">"index"</span>)</span>
-<span id="cb22-4"><a href="#cb22-4"></a></span>
-<span id="cb22-5"><a href="#cb22-5"></a>frogs_mean <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
-<span id="cb22-6"><a href="#cb22-6"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(Time))</span>
-<span id="cb22-7"><a href="#cb22-7"></a></span>
-<span id="cb22-8"><a href="#cb22-8"></a>frogs_grouped_means <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
-<span id="cb22-9"><a href="#cb22-9"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-10"><a href="#cb22-10"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(Time))</span>
-<span id="cb22-11"><a href="#cb22-11"></a></span>
-<span id="cb22-12"><a href="#cb22-12"></a><span class="fu">gf_point</span>(Time <span class="sc">~</span> index, </span>
-<span id="cb22-13"><a href="#cb22-13"></a>         <span class="at">group =</span> <span class="sc">~</span> TempFac, </span>
-<span id="cb22-14"><a href="#cb22-14"></a>         <span class="at">colour =</span> <span class="sc">~</span> TempFac, </span>
-<span id="cb22-15"><a href="#cb22-15"></a>         <span class="at">data =</span> frogs_plot) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-16"><a href="#cb22-16"></a>  </span>
-<span id="cb22-17"><a href="#cb22-17"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="sc">~</span> grouped_means, </span>
-<span id="cb22-18"><a href="#cb22-18"></a>           <span class="at">colour =</span> <span class="sc">~</span> TempFac,</span>
-<span id="cb22-19"><a href="#cb22-19"></a>           <span class="at">data =</span> frogs_grouped_means) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-20"><a href="#cb22-20"></a>  </span>
-<span id="cb22-21"><a href="#cb22-21"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">13</span> ),</span>
-<span id="cb22-22"><a href="#cb22-22"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">1</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
-<span id="cb22-23"><a href="#cb22-23"></a>             ) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-24"><a href="#cb22-24"></a>  </span>
-<span id="cb22-25"><a href="#cb22-25"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">18</span>),</span>
-<span id="cb22-26"><a href="#cb22-26"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">2</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
-<span id="cb22-27"><a href="#cb22-27"></a>             ) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-28"><a href="#cb22-28"></a>  </span>
-<span id="cb22-29"><a href="#cb22-29"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">25</span>),</span>
-<span id="cb22-30"><a href="#cb22-30"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">3</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
-<span id="cb22-31"><a href="#cb22-31"></a>             ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/Frogs SSE Plot_d40cc015617215e90d792a7fd1407d26">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>frogs_plot <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">arrange</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="#cb20-3"></a>           <span class="fu">rowid_to_column</span>(<span class="at">var =</span> <span class="st">"index"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4"></a></span>
+<span id="cb20-5"><a href="#cb20-5"></a>frogs_mean <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6"></a>             <span class="fu">summarise</span>(<span class="at">overall_mean =</span> <span class="fu">mean</span>(Time))</span>
+<span id="cb20-7"><a href="#cb20-7"></a></span>
+<span id="cb20-8"><a href="#cb20-8"></a>frogs_grouped_means <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-9"><a href="#cb20-9"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-10"><a href="#cb20-10"></a>             <span class="fu">summarise</span>(<span class="at">grouped_means =</span> <span class="fu">mean</span>(Time))</span>
+<span id="cb20-11"><a href="#cb20-11"></a></span>
+<span id="cb20-12"><a href="#cb20-12"></a><span class="fu">gf_point</span>(Time <span class="sc">~</span> index, </span>
+<span id="cb20-13"><a href="#cb20-13"></a>         <span class="at">group =</span> <span class="sc">~</span> TempFac, </span>
+<span id="cb20-14"><a href="#cb20-14"></a>         <span class="at">colour =</span> <span class="sc">~</span> TempFac, </span>
+<span id="cb20-15"><a href="#cb20-15"></a>         <span class="at">data =</span> frogs_plot) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-16"><a href="#cb20-16"></a>  </span>
+<span id="cb20-17"><a href="#cb20-17"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="sc">~</span> grouped_means, </span>
+<span id="cb20-18"><a href="#cb20-18"></a>           <span class="at">colour =</span> <span class="sc">~</span> TempFac,</span>
+<span id="cb20-19"><a href="#cb20-19"></a>           <span class="at">data =</span> frogs_grouped_means) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-20"><a href="#cb20-20"></a>  </span>
+<span id="cb20-21"><a href="#cb20-21"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">13</span> ),</span>
+<span id="cb20-22"><a href="#cb20-22"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">1</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
+<span id="cb20-23"><a href="#cb20-23"></a>             ) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-24"><a href="#cb20-24"></a>  </span>
+<span id="cb20-25"><a href="#cb20-25"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">18</span>),</span>
+<span id="cb20-26"><a href="#cb20-26"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">2</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
+<span id="cb20-27"><a href="#cb20-27"></a>             ) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-28"><a href="#cb20-28"></a>  </span>
+<span id="cb20-29"><a href="#cb20-29"></a>  <span class="fu">gf_segment</span>(<span class="at">data =</span> frogs_plot <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TempFac <span class="sc">==</span> <span class="dv">25</span>),</span>
+<span id="cb20-30"><a href="#cb20-30"></a>             frogs_grouped_means<span class="sc">$</span>grouped_means[<span class="dv">3</span>] <span class="sc">+</span> Time <span class="sc">~</span> index <span class="sc">+</span> index</span>
+<span id="cb20-31"><a href="#cb20-31"></a>             ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/Frogs SSE Plot-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>OK, we have <span class="math inline">\(SST\)</span> and <span class="math inline">\(SSE\)</span>, so let’s get <span class="math inline">\(SSA\)</span>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-15_bc5d1c397f7bb9ae91b59a08b7021052">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-15_de05ef6365fb7432c19416380de1139d">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1096.333</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 75.4</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>SSA <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
-<span id="cb27-2"><a href="#cb27-2"></a>SSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>SSA <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
+<span id="cb25-2"><a href="#cb25-2"></a>SSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1020.933</code></pre>
 </div>
@@ -783,84 +778,84 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <p><span class="math inline">\(SSE\)</span> has <span class="math inline">\(k*(n-1)\)</span> as degrees of freedom, since each of the <span class="math inline">\(k\)</span> groups there are <span class="math inline">\(n\)</span> observations and each group loses one degree to calculate its own group mean.</p>
 <p>And therefore <span class="math inline">\(SSA\)</span> has <span class="math inline">\(k-1\)</span> degrees of freedom.</p>
 <p>We can still calculate these in R, for the sake of method and clarity:</p>
-<div class="cell" data-hash="ANOVA_cache/html/Degrees of Freedom_99838513c3714e153a21bdeecee100a6">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="co"># Error Sum of Squares SSE</span></span>
-<span id="cb29-2"><a href="#cb29-2"></a>df_SSE <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb29-3"><a href="#cb29-3"></a>  </span>
-<span id="cb29-4"><a href="#cb29-4"></a>  <span class="co"># Takes into account "unbalanced" situations</span></span>
-<span id="cb29-5"><a href="#cb29-5"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb29-6"><a href="#cb29-6"></a>  <span class="fu">summarise</span>(<span class="at">per_group_df_SSE =</span> <span class="fu">n</span>() <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb29-7"><a href="#cb29-7"></a>  <span class="fu">summarise</span>(<span class="at">df_SSE =</span> <span class="fu">sum</span>(per_group_df_SSE)) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
-<span id="cb29-8"><a href="#cb29-8"></a></span>
-<span id="cb29-9"><a href="#cb29-9"></a></span>
-<span id="cb29-10"><a href="#cb29-10"></a><span class="do">## Overall Sum of Squares SST</span></span>
-<span id="cb29-11"><a href="#cb29-11"></a>df_SST <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb29-12"><a href="#cb29-12"></a>  <span class="fu">summarise</span>(<span class="at">df_SST =</span> <span class="fu">n</span>() <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>()</span>
-<span id="cb29-13"><a href="#cb29-13"></a></span>
-<span id="cb29-14"><a href="#cb29-14"></a></span>
-<span id="cb29-15"><a href="#cb29-15"></a><span class="co"># Treatment Sum of Squares SSA</span></span>
-<span id="cb29-16"><a href="#cb29-16"></a>k <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(frogs_long<span class="sc">$</span>TempFac))</span>
-<span id="cb29-17"><a href="#cb29-17"></a>df_SSA <span class="ot">&lt;-</span> k <span class="sc">-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/Degrees of Freedom_36c0d3c09647a45d0aa3b3098f1e1904">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="co"># Error Sum of Squares SSE</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a>df_SSE <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb27-3"><a href="#cb27-3"></a>  </span>
+<span id="cb27-4"><a href="#cb27-4"></a>  <span class="co"># Takes into account "unbalanced" situations</span></span>
+<span id="cb27-5"><a href="#cb27-5"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb27-6"><a href="#cb27-6"></a>  <span class="fu">summarise</span>(<span class="at">per_group_df_SSE =</span> <span class="fu">n</span>() <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb27-7"><a href="#cb27-7"></a>  <span class="fu">summarise</span>(<span class="at">df_SSE =</span> <span class="fu">sum</span>(per_group_df_SSE)) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb27-8"><a href="#cb27-8"></a></span>
+<span id="cb27-9"><a href="#cb27-9"></a></span>
+<span id="cb27-10"><a href="#cb27-10"></a><span class="do">## Overall Sum of Squares SST</span></span>
+<span id="cb27-11"><a href="#cb27-11"></a>df_SST <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb27-12"><a href="#cb27-12"></a>  <span class="fu">summarise</span>(<span class="at">df_SST =</span> <span class="fu">n</span>() <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>()</span>
+<span id="cb27-13"><a href="#cb27-13"></a></span>
+<span id="cb27-14"><a href="#cb27-14"></a></span>
+<span id="cb27-15"><a href="#cb27-15"></a><span class="co"># Treatment Sum of Squares SSA</span></span>
+<span id="cb27-16"><a href="#cb27-16"></a>k <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(frogs_long<span class="sc">$</span>TempFac))</span>
+<span id="cb27-17"><a href="#cb27-17"></a>df_SSA <span class="ot">&lt;-</span> k <span class="sc">-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The degrees of freedom for the quantities are:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-17_48075416e655a24bfb751593ee7d673d">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df_SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-17_57fc0f3455d0e0e25a1d1ee828eeb551">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>df_SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 59</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>df_SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df_SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 57</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>df_SSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>df_SSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
 </div>
 <p>Now we are ready to compute the F-statistic:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-18_e25c05dc23d82ff0743bc17c6a7c50d9">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># Finally F_Stat!</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a><span class="do">## Combine the sum-square_error for each level of the factor</span></span>
-<span id="cb36-3"><a href="#cb36-3"></a><span class="co"># weighted by degrees of freedom per level</span></span>
-<span id="cb36-4"><a href="#cb36-4"></a><span class="co"># Which are of course equal here ;-D</span></span>
-<span id="cb36-5"><a href="#cb36-5"></a></span>
-<span id="cb36-6"><a href="#cb36-6"></a>MSE <span class="ot">&lt;-</span> frogs_within_groups <span class="sc">%&gt;%</span> </span>
-<span id="cb36-7"><a href="#cb36-7"></a>  <span class="fu">summarise</span>(<span class="at">mean_square_error =</span> <span class="fu">sum</span>(group_error_squares<span class="sc">/</span>df_SSE)) <span class="sc">%&gt;%</span> </span>
-<span id="cb36-8"><a href="#cb36-8"></a>  <span class="fu">as.numeric</span>()</span>
-<span id="cb36-9"><a href="#cb36-9"></a>MSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-18_691e5b80e846dda57af5b8851d8b7377">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># Finally F_Stat!</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="do">## Combine the sum-square_error for each level of the factor</span></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="co"># weighted by degrees of freedom per level</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="co"># Which are of course equal here ;-D</span></span>
+<span id="cb34-5"><a href="#cb34-5"></a></span>
+<span id="cb34-6"><a href="#cb34-6"></a>MSE <span class="ot">&lt;-</span> frogs_within_groups <span class="sc">%&gt;%</span> </span>
+<span id="cb34-7"><a href="#cb34-7"></a>  <span class="fu">summarise</span>(<span class="at">mean_square_error =</span> <span class="fu">sum</span>(group_error_squares<span class="sc">/</span>df_SSE)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-8"><a href="#cb34-8"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb34-9"><a href="#cb34-9"></a>MSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.322807</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>MSA <span class="ot">&lt;-</span> SSA<span class="sc">/</span>df_SSA <span class="co"># This is OK</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a>MSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>MSA <span class="ot">&lt;-</span> SSA<span class="sc">/</span>df_SSA <span class="co"># This is OK</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a>MSA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 510.4667</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>F_stat <span class="ot">&lt;-</span> MSA<span class="sc">/</span>MSE</span>
-<span id="cb40-2"><a href="#cb40-2"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>F_stat <span class="ot">&lt;-</span> MSA<span class="sc">/</span>MSE</span>
+<span id="cb38-2"><a href="#cb38-2"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 385.8966</code></pre>
 </div>
 </div>
 <p>The F-stat is compared with a <strong>critical value</strong> of the F-statistic, which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to 0.95, and quote the two relevant degrees of freedom as parameters to <code><a href="https://rdrr.io/r/stats/Fdist.html">qf()</a></code> which computes the critical F value as a <strong>quartile</strong>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-19_b40f094591b7e7aa793b3c8d89c9b715">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>F_crit <span class="ot">&lt;-</span>  <span class="fu">qf</span>(<span class="at">p =</span> <span class="fl">0.95</span>,     <span class="co"># Significance level is 5%</span></span>
-<span id="cb42-2"><a href="#cb42-2"></a>              <span class="at">df1 =</span> df_SSA, <span class="co"># Numerator degrees of freedom </span></span>
-<span id="cb42-3"><a href="#cb42-3"></a>              <span class="at">df2 =</span> df_SSE) <span class="co"># Denominator degrees of freedom</span></span>
-<span id="cb42-4"><a href="#cb42-4"></a>F_crit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-19_aa21122dfaa8555c1741919d3ab29a94">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>F_crit <span class="ot">&lt;-</span>  <span class="fu">qf</span>(<span class="at">p =</span> <span class="fl">0.95</span>,     <span class="co"># Significance level is 5%</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>              <span class="at">df1 =</span> df_SSA, <span class="co"># Numerator degrees of freedom </span></span>
+<span id="cb40-3"><a href="#cb40-3"></a>              <span class="at">df2 =</span> df_SSE) <span class="co"># Denominator degrees of freedom</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a>F_crit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3.158843</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 385.8966</code></pre>
 </div>
 </div>
-<div class="page-columns page-full"><p>The F_crit value can also be seen in a plot<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</p></li></div></div>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-20_496c7c2f1153deaca3f26e438975f632">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>mosaic<span class="sc">::</span><span class="fu">pdist</span>(<span class="at">dist =</span> <span class="st">"f"</span>,</span>
-<span id="cb46-2"><a href="#cb46-2"></a>              <span class="at">q =</span> <span class="fl">3.158843</span>, </span>
-<span id="cb46-3"><a href="#cb46-3"></a>              <span class="at">df1=</span>df_SSA, <span class="at">df2=</span>df_SSE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="page-columns page-full"><p>The F_crit value can also be seen in a plot<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn4"><p><sup>4</sup>&nbsp;Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</p></li></div></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-20_fa681638d9faedddcf825f155394c917">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>mosaic<span class="sc">::</span><span class="fu">pdist</span>(<span class="at">dist =</span> <span class="st">"f"</span>,</span>
+<span id="cb44-2"><a href="#cb44-2"></a>              <span class="at">q =</span> <span class="fl">3.158843</span>, </span>
+<span id="cb44-3"><a href="#cb44-3"></a>              <span class="at">df1=</span>df_SSA, <span class="at">df2=</span>df_SSE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -876,15 +871,15 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </section><section id="checking-anova-assumptions" class="level2"><h2 class="anchored" data-anchor-id="checking-anova-assumptions">Checking ANOVA Assumptions</h2>
 <p>ANOVA makes 3 fundamental assumptions:</p>
 <ol type="a">
-<li><p>Data are normally distributed.</p></li>
-<li><p>Variances are homogeneous.</p></li>
-<li><p>Observations are independent.</p></li>
+<li>Data are normally distributed.</li>
+<li>Variances are homogeneous.</li>
+<li>Observations are independent.</li>
 </ol>
-<p>We can check these using checks and graphs:</p>
+<p>We can check these using checks and graphs.</p>
 <section id="checks-for-normality" class="level4"><h4 class="anchored" data-anchor-id="checks-for-normality">Checks for Normality</h4>
 <p>The <code>shapiro.wilk</code> test tests if a vector of numeric data is normally distributed and rejects the hypothesis of normality when the <a href="https://variation.com/wp-content/distribution_analyzer_help/hs132.htm">p-value</a> is less than or equal to 0.05.&nbsp;</p>
-<div class="cell" data-hash="ANOVA_cache/html/Check for Normality_ebf020d8575e901bda28a392cd430938">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="fu">shapiro.test</span>(<span class="at">x =</span> frogs_long<span class="sc">$</span>Time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/Check for Normality_cec52162b49d8078503e77cb8ff34740">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="fu">shapiro.test</span>(<span class="at">x =</span> frogs_long<span class="sc">$</span>Time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Wilk normality test
@@ -894,16 +889,16 @@ W = 0.92752, p-value = 0.001561</code></pre>
 </div>
 </div>
 <p>The p-value is very low and we cannot reject the (alternative) hypothesis that the overall data is <strong>not</strong> normal. How about normality at each level of the factor?</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-22_178dbddc6a16f898b0ec86c05f1fc95a">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>frogs_grouped <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb50-2"><a href="#cb50-2"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb50-3"><a href="#cb50-3"></a>  <span class="fu">nest</span>(<span class="at">.key =</span> <span class="st">"list"</span>) </span>
-<span id="cb50-4"><a href="#cb50-4"></a></span>
-<span id="cb50-5"><a href="#cb50-5"></a>frogs_grouped <span class="sc">%&gt;%</span> </span>
-<span id="cb50-6"><a href="#cb50-6"></a>  <span class="fu">pluck</span>(<span class="st">"list"</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="co"># naming the nested column "list"</span></span>
-<span id="cb50-7"><a href="#cb50-7"></a>  <span class="fu">select</span>(Time) <span class="sc">%&gt;%</span> </span>
-<span id="cb50-8"><a href="#cb50-8"></a>  <span class="fu">as_vector</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb50-9"><a href="#cb50-9"></a>  <span class="fu">shapiro.test</span>(.)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-22_06614fb22de12ef410a1e8b4c927a5c4">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>frogs_grouped <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb48-2"><a href="#cb48-2"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-3"><a href="#cb48-3"></a>  <span class="fu">nest</span>(<span class="at">.key =</span> <span class="st">"list"</span>) </span>
+<span id="cb48-4"><a href="#cb48-4"></a></span>
+<span id="cb48-5"><a href="#cb48-5"></a>frogs_grouped <span class="sc">%&gt;%</span> </span>
+<span id="cb48-6"><a href="#cb48-6"></a>  <span class="fu">pluck</span>(<span class="st">"list"</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="co"># naming the nested column "list"</span></span>
+<span id="cb48-7"><a href="#cb48-7"></a>  <span class="fu">select</span>(Time) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-8"><a href="#cb48-8"></a>  <span class="fu">as_vector</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb48-9"><a href="#cb48-9"></a>  <span class="fu">shapiro.test</span>(.)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Wilk normality test
@@ -911,21 +906,21 @@ W = 0.92752, p-value = 0.001561</code></pre>
 data:  .
 W = 0.88954, p-value = 0.02638</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="co"># OK now we are set for group-wise Shapiro-Wilk testing:</span></span>
-<span id="cb52-2"><a href="#cb52-2"></a></span>
-<span id="cb52-3"><a href="#cb52-3"></a>frogs_grouped <span class="sc">%&gt;%</span> </span>
-<span id="cb52-4"><a href="#cb52-4"></a>  <span class="fu">mutate</span>(<span class="at">shaptest =</span> </span>
-<span id="cb52-5"><a href="#cb52-5"></a>           purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> list, <span class="co"># Column name is "list"</span></span>
-<span id="cb52-6"><a href="#cb52-6"></a>                      <span class="at">.f =</span> \(.x) <span class="fu">select</span>(<span class="at">.data =</span> .x, </span>
-<span id="cb52-7"><a href="#cb52-7"></a>                                        Time) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-8"><a href="#cb52-8"></a>                                 <span class="fu">as_vector</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb52-9"><a href="#cb52-9"></a>                                 <span class="fu">shapiro.test</span>(.)),</span>
-<span id="cb52-10"><a href="#cb52-10"></a>         </span>
-<span id="cb52-11"><a href="#cb52-11"></a>         <span class="at">params =</span> <span class="fu">map</span>(<span class="at">.x =</span> shaptest,</span>
-<span id="cb52-12"><a href="#cb52-12"></a>                      <span class="at">.f =</span> \(.x) broom<span class="sc">::</span><span class="fu">tidy</span>(.x))) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-13"><a href="#cb52-13"></a>  </span>
-<span id="cb52-14"><a href="#cb52-14"></a>  <span class="fu">select</span>(TempFac, params) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-15"><a href="#cb52-15"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="co"># OK now we are set for group-wise Shapiro-Wilk testing:</span></span>
+<span id="cb50-2"><a href="#cb50-2"></a></span>
+<span id="cb50-3"><a href="#cb50-3"></a>frogs_grouped <span class="sc">%&gt;%</span> </span>
+<span id="cb50-4"><a href="#cb50-4"></a>  <span class="fu">mutate</span>(<span class="at">shaptest =</span> </span>
+<span id="cb50-5"><a href="#cb50-5"></a>           purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> list, <span class="co"># Column name is "list"</span></span>
+<span id="cb50-6"><a href="#cb50-6"></a>                      <span class="at">.f =</span> \(.x) <span class="fu">select</span>(<span class="at">.data =</span> .x, </span>
+<span id="cb50-7"><a href="#cb50-7"></a>                                        Time) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-8"><a href="#cb50-8"></a>                                 <span class="fu">as_vector</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb50-9"><a href="#cb50-9"></a>                                 <span class="fu">shapiro.test</span>(.)),</span>
+<span id="cb50-10"><a href="#cb50-10"></a>         </span>
+<span id="cb50-11"><a href="#cb50-11"></a>         <span class="at">params =</span> <span class="fu">map</span>(<span class="at">.x =</span> shaptest,</span>
+<span id="cb50-12"><a href="#cb50-12"></a>                      <span class="at">.f =</span> \(.x) broom<span class="sc">::</span><span class="fu">tidy</span>(.x))) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-13"><a href="#cb50-13"></a>  </span>
+<span id="cb50-14"><a href="#cb50-14"></a>  <span class="fu">select</span>(TempFac, params) <span class="sc">%&gt;%</span> </span>
+<span id="cb50-15"><a href="#cb50-15"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -937,31 +932,24 @@ W = 0.88954, p-value = 0.02638</code></pre>
 </div>
 <p>The <code>shapiro.wilk</code> test makes a NULL Hypothesis that the data <strong>are</strong> normally distributed and estimates the probability that this could have happened by chance. Except for <code>TempFac = 18</code> the p-values are less than 0.05 and we can reject the NULL hypothesis that each of these is normally distributed. Perhaps this is a sign that we need more than 20 samples per factor level.</p>
 <p>We can also check the residuals post-model:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-23_e842149d752ecb18f8f1f9fd56c8f7a8">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>frogs_anova<span class="sc">$</span>residuals <span class="sc">%&gt;%</span> </span>
-<span id="cb53-2"><a href="#cb53-2"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb53-3"><a href="#cb53-3"></a>  <span class="fu">gf_histogram</span>(<span class="sc">~</span> value,<span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
-<span id="cb53-4"><a href="#cb53-4"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-23_5c41a38ae9ccd1d11bdc2e91b439428b">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>frogs_anova<span class="sc">$</span>residuals <span class="sc">%&gt;%</span> </span>
+<span id="cb51-2"><a href="#cb51-2"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb51-3"><a href="#cb51-3"></a>  <span class="fu">gf_histogram</span>(<span class="sc">~</span> value,<span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb51-4"><a href="#cb51-4"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>frogs_anova<span class="sc">$</span>residuals <span class="sc">%&gt;%</span></span>
-<span id="cb54-2"><a href="#cb54-2"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb54-3"><a href="#cb54-3"></a>  <span class="fu">gf_qq</span>(<span class="sc">~</span> value, <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
-<span id="cb54-4"><a href="#cb54-4"></a>  <span class="fu">gf_qqstep</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb54-5"><a href="#cb54-5"></a>  <span class="fu">gf_qqline</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb54-6"><a href="#cb54-6"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: The following aesthetics were dropped during statistical transformation: sample
-ℹ This can happen when ggplot fails to infer the correct grouping structure in
-  the data.
-ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-  variable into a factor?</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>frogs_anova<span class="sc">$</span>residuals <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb52-3"><a href="#cb52-3"></a>  <span class="fu">gf_qq</span>(<span class="sc">~</span> value, <span class="at">data =</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb52-4"><a href="#cb52-4"></a>  <span class="fu">gf_qqstep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb52-5"><a href="#cb52-5"></a>  <span class="fu">gf_qqline</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb52-6"><a href="#cb52-6"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_frogs</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="fu">shapiro.test</span>(frogs_anova<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="fu">shapiro.test</span>(frogs_anova<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Wilk normality test
@@ -974,10 +962,10 @@ W = 0.94814, p-value = 0.01275</code></pre>
 </section><section id="check-for-similar-variance" class="level3"><h3 class="anchored" data-anchor-id="check-for-similar-variance">Check for Similar Variance</h3>
 <p>Response data with different variances at different levels of an <em>explanatory</em> variable are said to exhibit <strong>heteroscedasticity</strong>. This violates one of the assumptions of ANOVA.</p>
 <p>To check if the <code>Time</code> readings are similar in <code>variance</code> across levels of <code>TempFac</code>, we can use the Levene Test, or since our per-group observations are not normally distributed, a non-parametric rank-based Fligner-Killeen test. The NULL hypothesis is that the data <strong>are</strong> with similar variances. The tests assess how probable this is with the given data assuming this NULL hypothesis:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-24_eced88636c6c38b2db4844d9ffff1579">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb58-2"><a href="#cb58-2"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb58-3"><a href="#cb58-3"></a>  <span class="fu">summarise</span>(<span class="at">variance =</span> <span class="fu">var</span>(Time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-24_7ad0a2320cb642dc9aeb66c3da7469e6">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb55-2"><a href="#cb55-2"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb55-3"><a href="#cb55-3"></a>  <span class="fu">summarise</span>(<span class="at">variance =</span> <span class="fu">var</span>(Time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -986,8 +974,8 @@ W = 0.94814, p-value = 0.01275</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="co"># Not too different...OK on with the test</span></span>
-<span id="cb59-2"><a href="#cb59-2"></a><span class="fu">fligner.test</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="co"># Not too different...OK on with the test</span></span>
+<span id="cb56-2"><a href="#cb56-2"></a><span class="fu">fligner.test</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Fligner-Killeen test of homogeneity of variances
@@ -995,7 +983,7 @@ W = 0.94814, p-value = 0.01275</code></pre>
 data:  Time by TempFac
 Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>DescTools<span class="sc">::</span><span class="fu">LeveneTest</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>DescTools<span class="sc">::</span><span class="fu">LeveneTest</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1010,8 +998,8 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 <p>This is an experiment <em>design</em> concern; the way the data is gathered must be specified such that data for each level of the factors ( factor combinations if there are more than one) should be independent.</p>
 </section></section><section id="effect-size" class="level2"><h2 class="anchored" data-anchor-id="effect-size">Effect Size</h2>
 <p>The simplest way to find the actual <code>effect sizes</code> detected by an ANOVA test is to use (paradoxically) the <code><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm()</a></code> command:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-25_11d4fdbf47ca8794f4451f8c435a165a">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="fu">summary.lm</span>(frogs_anova) <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-25_77015637857b77d5d124a0fe0d39f309">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="fu">summary.lm</span>(frogs_anova) <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1021,13 +1009,13 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
 </div>
 </div>
-<p>It may take a bit of effort to understand this. First the <code>TempFac</code> is arranged in order of levels, and the <code>mean</code> at the <span class="math inline">\(`TempFac` = 13\)</span> is titled <code>intercept</code>. That is <span class="math inline">\(26.3\)</span>. The other two means for levels <span class="math inline">\(18\)</span> and <span class="math inline">\(25\)</span> are stated as <strong>differences</strong> from this intercept, <span class="math inline">\(-5.3\)</span> and <span class="math inline">\(-10.1\)</span> respectively. The <code>p.value</code> for all these effect sizes is well below the desired confidence level of <span class="math inline">\(0.05\)</span>.</p>
+<p>It may take a bit of effort to understand this. First the <code>TempFac</code> is arranged in order of levels, and the <code>mean</code> at the <span class="math inline">\(TempFac = 13\)</span> is titled <code>intercept</code>. That is <span class="math inline">\(26.3\)</span>. The other two means for levels <span class="math inline">\(18\)</span> and <span class="math inline">\(25\)</span> are stated as <strong>differences</strong> from this intercept, <span class="math inline">\(-5.3\)</span> and <span class="math inline">\(-10.1\)</span> respectively. The <code>p.value</code> for all these effect sizes is well below the desired confidence level of <span class="math inline">\(0.05\)</span>.</p>
 <p>We can easily plot bar-chart with error bars for the effect size:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-26_871a7adf1e1ea01eee4d5953ad08f686">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>tidy_anova <span class="ot">&lt;-</span> frogs_anova <span class="sc">%&gt;%</span> </span>
-<span id="cb63-2"><a href="#cb63-2"></a>  <span class="fu">summary.lm</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb63-3"><a href="#cb63-3"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
-<span id="cb63-4"><a href="#cb63-4"></a>tidy_anova</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-26_731bb465f607d9ea8e64ae7eed8ce0a4">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>tidy_anova <span class="ot">&lt;-</span> frogs_anova <span class="sc">%&gt;%</span> </span>
+<span id="cb60-2"><a href="#cb60-2"></a>  <span class="fu">summary.lm</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb60-3"><a href="#cb60-3"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
+<span id="cb60-4"><a href="#cb60-4"></a>tidy_anova</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1036,29 +1024,29 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="co"># Merging group averages with `std.error`</span></span>
-<span id="cb64-2"><a href="#cb64-2"></a>frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb64-3"><a href="#cb64-3"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-4"><a href="#cb64-4"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-5"><a href="#cb64-5"></a>  <span class="fu">cbind</span>(<span class="at">std.error =</span> tidy_anova<span class="sc">$</span>std.error) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-6"><a href="#cb64-6"></a>  <span class="fu">mutate</span>(<span class="at">hi =</span> mean <span class="sc">+</span> std.error,</span>
-<span id="cb64-7"><a href="#cb64-7"></a>         <span class="at">lo =</span> mean <span class="sc">-</span> std.error) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-8"><a href="#cb64-8"></a>  <span class="fu">gf_col</span>(<span class="at">data =</span> ., mean <span class="sc">~</span> TempFac, </span>
-<span id="cb64-9"><a href="#cb64-9"></a>         <span class="at">fill =</span> <span class="st">"grey"</span>, </span>
-<span id="cb64-10"><a href="#cb64-10"></a>         <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-11"><a href="#cb64-11"></a>  <span class="fu">gf_point</span>(mean <span class="sc">~</span> TempFac, </span>
-<span id="cb64-12"><a href="#cb64-12"></a>           <span class="at">color =</span> <span class="st">"red"</span>, </span>
-<span id="cb64-13"><a href="#cb64-13"></a>           <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb64-14"><a href="#cb64-14"></a>    <span class="fu">gf_errorbar</span>(hi <span class="sc">+</span> lo <span class="sc">~</span> TempFac,</span>
-<span id="cb64-15"><a href="#cb64-15"></a>                <span class="at">color =</span> <span class="st">"blue"</span>,</span>
-<span id="cb64-16"><a href="#cb64-16"></a>                <span class="at">linetype =</span> <span class="st">"dashed"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="co"># Merging group averages with `std.error`</span></span>
+<span id="cb61-2"><a href="#cb61-2"></a>frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb61-3"><a href="#cb61-3"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-4"><a href="#cb61-4"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(Time)) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-5"><a href="#cb61-5"></a>  <span class="fu">cbind</span>(<span class="at">std.error =</span> tidy_anova<span class="sc">$</span>std.error) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-6"><a href="#cb61-6"></a>  <span class="fu">mutate</span>(<span class="at">hi =</span> mean <span class="sc">+</span> std.error,</span>
+<span id="cb61-7"><a href="#cb61-7"></a>         <span class="at">lo =</span> mean <span class="sc">-</span> std.error) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-8"><a href="#cb61-8"></a>  <span class="fu">gf_col</span>(<span class="at">data =</span> ., mean <span class="sc">~</span> TempFac, </span>
+<span id="cb61-9"><a href="#cb61-9"></a>         <span class="at">fill =</span> <span class="st">"grey"</span>, </span>
+<span id="cb61-10"><a href="#cb61-10"></a>         <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-11"><a href="#cb61-11"></a>  <span class="fu">gf_point</span>(mean <span class="sc">~</span> TempFac, </span>
+<span id="cb61-12"><a href="#cb61-12"></a>           <span class="at">color =</span> <span class="st">"red"</span>, </span>
+<span id="cb61-13"><a href="#cb61-13"></a>           <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb61-14"><a href="#cb61-14"></a>    <span class="fu">gf_errorbar</span>(hi <span class="sc">+</span> lo <span class="sc">~</span> TempFac,</span>
+<span id="cb61-15"><a href="#cb61-15"></a>                <span class="at">color =</span> <span class="st">"blue"</span>,</span>
+<span id="cb61-16"><a href="#cb61-16"></a>                <span class="at">linetype =</span> <span class="st">"dashed"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section><section id="anova-using-permutation-tests" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="anova-using-permutation-tests">ANOVA using Permutation Tests</h2>
 <p>We wish to establish the significance of the effect size due to each of the levels in <code>TempFac</code>. From the normality tests conducted earlier we see that except at one level of <code>TempFac</code>, the times are are not normally distributed. Hence we opt for a Permutation Test to check for significance of effect.</p>
-<div class="page-columns page-full"><p>As remarked in Ernst<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, the non-parametric permutation test can be both <em>exact</em> and also <strong>intuitively easier</strong> for students to grasp. Permutations are easily executed in R, using packages such as <code>mosaic</code><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn4"><p><sup>4</sup>&nbsp;Ernst, Michael D. 2004. “Permutation Methods: A Basis for Exact Inference.” Statistical Science 19 (4): 676–85. doi:10.1214/088342304000000396.</p></li><li id="fn5"><p><sup>5</sup>&nbsp;Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</p></li></div></div>
+<div class="page-columns page-full"><p>As remarked in Ernst<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, the non-parametric permutation test can be both <em>exact</em> and also <strong>intuitively easier</strong> for students to grasp. Permutations are easily executed in R, using packages such as <code>mosaic</code><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn5"><p><sup>5</sup>&nbsp;Ernst, Michael D. 2004. “Permutation Methods: A Basis for Exact Inference.” Statistical Science 19 (4): 676–85. doi:10.1214/088342304000000396.</p></li><li id="fn6"><p><sup>6</sup>&nbsp;Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</p></li></div></div>
 <p>We proceed with a Permutation Test for <code>TempFac</code>. We shuffle the levels (13, 18, 25) randomly between the Times and repeat the ANOVA test each time and calculate the F-statistic. The Null distribution is the distribution of the F-statistic over the many permutations and the p-value is given by the proportion of times the F-statistic equals or exceeds that observed.</p>
 <p>We will use <code>mosaic</code> and also try with <code>infer</code>.</p>
 <div class="panel-tabset">
@@ -1069,35 +1057,35 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 <div class="tab-content">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <p><code>mosaic</code> offers an easy and intuitive way of doing a repeated permutation test, using the <code>do()</code> command. We will <code>shuffle</code> the <code>TempFac</code> factor to jumble up the <code>Time</code> observations, 10000 times. Each time we shuffle, we compute the F_statistic and record it. We then plot the 10000 F-statistics and compare that with the real-world observation of <code>F-stat</code>.</p>
-<div class="cell" data-hash="ANOVA_cache/html/permutation test for ANOVA with mosaic_73783ca49f411c5c5491c651f611e73a">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>obs_F_stat <span class="ot">&lt;-</span> frogs_anova <span class="sc">%&gt;%</span> </span>
-<span id="cb65-2"><a href="#cb65-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb65-3"><a href="#cb65-3"></a>  <span class="fu">select</span>(statistic)</span>
-<span id="cb65-4"><a href="#cb65-4"></a>observed_mosaic <span class="ot">&lt;-</span> obs_F_stat<span class="sc">$</span>statistic[<span class="dv">1</span>]</span>
-<span id="cb65-5"><a href="#cb65-5"></a></span>
-<span id="cb65-6"><a href="#cb65-6"></a>null_dist_mosaic <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">aov</span>(Time <span class="sc">~</span> <span class="fu">shuffle</span>(TempFac), <span class="at">data =</span> frogs_long)</span>
-<span id="cb65-7"><a href="#cb65-7"></a>null_dist_mosaic <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/permutation test for ANOVA with mosaic_156fbcb258438c46644567246fa81050">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>obs_F_stat <span class="ot">&lt;-</span> frogs_anova <span class="sc">%&gt;%</span> </span>
+<span id="cb62-2"><a href="#cb62-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb62-3"><a href="#cb62-3"></a>  <span class="fu">select</span>(statistic)</span>
+<span id="cb62-4"><a href="#cb62-4"></a>observed_mosaic <span class="ot">&lt;-</span> obs_F_stat<span class="sc">$</span>statistic[<span class="dv">1</span>]</span>
+<span id="cb62-5"><a href="#cb62-5"></a></span>
+<span id="cb62-6"><a href="#cb62-6"></a>null_dist_mosaic <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">aov</span>(Time <span class="sc">~</span> <span class="fu">shuffle</span>(TempFac), <span class="at">data =</span> frogs_long)</span>
+<span id="cb62-7"><a href="#cb62-7"></a>null_dist_mosaic <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["source"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["SS"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["F"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pval"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"shuffle(TempFac)","2":"2","3":"9.733333","4":"4.866667","5":"0.25529174","6":"0.7755715","7":"1","8":"1","_rn_":"shuffle(TempFac)...1"},{"1":"Residuals","2":"57","3":"1086.600000","4":"19.063158","5":"NA","6":"NA","7":"2","8":"1","_rn_":"Residuals...2"},{"1":"shuffle(TempFac)","2":"2","3":"58.433333","4":"29.216667","5":"1.60453801","6":"0.2099266","7":"1","8":"2","_rn_":"shuffle(TempFac)...3"},{"1":"Residuals","2":"57","3":"1037.900000","4":"18.208772","5":"NA","6":"NA","7":"2","8":"2","_rn_":"Residuals...4"},{"1":"shuffle(TempFac)","2":"2","3":"2.233333","4":"1.116667","5":"0.05817567","6":"0.9435401","7":"1","8":"3","_rn_":"shuffle(TempFac)...5"},{"1":"Residuals","2":"57","3":"1094.100000","4":"19.194737","5":"NA","6":"NA","7":"2","8":"3","_rn_":"Residuals...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["source"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["SS"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["F"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pval"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"shuffle(TempFac)","2":"2","3":"70.63333","4":"35.31667","5":"1.9626109","6":"0.1498703","7":"1","8":"1","_rn_":"shuffle(TempFac)...1"},{"1":"Residuals","2":"57","3":"1025.70000","4":"17.99474","5":"NA","6":"NA","7":"2","8":"1","_rn_":"Residuals...2"},{"1":"shuffle(TempFac)","2":"2","3":"25.03333","4":"12.51667","5":"0.6659666","6":"0.5177282","7":"1","8":"2","_rn_":"shuffle(TempFac)...3"},{"1":"Residuals","2":"57","3":"1071.30000","4":"18.79474","5":"NA","6":"NA","7":"2","8":"2","_rn_":"Residuals...4"},{"1":"shuffle(TempFac)","2":"2","3":"147.23333","4":"73.61667","5":"4.4211885","6":"0.0164069","7":"1","8":"3","_rn_":"shuffle(TempFac)...5"},{"1":"Residuals","2":"57","3":"949.10000","4":"16.65088","5":"NA","6":"NA","7":"2","8":"3","_rn_":"Residuals...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>null_dist_mosaic <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb66-2"><a href="#cb66-2"></a>  <span class="fu">select</span>(F) <span class="sc">%&gt;%</span> </span>
-<span id="cb66-3"><a href="#cb66-3"></a>  <span class="fu">gf_histogram</span>(<span class="at">data =</span> ., <span class="sc">~</span> F, </span>
-<span id="cb66-4"><a href="#cb66-4"></a>               <span class="at">fill =</span> <span class="sc">~</span> F <span class="sc">&gt;=</span> observed_mosaic,</span>
-<span id="cb66-5"><a href="#cb66-5"></a>               <span class="at">title =</span> <span class="st">"Null Distribution of ANOVA F-statistic"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>null_dist_mosaic <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb63-2"><a href="#cb63-2"></a>  <span class="fu">select</span>(F) <span class="sc">%&gt;%</span> </span>
+<span id="cb63-3"><a href="#cb63-3"></a>  <span class="fu">gf_histogram</span>(<span class="at">data =</span> ., <span class="sc">~</span> F, </span>
+<span id="cb63-4"><a href="#cb63-4"></a>               <span class="at">fill =</span> <span class="sc">~</span> F <span class="sc">&gt;=</span> observed_mosaic,</span>
+<span id="cb63-5"><a href="#cb63-5"></a>               <span class="at">title =</span> <span class="st">"Null Distribution of ANOVA F-statistic"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/permutation test for ANOVA with mosaic-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>The Null distribution of the F_statistic under permutation shows it never crosses the real-world observed value, testifying the strength of the effect of <code>TempFac</code> on hatching <code>Time</code>. And the p-value is:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-28_c4365c175d8651c5288e4a968edb832e">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">mean</span>(null_dist_mosaic<span class="sc">$</span>F <span class="sc">&gt;=</span> observed_mosaic, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb67-2"><a href="#cb67-2"></a>p_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-28_1cd087a8da97773236ae205e115c3f08">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">mean</span>(null_dist_mosaic<span class="sc">$</span>F <span class="sc">&gt;=</span> observed_mosaic, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb64-2"><a href="#cb64-2"></a>p_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
@@ -1105,12 +1093,12 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <p>We calculate the observed F-stat with <code>infer</code>, which also has a very direct, if verbose, syntax for doing permutation tests:</p>
-<div class="cell" data-hash="ANOVA_cache/html/ANOVA F-statistic with infer_472d52651e4cc5f92ee620fc750fd981">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>observed_infer <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb69-2"><a href="#cb69-2"></a>  <span class="fu">specify</span>(Time <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb69-3"><a href="#cb69-3"></a>  <span class="fu">hypothesise</span>(<span class="at">null =</span> <span class="st">"independence"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb69-4"><a href="#cb69-4"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"F"</span>)</span>
-<span id="cb69-5"><a href="#cb69-5"></a>observed_infer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/ANOVA F-statistic with infer_dcb320719400e709352016e5f13c7b29">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>observed_infer <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb66-2"><a href="#cb66-2"></a>  <span class="fu">specify</span>(Time <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb66-3"><a href="#cb66-3"></a>  <span class="fu">hypothesise</span>(<span class="at">null =</span> <span class="st">"independence"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb66-4"><a href="#cb66-4"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"F"</span>)</span>
+<span id="cb66-5"><a href="#cb66-5"></a>observed_infer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1121,24 +1109,24 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
 </div>
 <p>We see that the observed F-Statistic is of course <span class="math inline">\(385.8966\)</span> as before. Now we use <code>infer</code> to generate a NULL distribution using permutation of the factor <code>TempFac</code>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/Permutation using infer_f88782823f47059dc2746faf537be84f">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>null_dist_infer <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
-<span id="cb70-2"><a href="#cb70-2"></a>  <span class="fu">specify</span>(Time <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
-<span id="cb70-3"><a href="#cb70-3"></a>  <span class="fu">hypothesise</span>(<span class="at">null =</span> <span class="st">"independence"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb70-4"><a href="#cb70-4"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="dv">1000</span>, <span class="at">type =</span> <span class="st">"permute"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb70-5"><a href="#cb70-5"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"F"</span>)</span>
-<span id="cb70-6"><a href="#cb70-6"></a></span>
-<span id="cb70-7"><a href="#cb70-7"></a><span class="fu">head</span>(null_dist_infer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ANOVA_cache/html/Permutation using infer_157836ffb883171b7bd4b782a95649bf">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>null_dist_infer <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
+<span id="cb67-2"><a href="#cb67-2"></a>  <span class="fu">specify</span>(Time <span class="sc">~</span> TempFac) <span class="sc">%&gt;%</span> </span>
+<span id="cb67-3"><a href="#cb67-3"></a>  <span class="fu">hypothesise</span>(<span class="at">null =</span> <span class="st">"independence"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb67-4"><a href="#cb67-4"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="dv">1000</span>, <span class="at">type =</span> <span class="st">"permute"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb67-5"><a href="#cb67-5"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"F"</span>)</span>
+<span id="cb67-6"><a href="#cb67-6"></a></span>
+<span id="cb67-7"><a href="#cb67-7"></a><span class="fu">head</span>(null_dist_infer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["replicate"],"name":[1],"type":["int"],"align":["right"]},{"label":["stat"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"0.39356390"},{"1":"2","2":"0.88540393"},{"1":"3","2":"0.42298436"},{"1":"4","2":"0.85779386"},{"1":"5","2":"0.13144873"},{"1":"6","2":"0.04252307"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["replicate"],"name":[1],"type":["int"],"align":["right"]},{"label":["stat"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"0.51968979"},{"1":"2","2":"2.22622677"},{"1":"3","2":"0.07907253"},{"1":"4","2":"0.43637711"},{"1":"5","2":"0.73145290"},{"1":"6","2":"0.91306599"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>null_dist_infer <span class="sc">%&gt;%</span> </span>
-<span id="cb71-2"><a href="#cb71-2"></a>  <span class="fu">visualise</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>null_dist_infer <span class="sc">%&gt;%</span> </span>
+<span id="cb68-2"><a href="#cb68-2"></a>  <span class="fu">visualise</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ANOVA_files/figure-html/Permutation using infer-1.png" class="img-fluid" width="672"></p>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-11-19">
-<title>The Foundation Series - Distributions in R</title>
+<title>The Foundation Series - Tutorial on Distributions in R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -99,7 +99,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <link href="../../../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../../../site_libs/quarto-contrib/downloadthis-1.9.1/downloadthis.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -119,8 +120,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<meta property="og:title" content="The Foundation Series - Distributions in R">
+<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<meta property="og:title" content="The Foundation Series - Tutorial on Distributions in R">
 <meta property="og:description" content="We will create Distributions for data in R. As always, we will consistently use the Project Mosaic ecosystem of packages in R (mosaic, mosaicData and ggformula).">
 <meta property="og:site-name" content="The Foundation Series">
 </head>
@@ -164,7 +165,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title">Distributions in R</h1>
+      <h1 class="quarto-secondary-nav-title">Tutorial on Distributions in R</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -311,7 +312,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title d-none d-lg-block">Distributions in R</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<h1 class="title d-none d-lg-block">Tutorial on Distributions in R</h1>
 </div>
 
 
@@ -335,7 +336,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">April 13, 2023</p>
+      <p class="date-modified">April 26, 2023</p>
     </div>
   </div>
     
@@ -363,18 +364,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Tip
 </div>
 </div>
-<div class="callout-body-container callout-body">
-<div id="note" class="illustration" style="background: beige">
+<div class="callout-body-container callout-body" style="background: beige">
 <p>Note the standard method for all commands from the <code>mosaic</code> package:</p>
 <p><code>goal( y ~ x | z, data = mydata, …)</code></p>
-</div>
+<p>With <code>ggformula</code>, one can create any graph/chart using:</p>
+<p><code>gf_geometry(y ~ x | z, data = mydata)</code></p>
+<p>OR</p>
+<p><code>mydata %&gt;% gf_geometry( y ~ x | z)</code></p>
+<p>The second method may be preferable, especially if you have done some data manipulation first! More later!</p>
 </div>
 </div>
 </section><section id="case-study--1-dataset-from-mosaicdata" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="case-study--1-dataset-from-mosaicdata">Case Study -1: Dataset from <code>mosaicData</code>
 </h2>
 <p>Let us inspect what datasets are available in the package <code>mosaicData</code>. Type <code>data(package = "mosaicData")</code> in your Console to see what datasets are available.</p>
 <p>Let us choose the famous <code>Galton</code> dataset:</p>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-2_6ef2f4c32fc9bbed74376442611b5161">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-2_04c5cb8a52c0960e310953fa1dabef3b">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">inspect</span>(Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -417,7 +421,7 @@ quantitative variables:
 <section id="stat-summaries" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="stat-summaries">Stat Summaries</h3>
 <p>As Stigler said, <strong>summaries</strong> are the first thing to look at in data. Let us tabulate some quick stat summaries of the important variables in <code>Galton</code>:</p>
 <div class="column-inset-page">
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-3_1ab97741bf754aab7efbfc44e4f44f21">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-3_6a0e7be4534e1aa3abd4ff550f083266">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">favstats</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
@@ -438,6 +442,7 @@ quantitative variables:
 </div>
 </div>
 </div>
+<p>Story: So fathers are on average taller than mothers on average, in this dataset.</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -451,7 +456,7 @@ Note
 <p>Q.1 How many families in the data for each value of <code>nkids</code>?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-4_5b8016fe99161d68b43cf6250a617a9e">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-4_abab6ca1aea9247c9d43c3d2f4ee08aa">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>nkids
@@ -459,6 +464,7 @@ Note
  32  40  66 116 140 114 112 128  63  40  32  15 </code></pre>
 </div>
 </div>
+<p>Story: There are 32 1-kid families; and <span class="math inline">\(128/8 = 16\)</span> 8-kid families! There is one great great 15-kid family. ( Did you get the idea behind why we divide here?)</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -472,7 +478,7 @@ Note
 <p>Q.2. What is the break-up by <code>sex</code> of the child?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-5_777a75f6868a6723246f10047d47fe3a">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-5_bbb053f4e05a37875cb7c5d40248309c">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     sex
@@ -491,6 +497,7 @@ nkids  F  M
    15  8  7</code></pre>
 </div>
 </div>
+<p>Story: Hmm…decent gender balance overall, across families. How would we look for “gender balance” in individual families?</p>
 </section><section id="distribution-plots" class="level3"><h3 class="anchored" data-anchor-id="distribution-plots">Distribution Plots</h3>
 <p>What Questions might we have, that we could answer with a Distribution?</p>
 <div class="callout-note callout callout-style-default callout-captioned">
@@ -506,14 +513,15 @@ Note
 <p>Q.1 How many families based on the number of children?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-6_688006f2459868042a107b222419b7a5">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-6_7eb4a05c36ea4c74c4e2e435c578975f">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Convert the tally into a dataframe. See the difference!</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>family_count <span class="ot">&lt;-</span> <span class="fu">tally</span>( <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb10-4"><a href="#cb10-4"></a>  </span>
-<span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># Convert nkids from char to int</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">mutate</span>( <span class="at">nkids =</span> <span class="fu">as.integer</span>(nkids))</span>
-<span id="cb10-7"><a href="#cb10-7"></a>family_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-2"><a href="#cb10-2"></a>family_count <span class="ot">&lt;-</span> </span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">tally</span>( <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5"></a>  </span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="co"># Convert nkids from char to int</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  <span class="fu">mutate</span>( <span class="at">nkids =</span> <span class="fu">as.integer</span>(nkids))</span>
+<span id="cb10-8"><a href="#cb10-8"></a>family_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -522,11 +530,15 @@ Note
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">gf_col</span>(n <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> family_count, <span class="at">fill =</span> <span class="sc">~</span> sex, <span class="at">ylab =</span> <span class="st">"Number of Families"</span>, <span class="at">xlab =</span> <span class="st">"Number of Kids / Family"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>family_count <span class="sc">%&gt;%</span> <span class="fu">gf_col</span>(n <span class="sc">~</span> nkids <span class="sc">|</span> sex, </span>
+<span id="cb11-2"><a href="#cb11-2"></a>       <span class="at">fill =</span> <span class="sc">~</span> sex, </span>
+<span id="cb11-3"><a href="#cb11-3"></a>       <span class="at">ylab =</span> <span class="st">"Number of Families"</span>, </span>
+<span id="cb11-4"><a href="#cb11-4"></a>       <span class="at">xlab =</span> <span class="st">"Number of Kids / Family"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="distributions_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: OK this explains the division we did earlier!</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -540,13 +552,14 @@ Note
 <p>Q.2: How are the children’s heights distributed?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-7_9a72eb62694f2322ff46a3e12f623aaf">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-7_d05130b04ccd3f8f5492d28b5de085c2">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> height, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
 <span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(Galton<span class="sc">$</span>height))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="distributions_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: Fairly symmetric distribution…but there are a few very short and some very tall children!</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -560,7 +573,7 @@ Note
 <p>Q.3: Is there a difference in height distributions between Male and Female children?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-8_8a57fbf96f1fd5b5330c5866af458915">
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-8_5fa2af1febb6c1a3a8ad1a7870f7d46c">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>measures <span class="ot">&lt;-</span> <span class="fu">favstats</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
 <span id="cb13-2"><a href="#cb13-2"></a>measures</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -577,6 +590,7 @@ Note
 <p><img src="distributions_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: There is a 5 inch difference in average heights between girls and boys. Is that significant, however?</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -590,17 +604,22 @@ Note
 <p>Q.4: Are Mothers generally shorter than fathers?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-9_92edbbdacd75c3e2080e9d8c66d58c55">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">gf_density</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">gf_density</span>( <span class="sc">~</span> mother, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">xlab =</span> <span class="st">"Heights"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: `stat(density)` was deprecated in ggplot2 3.4.0.
-ℹ Please use `after_stat(density)` instead.</code></pre>
-</div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-9_1eb83df373882b2207ff8ff8e5f45d47">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">gf_density</span>(<span class="sc">~</span> father, </span>
+<span id="cb15-2"><a href="#cb15-2"></a>           <span class="at">data =</span> Galton, </span>
+<span id="cb15-3"><a href="#cb15-3"></a>           <span class="at">fill =</span> <span class="st">"blue"</span>, </span>
+<span id="cb15-4"><a href="#cb15-4"></a>           <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href="#cb15-5"></a>  </span>
+<span id="cb15-6"><a href="#cb15-6"></a>  <span class="fu">gf_density</span>( <span class="sc">~</span> mother, </span>
+<span id="cb15-7"><a href="#cb15-7"></a>              <span class="at">data =</span> Galton, </span>
+<span id="cb15-8"><a href="#cb15-8"></a>              <span class="at">fill =</span> <span class="st">"red"</span>, </span>
+<span id="cb15-9"><a href="#cb15-9"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>, </span>
+<span id="cb15-10"><a href="#cb15-10"></a>              <span class="at">xlab =</span> <span class="st">"Heights"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="distributions_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: Yes moms are on average shorter than dads. Again, is this difference statistically significant?</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -614,13 +633,13 @@ Note
 <p>Q.5: Are heights of children different based on the number of kids in the family? For Male and Female children?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-10_075d25f40c64aebde4107dba435c791f">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">gf_boxplot</span>(height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-10_4b9fe38953bbb053e0f64bbd392ddbaf">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">gf_boxplot</span>(height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="distributions_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Box plots are used to show distributions of numeric data values, especially when you want to compare them between multiple groups.</p>
+<p>Story: Box plots are used to show distributions of numeric data values, especially when you want to compare them between multiple groups. So, at all family “strengths”, the male children are taller than the female children.</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -634,8 +653,9 @@ Note
 <p>Q.6: Does the <strong>mean</strong> height of children in a family vary with the number of children in the family? ( family size)</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-11_b6d35125e90f3f3915b98178eaa32459">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">mean</span>( height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>() <span class="co"># not very inspiring!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-11_68d97399d7a95384a49202b1d9a2a0c2">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">mean</span>( height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">as_tibble</span>() <span class="co"># not very inspiring!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -644,8 +664,8 @@ Note
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>by_sex_nkids <span class="ot">&lt;-</span> <span class="fu">favstats</span>( height <span class="sc">~</span> sex <span class="sc">+</span> nkids, <span class="at">data =</span> Galton)</span>
-<span id="cb19-2"><a href="#cb19-2"></a>by_sex_nkids <span class="co"># much better!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>by_sex_nkids <span class="ot">&lt;-</span> <span class="fu">favstats</span>( height <span class="sc">~</span> sex <span class="sc">+</span> nkids, <span class="at">data =</span> Galton)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>by_sex_nkids <span class="co"># much better!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -655,19 +675,19 @@ Note
 </div>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-12_278d6008ec1320b4e8627ced49e6eff7">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">gf_col</span>(mean <span class="sc">~</span> sex.nkids, <span class="at">data =</span> by_sex_nkids)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-12_a9fa1e6a3e7d2aabc414363b89fc0488">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">gf_col</span>(mean <span class="sc">~</span> sex.nkids, <span class="at">data =</span> by_sex_nkids)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="distributions_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Hmm…not a <em>very</em> informative plot…</p>
+<p>Story: Hmm…not a <em>very</em> informative plot…the table is better but also not too easy to interpret. But this question is rather similar to Question 5!</p>
 </section></section><section id="case-study-2-dataset-from-nhanes" class="level2"><h2 class="anchored" data-anchor-id="case-study-2-dataset-from-nhanes">Case Study-2: Dataset from <code>NHANES</code>
 </h2>
 <p>Let us try the <code>NHANES</code> dataset. Try <code>help(NHANES)</code> in your Console.</p>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-13_98184698305a1562f4492e108ed771a8">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">data</span>(<span class="st">"NHANES"</span>)</span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">names</span>(NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-13_17f3c7c3aa9bfcf07a9669e309c92f01">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">data</span>(<span class="st">"NHANES"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="fu">names</span>(NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "ID"               "SurveyYr"         "Gender"           "Age"             
  [5] "AgeDecade"        "AgeMonths"        "Race1"            "Race3"           
@@ -691,8 +711,8 @@ Note
 </div>
 </div>
 <section id="stat-summaries-1" class="level3"><h3 class="anchored" data-anchor-id="stat-summaries-1">Stat Summaries</h3>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-14_8dafbfd0ef5ccea576b85733bcdf9b3a">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-14_8e140cba3661059c087689c6f2161045">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 categorical variables:  
@@ -858,8 +878,19 @@ quantitative variables:
 </div>
 <p>Again, lots of data from <code>inspect</code>, about the Quant and Qual variables. Spend a little time looking through the output of <code>inspect</code>. Which variables could have been data <em>given</em> by each respondent, and which ones could have been <em>measured</em> data variables? Why do you think so?<br>
 Why is there so much <em>missing</em> data? Which variable are the most affected by this?</p>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-15_4d154608bb0bd86948f5b8755297347e">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Work, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-15_f00c3b616f5d5e2a87bb501faa701cb5">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">tally</span>(<span class="sc">~</span> Education, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Education
+     8th Grade 9 - 11th Grade    High School   Some College   College Grad 
+           451            888           1517           2267           2098 
+          &lt;NA&gt; 
+          2779 </code></pre>
+</div>
+</div>
+<p>Story: The count goes up as we go from lower Education levels to higher. Need to keep that in mind.</p>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-16_80f6a0c33379c42a8c54271a108213f5">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Work, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                Work
 Education        Looking NotWorking Working &lt;NA&gt;
@@ -871,6 +902,7 @@ Education        Looking NotWorking Working &lt;NA&gt;
   &lt;NA&gt;                47        315     189 2228</code></pre>
 </div>
 </div>
+<p>Story: Clear increase in the number of Working people as Education goes from 8th Grade to College. No surprise. Is the NotWorking column a surprise?</p>
 </section><section id="distribution-plots-1" class="level3"><h3 class="anchored" data-anchor-id="distribution-plots-1">Distribution Plots</h3>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
@@ -885,22 +917,55 @@ Note
 <p>Q.1. What is the distribution of Physical Activity Days, across Gender? Across Education?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-16_87af92ac5bffadda526bfb7668160a6e">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5337 rows containing non-finite values (`stat_bin()`).</code></pre>
-</div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-17_0c920c43712143e671fd4ce993cd7989">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Education)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5337 rows containing non-finite values (`stat_bin()`).</code></pre>
-</div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: Can we conclude anything here? The <strong>populations</strong> in each category are different, so what do we need to do? Take percentages or ratios of course, per-capita! How would one do that?</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Q.1a. What is the distribution of Physical Activity Days, across Gender, per capita? Across Education?</p>
+</div>
+</div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-18_001737411ec2d7dfd18dfb7519c4e894">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>NHANES <span class="sc">%&gt;%</span> </span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">group_by</span>(Gender) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">summarize</span>(<span class="at">mean_active =</span> <span class="fu">mean</span>(PhysActiveDays,<span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Gender"],"name":[1],"type":["fct"],"align":["left"]},{"label":["mean_active"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"female","2":"3.813687"},{"1":"male","2":"3.677231"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>NHANES <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a href="#cb31-2"></a>  <span class="fu">group_by</span>(Education) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">summarize</span>(<span class="at">mean_active =</span> <span class="fu">mean</span>(PhysActiveDays,<span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Education"],"name":[1],"type":["fct"],"align":["left"]},{"label":["mean_active"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"8th Grade","2":"3.844311"},{"1":"9 - 11th Grade","2":"3.581197"},{"1":"High School","2":"3.676800"},{"1":"Some College","2":"3.514706"},{"1":"College Grad","2":"3.856916"},{"1":"NA","2":"3.927667"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Story: Hmm..no great differences. Females are maginally more active than males.</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -914,14 +979,15 @@ Note
 <p>Q.2. How are people Ages distributed across levels of Education?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-17_c0bfcc2e07375638d6f4329bf65fb27f">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">gf_boxplot</span>(Age <span class="sc">~</span> Education, </span>
-<span id="cb31-2"><a href="#cb31-2"></a>           <span class="at">fill =</span> <span class="sc">~</span> Education, <span class="co"># Always a good idea</span></span>
-<span id="cb31-3"><a href="#cb31-3"></a>           <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-19_bd17ad6918e5738eb966a94ca2a484fd">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">gf_boxplot</span>(Age <span class="sc">~</span> Education, </span>
+<span id="cb32-2"><a href="#cb32-2"></a>           <span class="at">fill =</span> <span class="sc">~</span> Education, <span class="co"># Always a good idea</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a>           <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: Older age groups are more heavily represented in groups with lover educational status. How to interpret the NA group?</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -935,87 +1001,29 @@ Note
 <p>Q.3. How is Education distributed over Race?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-18_be2cff2c490860903a7e4239725dbd96">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>, , Race3 = Asian
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-20_c61f6bee6bd925dde713f06715d24e07">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>NHANES_by_Race1 <span class="ot">&lt;-</span> NHANES <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">group_by</span>(Race1) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">population =</span> <span class="fu">n</span>())</span>
+<span id="cb33-3"><a href="#cb33-3"></a>NHANES_by_Race1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
 
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade          0        0       0     0    15
-  9 - 11th Grade     0        0       0     0    13
-  High School        0        0       0     0    15
-  Some College       0        0       0     0    56
-  College Grad       0        0       0     0   110
-  &lt;NA&gt;               0        0       0     0    79
-
-, , Race3 = Black
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade         11        0       0     0     0
-  9 - 11th Grade    63        0       0     0     0
-  High School       94        0       0     0     0
-  Some College     152        0       0     0     0
-  College Grad      76        0       0     0     0
-  &lt;NA&gt;             193        0       0     0     0
-
-, , Race3 = Hispanic
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade          0       43       0     0     0
-  9 - 11th Grade     0       45       0     0     0
-  High School        0       57       0     0     0
-  Some College       0       53       0     0     0
-  College Grad       0       34       0     0     0
-  &lt;NA&gt;               0      118       0     0     0
-
-, , Race3 = Mexican
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade          0        0      65     0     0
-  9 - 11th Grade     0        0      68     0     0
-  High School        0        0      61     0     0
-  Some College       0        0      54     0     0
-  College Grad       0        0      23     0     0
-  &lt;NA&gt;               0        0     209     0     0
-
-, , Race3 = White
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade          0        0       0    75     0
-  9 - 11th Grade     0        0       0   207     0
-  High School        0        0       0   436     0
-  Some College       0        0       0   799     0
-  College Grad       0        0       0   870     0
-  &lt;NA&gt;               0        0       0   748     0
-
-, , Race3 = Other
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade          0        0       0     0     3
-  9 - 11th Grade     0        0       0     0     9
-  High School        0        0       0     0    16
-  Some College       0        0       0     0    46
-  College Grad       0        0       0     0    15
-  &lt;NA&gt;               0        0       0     0    69
-
-, , Race3 = NA
-
-                Race1
-Education        Black Hispanic Mexican White Other
-  8th Grade         11       29     112    58    29
-  9 - 11th Grade    93       22      70   282    16
-  High School      125       29      61   597    26
-  Some College     140       59      60   776    72
-  College Grad      54       42      27   743   104
-  &lt;NA&gt;             185       79     205   781   113</code></pre>
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Race1"],"name":[1],"type":["fct"],"align":["left"]},{"label":["population"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Black","2":"1197"},{"1":"Hispanic","2":"610"},{"1":"Mexican","2":"1015"},{"1":"White","2":"6372"},{"1":"Other","2":"806"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>NHANES <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Education, Race1) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">summarize</span>( <span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">left_join</span>(NHANES_by_Race1, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Race1"</span> <span class="ot">=</span> <span class="st">"Race1"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="fu">mutate</span>(<span class="at">percapita_educated =</span> (n<span class="sc">/</span>population)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-5"><a href="#cb34-5"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span>  <span class="co"># not really needed</span></span>
+<span id="cb34-6"><a href="#cb34-6"></a>  <span class="fu">gf_col</span>(Education <span class="sc">~</span> percapita_educated <span class="sc">|</span> Race1, <span class="at">fill =</span> <span class="sc">~</span> Race1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="distributions_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Story: Blacks, Hispanics, and Mexicans tend to have fewer people with college degrees, as a percentage of their population.</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1029,43 +1037,56 @@ Note
 <p>Q.4. What is the distribution of people’s BMI, split by Gender? By Race1?</p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-19_462f58bd3bf8fcb91be259ece8254ece">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Gender, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 366 rows containing non-finite values (`stat_bin()`).</code></pre>
-</div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-21_c0e9fe7b68b9d634f3d2a9ff881ca853">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># One can also plot both histograms and densities in an overlay fashion,</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="fu">gf_dhistogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Gender, <span class="at">data =</span> NHANES) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-3"><a href="#cb35-3"></a>      <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 366 rows containing non-finite values (`stat_bin()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">gf_dhistogram</span>(<span class="sc">~</span> BMI, <span class="at">data =</span> NHANES) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-2"><a href="#cb36-2"></a>    <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3"></a>  <span class="fu">gf_refine</span>(<span class="fu">facet_wrap</span>(<span class="sc">~</span> Race1, <span class="at">scales =</span> <span class="st">"free"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-19-2.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>One can also plot both histograms and densities in an overlay fashion, if desired:</p>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-20_a08f8753457a3741a4d75118f9c6db13">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># Histogram with kernel density</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a><span class="fu">gf_dhistogram</span>( <span class="sc">~</span> BMI, <span class="at">data =</span> NHANES) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-3"><a href="#cb38-3"></a>  <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 366 rows containing non-finite values (`stat_bin()`).</code></pre>
+<p>Story: Non-white races tend to have larger portions of their populations with larger BMI. So these races perhaps tend to obesity. By and large BMI distributions are normal.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 366 rows containing non-finite values (`stat_fitdistr()`).</code></pre>
+<div class="callout-caption-container flex-fill">
+Note
 </div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Q.4. What is the distribution of people’s Testosterone level vs BMI? Split By Race1?</p>
+</div>
+</div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-22_b029df8a9ea0316eb1cf1a1fc8069b40">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>NHANES <span class="sc">%&gt;%</span>  <span class="fu">gf_density2d</span>(Testosterone <span class="sc">~</span> BMI <span class="sc">|</span> Race1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Story: Low testosterone levels exist across all BMI values, but healthy levels of T exists only over a smaller range of BMI.</p>
 </section></section><section id="case-study-3-a-complete-example" class="level2"><h2 class="anchored" data-anchor-id="case-study-3-a-complete-example">Case Study-3: A complete example</h2>
 <p>Here is a dataset from Jeremy Singer-Vine’s blog, <a href="https://www.data-is-plural.com/">Data Is Plural</a>. This is a list of all books banned in schools across the US.</p>
-<div class="cell" data-hash="distributions_cache/html/bar-charts_55108c83cc55f9ca421e67ab680aa5d0">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>banned <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"data/banned.xlsx"</span>,</span>
-<span id="cb41-2"><a href="#cb41-2"></a>                            <span class="at">sheet =</span> <span class="st">"Sorted by Author &amp; Title"</span>)</span>
-<span id="cb41-3"><a href="#cb41-3"></a>banned</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><a href="#dnldts42663" onclick="fetch('data:text/csv;base64,77u/Q291bnQgb2YgVHlwZSBvZiBCYW4sQ29sdW1uIExhYmVscywsLCwNClJvdyBMYWJlbHMsQmFubmVkIGZyb20gQ2xhc3Nyb29tcyxCYW5uZWQgZnJvbSBMaWJyYXJpZXMsQmFubmVkIGZyb20gTGlicmFyaWVzIGFuZCBDbGFzc3Jvb21zLEJhbm5lZCBQZW5kaW5nIEludmVzdGlnYXRpb24sR3JhbmQgVG90YWwNCkFsYXNrYSwsLDEsLDENCkFya2Fuc2FzLCwsMSwsMQ0KRmxvcmlkYSwsMjksODEsOTQsMjA0DQpHZW9yZ2lhLCw0LDksLDEzDQpJbGxpbm9pcywxLDIsLDEsNA0KSW5kaWFuYSwsMTQsMywxLDE4DQpJb3dhLCwxLDEsMiw0DQpLYW5zYXMsLCwxLDI5LDMwDQpNYXJ5bGFuZCwsLDEsLDENCk1pY2hpZ2FuLDEsMSwsLDINCk1pbm5lc290YSwsLCwxLDENCk1pc3NvdXJpLDEsMSwyLDExLDE1DQpOZXcgSmVyc2V5LDEsMSwsMSwzDQpOZXcgWW9yaywsLDMsOSwxMg0KTm9ydGggQ2Fyb2xpbmEsNiwsLCw2DQpPaGlvLDEsLDEsMiw0DQpPa2xhaG9tYSw1LDksOSwyMCw0Mw0KUGVubnN5bHZhbmlhLDQ0MywzLDIsOCw0NTYNClJob2RlIElzbGFuZCwsLDEsLDENClNvdXRoIENhcm9saW5hLCwsMSwsMQ0KVGVubmVzc2VlLDMsMSwsMTIsMTYNClRleGFzLDEyLDEyOCw2Miw1MTEsNzEzDQpVdGFoLCwxLDEsOSwxMQ0KVmlyZ2luaWEsLCwxLDE1LDE2DQpXYXNoaW5ndG9uLCwsLDUsNQ0KV2lzY29uc2luLCwyLDMsLDUNCkdyYW5kIFRvdGFsLDQ3NCwxOTcsMTg0LDczMSwxNTg2DQo=').then(res => res.blob()).then(blob => {
+      const downloadURL = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = downloadURL;
+      a.download = 'banned.csv.csv'; a.click();
+      window.URL.revokeObjectURL(downloadURL);
+      document.body.removeChild(a);
+        });"><button class="btn btn-info downloadthis  " id="dnldts42663"><i class="bi bi-database-fill-down"></i> Download the data </button></a></p>
+<div class="cell" data-hash="distributions_cache/html/bar-charts_22c6603aa1f1fb4a76aabd88a6751891">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>banned <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"data/banned.xlsx"</span>,</span>
+<span id="cb38-2"><a href="#cb38-2"></a>                            <span class="at">sheet =</span> <span class="st">"Sorted by Author &amp; Title"</span>)</span>
+<span id="cb38-3"><a href="#cb38-3"></a>banned</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1074,7 +1095,7 @@ Note
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">names</span>(banned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="fu">names</span>(banned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "Author"                    "Title"                    
  [3] "Type of Ban"               "Secondary Author(s)"      
@@ -1084,9 +1105,9 @@ Note
 </div>
 </div>
 <p>Clearly the variables are <em>all</em> Qualitative, except perhaps for <em>Date of Challenge/Removal, (which in this case has been badly mangled by Excel) So we need to make <strong>counts</strong> based on the</em> levels* of the Qual variables and plot Bar/Column charts.</p>
-<p>Let us quickly make some Stat Summaries:</p>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-21_2499aca2ef19f3242f8f4b14d1d7966b">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(banned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let us quickly make some Stat Summaries ( using <code>inspect</code>)</p>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-23_e43fe77a43917ce57da08da8d290b9a9">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(banned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 categorical variables:  
@@ -1128,9 +1149,13 @@ Important
 <p><em>What is the count of banned books by type and by US state?</em></p>
 </div>
 </div>
-<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-22_7df54b3b3b7d448167aadfff0a5ff5c2">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>banned_by_state <span class="ot">&lt;-</span> banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
-<span id="cb46-2"><a href="#cb46-2"></a>banned_by_state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="distributions_cache/html/unnamed-chunk-24_4384f4e540aa556c64ff4a89f8e3a2d4">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>banned_by_state <span class="ot">&lt;-</span> </span>
+<span id="cb43-2"><a href="#cb43-2"></a>  banned <span class="sc">%&gt;%</span> </span>
+<span id="cb43-3"><a href="#cb43-3"></a>  <span class="fu">group_by</span>(State) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-4"><a href="#cb43-4"></a>  <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-5"><a href="#cb43-5"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb43-6"><a href="#cb43-6"></a>banned_by_state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -1139,22 +1164,28 @@ Important
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State, <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(., banned_by_state, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"State"</span> <span class="ot">=</span> <span class="st">"State"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb47-2"><a href="#cb47-2"></a> <span class="co">#  pivot_wider(.,id_cols = State,</span></span>
-<span id="cb47-3"><a href="#cb47-3"></a> <span class="co">#              names_from = `Type of Ban`,</span></span>
-<span id="cb47-4"><a href="#cb47-4"></a> <span class="co">#              values_from = count) %&gt;% janitor::clean_names() %&gt;% </span></span>
-<span id="cb47-5"><a href="#cb47-5"></a> <span class="co">#  replace_na(list(banned_from_libraries_and_classrooms = 0,</span></span>
-<span id="cb47-6"><a href="#cb47-6"></a> <span class="co">#                  banned_from_libraries = 0,</span></span>
-<span id="cb47-7"><a href="#cb47-7"></a> <span class="co">#                  banned_pending_investigation = 0,</span></span>
-<span id="cb47-8"><a href="#cb47-8"></a> <span class="co">#                  banned_from_classrooms = 0)) %&gt;% </span></span>
-<span id="cb47-9"><a href="#cb47-9"></a> <span class="co"># mutate(total = sum(across(where(is.integer)))) %&gt;%</span></span>
-<span id="cb47-10"><a href="#cb47-10"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(State, total), <span class="at">y =</span> count, <span class="at">fill =</span> <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>)) <span class="sc">+</span> <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'State'. You can override using the
-`.groups` argument.</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>banned <span class="sc">%&gt;%</span> </span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">group_by</span>(State, <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-4"><a href="#cb44-4"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb44-5"><a href="#cb44-5"></a>  <span class="fu">left_join</span>(., banned_by_state, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"State"</span> <span class="ot">=</span> <span class="st">"State"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-6"><a href="#cb44-6"></a>  </span>
+<span id="cb44-7"><a href="#cb44-7"></a> <span class="co">#  pivot_wider(.,id_cols = State,</span></span>
+<span id="cb44-8"><a href="#cb44-8"></a> <span class="co">#              names_from = `Type of Ban`,</span></span>
+<span id="cb44-9"><a href="#cb44-9"></a> <span class="co">#              values_from = count) %&gt;% janitor::clean_names() %&gt;% </span></span>
+<span id="cb44-10"><a href="#cb44-10"></a> <span class="co">#  replace_na(list(banned_from_libraries_and_classrooms = 0,</span></span>
+<span id="cb44-11"><a href="#cb44-11"></a> <span class="co">#                  banned_from_libraries = 0,</span></span>
+<span id="cb44-12"><a href="#cb44-12"></a> <span class="co">#                  banned_pending_investigation = 0,</span></span>
+<span id="cb44-13"><a href="#cb44-13"></a> <span class="co">#                  banned_from_classrooms = 0)) %&gt;% </span></span>
+<span id="cb44-14"><a href="#cb44-14"></a> <span class="co"># mutate(total = sum(across(where(is.integer)))) %&gt;%</span></span>
+<span id="cb44-15"><a href="#cb44-15"></a><span class="fu">gf_col</span>(count <span class="sc">~</span> <span class="fu">reorder</span>(State, total), </span>
+<span id="cb44-16"><a href="#cb44-16"></a>          <span class="at">fill =</span> <span class="sc">~</span> <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-17"><a href="#cb44-17"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Count of Banned Books"</span>,</span>
+<span id="cb44-18"><a href="#cb44-18"></a>          <span class="at">y =</span> <span class="st">"State"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-19"><a href="#cb44-19"></a>  <span class="fu">gf_refine</span>(<span class="fu">coord_flip</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-20"><a href="#cb44-20"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="distributions_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+<p><img src="distributions_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section><section id="references" class="level1"><h1>References</h1>
@@ -1163,8 +1194,6 @@ Important
 </li>
 </ol>
 
-
-<!-- -->
 
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1231,57 +1260,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  const viewSource = window.document.getElementById('quarto-view-source') ||
-                     window.document.getElementById('quarto-code-tools-source');
-  if (viewSource) {
-    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
-    viewSource.addEventListener("click", function(e) {
-      if (sourceUrl) {
-        // rstudio viewer pane
-        if (/\bcapabilities=\b/.test(window.location)) {
-          window.open(sourceUrl);
-        } else {
-          window.location.href = sourceUrl;
-        }
-      } else {
-        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
-        modal.show();
-      }
-      return false;
-    });
-  }
-  function toggleCodeHandler(show) {
-    return function(e) {
-      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-      for (let i=0; i<detailsSrc.length; i++) {
-        const details = detailsSrc[i].parentElement;
-        if (show) {
-          details.open = true;
-        } else {
-          details.removeAttribute("open");
-        }
-      }
-      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
-      const fromCls = show ? "hidden" : "unhidden";
-      const toCls = show ? "unhidden" : "hidden";
-      for (let i=0; i<cellCodeDivs.length; i++) {
-        const codeDiv = cellCodeDivs[i];
-        if (codeDiv.classList.contains(fromCls)) {
-          codeDiv.classList.remove(fromCls);
-          codeDiv.classList.add(toCls);
-        } 
-      }
-      return false;
-    }
-  }
-  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
-  if (hideAllCode) {
-    hideAllCode.addEventListener("click", toggleCodeHandler(false));
-  }
-  const showAllCode = window.document.getElementById("quarto-show-all-code");
-  if (showAllCode) {
-    showAllCode.addEventListener("click", toggleCodeHandler(true));
-  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -1365,323 +1343,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
 });
-</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb49" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb49-1"><a href="#cb49-1"></a><span class="co">---</span></span>
-<span id="cb49-2"><a href="#cb49-2"></a><span class="an">title:</span><span class="co"> "Distributions in R"</span></span>
-<span id="cb49-3"><a href="#cb49-3"></a><span class="an">author:</span><span class="co"> "Arvind Venkatadri"</span></span>
-<span id="cb49-4"><a href="#cb49-4"></a><span class="an">date:</span><span class="co"> 19/Nov/2022</span></span>
-<span id="cb49-5"><a href="#cb49-5"></a><span class="an">date-modified:</span><span class="co"> "`r Sys.Date()`"</span></span>
-<span id="cb49-6"><a href="#cb49-6"></a><span class="an">code-tools:</span><span class="co"> true</span></span>
-<span id="cb49-7"><a href="#cb49-7"></a><span class="co">---</span></span>
-<span id="cb49-8"><a href="#cb49-8"></a></span>
-<span id="cb49-9"><a href="#cb49-9"></a><span class="fu">## &lt;iconify-icon icon="noto-v1:package"&gt;&lt;/iconify-icon&gt; Setup the Packages</span></span>
-<span id="cb49-10"><a href="#cb49-10"></a></span>
-<span id="cb49-13"><a href="#cb49-13"></a><span class="in">```{r}</span></span>
-<span id="cb49-14"><a href="#cb49-14"></a><span class="co">#| label: setup</span></span>
-<span id="cb49-15"><a href="#cb49-15"></a><span class="co">#| include: true</span></span>
-<span id="cb49-16"><a href="#cb49-16"></a><span class="co">#| warning: false</span></span>
-<span id="cb49-17"><a href="#cb49-17"></a><span class="co">#| message: false</span></span>
-<span id="cb49-18"><a href="#cb49-18"></a><span class="co">#| echo: true</span></span>
-<span id="cb49-19"><a href="#cb49-19"></a><span class="fu">options</span>(<span class="at">tibble.print_min =</span> 4L, <span class="at">tibble.print_max =</span> 4L)</span>
-<span id="cb49-20"><a href="#cb49-20"></a><span class="fu">library</span>(mosaic) <span class="co"># package for stats, simulations, and basic plots</span></span>
-<span id="cb49-21"><a href="#cb49-21"></a><span class="fu">library</span>(mosaicData) <span class="co"># package containing datasets</span></span>
-<span id="cb49-22"><a href="#cb49-22"></a><span class="fu">library</span>(ggformula) <span class="co"># package for professional looking plots, that use the formula interface from mosaic</span></span>
-<span id="cb49-23"><a href="#cb49-23"></a><span class="fu">library</span>(NHANES) <span class="co"># survey data collected by the US National Center for Health Statistics (NCHS)</span></span>
-<span id="cb49-24"><a href="#cb49-24"></a></span>
-<span id="cb49-25"><a href="#cb49-25"></a><span class="in">```</span></span>
-<span id="cb49-26"><a href="#cb49-26"></a></span>
-<span id="cb49-27"><a href="#cb49-27"></a><span class="fu">## &lt;iconify-icon icon="fxemoji:japanesesymbolforbeginner"&gt;&lt;/iconify-icon&gt; Introduction</span></span>
-<span id="cb49-28"><a href="#cb49-28"></a></span>
-<span id="cb49-29"><a href="#cb49-29"></a>We will create Distributions for data in R. As always, we will</span>
-<span id="cb49-30"><a href="#cb49-30"></a>consistently use the <span class="co">[</span><span class="ot">**Project Mosaic**</span><span class="co">](https://mosaic-web.org)</span></span>
-<span id="cb49-31"><a href="#cb49-31"></a>ecosystem of packages in R (<span class="in">`mosaic`</span>, <span class="in">`mosaicData`</span> and <span class="in">`ggformula`</span>).</span>
-<span id="cb49-32"><a href="#cb49-32"></a></span>
-<span id="cb49-33"><a href="#cb49-33"></a>::: callout-tip</span>
-<span id="cb49-34"><a href="#cb49-34"></a>::: {#note .illustration style="background: beige"}</span>
-<span id="cb49-35"><a href="#cb49-35"></a>Note the standard method for all commands from the <span class="in">`mosaic`</span> package:</span>
-<span id="cb49-36"><a href="#cb49-36"></a></span>
-<span id="cb49-37"><a href="#cb49-37"></a><span class="in">`goal( y ~ x | z, data = mydata, …)`</span></span>
-<span id="cb49-38"><a href="#cb49-38"></a>:::</span>
-<span id="cb49-39"><a href="#cb49-39"></a>:::</span>
-<span id="cb49-40"><a href="#cb49-40"></a></span>
-<span id="cb49-41"><a href="#cb49-41"></a><span class="fu">## Case Study -1: Dataset from `mosaicData`</span></span>
-<span id="cb49-42"><a href="#cb49-42"></a></span>
-<span id="cb49-43"><a href="#cb49-43"></a>Let us inspect what datasets are available in the package <span class="in">`mosaicData`</span>.</span>
-<span id="cb49-44"><a href="#cb49-44"></a>Type <span class="in">`data(package = "mosaicData")`</span> in your Console to see what datasets</span>
-<span id="cb49-45"><a href="#cb49-45"></a>are available.</span>
-<span id="cb49-46"><a href="#cb49-46"></a></span>
-<span id="cb49-47"><a href="#cb49-47"></a>Let us choose the famous <span class="in">`Galton`</span> dataset:</span>
-<span id="cb49-48"><a href="#cb49-48"></a></span>
-<span id="cb49-51"><a href="#cb49-51"></a><span class="in">```{r}</span></span>
-<span id="cb49-52"><a href="#cb49-52"></a><span class="fu">data</span>(<span class="st">"Galton"</span>)</span>
-<span id="cb49-53"><a href="#cb49-53"></a><span class="fu">inspect</span>(Galton)</span>
-<span id="cb49-54"><a href="#cb49-54"></a></span>
-<span id="cb49-55"><a href="#cb49-55"></a><span class="in">```</span></span>
-<span id="cb49-56"><a href="#cb49-56"></a></span>
-<span id="cb49-57"><a href="#cb49-57"></a>The data is described as:</span>
-<span id="cb49-58"><a href="#cb49-58"></a></span>
-<span id="cb49-59"><a href="#cb49-59"></a><span class="at">&gt; A data frame with 898 observations on the following variables.</span></span>
-<span id="cb49-60"><a href="#cb49-60"></a><span class="at">&gt;</span></span>
-<span id="cb49-61"><a href="#cb49-61"></a><span class="at">&gt; -   </span><span class="in">`family`</span><span class="at"> a factor with levels for each family</span></span>
-<span id="cb49-62"><a href="#cb49-62"></a><span class="at">&gt; -   </span><span class="in">`father`</span><span class="at"> the father's height (in inches)</span></span>
-<span id="cb49-63"><a href="#cb49-63"></a><span class="at">&gt; -   </span><span class="in">`mother`</span><span class="at"> the mother's height (in inches)</span></span>
-<span id="cb49-64"><a href="#cb49-64"></a><span class="at">&gt; -   </span><span class="in">`sex`</span><span class="at"> the child's sex: F or M</span></span>
-<span id="cb49-65"><a href="#cb49-65"></a><span class="at">&gt; -   </span><span class="in">`height`</span><span class="at"> the child's height as an adult (in inches)</span></span>
-<span id="cb49-66"><a href="#cb49-66"></a><span class="at">&gt; -   </span><span class="in">`nkids`</span><span class="at"> the number of adult children in the family, or, at least,</span></span>
-<span id="cb49-67"><a href="#cb49-67"></a><span class="at">&gt;     the number whose heights Galton recorded.</span></span>
-<span id="cb49-68"><a href="#cb49-68"></a></span>
-<span id="cb49-69"><a href="#cb49-69"></a>There is a lot of Description generated by the <span class="in">`mosaic::inspect()`</span></span>
-<span id="cb49-70"><a href="#cb49-70"></a>command ! What can we say about the dataset and its variables? How big</span>
-<span id="cb49-71"><a href="#cb49-71"></a>is the dataset? How many variables? What types are they, Quant or Qual?</span>
-<span id="cb49-72"><a href="#cb49-72"></a>If they are Qual, what are the *levels*? Are they *ordered* levels?</span>
-<span id="cb49-73"><a href="#cb49-73"></a>Discuss!</span>
-<span id="cb49-74"><a href="#cb49-74"></a></span>
-<span id="cb49-75"><a href="#cb49-75"></a><span class="fu">### Stat Summaries</span></span>
-<span id="cb49-76"><a href="#cb49-76"></a></span>
-<span id="cb49-77"><a href="#cb49-77"></a>As Stigler said, **summaries** are the first thing to look at in data.</span>
-<span id="cb49-78"><a href="#cb49-78"></a>Let us tabulate some quick stat summaries of the important variables in</span>
-<span id="cb49-79"><a href="#cb49-79"></a><span class="in">`Galton`</span>:</span>
-<span id="cb49-80"><a href="#cb49-80"></a></span>
-<span id="cb49-81"><a href="#cb49-81"></a>::: column-inset-page</span>
-<span id="cb49-84"><a href="#cb49-84"></a><span class="in">```{r}</span></span>
-<span id="cb49-85"><a href="#cb49-85"></a><span class="fu">favstats</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton)</span>
-<span id="cb49-86"><a href="#cb49-86"></a><span class="fu">favstats</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
-<span id="cb49-87"><a href="#cb49-87"></a></span>
-<span id="cb49-88"><a href="#cb49-88"></a><span class="in">```</span></span>
-<span id="cb49-89"><a href="#cb49-89"></a>:::</span>
-<span id="cb49-90"><a href="#cb49-90"></a></span>
-<span id="cb49-91"><a href="#cb49-91"></a>::: callout-note</span>
-<span id="cb49-92"><a href="#cb49-92"></a>Q.1 How many families in the data for each value of <span class="in">`nkids`</span>?</span>
-<span id="cb49-93"><a href="#cb49-93"></a>:::</span>
-<span id="cb49-94"><a href="#cb49-94"></a></span>
-<span id="cb49-97"><a href="#cb49-97"></a><span class="in">```{r}</span></span>
-<span id="cb49-98"><a href="#cb49-98"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids, <span class="at">data =</span> Galton)</span>
-<span id="cb49-99"><a href="#cb49-99"></a><span class="in">```</span></span>
-<span id="cb49-100"><a href="#cb49-100"></a></span>
-<span id="cb49-101"><a href="#cb49-101"></a>::: callout-note</span>
-<span id="cb49-102"><a href="#cb49-102"></a>Q.2. What is the break-up by <span class="in">`sex`</span> of the child?</span>
-<span id="cb49-103"><a href="#cb49-103"></a>:::</span>
-<span id="cb49-104"><a href="#cb49-104"></a></span>
-<span id="cb49-107"><a href="#cb49-107"></a><span class="in">```{r}</span></span>
-<span id="cb49-108"><a href="#cb49-108"></a><span class="fu">tally</span>(<span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
-<span id="cb49-109"><a href="#cb49-109"></a><span class="in">```</span></span>
-<span id="cb49-110"><a href="#cb49-110"></a></span>
-<span id="cb49-111"><a href="#cb49-111"></a><span class="fu">### Distribution Plots</span></span>
-<span id="cb49-112"><a href="#cb49-112"></a></span>
-<span id="cb49-113"><a href="#cb49-113"></a>What Questions might we have, that we could answer with a Distribution?</span>
-<span id="cb49-114"><a href="#cb49-114"></a></span>
-<span id="cb49-115"><a href="#cb49-115"></a>::: callout-note</span>
-<span id="cb49-116"><a href="#cb49-116"></a>Q.1 How many families based on the number of children?</span>
-<span id="cb49-117"><a href="#cb49-117"></a>:::</span>
-<span id="cb49-118"><a href="#cb49-118"></a></span>
-<span id="cb49-121"><a href="#cb49-121"></a><span class="in">```{r}</span></span>
-<span id="cb49-122"><a href="#cb49-122"></a><span class="co"># Convert the tally into a dataframe. See the difference!</span></span>
-<span id="cb49-123"><a href="#cb49-123"></a>family_count <span class="ot">&lt;-</span> <span class="fu">tally</span>( <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-124"><a href="#cb49-124"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb49-125"><a href="#cb49-125"></a>  </span>
-<span id="cb49-126"><a href="#cb49-126"></a>  <span class="co"># Convert nkids from char to int</span></span>
-<span id="cb49-127"><a href="#cb49-127"></a>  <span class="fu">mutate</span>( <span class="at">nkids =</span> <span class="fu">as.integer</span>(nkids))</span>
-<span id="cb49-128"><a href="#cb49-128"></a>family_count</span>
-<span id="cb49-129"><a href="#cb49-129"></a><span class="fu">gf_col</span>(n <span class="sc">~</span> nkids <span class="sc">|</span> sex, <span class="at">data =</span> family_count, <span class="at">fill =</span> <span class="sc">~</span> sex, <span class="at">ylab =</span> <span class="st">"Number of Families"</span>, <span class="at">xlab =</span> <span class="st">"Number of Kids / Family"</span>)</span>
-<span id="cb49-130"><a href="#cb49-130"></a><span class="in">```</span></span>
-<span id="cb49-131"><a href="#cb49-131"></a></span>
-<span id="cb49-132"><a href="#cb49-132"></a>::: callout-note</span>
-<span id="cb49-133"><a href="#cb49-133"></a>Q.2: How are the children's heights distributed?</span>
-<span id="cb49-134"><a href="#cb49-134"></a>:::</span>
-<span id="cb49-135"><a href="#cb49-135"></a></span>
-<span id="cb49-138"><a href="#cb49-138"></a><span class="in">```{r}</span></span>
-<span id="cb49-139"><a href="#cb49-139"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> height, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-140"><a href="#cb49-140"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(Galton<span class="sc">$</span>height))</span>
-<span id="cb49-141"><a href="#cb49-141"></a></span>
-<span id="cb49-142"><a href="#cb49-142"></a><span class="in">```</span></span>
-<span id="cb49-143"><a href="#cb49-143"></a></span>
-<span id="cb49-144"><a href="#cb49-144"></a>::: callout-note</span>
-<span id="cb49-145"><a href="#cb49-145"></a>Q.3: Is there a difference in height distributions between Male and</span>
-<span id="cb49-146"><a href="#cb49-146"></a>Female children?</span>
-<span id="cb49-147"><a href="#cb49-147"></a>:::</span>
-<span id="cb49-148"><a href="#cb49-148"></a></span>
-<span id="cb49-151"><a href="#cb49-151"></a><span class="in">```{r}</span></span>
-<span id="cb49-152"><a href="#cb49-152"></a>measures <span class="ot">&lt;-</span> <span class="fu">favstats</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton)</span>
-<span id="cb49-153"><a href="#cb49-153"></a>measures</span>
-<span id="cb49-154"><a href="#cb49-154"></a></span>
-<span id="cb49-155"><a href="#cb49-155"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> height <span class="sc">|</span> sex, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-156"><a href="#cb49-156"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> mean, <span class="at">data =</span> measures)</span>
-<span id="cb49-157"><a href="#cb49-157"></a></span>
-<span id="cb49-158"><a href="#cb49-158"></a><span class="in">```</span></span>
-<span id="cb49-159"><a href="#cb49-159"></a></span>
-<span id="cb49-160"><a href="#cb49-160"></a>::: callout-note</span>
-<span id="cb49-161"><a href="#cb49-161"></a>Q.4: Are Mothers generally shorter than fathers?</span>
-<span id="cb49-162"><a href="#cb49-162"></a>:::</span>
-<span id="cb49-163"><a href="#cb49-163"></a></span>
-<span id="cb49-166"><a href="#cb49-166"></a><span class="in">```{r}</span></span>
-<span id="cb49-167"><a href="#cb49-167"></a><span class="fu">gf_density</span>(<span class="sc">~</span> father, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-168"><a href="#cb49-168"></a>  <span class="fu">gf_density</span>( <span class="sc">~</span> mother, <span class="at">data =</span> Galton, <span class="at">fill =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">xlab =</span> <span class="st">"Heights"</span>)</span>
-<span id="cb49-169"><a href="#cb49-169"></a>  </span>
-<span id="cb49-170"><a href="#cb49-170"></a><span class="in">```</span></span>
-<span id="cb49-171"><a href="#cb49-171"></a></span>
-<span id="cb49-172"><a href="#cb49-172"></a>::: callout-note</span>
-<span id="cb49-173"><a href="#cb49-173"></a>Q.5: Are heights of children different based on the number of kids in</span>
-<span id="cb49-174"><a href="#cb49-174"></a>the family? For Male and Female children?</span>
-<span id="cb49-175"><a href="#cb49-175"></a>:::</span>
-<span id="cb49-176"><a href="#cb49-176"></a></span>
-<span id="cb49-179"><a href="#cb49-179"></a><span class="in">```{r}</span></span>
-<span id="cb49-180"><a href="#cb49-180"></a><span class="fu">gf_boxplot</span>(height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton)</span>
-<span id="cb49-181"><a href="#cb49-181"></a></span>
-<span id="cb49-182"><a href="#cb49-182"></a><span class="in">```</span></span>
-<span id="cb49-183"><a href="#cb49-183"></a></span>
-<span id="cb49-184"><a href="#cb49-184"></a>Box plots are used to show distributions of numeric data values,</span>
-<span id="cb49-185"><a href="#cb49-185"></a>especially when you want to compare them between multiple groups.</span>
-<span id="cb49-186"><a href="#cb49-186"></a></span>
-<span id="cb49-187"><a href="#cb49-187"></a>::: callout-note</span>
-<span id="cb49-188"><a href="#cb49-188"></a>Q.6: Does the **mean** height of children in a family vary with the</span>
-<span id="cb49-189"><a href="#cb49-189"></a>number of children in the family? ( family size)</span>
-<span id="cb49-190"><a href="#cb49-190"></a>:::</span>
-<span id="cb49-191"><a href="#cb49-191"></a></span>
-<span id="cb49-194"><a href="#cb49-194"></a><span class="in">```{r}</span></span>
-<span id="cb49-195"><a href="#cb49-195"></a><span class="fu">mean</span>( height <span class="sc">~</span> sex <span class="sc">|</span> nkids, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>() <span class="co"># not very inspiring!</span></span>
-<span id="cb49-196"><a href="#cb49-196"></a>by_sex_nkids <span class="ot">&lt;-</span> <span class="fu">favstats</span>( height <span class="sc">~</span> sex <span class="sc">+</span> nkids, <span class="at">data =</span> Galton)</span>
-<span id="cb49-197"><a href="#cb49-197"></a>by_sex_nkids <span class="co"># much better!</span></span>
-<span id="cb49-198"><a href="#cb49-198"></a></span>
-<span id="cb49-199"><a href="#cb49-199"></a><span class="in">```</span></span>
-<span id="cb49-200"><a href="#cb49-200"></a></span>
-<span id="cb49-203"><a href="#cb49-203"></a><span class="in">```{r}</span></span>
-<span id="cb49-204"><a href="#cb49-204"></a><span class="fu">gf_col</span>(mean <span class="sc">~</span> sex.nkids, <span class="at">data =</span> by_sex_nkids)</span>
-<span id="cb49-205"><a href="#cb49-205"></a><span class="in">```</span></span>
-<span id="cb49-206"><a href="#cb49-206"></a></span>
-<span id="cb49-207"><a href="#cb49-207"></a>Hmm...not a *very* informative plot...</span>
-<span id="cb49-208"><a href="#cb49-208"></a></span>
-<span id="cb49-209"><a href="#cb49-209"></a><span class="fu">## Case Study-2: Dataset from `NHANES`</span></span>
-<span id="cb49-210"><a href="#cb49-210"></a></span>
-<span id="cb49-211"><a href="#cb49-211"></a>Let us try the <span class="in">`NHANES`</span> dataset. Try <span class="in">`help(NHANES)`</span> in your Console.</span>
-<span id="cb49-212"><a href="#cb49-212"></a></span>
-<span id="cb49-215"><a href="#cb49-215"></a><span class="in">```{r}</span></span>
-<span id="cb49-216"><a href="#cb49-216"></a><span class="fu">data</span>(<span class="st">"NHANES"</span>)</span>
-<span id="cb49-217"><a href="#cb49-217"></a><span class="fu">names</span>(NHANES)</span>
-<span id="cb49-218"><a href="#cb49-218"></a><span class="in">```</span></span>
-<span id="cb49-219"><a href="#cb49-219"></a></span>
-<span id="cb49-220"><a href="#cb49-220"></a><span class="fu">### Stat Summaries</span></span>
-<span id="cb49-221"><a href="#cb49-221"></a></span>
-<span id="cb49-224"><a href="#cb49-224"></a><span class="in">```{r}</span></span>
-<span id="cb49-225"><a href="#cb49-225"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(NHANES)</span>
-<span id="cb49-226"><a href="#cb49-226"></a><span class="in">```</span></span>
-<span id="cb49-227"><a href="#cb49-227"></a></span>
-<span id="cb49-228"><a href="#cb49-228"></a>Again, lots of data from <span class="in">`inspect`</span>, about the Quant and Qual variables.</span>
-<span id="cb49-229"><a href="#cb49-229"></a>Spend a little time looking through the output of <span class="in">`inspect`</span>. Which</span>
-<span id="cb49-230"><a href="#cb49-230"></a>variables could have been data *given* by each respondent, and which</span>
-<span id="cb49-231"><a href="#cb49-231"></a>ones could have been *measured* data variables? Why do you think so?\</span>
-<span id="cb49-232"><a href="#cb49-232"></a>Why is there so much *missing* data? Which variable are the most</span>
-<span id="cb49-233"><a href="#cb49-233"></a>affected by this?</span>
-<span id="cb49-234"><a href="#cb49-234"></a></span>
-<span id="cb49-237"><a href="#cb49-237"></a><span class="in">```{r}</span></span>
-<span id="cb49-238"><a href="#cb49-238"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Work, <span class="at">data =</span> NHANES)</span>
-<span id="cb49-239"><a href="#cb49-239"></a></span>
-<span id="cb49-240"><a href="#cb49-240"></a><span class="in">```</span></span>
-<span id="cb49-241"><a href="#cb49-241"></a></span>
-<span id="cb49-242"><a href="#cb49-242"></a><span class="fu">### Distribution Plots</span></span>
-<span id="cb49-243"><a href="#cb49-243"></a></span>
-<span id="cb49-244"><a href="#cb49-244"></a>::: callout-note</span>
-<span id="cb49-245"><a href="#cb49-245"></a>Q.1. What is the distribution of Physical Activity Days, across Gender?</span>
-<span id="cb49-246"><a href="#cb49-246"></a>Across Education?</span>
-<span id="cb49-247"><a href="#cb49-247"></a>:::</span>
-<span id="cb49-248"><a href="#cb49-248"></a></span>
-<span id="cb49-251"><a href="#cb49-251"></a><span class="in">```{r}</span></span>
-<span id="cb49-252"><a href="#cb49-252"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Gender)</span>
-<span id="cb49-253"><a href="#cb49-253"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> NHANES, <span class="sc">~</span> PhysActiveDays <span class="sc">|</span> Education)</span>
-<span id="cb49-254"><a href="#cb49-254"></a></span>
-<span id="cb49-255"><a href="#cb49-255"></a><span class="in">```</span></span>
-<span id="cb49-256"><a href="#cb49-256"></a></span>
-<span id="cb49-257"><a href="#cb49-257"></a>::: callout-note</span>
-<span id="cb49-258"><a href="#cb49-258"></a>Q.2. How are people Ages distributed across levels of Education?</span>
-<span id="cb49-259"><a href="#cb49-259"></a>:::</span>
-<span id="cb49-260"><a href="#cb49-260"></a></span>
-<span id="cb49-263"><a href="#cb49-263"></a><span class="in">```{r}</span></span>
-<span id="cb49-264"><a href="#cb49-264"></a><span class="fu">gf_boxplot</span>(Age <span class="sc">~</span> Education, </span>
-<span id="cb49-265"><a href="#cb49-265"></a>           <span class="at">fill =</span> <span class="sc">~</span> Education, <span class="co"># Always a good idea</span></span>
-<span id="cb49-266"><a href="#cb49-266"></a>           <span class="at">data =</span> NHANES)</span>
-<span id="cb49-267"><a href="#cb49-267"></a><span class="in">```</span></span>
-<span id="cb49-268"><a href="#cb49-268"></a></span>
-<span id="cb49-269"><a href="#cb49-269"></a>::: callout-note</span>
-<span id="cb49-270"><a href="#cb49-270"></a>Q.3. How is Education distributed over Race?</span>
-<span id="cb49-271"><a href="#cb49-271"></a>:::</span>
-<span id="cb49-272"><a href="#cb49-272"></a></span>
-<span id="cb49-275"><a href="#cb49-275"></a><span class="in">```{r}</span></span>
-<span id="cb49-276"><a href="#cb49-276"></a><span class="fu">tally</span>(Education <span class="sc">~</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span>
-<span id="cb49-277"><a href="#cb49-277"></a><span class="in">```</span></span>
-<span id="cb49-278"><a href="#cb49-278"></a></span>
-<span id="cb49-279"><a href="#cb49-279"></a>::: callout-note</span>
-<span id="cb49-280"><a href="#cb49-280"></a>Q.4. What is the distribution of people's BMI, split by Gender? By</span>
-<span id="cb49-281"><a href="#cb49-281"></a>Race1?</span>
-<span id="cb49-282"><a href="#cb49-282"></a>:::</span>
-<span id="cb49-283"><a href="#cb49-283"></a></span>
-<span id="cb49-286"><a href="#cb49-286"></a><span class="in">```{r}</span></span>
-<span id="cb49-287"><a href="#cb49-287"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Gender, <span class="at">data =</span> NHANES)</span>
-<span id="cb49-288"><a href="#cb49-288"></a><span class="fu">gf_histogram</span>(<span class="sc">~</span> BMI <span class="sc">|</span> Race1 <span class="sc">+</span> Race3, <span class="at">data =</span> NHANES)</span>
-<span id="cb49-289"><a href="#cb49-289"></a></span>
-<span id="cb49-290"><a href="#cb49-290"></a><span class="in">```</span></span>
-<span id="cb49-291"><a href="#cb49-291"></a></span>
-<span id="cb49-292"><a href="#cb49-292"></a>One can also plot both histograms and densities in an overlay fashion,</span>
-<span id="cb49-293"><a href="#cb49-293"></a>if desired:</span>
-<span id="cb49-294"><a href="#cb49-294"></a></span>
-<span id="cb49-297"><a href="#cb49-297"></a><span class="in">```{r}</span></span>
-<span id="cb49-298"><a href="#cb49-298"></a><span class="co"># Histogram with kernel density</span></span>
-<span id="cb49-299"><a href="#cb49-299"></a><span class="fu">gf_dhistogram</span>( <span class="sc">~</span> BMI, <span class="at">data =</span> NHANES) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-300"><a href="#cb49-300"></a>  <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>)</span>
-<span id="cb49-301"><a href="#cb49-301"></a><span class="in">```</span></span>
-<span id="cb49-302"><a href="#cb49-302"></a></span>
-<span id="cb49-303"><a href="#cb49-303"></a><span class="fu">## Case Study-3: A complete example</span></span>
-<span id="cb49-304"><a href="#cb49-304"></a></span>
-<span id="cb49-305"><a href="#cb49-305"></a>Here is a dataset from Jeremy Singer-Vine's blog, [Data Is</span>
-<span id="cb49-306"><a href="#cb49-306"></a>Plural](https://www.data-is-plural.com/). This is a list of all books</span>
-<span id="cb49-307"><a href="#cb49-307"></a>banned in schools across the US.</span>
-<span id="cb49-308"><a href="#cb49-308"></a></span>
-<span id="cb49-309"><a href="#cb49-309"></a><span class="in">```{r, bar-charts}</span></span>
-<span id="cb49-310"><a href="#cb49-310"></a>banned <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"data/banned.xlsx"</span>,</span>
-<span id="cb49-311"><a href="#cb49-311"></a>                            <span class="at">sheet =</span> <span class="st">"Sorted by Author &amp; Title"</span>)</span>
-<span id="cb49-312"><a href="#cb49-312"></a>banned</span>
-<span id="cb49-313"><a href="#cb49-313"></a></span>
-<span id="cb49-314"><a href="#cb49-314"></a><span class="fu">names</span>(banned)</span>
-<span id="cb49-315"><a href="#cb49-315"></a><span class="in">```</span></span>
-<span id="cb49-316"><a href="#cb49-316"></a></span>
-<span id="cb49-317"><a href="#cb49-317"></a>Clearly the variables are *all* Qualitative, except perhaps for *Date of</span>
-<span id="cb49-318"><a href="#cb49-318"></a>Challenge/Removal, (which in this case has been badly mangled by Excel)</span>
-<span id="cb49-319"><a href="#cb49-319"></a>So we need to make **counts** based on the* levels<span class="sc">\*</span> of the Qual</span>
-<span id="cb49-320"><a href="#cb49-320"></a>variables and plot Bar/Column charts.</span>
-<span id="cb49-321"><a href="#cb49-321"></a></span>
-<span id="cb49-322"><a href="#cb49-322"></a>Let us quickly make some Stat Summaries:</span>
-<span id="cb49-323"><a href="#cb49-323"></a></span>
-<span id="cb49-326"><a href="#cb49-326"></a><span class="in">```{r}</span></span>
-<span id="cb49-327"><a href="#cb49-327"></a>mosaic<span class="sc">::</span><span class="fu">inspect</span>(banned)</span>
-<span id="cb49-328"><a href="#cb49-328"></a><span class="in">```</span></span>
-<span id="cb49-329"><a href="#cb49-329"></a></span>
-<span id="cb49-330"><a href="#cb49-330"></a>Let us try to answer this question:</span>
-<span id="cb49-331"><a href="#cb49-331"></a></span>
-<span id="cb49-332"><a href="#cb49-332"></a>::: callout-important</span>
-<span id="cb49-333"><a href="#cb49-333"></a>*What is the count of banned books by type and by US state?*</span>
-<span id="cb49-334"><a href="#cb49-334"></a>:::</span>
-<span id="cb49-335"><a href="#cb49-335"></a></span>
-<span id="cb49-338"><a href="#cb49-338"></a><span class="in">```{r}</span></span>
-<span id="cb49-339"><a href="#cb49-339"></a>banned_by_state <span class="ot">&lt;-</span> banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
-<span id="cb49-340"><a href="#cb49-340"></a>banned_by_state</span>
-<span id="cb49-341"><a href="#cb49-341"></a></span>
-<span id="cb49-342"><a href="#cb49-342"></a>banned <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(State, <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(., banned_by_state, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"State"</span> <span class="ot">=</span> <span class="st">"State"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb49-343"><a href="#cb49-343"></a> <span class="co">#  pivot_wider(.,id_cols = State,</span></span>
-<span id="cb49-344"><a href="#cb49-344"></a> <span class="co">#              names_from = `Type of Ban`,</span></span>
-<span id="cb49-345"><a href="#cb49-345"></a> <span class="co">#              values_from = count) %&gt;% janitor::clean_names() %&gt;% </span></span>
-<span id="cb49-346"><a href="#cb49-346"></a> <span class="co">#  replace_na(list(banned_from_libraries_and_classrooms = 0,</span></span>
-<span id="cb49-347"><a href="#cb49-347"></a> <span class="co">#                  banned_from_libraries = 0,</span></span>
-<span id="cb49-348"><a href="#cb49-348"></a> <span class="co">#                  banned_pending_investigation = 0,</span></span>
-<span id="cb49-349"><a href="#cb49-349"></a> <span class="co">#                  banned_from_classrooms = 0)) %&gt;% </span></span>
-<span id="cb49-350"><a href="#cb49-350"></a> <span class="co"># mutate(total = sum(across(where(is.integer)))) %&gt;%</span></span>
-<span id="cb49-351"><a href="#cb49-351"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(State, total), <span class="at">y =</span> count, <span class="at">fill =</span> <span class="st">`</span><span class="at">Type of Ban</span><span class="st">`</span>)) <span class="sc">+</span> <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()</span>
-<span id="cb49-352"><a href="#cb49-352"></a></span>
-<span id="cb49-353"><a href="#cb49-353"></a><span class="in">```</span></span>
-<span id="cb49-354"><a href="#cb49-354"></a></span>
-<span id="cb49-355"><a href="#cb49-355"></a><span class="fu"># References</span></span>
-<span id="cb49-356"><a href="#cb49-356"></a></span>
-<span id="cb49-357"><a href="#cb49-357"></a><span class="ss">1.  </span>A detailed analysis of the NHANES dataset,</span>
-<span id="cb49-358"><a href="#cb49-358"></a>    <span class="ot">&lt;https://awagaman.people.amherst.edu/stat230/Stat230CodeCompilationExampleCodeUsingNHANES.pdf&gt;</span></span>
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div></div></div></div></div>
+</script>
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer">
     <div class="nav-footer-left">Website made with 💜 and <a href="https://quarto.org/">Quarto</a>, by Arvind Venkatadri. License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>   

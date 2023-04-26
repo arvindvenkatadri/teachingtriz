@@ -6,6 +6,7 @@ editor: visual
 abstract: "ANOVA to investigate how frogspawn hatching time varies with temperature."
 date: 28/Mar/2023
 date-modified: "`r Sys.Date()`"
+order: 130
 image: preview.jpg
 ---
 
@@ -35,9 +36,6 @@ library(infer)
 ```
 
 ## Introduction
-
-Following the ANOVA tutorial at [Our Coding
-Club](https://ourcodingclub.github.io/tutorials/anova/).
 
 Suppose we have three sales strategies on our website, to sell a certain
 product, say men's shirts. We have website interaction over several
@@ -85,13 +83,13 @@ frogs_orig
 ```
 
 Our response variable is the hatching `Time`. Our explanatory variable
-is a *factor*, Temperature, with 3 levels: 13°C, 18°C and 25°C.
+is a *factor*, `Temperature`, with 3 levels: 13°C, 18°C and 25°C.
 Different samples of spawn were subject to each of these temperatures
 respectively. The data is badly organized, with a separate column for
 each Temperature, with NA entries since not all samples of spawn could
 be subject to all temperatures. Hence, we should `pivot_longer()` this
-data, so all Time readings are in one column, and also convert the
-Temperature into a `factor`:
+data, so all Time readings are in one numerical column, all Temperatures
+are also in a column that we should convert into a `factor`:
 
 ```{r}
 
@@ -177,6 +175,12 @@ gf_boxplot(data = frogs_long,
 
 ```
 
+The histograms look well separated and the box plots also show very
+little overlap. So we can reasonably hypothesize that Temperature has a
+significant effect on Hatching Time.
+
+Let's go ahead with our ANOVA test.
+
 ## ANOVA
 
 We will first execute the ANOVA test with code and evaluate the results.
@@ -205,7 +209,7 @@ significant effect on the hatching `Time`.
 To find which specific value of `TempFac` has the most effect will
 require *pairwise comparison* of the group means, using a standard
 t-test. The confidence level for such repeated comparisons will need
-what is called **Bonferroni correction**[^2] to prevent us from
+what is called ***Bonferroni correction***[^2] to prevent us from
 detecting a significant (pair-wise) difference simply by chance. To do
 this we take $\alpha$ the confidence level used and divide it by $K$,
 the number of pair-wise comparisons we intend to make. So using an
@@ -317,15 +321,15 @@ differences in means of observations at different levels of the factor.
 
 $SSA$ can also directly be re-written in a very symmetric fashion as:
 
-$$ SSA =
-\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} -
-\frac{\left( \sum_{i=1}^{kn}
-
+$$
+\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} - \frac{\left( \sum_{i=1}^{kn}
 y_i \right)^2}{kn}
+$$
 
-$$ {#eg-SSA}
-
-Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean(without the division). The outer summation takes the sum of squares of these undivided summations and divides by $n$.
+Note that in the first term, we are calculating sums of observations
+within each group in the inner summation, which is like a per-group
+mean(without the division). The outer summation takes the sum of squares
+of these undivided summations and divides by $n$.
 
 Comparing $SSA$ and $SSE$ now provides us with a method that helps us
 decide whether these means are different. The logic is that we compare
@@ -334,7 +338,8 @@ the form of a ratio, the F-statistic. Since each of these measures uses
 a different sets of observations, the comparison is done after scaling
 each of $SSA$ and $SSE$ by the number of observations influencing them.
 This means that we need to divide each of $SSA$ and $SSE$ by their
-*degrees of freedom*, which gives us a ratio of **variances**:
+*degrees of freedom*, which gives us [a ratio of
+**variances**:]{.underline}
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
@@ -343,13 +348,13 @@ $$
 where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
 in $SSA$ and $SSE$. And so we are in effect deciding if means are
 significantly different by analyzing (a ratio of) variances! Hence
-*AN-alysis O-f VA-riance*, ANOVA.
+*AN-alysis O-f VA-riance*, **ANOVA**.
 
 In order to find which of the means is significantly different from
 others, we need to make a pair-wise comparison of the means, applying
 the Bonferroni correction as stated before.
 
-### ANOVA Manually Demonstrated (Apologies to Spinoza)
+### ANOVA Manually Demonstrated(Apologies to Spinoza[^3])
 
 Let us hand-calculate the numbers so we know what the test is doing.
 
@@ -567,7 +572,7 @@ F_stat
 
 ```
 
-The F_crit value can also be seen in a plot[^3]:
+The F_crit value can also be seen in a plot[^4]:
 
 ```{r}
 
@@ -590,12 +595,10 @@ And that is how ANOVA computes!
 ANOVA makes 3 fundamental assumptions:
 
 a.  Data are normally distributed.
-
 b.  Variances are homogeneous.
-
 c.  Observations are independent.
 
-We can check these using checks and graphs:
+We can check these using checks and graphs.
 
 #### Checks for Normality
 
@@ -718,7 +721,7 @@ summary.lm(frogs_anova) %>% broom::tidy()
 ```
 
 It may take a bit of effort to understand this. First the `TempFac` is
-arranged in order of levels, and the `mean` at the $`TempFac` = 13$ is
+arranged in order of levels, and the `mean` at the $TempFac = 13$ is
 titled `intercept`. That is $26.3$. The other two means for levels $18$
 and $25$ are stated as **differences** from this intercept, $-5.3$ and
 $-10.1$ respectively. The `p.value` for all these effect sizes is well
@@ -760,10 +763,10 @@ see that except at one level of `TempFac`, the times are are not
 normally distributed. Hence we opt for a Permutation Test to check for
 significance of effect.
 
-As remarked in Ernst[^4], the non-parametric permutation test can be
+As remarked in Ernst[^5], the non-parametric permutation test can be
 both *exact* and also **intuitively easier** for students to grasp.
 Permutations are easily executed in R, using packages such as
-`mosaic`[^5].
+`mosaic`[^6].
 
 We proceed with a Permutation Test for `TempFac`. We shuffle the levels
 (13, 18, 25) randomly between the Times and repeat the ANOVA test each
@@ -878,16 +881,19 @@ tests can be carried out when these assumptions do not quite hold.
 
 [^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
-[^3]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
+[^3]: Spinoza: Ethics Geometrically Demonstrated: [spinoza1665.pdf
+    (earlymoderntexts.com)](https://www.earlymoderntexts.com/assets/pdfs/spinoza1665.pdf)
+
+[^4]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
     Students to 'Think with Data' Using R." The R Journal, 9(1),
     77--102.
     https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
 
-[^4]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
+[^5]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
     Inference." Statistical Science 19 (4): 676--85.
     doi:10.1214/088342304000000396.
 
-[^5]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
+[^6]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
     Students to 'Think with Data' Using R." The R Journal, 9(1),
     77--102.
     https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
