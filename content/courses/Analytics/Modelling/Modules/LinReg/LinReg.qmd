@@ -4,16 +4,24 @@ author: "Arvind Venkatadri"
 date: 13/Apr/2023
 date-modified: "`r Sys.Date()`"
 order: 20
-image: preview.png
-image-alt: By Rudityas on Glazestock.com
+image: featured.jpg
+image-alt: ""
 categories: 
   - Linear Regression
   - Quantitative Predictor
   - Quantitative Response
-  - Probability
-filters:
-  - nutshell
+  - Sum of Squares
+  - Residuals
+abstract: "Using Regression to predict Quantitative Target Variables"
 ---
+
+## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
+
+|                                                                                                                  |     |                                                                                                             |     |
+|------------------|-------------------|------------------|------------------|
+| <a href="./files/multiple-regression.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>   |     | <a href="./files/lin-perm.qmd"> <i class="fa-bramds fa-r-project"></i> Permutation Test for Regression</a>  |     |
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
 #| label: setup
@@ -23,123 +31,14 @@ knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
 library(tidyverse)
 library(ggformula)
 library(mosaic)
-library(infer)
-
-```
-
-```{css, echo=FALSE}
-
-/*https://stackoverflow.com/questions/73546631/how-to-format-tabset-font-in-quarto
-*/
-
-/*
-.panel-tabset .nav-item {
-   font-size: 20px;
-   font-style: italic
-    }
-*/
-```
-
-## Introduction
-
-Following the ANOVA tutorial at [Our Coding
-Club](https://ourcodingclub.github.io/tutorials/anova/).
-
-Suppose we have three sales strategies on our website, to sell a certain
-product, say men's shirts. We have website interaction over several
-months. How do we know which strategy makes people buy the fastest ?
-
-If there is a University course that is offered in parallel in three
-different classrooms, is there a difference between the average marks
-obtained by students in each of the classrooms?
-
-In each case we have a set of observations in each category: Interaction
-Time vs Sales Strategy in the first example, and Student Marks vs
-Classroom in the second. We can take *mean* scores in each category and
-decide to compare them. How do we make the comparisons? One way would be
-to compare them pair-wise. But with this rapidly becomes intractable and
-also dangerous: with increasing number of `groups`, the number of
-mean-comparisons becomes very large $N\choose 2$ and with each
-comparison the possibility of some difference showing up, *just by
-chance*, increases! And we end up making the wrong inference and perhaps
-the wrong decision.
-
-The trick is of course to make comparisons **all at once** and ANOVA is
-the technique that allows us to do just that. In this tutorial, we will
-compare the Hatching Time of frog spawn[^1], at three different lab
-temperatures.
-
-In this tutorial, our research question is:
-
-::: callout-note
-## Research Question
-
-How does frogspawn hatching time vary with temperature?
-:::
-
-### Read the Data
-
-Download the data by clicking the button below:
-
-{{< downloadthis data/frogs.csv dname="frogs" label="Download the frogs data" icon="database-fill-down" type="info" >}}
-
-```{r}
-
-frogs_orig <- read_csv("data/frogs.csv")
-frogs_orig
-
-```
-
-Our response variable is the hatching `Time`. Our explanatory variable
-is a *factor*, Temperature, with 3 levels: 13°C, 18°C and 25°C.
-Different samples of spawn were subject to each of these temperatures
-respectively. The data is badly organized, with a separate column for
-each Temperature, with NA entries since not all samples of spawn could
-be subject to all temperatures. Hence, we should `pivot_longer()` this
-data, so all Time readings are in one column, and also convert the
-Temperature into a `factor`:
-
-```{r}
-
-frogs_long <- frogs_orig %>% 
-  pivot_longer(., cols = starts_with("Temperature"),
-               cols_vary = "fastest", # new in pivot_longer
-               names_to = "Temp",
-               values_to = "Time") %>% 
-  drop_na() %>% 
-  
-  # knock off the unnecessary "Temperature" word everywhere
-  separate_wider_regex(cols = Temp,
-                       patterns = c("Temperature", 
-                                     TempFac = "\\d+"), 
-                       cols_remove = TRUE) %>% 
-  
-  # Convert Temp into TempFac, a 3-level factor
-  mutate(TempFac = factor(x = TempFac,
-                              levels = c(13,18,25), 
-                              labels = c("13", "18", "25"))) %>% 
-  rename("Id" = `Frogspawn sample id`)
-
-frogs_long
 
 ```
 
 ```{r}
+#| label: plot theme
+# Let us set a plot theme for Data visualisation
 
-frogs_long %>% count(TempFac)
-
-```
-
-So we have `20` samples for Hatching `Time` per `TempFac` setting.
-
-## EDA
-
-Let us set a plot theme:
-
-```{r}
-# Data visualisation
-
-theme_frogs <- function(){  # Creating a function
+my_theme <- function(){  # Creating a function
   theme_classic() +  # Using pre-defined theme as base
   theme(axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
         axis.text.y = element_text(size = 12, face = "bold"),
@@ -150,265 +49,499 @@ theme_frogs <- function(){  # Creating a function
         legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
         legend.position = "right",  # Customizing legend position
         plot.caption = element_text(size = 12))  # Customizing plot caption
-}                                                                              
+}                                                                         
 
 ```
 
-Let us plot some histograms of Hatching Time:
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
+
+One of the most common problems in Prediction Analytics is that of
+predicting a Quantitative response variable, based on one or more
+Quantitative predictor variables or *features*. This is called Linear
+Regression. We will use the intuitions built up during our study of
+ANOVA to develop our ideas about Linear Regression.
+
+Suppose we have data on salaries in a Company, with years of study and
+previous experience. Would we be able to predict the prospective salary
+of a new candidate, based on their years of study and experience? Or
+based on mileage done, could we predict the resale price of a used car?
+These are typical problems in Linear Regression.
+
+In this tutorial, we will use the Boston housing dataset. Our research
+question is:
+
+::: callout-note
+## Research Question
+
+How do we predict the price of a house in Boston, based on other
+parameters Quantitative parameters such as area, location, rooms, and
+crime-rate in the neighbourhood?
+:::
+
+### Read the Data
 
 ```{r}
-
-gf_histogram(data = frogs_long, 
-             ~ Time, 
-             fill = ~ TempFac,
-             stat = "count") %>% 
-  gf_vline(xintercept = ~ mean(Time)) %>% 
-  gf_labs(x = "Hatching Time") %>% 
-  gf_theme(theme = theme_frogs()) %>% 
-  gf_theme(guides(fill = guide_legend(title = "Temperature level (°C)")))
+data("BostonHousing2", package = "mlbench")
+housing <- BostonHousing2
+inspect(housing)
 
 ```
 
-We should also look at boxplots
+The original data are 506 observations on 14 variables, `medv` being the
+target variable:
+
+|         |                                                                       |
+|:-------------------------|:---------------------------------------------|
+| crim    | per capita crime rate by town                                         |
+| zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
+| indus   | proportion of non-retail business acres per town                      |
+| chas    | Charles River dummy variable (= 1 if tract bounds river; 0 otherwise) |
+| nox     | nitric oxides concentration (parts per 10 million)                    |
+| rm      | average number of rooms per dwelling                                  |
+| age     | proportion of owner-occupied units built prior to 1940                |
+| dis     | weighted distances to five Boston employment centres                  |
+| rad     | index of accessibility to radial highways                             |
+| tax     | full-value property-tax rate per USD 10,000                           |
+| ptratio | pupil-teacher ratio by town                                           |
+| b       | $1000(B - 0.63)^2$ where B is the proportion of Blacks by town        |
+| lstat   | percentage of lower status of the population                          |
+| medv    | median value of owner-occupied homes in USD 1000's                    |
+
+The corrected data set has the following additional columns:
+
+|       |                                                              |
+|:------|:-------------------------------------------------------------|
+| cmedv | corrected median value of owner-occupied homes in USD 1000's |
+| town  | name of town                                                 |
+| tract | census tract                                                 |
+| lon   | longitude of census tract                                    |
+| lat   | latitude of census tract                                     |
+
+Our response variable is `cmedv`, the *corrected median value of
+owner-occupied homes in USD 1000'*s. Their are many Quantitative feature
+variables that we can use to predict `cmedv`. And there are two
+Qualitative features, `chas` and `tax`.
+
+## Workflow: EDA
+
+Let us select a few sets of Quantitative and Qualitative features, along
+with the target variable `cmedv` and do a pairs-plots with them:
 
 ```{r}
+#| label: pairs plots 1
+#| message: false
+#| warning: false
+housing %>% 
+  # Target variable and Rooms / Age / Distance to City Centres / Radial Highway Access 
+  select(cmedv, rm, age, dis) %>% 
+  GGally::ggpairs()
 
-gf_boxplot(data = frogs_long, 
-             Time ~ TempFac, 
-             fill = ~ TempFac) %>% 
-  gf_vline(xintercept = ~ mean(Time)) %>% 
-  gf_labs(x = "Hatching Time") %>% 
-  gf_theme(theme = theme_frogs()) %>% 
-  gf_theme(guides(fill = guide_legend(title = "Temperature level (°C)")))
 
 ```
 
-## ANOVA
+Clearly, `rm` (avg. number of rooms) is a big determining feature for
+median price `cmedv`. This we infer based on the large magnitudes of
+correlations of `rm` with`cmedv`. The variable`age` (proportion of
+owner-occupied units built prior to 1940) may also be a significant
+influence on `cmedv`. (See top row)
 
-We will first execute the ANOVA test with code and evaluate the results.
-Then we will do an intuitive walk through of the process and finally,
-hand-calculate entire analysis for clear understanding.
+```{r}
+#| label: pairs plots 2
+#| message: false
+#| warning: false
+housing %>% 
+# Target variable and Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
+  select(cmedv, rad, zn, indus, tax) %>% 
+  GGally::ggpairs()
+
+```
+
+None of these Quant variables have a overly strong correlation with
+`cmedv`. (See top row)
+
+```{r}
+#| label: pairs plots 3
+#| message: false
+#| warning: false
+housing %>% 
+  # Target variable and Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
+  select(cmedv, crim, nox, rad, b, lstat) %>% 
+  GGally::ggpairs()
+
+```
+
+The variable `lstat` (proportion of lower classes in the neighbourhood)
+as expected, has a strong (negative) correlation with `cmedv`;
+`rad`(index of accessibility to radial highways), `nox`(nitrous oxide)
+and `crim`(crime rate) also have fairly large correlations with `cmedv`.
+
+Let us also check the Qualitative variables:
+
+```{r}
+#| label: pairs plots 4
+#| message: false
+#| warning: false
+#| 
+housing %>% 
+  # Target variable and Access to Charles River
+  select(cmedv,chas) %>% 
+  GGally::ggpairs()
+
+
+```
+
+Access to the Charles river (`chas`) does seem to affect the prices
+somewhat. Let us plot (again) scatter plots of Quant Variables that have
+strong correlation with `cmedv`:
+
+```{r}
+#| layout-nrow: 1
+#| 
+gf_point(data = housing, 
+             cmedv ~ age, 
+         title = "Price vs Proportion of houses older than 1940",
+         ylab = "Median Price",
+         xlab = "Proportion of older-than-1940 buildings") %>% 
+  gf_theme(theme = my_theme)
+
+gf_point(data = housing,
+         cmedv ~ rm, 
+         title = "Price vs Average no. of Rooms",
+         ylab = "(cmedv) Median Price",
+         xlab = "(rm) Avg. No. of Rooms"
+         ) %>% 
+  gf_theme(theme = my_theme)
+
+
+```
+
+We have managed to get a decent idea which *predictor variables* might
+be useful in modelling `cmedv`.
+
+::: callout-note
+## Simple Regression vs Multiple Regression
+
+We would typically start with a **maximal model**[^1] and progressively
+simplify the model by knocking off predictors that have the least impact
+on model accuracy. We will do that in another tutorial (see above
+@sec-tutorials) but for simplicity we will first use just one predictor
+`rm`(Avg. no. of Rooms) to model housing prices. Later we will include
+other predictor/features as well.
+:::
+
+## Workflow: Model Building
 
 ::: panel-tabset
-### ANOVA Test with Code
+### Model Code
 
-R offers a very simple command to execute an ANOVA test: Note the
-familiar `formula` of stating the variables:
+We will first execute the `lm` test with code and evaluate the results.
+Then we will do an intuitive walk through of the process and finally,
+hand-calculate entire analysis for clear understanding. R offers a very
+simple command to execute an Linear Model: Note the familiar `formula`
+of stating the variables: ( $y \sim x$; where $y$ = target, $x$ =
+predictor)
 
 ```{r}
-#| label: ANOVA with code
-frogs_anova <- aov(Time ~ TempFac, data = frogs_long)
-frogs_anova %>% broom::tidy()
-summary(frogs_anova)
+#| label: Linear Model with code
+housing_lm <- lm(cmedv ~ rm, data = housing)
+summary(housing_lm)
 
 ```
 
-The effect of Temperature on Hatching time is significant, with a
-p-value of $<2e-16$. The F-statistic for the ANOVA test is given by
-$385.9$, which is very high. Clearly `Temperature` has a very
-significant effect on the hatching `Time`.
+The model for $\widehat{cmedv}$ , the prediction for `cmedv`can be
+written in the form of $y = mx + c$, as:
 
-To find which specific value of `TempFac` has the most effect will
-require *pairwise comparison* of the group means, using a standard
-t-test. The confidence level for such repeated comparisons will need
-what is called **Bonferroni correction**[^2] to prevent us from
-detecting a significant (pair-wise) difference simply by chance. To do
-this we take $\alpha$ the confidence level used and divide it by $K$,
-the number of pair-wise comparisons we intend to make. So using an
-$\alpha = 0.05$ for ANOVA, the pairwise comparisons in our current data
-will have to use $\alpha/3 = 0.0166$ as the confidence level. We will
-discuss this more in the section titled "ANOVA Intuitive".
+$$
+\widehat{cmedv} \sim -34.65924 + 9.09967* rm
+$$ {#eq-rm-model}
 
-### ANOVA Intuitive {#sec-anova-intuitive}
+The effect of `rm` on predicting `cmedv` is significant, a (slope) value
+of $9.09967$ at p-value of $<2.2e-16$. The F-statistic for the Linear
+Model is given by $474.3$, which is very high. The `R-squared` value is
+48% which means that `rm` is able to explain about half of the trend in
+`cmedv`; there is substantial variation in `cmedv` that is left to
+explain, an indication that we should perhaps use a richer model, with
+more predictors. We will explore this in the Tutorials. @sec-tutorials
 
-All that is very well, but what is happening under the hood of the
-`aov()` command?
-
-Consider a data set with a single Quant and a single Qual variable. The
-Qual variable has two levels, the Quant data has 20 observations per
-Qual level.
+We can plot the scatter plot of these two variables with the model also
+over-plotted.
 
 ```{r}
-library(patchwork)
-ggplot2::theme_set(theme_classic())
-data = tibble(index = 1:40,
-              qual = c(rep(x = "A", 20),rep(x = "B", 20)),
-              quant = c(rnorm(n = 20, mean = 0, sd = 2), 
-                        rnorm(n = 20, mean = 10, sd = 2)))
-data
-overall_mean <- data %>%
-             summarise(overall_mean = mean(quant))
-#overall_mean
+#| label: model
+#| echo: true
 
-grouped_means <- data %>%
-  group_by(qual) %>% 
-             summarise(grouped_means = mean(quant))
-#grouped_means
+# Tidy Dataframe for the model using `broom`
+housing_lm_tidy <- housing_lm %>% broom::tidy(conf.int= TRUE, 
+                                              conf.level = 0.95)
+housing_lm_tidy
 
-p1 <- gf_point(quant ~ index, 
-               color = ~ qual,
-         data = data) %>% 
-  gf_hline(yintercept =  ~ overall_mean,
-             data = overall_mean) %>% 
-  gf_segment(data = data, 
-             color = "black",
-             overall_mean$overall_mean + quant ~ index + index)
+housing_lm_augment <- housing_lm %>% broom::augment(se_fit = TRUE,
+                                                    interval = "confidence")
+housing_lm_augment
 
-p2 <- gf_point(quant ~ index, 
-         group = ~ qual, 
-         colour = ~ qual, 
-         data = data) %>% 
+intercept <- housing_lm_tidy %>%
+  filter(term == "(Intercept)") %>%
+  select(estimate) %>%
+  as.numeric()
+
+slope <- housing_lm_tidy %>%
+  filter(term == "rm") %>%
+  select(estimate) %>%
+  as.numeric()
+
+gf_point(
+  data = housing,
+  cmedv ~ rm,
+  title = "Price vs Average no. of Rooms",
+  ylab = "Median Price",
+  xlab = "Avg. No. of Rooms",
+  alpha = 0.2
+) %>%
   
-  gf_hline(yintercept = ~ mean, 
-           colour = ~ qual,
-           data = data %>% 
-             group_by(qual) %>% 
-             summarise(mean = mean(quant))) %>% 
-  gf_segment(data = data %>% filter(qual == "A"),
-             grouped_means$grouped_means[1] + quant ~ index + index
-             ) %>% 
-    gf_segment(data = data %>% filter(qual == "B"),
-             grouped_means$grouped_means[2] + quant ~ index + index
-             ) 
-
-p1 + p2 + patchwork::plot_annotation(tag_levels = c("A", "B"))
+  gf_abline(slope = slope,
+            intercept = intercept,
+            colour = "red")  %>%
+  
+  gf_segment(
+    0 + 29 ~ 7 + 7,
+    linetype = "dashed",
+    color = "blue",
+    arrow = arrow(
+      angle = 30,
+      length = unit(0.25, "inches"),
+      ends = "last",
+      type = "closed"
+    ),
+    data = housing_lm_augment
+  ) %>%
+  
+  gf_segment(
+    29 + 29 ~ 2.5 + 7,
+    linetype = "dashed",
+    arrow = arrow(
+      angle = 30,
+      length = unit(0.25, "inches"),
+      ends = "first",
+      type = "closed"
+    ),
+    color = "blue",
+    data = housing_lm_augment
+  ) %>%
+  
+  gf_refine(
+    scale_x_continuous(limits = c(2.5, 10),
+                       expand = c(0, 0)),
+    # removes plot panel margins
+    scale_y_continuous(limits = c(0, 55),
+                       expand = c(0, 0))
+  ) %>%
+  gf_theme(theme = my_theme)
 
 ```
 
-In Fig A, the *horizontal* black line is the overall mean of `quant`,
-denoted as $\mu_{tot}$. The vertical black lines to the points show the
-departures of each point from this overall mean. The sum of *squares* of
-these vertical black lines in Fig A is called the **Total Sum of
-Squares** (SST).
+For any new value of `rm`, we go up to the red line and read off the
+predicted median price. That is how the model is used.
+
+In practice, we use the `broom` package functions to obtain a clear view
+of the model parameters and predictions of `cmedv` for all *existing*
+values of `rm`. To predict `cmedv` with *new* values of `rm`, we use
+`predict`. We see estimates for the intercept and slope (`rm`) for the
+linear model, along with the standard errors and p.values. And we see
+the fitted values of `cmedv` for the existing `rm`; these values will
+naturally line **on** the straight-line depicting the model. We will
+examine this `augment`-ed data more in the @sec-diagnostics.
+
+```{r}
+#| label: predictions with new data
+new <- data.frame(rm = seq(3, 10))
+new %>% mutate(predictions =
+                 stats::predict(
+                   object = housing_lm,
+                   newdata = .,
+                   se.fit = FALSE
+                 ))
+```
+
+Note that "negative values" for predicted `cmedv` would have no meaning!
+
+### Linear Model Intuitive {#sec-lm-intuitive}
+
+All that is very well, but what is happening under the hood of the `lm`
+command? Consider the `cmedv` (target) variable and the `rm`
+feature/predictor variable. What we do is:
+
+1.  Plot a scatter plot `gf_point(cmedv ~ rm, housing)`
+2.  Find a line that, in some way, gives us some prediction of `cmedv`
+    for any given `rm`
+3.  Calculate the errors in prediction and use those to find the "best"
+    line.
+4.  Use that "best" line henceforth as a model for prediction.
+
+How does one fit the "best" line? Consider a choice of "lines" that we
+can use to fit to the data. Here are 6 lines of varying slopes (and
+intercepts ) that we can try as candidates for the best fit line:
+
+```{r}
+#| echo: false
+set.seed(1234)
+housing_sample <- housing_lm_augment %>% 
+  slice_sample(n = 15)
+mean_cmedv_sample <-
+  mean( ~ cmedv, na.rm = TRUE, data = housing_sample)
+mean_rm_sample <- mean( ~ rm, na.rm = TRUE, data = housing_sample)
+
+lm_sample <- tibble(
+  slope = slope + c(5, 2, 0, -2, -5, -slope),
+  intercept = intercept + c(-30, -15, 0, 10, 30, -intercept + mean_cmedv_sample),
+  # List column containing `housing_sample`
+  # No repetition needed !!!
+  # Auto recycle for each of slope + intercept
+  sample = list(housing_sample)
+)
+
+lm_sample <- lm_sample %>% mutate(line =
+                                    pmap(
+                                      .l = list(intercept, slope, sample),
+                                      .f = \(intercept, slope, sample) tibble(pred = intercept + slope * sample$rm,
+       rm = sample$rm))) %>%
+  
+  mutate(graphs = pmap(
+    .l = list(sample, line),
+    .f = \(sample, line)
+    gf_point(cmedv ~ rm, data = sample, size = 2) %>%
+      gf_line(
+        pred ~ rm,
+        data = line ,
+        color = "blue",
+        linewidth = 2
+      ) %>%
+      gf_refine(
+        scale_x_continuous(limits = c(2.5, 10),
+                           expand = c(0, 0)),
+        # removes plot panel margins
+        scale_y_continuous(limits = c(0, 55),
+                           expand = c(0, 0))
+      ) %>%
+      gf_theme(theme = my_theme)
+  )) 
+
+
+```
+
+```{r}
+#| echo: false
+#| layout-ncol: 3
+lm_sample %>% pluck("graphs",1)
+lm_sample %>% pluck("graphs",2)
+lm_sample %>% pluck("graphs",3)
+lm_sample %>% pluck("graphs",4)
+lm_sample %>% pluck("graphs",5)
+lm_sample %>% pluck("graphs",6)
+
+
+```
+
+It should be apparent that while we cannot determine which line may be
+the best, the **worst** line seems to be the one in the final plot,
+which ignores the x-variable `rm` altogether. This corresponds to the
+*NULL Hypothesis*, that there is *no relationship* between the two
+variables. Any of the other lines could be a decent candidate, so how do
+we decide?
+
+```{r}
+#| echo: false
+p1 <- gf_point(cmedv ~ rm,
+         data = housing_sample) %>% 
+  gf_hline(yintercept =  ~ mean_cmedv_sample,
+           color = "dodgerblue") %>% 
+  gf_segment(data = housing_sample, 
+             color = "green",
+             mean_cmedv_sample + cmedv ~ rm + rm,
+  title = "Price vs Average no. of Rooms",
+  subtitle = "NULL Hypothesis",
+  ylab = "cmedv (Median Price)",
+  xlab = "rm (Avg. No. of Rooms)") %>%
+  gf_theme(theme = my_theme)
+
+p2 <- gf_point(cmedv ~ rm, 
+         data = housing_sample) %>% 
+  gf_abline(intercept = intercept, slope = slope) %>% 
+  gf_segment(.fitted + cmedv ~ rm + rm, 
+             color = "red",
+  title = "Price vs Average no. of Rooms",
+  subtitle = "Alternative Hypothesis",
+  ylab = "cmedv (Median Price)",
+  xlab = "rm (Avg. No. of Rooms)") %>%
+  gf_abline(slope = slope,
+            intercept = intercept,
+            colour = "dodgerblue") %>%
+
+  gf_theme(theme = my_theme)
+
+p1 + p2 + patchwork::plot_annotation(tag_levels = c("A", "B"),)
+
+```
+
+In Fig A, the *horizontal* [blue line]{style="color: dodgerblue;"} is
+the overall mean of `cmedv`, denoted as $\mu_{tot}$. The vertical [green
+lines]{style="color: green;"} to the points show the departures of each
+point from this overall mean, called
+[**residuals**]{style="background-color: yellow;"}. The sum of *squares*
+of these residuals in Fig A is called the [**Total Sum of Squares**
+(SST)]{style="background-color: yellow;"}.
 
 $$
 SST = \Sigma (y - \mu_{tot})^2
 $$ {#eq-SST}
 
-If there are $k$ levels in `qual` and $n$ observations $y_ n$ for each
-level, we can also write:
+In Fig B, the vertical [red lines]{style="color: red;"} are the
+residuals of each point from the potential line of fit. The sum of the
+*squares* of these lines is called the [**Total Error Sum of Squares**
+(SSE)]{style="background-color: yellow;"}.
 
 $$
-SST = 
-\sum_{i=1}^{kn}y_i^2 - \frac{ \left( \sum_{i=1}^{kn}
-y_i \right)^2}{kn}
-$$
-
-In Fig B, the *horizontal* green and red lines are the means of the
-individual groups, respectively $\mu_A$ and $\mu_B$. The green and red
-vertical lines are the departures, or errors, of each point from *its
-own group-mean*. The sum of the *squares* of the green and red lines is
-called the **Total Error Sum of Squares** (SSE).
-
-$$
-SSE = \Sigma [(y - \mu_i)^2 +... (y - \mu_k)^2]
+SSE = \Sigma [(y - a - b * rm)^2]
 $$ {#eq-SSE}
 
-If the $\mu_A$ and $\mu_B$ are different from $\mu_{tot}$, then what
-would be the relationship between $SSA$ and $SSE$ ? Clearly if the all
-means are identical then the $SST$ and $SSE$ are equal, since the two
-coloured lines would be in the same place as the black line. It should
-be clear that if $\mu_A$ and $\mu_B$ are different from the overall
-mean, then $SSE < SST$.
+It should be apparent that if there is any positive linear relationship
+between `cmedv` and `rm`,then $SSE < SST$.
 
-So, when we desire to detect if the two groups are different in their
-means, we take the difference:
+How do we get the optimum slope + intercept? If we plot the $SSE$ as a
+function of varying slope, we get
 
-$$
-SSA = SST - SSE
-$$ {#eq-SSA}
+```{r}
+#| label: slopes vs SSE
+#| echo: false
+tibble(b = slope + seq(-5,5),
+                  a = intercept,
+                  dat = list(tibble(cmedv = housing_sample$cmedv, 
+                               rm = housing_sample$rm))) %>% 
+  mutate(r_squared= pmap_dbl(
+    .l = list(a,b,dat),
+    .f = \(a,b, dat) sum((dat$cmedv - (b*dat$rm + a))^2))) %>% 
+  gf_point(r_squared ~ b,data = .) %>% 
+  gf_line(ylab = "SSE", xlab = "slope",title = "Error vs Slope") %>% 
+  gf_theme(my_theme)
 
-$SSA$ is called the **Treatment Sum of Squares** and is a measure the
-differences in means of observations at different levels of the factor.
+```
 
-$SSA$ can also directly be re-written in a very symmetric fashion as:
+We see that there is a quadratic minimum $SSE$ at the optimum value of
+slope and at all other slopes, the $SSE$ is higher. We can use this to
+find the optimum slope, which is what the function `lm` does.
 
-\$\$ SSA =
-\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} -
-\frac{\left( \sum_{i=1}^{kn}
-
-y_i \right)^2}{kn}
-
-\$\$ {#eg-SSA}
-
-Note that in the first term, we are calculating sums of observations
-within each group in the inner summation, which is like a per-group
-mean(without the division). The outer summation takes the sum of squares
-of these undivided summations and divides by $n$.
-
-Comparing $SSA$ and $SSE$ now provides us with a method that helps us
-decide whether these means are different. The logic is that we compare
-global differences and local differences. The comparison is of course in
-the form of a ratio, the F-statistic. Since each of these measures uses
-a different sets of observations, the comparison is done after scaling
-each of $SSA$ and $SSE$ by the number of observations influencing them.
-This means that we need to divide each of $SSA$ and $SSE$ by their
-*degrees of freedom*, which gives us a ratio of **variances**:
-
-$$
-F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
-$$
-
-where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
-in $SSA$ and $SSE$. And so we are in effect deciding if means are
-significantly different by analyzing (a ratio of) variances! Hence
-*AN-alysis O-f VA-riance*, ANOVA.
-
-In order to find which of the means is significantly different from
-others, we need to make a pair-wise comparison of the means, applying
-the Bonferroni correction as stated before.
-
-### ANOVA Manually Demonstrated (Apologies to Spinoza)
+### Linear Models Manually Demonstrated (Apologies to Spinoza)
 
 Let us hand-calculate the numbers so we know what the test is doing.
-
-Here is the SST:
+Here is the SST: we pretend that there is no relationship between
+`cmedv` ans `rm` and compute a **NULL** model:
 
 ```{r}
 #| label: SST Total Sum of Squares
 # Calculate overall sum squares SST
 
-
-frogs_overall <- frogs_long %>% 
-  summarise(mean_time = mean(Time), 
-            # Overall mean across all readings
-            # The Black Line
-            
-            SST = sum((Time - mean_time)^2),
-            n = n())
-frogs_overall
-
-SST <- frogs_overall$SST
+SST <- deviance(lm(cmedv ~ 1, data = housing))
 SST
 
-
-```
-
-And here is our plot to understand the SST:
-
-```{r}
-#| label: Frogs SST Graph
-frogs_plot <- frogs_long %>% 
-  arrange(TempFac) %>% 
-           rowid_to_column(var = "index")
-
-frogs_mean <- frogs_long %>%
-             summarise(overall_mean = mean(Time))
-
-frogs_grouped_means <- frogs_long %>%
-  group_by(TempFac) %>% 
-             summarise(grouped_means = mean(Time))
-
-gf_point(Time ~ index, 
-         color = ~ TempFac,
-         data = frogs_plot) %>% 
-  
- gf_hline(yintercept =  ~ overall_mean,
-             data = frogs_mean) %>% 
-  
-  gf_segment(data = frogs_plot, 
-             color = "black",
-             frogs_mean$overall_mean + Time ~ index + index)
 ```
 
 And here is the SSE:
@@ -416,147 +549,53 @@ And here is the SSE:
 ```{r}
 #| label: SSE Within Group Sum of Squares
 
-# Calculate sums of square errors *within* each group
-# with respect to individual group means
-
-frogs_within_groups <- frogs_long %>% 
-  group_by(TempFac) %>% 
-   summarise(mean_time = mean(Time),
-            variance_time = var(Time),
-            group_error_squares = sum((Time - mean_time)^2),
-            n = n())
-frogs_within_groups
-
-frogs_SSE <- frogs_within_groups %>% 
-  summarise(SSE = sum(group_error_squares))
-
-SSE <- frogs_SSE$SSE
+SSE <- deviance(housing_lm)
 SSE
 
 ```
 
-```{r}
-#| label: Frogs SSE Plot
-frogs_plot <- frogs_long %>% 
-  arrange(TempFac) %>% 
-           rowid_to_column(var = "index")
-
-frogs_mean <- frogs_long %>%
-             summarise(overall_mean = mean(Time))
-
-frogs_grouped_means <- frogs_long %>%
-  group_by(TempFac) %>% 
-             summarise(grouped_means = mean(Time))
-
-gf_point(Time ~ index, 
-         group = ~ TempFac, 
-         colour = ~ TempFac, 
-         data = frogs_plot) %>% 
-  
-  gf_hline(yintercept = ~ grouped_means, 
-           colour = ~ TempFac,
-           data = frogs_grouped_means) %>% 
-  
-  gf_segment(data = frogs_plot %>% filter(TempFac == 13 ),
-             frogs_grouped_means$grouped_means[1] + Time ~ index + index
-             ) %>% 
-  
-  gf_segment(data = frogs_plot %>% filter(TempFac == 18),
-             frogs_grouped_means$grouped_means[2] + Time ~ index + index
-             ) %>% 
-  
-  gf_segment(data = frogs_plot %>% filter(TempFac == 25),
-             frogs_grouped_means$grouped_means[3] + Time ~ index + index
-             ) 
-```
-
-OK, we have $SST$ and $SSE$, so let's get $SSA$:
+Given that the model leaves **unexplained** variations in `cmedv` to the
+extent of $SSE$, we can compute the $SSR$, [the Regression Sum of
+Squares]{style="background-color: yellow;"}, the amount of variation in
+`cmedv` that the linear model **does** explain:
 
 ```{r}
-SST
-SSE
-SSA <- SST - SSE
-SSA
+#| label: SSR
+SSR <- SST - SSE
+SSR
 
 ```
 
-We have $SST = 1096$, $SSE = 75.4$ and therefore $SSA = 1020.9$.
+We have $SST = 42577.74$, $SSE = 21934.39$ and therefore
+$SSR = 20643.35$.
 
 In order to calculate the F-Statistic, we need to compute the variances,
 using these sum of squares. We obtain variances by dividing by their
 *Degrees of Freedom*:
 
 $$
-F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
+F_{stat} = \frac{SSR / df_{SSR}}{SSE / df_{SSE}}
 $$
 
-where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
-in SSA and SSE.
+where $df_{SSR}$ and $df_{SSE}$ are respectively the degrees of freedom
+in SSR and SSE.
 
-Let us calculate these Degrees of Freedom. With $k = 2$ levels in the
-factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has
-degree of freedom $kn-1$, since it uses all observations but loses one
-degree to calculate the global mean. (If each level did not have the
-same number of points $n$, we simply take all observations less one as
-the degrees of freedom for $SST$).
+Let us calculate these Degrees of Freedom. If we have $n=$
+`r dim(housing)[[1]]` observations of data, then:
 
-$SSE$ has $k*(n-1)$ as degrees of freedom, since each of the $k$ groups
-there are $n$ observations and each group loses one degree to calculate
-its own group mean.
-
-And therefore $SSA$ has $k-1$ degrees of freedom.
-
-We can still calculate these in R, for the sake of method and clarity:
-
-```{r}
-#| label: Degrees of Freedom
-
-# Error Sum of Squares SSE
-df_SSE <- frogs_long %>% 
-  
-  # Takes into account "unbalanced" situations
-  group_by(TempFac) %>% 
-  summarise(per_group_df_SSE = n() - 1) %>% 
-  summarise(df_SSE = sum(per_group_df_SSE)) %>% as.numeric()
-
-
-## Overall Sum of Squares SST
-df_SST <- frogs_long %>% 
-  summarise(df_SST = n() - 1) %>% as.integer()
-
-
-# Treatment Sum of Squares SSA
-k <- length(unique(frogs_long$TempFac))
-df_SSA <- k - 1
-
-```
-
-The degrees of freedom for the quantities are:
-
-```{r}
-df_SST
-df_SSE
-df_SSA
-
-```
+-   $SST$ clearly has degree of freedom $n-1$, since it uses all
+    observations but loses one degree to calculate the global mean.
+-   $SSE$ was computed using the slope and intercept, so it has $(n-2)$
+    as degrees of freedom.
+-   And therefore $SSR$ has just $1$ degree of freedom.
 
 Now we are ready to compute the F-statistic:
 
 ```{r}
-# Finally F_Stat!
-## Combine the sum-square_error for each level of the factor
-# weighted by degrees of freedom per level
-# Which are of course equal here ;-D
-
-MSE <- frogs_within_groups %>% 
-  summarise(mean_square_error = sum(group_error_squares/df_SSE)) %>% 
-  as.numeric()
-MSE
-
-MSA <- SSA/df_SSA # This is OK
-MSA
-
-F_stat <- MSA/MSE
+n <- housing %>% count() %>% as.numeric()
+df_SSR <- 1
+df_SSE <- n -2
+F_stat <- (SSR/df_SSR) / (SSE/df_SSE)
 F_stat
 
 ```
@@ -569,334 +608,217 @@ computes the critical F value as a **quartile**:
 
 ```{r}
 F_crit <-  qf(p = 0.95,     # Significance level is 5%
-              df1 = df_SSA, # Numerator degrees of freedom 
+              df1 = df_SSR, # Numerator degrees of freedom 
               df2 = df_SSE) # Denominator degrees of freedom
 F_crit
 F_stat
 
 ```
 
-The F_crit value can also be seen in a plot[^3]:
+The F_crit value can also be seen in a plot[^2]:
 
 ```{r}
-
 mosaic::pdist(dist = "f",
-              q = 3.158843, 
-              df1=df_SSA, df2=df_SSE)
+              q = F_crit, 
+              df1 = df_SSR, df2 = df_SSE)
+```
+
+Any value of F more than the $F_{crit}$ occurs with smaller probability
+than 0.05. Our F_stat is much higher than $F_{crit}$, by orders of
+magnitude! And so we can say with confidence that `rm` has a significant
+effect on `cmedv`.
+
+The value of `R.squared` is also calculated from the previously computed
+sums of squares:
+
+$$
+R.squared = \frac{SSR}{SST} = \frac{SSY-SSE}{SST}
+$$
+
+```{r}
+r_squared <- (SST - SSE)/SST
+r_squared
+# Also computable by
+# mosaic::rsquared(housing_lm)
 
 ```
 
-Any value of F more than the F_crit occurs with smaller probability than
-0,05. Our F_stat is much higher than F_crit, by orders of magnitude! And
-so we can say with confidence that Temperature has a significant effect
-on spawn Time.
+So `R.squared` = `r (SST - SSE)/SST`
 
-And that is how ANOVA computes!
+The value of Slope and Intercept are computed using a maximum likelihood
+derivation and the knowledge that the means square error is a minimum at
+the optimum slope: for a linear model $y \sim mx + c$
+
+$$
+slope = \frac{\Sigma[(y - y_{mean})*(x - x_{mean})]}{\Sigma(x - x_{mean})^2}
+$$
+
+and
+
+$$
+Intercept = y_{mean} - slope * x_{mean}
+$$
+
+```{r}
+#| label: slope and intercept
+slope <- mosaic::cov(cmedv ~ rm, data = housing) / mosaic::var(~ rm, data = housing)
+slope
+
+intercept <- mosaic::mean(~ cmedv, data = housing) - slope * mosaic::mean(~ rm, data = housing)
+intercept
+
+```
+
+So, there we are! All of this is done for us by one simple formula,
+`lm()`!
 :::
 
-## Checking ANOVA Assumptions
+## Workflow: Model Checking and Diagnostics {#sec-diagnostics}
 
-ANOVA makes 3 fundamental assumptions:
+We will follow much of the treatment on Linear Model diagnostics, given
+[here on the STHDA
+website](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#homogeneity-of-variance).
 
-a.  Data are normally distributed.
+> A first step of this regression diagnostic is to inspect the
+> significance of the regression beta coefficients, as well as, the
+> R.square that tells us how well the linear regression model fits to
+> the data.
+>
+> For example, the linear regression model makes the assumption that the
+> relationship between the predictors (x) and the outcome variable is
+> linear. This might not be true. The relationship could be polynomial
+> or logarithmic.
+>
+> Additionally, the data might contain some influential observations,
+> such as outliers (or extreme values), that can affect the result of
+> the regression.
+>
+> Therefore, the regression model must be closely diagnosed in order to
+> detect potential problems and to check whether the assumptions made by
+> the linear regression model are met or not. To do so, we generally
+> examine the distribution of **residuals errors**, that can tell us
+> more about our data.
 
-b.  Variances are homogeneous.
+#### Checks for Uncertainty
 
-c.  Observations are independent.
-
-We can check these using checks and graphs:
-
-#### Checks for Normality
-
-The `shapiro.wilk` test tests if a vector of numeric data is normally
-distributed and rejects the hypothesis of normality when the
-[p-value](https://variation.com/wp-content/distribution_analyzer_help/hs132.htm)
-is less than or equal to 0.05. 
+Let us first look at the uncertainties in the estimates of slope and
+intercept. These are most easily read off from the `broom::tidy`-ed
+model:
 
 ```{r}
-#| label: Check for Normality
-shapiro.test(x = frogs_long$Time)
-```
-
-The p-value is very low and we cannot reject the (alternative)
-hypothesis that the overall data is **not** normal. How about normality
-at each level of the factor?
-
-```{r}
-frogs_grouped <- frogs_long %>% 
-  group_by(TempFac) %>% 
-  nest(.key = "list") 
-
-frogs_grouped %>% 
-  pluck("list", 1) %>% # naming the nested column "list"
-  select(Time) %>% 
-  as_vector() %>% 
-  shapiro.test(.)
-
-# OK now we are set for group-wise Shapiro-Wilk testing:
-
-frogs_grouped %>% 
-  mutate(shaptest = 
-           purrr::map(.x = list, # Column name is "list"
-                      .f = \(.x) select(.data = .x, 
-                                        Time) %>% 
-                                 as_vector() %>% 
-                                 shapiro.test(.)),
-         
-         params = map(.x = shaptest,
-                      .f = \(.x) broom::tidy(.x))) %>% 
-  
-  select(TempFac, params) %>% 
-  unnest(cols = params)
+#| label: uncertainty and confidence
+# housing_lm_tidy <-  housing_lm %>% broom::tidy()
+housing_lm_tidy
 
 ```
 
-The `shapiro.wilk` test makes a NULL Hypothesis that the data **are**
-normally distributed and estimates the probability that this could have
-happened by chance. Except for `TempFac = 18` the p-values are less than
-0.05 and we can reject the NULL hypothesis that each of these is
-normally distributed. Perhaps this is a sign that we need more than 20
-samples per factor level.
-
-We can also check the residuals post-model:
+Plotting this is simple too:
 
 ```{r}
-
-frogs_anova$residuals %>% 
-  as_tibble() %>% 
-  gf_histogram(~ value,data = .) %>% 
-  gf_theme(theme = theme_frogs())
-
-frogs_anova$residuals %>%
-  as_tibble() %>% 
-  gf_qq(~ value, data = .) %>% 
-  gf_qqstep() %>% 
-  gf_qqline() %>% 
-  gf_theme(theme = theme_frogs())
-
-shapiro.test(frogs_anova$residuals)
-
+housing_lm_tidy %>%
+  gf_col(estimate ~ term, fill = ~ term, width = 0.25) %>% 
+  gf_hline(yintercept = 0) %>% 
+  gf_errorbar(conf.low + conf.high ~ term, linewidth = 1, title = "Model Estimates with Confidence Intervals") %>% 
+  gf_theme(my_theme())
 
 ```
 
-Unsurprisingly, the residuals are also not normally distributed either.
+#### Checks for Constant Variance/Heteroscedasticity
 
-### Check for Similar Variance
+Linear Modelling makes 4 fundamental assumptions:("**LINE**")
 
-Response data with different variances at different levels of an
-*explanatory* variable are said to exhibit **heteroscedasticity**. This
-violates one of the assumptions of ANOVA.
+1.  **Linear** relationship between y and x
+2.  Observations are **independent**.
+3.  Residuals are **normally** distributed
+4.  Variance of the `y` variable is **equal** at all values of `x`.
 
-To check if the `Time` readings are similar in `variance` across levels
-of `TempFac`, we can use the Levene Test, or since our per-group
-observations are not normally distributed, a non-parametric rank-based
-Fligner-Killeen test. The NULL hypothesis is that the data **are** with
-similar variances. The tests assess how probable this is with the given
-data assuming this NULL hypothesis:
+We can check these using checks and graphs: Here we plot the residuals
+against the independent/feature variable and see if there is a gross
+variation in their range
 
 ```{r}
-frogs_long %>% 
-  group_by(TempFac) %>% 
-  summarise(variance = var(Time))
+#| label: Check for Constant Variance
+#| #| layout-nrow: 2
+#| 
+housing_lm_augment %>% 
+  gf_point(.resid ~ .fitted, title = "Residuals vs Fitted") %>%
+  gf_smooth() %>% 
+  gf_theme(my_theme)
 
-# Not too different...OK on with the test
-fligner.test(Time ~ TempFac, data = frogs_long)
+housing_lm_augment %>% 
+  gf_qq(~ .std.resid, title = "Q-Q Residuals") %>% gf_qqline() %>%
+  gf_theme(my_theme)
 
+housing_lm_augment %>% 
+  gf_point(sqrt(.std.resid) ~ .fitted, title = "Scale-Location Plot") %>%
+    gf_smooth() %>% 
+  gf_theme(my_theme)
 
-DescTools::LeveneTest(Time ~ TempFac, data = frogs_long)
-
+housing_lm_augment %>% 
+  gf_point(.std.resid ~ .hat, title = "Residuals vs Leverage") %>%
+    gf_smooth() %>% 
+  gf_theme(my_theme)
 ```
 
-It seems that there is no cause for concern here; the data do not have
-significantly different variances.
-
-### Independent Observations
-
-This is an experiment *design* concern; the way the data is gathered
-must be specified such that data for each level of the factors ( factor
-combinations if there are more than one) should be independent.
-
-## Effect Size
-
-The simplest way to find the actual `effect sizes` detected by an ANOVA
-test is to use (paradoxically) the `summary.lm()` command:
+::: column-margin
+Base R has a crisp command to plot these diagnostic graphs. But we will
+continue to use `ggformula`.
 
 ```{r}
-summary.lm(frogs_anova) %>% broom::tidy()
+#| eval: false
+plot(housing_lm)
 
 ```
-
-It may take a bit of effort to understand this. First the `TempFac` is
-arranged in order of levels, and the `mean` at the $`TempFac` = 13$ is
-titled `intercept`. That is $26.3$. The other two means for levels $18$
-and $25$ are stated as **differences** from this intercept, $-5.3$ and
-$-10.1$ respectively. The `p.value` for all these effect sizes is well
-below the desired confidence level of $0.05$.
-
-We can easily plot bar-chart with error bars for the effect size:
-
-```{r}
-
-tidy_anova <- frogs_anova %>% 
-  summary.lm() %>% 
-  broom::tidy()
-tidy_anova
-
-# Merging group averages with `std.error`
-frogs_long %>% 
-  group_by(TempFac) %>% 
-  summarise(mean = mean(Time)) %>% 
-  cbind(std.error = tidy_anova$std.error) %>% 
-  mutate(hi = mean + std.error,
-         lo = mean - std.error) %>% 
-  gf_col(data = ., mean ~ TempFac, 
-         fill = "grey", 
-         color = "black") %>% 
-  gf_point(mean ~ TempFac, 
-           color = "red", 
-           size = 4) %>% 
-    gf_errorbar(hi + lo ~ TempFac,
-                color = "blue",
-                linetype = "dashed")
-
-```
-
-## ANOVA using Permutation Tests
-
-We wish to establish the significance of the effect size due to each of
-the levels in `TempFac`. From the normality tests conducted earlier we
-see that except at one level of `TempFac`, the times are are not
-normally distributed. Hence we opt for a Permutation Test to check for
-significance of effect.
-
-As remarked in Ernst[^4], the non-parametric permutation test can be
-both *exact* and also **intuitively easier** for students to grasp.
-Permutations are easily executed in R, using packages such as
-`mosaic`[^5].
-
-We proceed with a Permutation Test for `TempFac`. We shuffle the levels
-(13, 18, 25) randomly between the Times and repeat the ANOVA test each
-time and calculate the F-statistic. The Null distribution is the
-distribution of the F-statistic over the many permutations and the
-p-value is given by the proportion of times the F-statistic equals or
-exceeds that observed.
-
-We will use `mosaic` and also try with `infer`.
-
-::: panel-tabset
-#### Using `mosaic`
-
-`mosaic` offers an easy and intuitive way of doing a repeated
-permutation test, using the `do()` command. We will `shuffle` the
-`TempFac` factor to jumble up the `Time` observations, 10000 times. Each
-time we shuffle, we compute the F_statistic and record it. We then plot
-the 10000 F-statistics and compare that with the real-world observation
-of `F-stat`.
-
-```{r}
-#| label: permutation test for ANOVA with mosaic
-
-obs_F_stat <- frogs_anova %>% 
-  broom::tidy() %>% 
-  select(statistic)
-observed_mosaic <- obs_F_stat$statistic[1]
-
-null_dist_mosaic <- do(10000) * aov(Time ~ shuffle(TempFac), data = frogs_long)
-null_dist_mosaic %>% head()
-
-null_dist_mosaic %>% drop_na() %>% 
-  select(F) %>% 
-  gf_histogram(data = ., ~ F, 
-               fill = ~ F >= observed_mosaic,
-               title = "Null Distribution of ANOVA F-statistic" )
-
-
-```
-
-The Null distribution of the F_statistic under permutation shows it
-never crosses the real-world observed value, testifying the strength of
-the effect of `TempFac` on hatching `Time`. And the p-value is:
-
-```{r}
-p_value <- mean(null_dist_mosaic$F >= observed_mosaic, na.rm = TRUE)
-p_value
-
-```
-
-#### Using `infer`
-
-We calculate the observed F-stat with `infer`, which also has a very
-direct, if verbose, syntax for doing permutation tests:
-
-```{r}
-#| label: ANOVA F-statistic with infer
-
-observed_infer <- frogs_long %>% 
-  specify(Time ~ TempFac) %>% 
-  hypothesise(null = "independence") %>% 
-  calculate(stat = "F")
-observed_infer
-
-```
-
-We see that the observed F-Statistic is of course $385.8966$ as before.
-Now we use `infer` to generate a NULL distribution using permutation of
-the factor `TempFac`:
-
-```{r}
-#| label: Permutation using infer
-
-null_dist_infer <- frogs_long %>% 
-  specify(Time ~ TempFac) %>% 
-  hypothesise(null = "independence") %>% 
-  generate(reps = 1000, type = "permute") %>% 
-  calculate(stat = "F")
-
-head(null_dist_infer)
-
-null_dist_infer %>% 
-  visualise()
-
-```
-
-As seen, the `infer` based permutation test also shows that the
-permutationally generated F-statistics are nowhere near that which was
-observed. The effect of `TempFac` is very strong.
 :::
+
+The residuals are not quite "like the night sky", i.e. random enough.
+The Q-Q plot of residuals also has significant deviations from the
+normal quartiles. These point to the need for a richer model, with more
+predictors.
+
+## Multiple Regression
+
+One way of modelling is to take **all possible** predictor variables and
+then selectively remove them, ensuring each time that the error
+increases by an insignificant amount by the removal. We will follow this
+method in another Tutorial.
 
 ## Conclusions
 
-We have discussed ANOVA as a means of modelling the effects of a
-Categorical variable on a Continuous (Quant) variable. ANOVA can be
-carried out using the standard formula `aov` when assumptions on
-distributions, variances, and independence are met. Permutation ANOVA
-tests can be carried out when these assumptions do not quite hold.
+So our Linear Modelling workflow might look like this: we have not seen all stages yet, but that is for another course module or tutorial!
+
+```{mermaid}
+%%| echo: false
+flowchart TD
+    A[(A: Data)] -->|mosaic + ggformula|B[B:EDA] 
+    B --> |corrplot + corrgram| C(C: Check Relationships)
+    C --> D[D: Decide on Simple/Complex Model]
+    D --> E{E: Is Simple Model Possible?}
+    E --> |Yes| G[G: Build Model]
+    E -->|Nope| F[F: Transform Variables]
+    F --> D
+    G --> H{H: Check Model Diagnostics}
+    H --> |Problems| D
+    H --> |All good| I(Interpret Your Model)
+    I --> J(((Apply the Model for Predictions)))
+```
 
 ## References
 
-1.  The ANOVA tutorial at [Our Coding
-    Club](https://ourcodingclub.github.io/tutorials/anova/).
-2.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
-3.  David C Howell, [Permutation Tests for Factorial ANOVA
+1.  The Boston Housing Dataset, corrected version. StatLib \@ CMU,
+    [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)
+2.  <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>
+3.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
+4.  David C Howell, [Permutation Tests for Factorial ANOVA
     Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)
-4.  Marti Anderson, [Permutation tests for univariate or multivariate
+5.  Marti Anderson, [Permutation tests for univariate or multivariate
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-[^1]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
+[^1]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+    Statistical Modelling*
 
-[^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
-
-[^3]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
-    Students to 'Think with Data' Using R." The R Journal, 9(1),
-    77--102.
-    https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
-
-[^4]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
-    Inference." Statistical Science 19 (4): 676--85.
-    doi:10.1214/088342304000000396.
-
-[^5]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
+[^2]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
     Students to 'Think with Data' Using R." The R Journal, 9(1),
     77--102.
     https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
