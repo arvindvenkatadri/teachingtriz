@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2023-05-03">
-<title>The Foundation Series - Multiple Linear Regression</title>
+<title>The Foundation Series - Tutorial: Multiple Linear Regression</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -71,7 +71,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="../../../../../../../site_libs/quarto-contrib/nutshell-1.0.0/nutshell.min.js"></script><script id="quarto-search-options" type="application/json">{
+<script src="../../../../../../../site_libs/quarto-contrib/nutshell-1.0.0/nutshell.min.js"></script>
+<script src="../../../../../../../site_libs/quarto-contrib/iconify-1.0.0-beta.2/iconify-icon.min.js"></script><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -91,10 +92,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<meta property="og:title" content="The Foundation Series - Multiple Linear Regression">
+<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<meta property="og:title" content="The Foundation Series - Tutorial: Multiple Linear Regression">
 <meta property="og:description" content="Using Multiple Regression to predict Quantitative Target Variables">
+<meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Modelling/Modules/LinReg/files/multiple-regression_files/figure-html/All models at once-1.png">
 <meta property="og:site-name" content="The Foundation Series">
+<meta property="og:image:height" content="960">
+<meta property="og:image:width" content="1344">
 </head>
 <body class="nav-sidebar docked nav-fixed">
 
@@ -141,7 +145,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Multiple Linear Regression</li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Tutorial: Multiple Linear Regression</li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -283,11 +287,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li>
+<a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link active" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a>
+  <ul class="collapse">
+<li><a href="#read-the-data" id="toc-read-the-data" class="nav-link" data-scroll-target="#read-the-data">Read the Data</a></li>
+  </ul>
+</li>
+  <li><a href="#workflow-maximal-multiple-regression-model" id="toc-workflow-maximal-multiple-regression-model" class="nav-link" data-scroll-target="#workflow-maximal-multiple-regression-model">Workflow: Maximal Multiple Regression Model</a></li>
+  <li><a href="#workflow-model-reduction" id="toc-workflow-model-reduction" class="nav-link" data-scroll-target="#workflow-model-reduction">Workflow: Model Reduction</a></li>
+  <li><a href="#workflow-diagnostics" id="toc-workflow-diagnostics" class="nav-link" data-scroll-target="#workflow-diagnostics">Workflow: Diagnostics</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">Multiple Linear Regression</h1>
+<h1 class="title">Tutorial: Multiple Linear Regression</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Linear Regression</div>
     <div class="quarto-category">Quantitative Predictor</div>
@@ -318,7 +335,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">May 3, 2023</p>
+      <p class="date-modified">May 4, 2023</p>
     </div>
   </div>
     
@@ -331,17 +348,392 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </div>
 
-</header><div class="cell" data-hash="multiple-regression_cache/html/setup_b36ea5d2cfc746d666409755be230503">
+</header><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
+<iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
+<div class="cell" data-hash="multiple-regression_cache/html/setup_b36ea5d2cfc746d666409755be230503">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>,<span class="at">warning =</span> <span class="cn">FALSE</span>,<span class="at">message =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(ggformula)</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(mosaic)</span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(infer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell" data-hash="multiple-regression_cache/html/plot theme_0fc30d1088da54b2d536c4435e505493">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Let us set a plot theme for Data visualisation</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>my_theme <span class="ot">&lt;-</span> <span class="cf">function</span>(){  <span class="co"># Creating a function</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span>  <span class="co"># Using pre-defined theme as base</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axes text      </span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb2-7"><a href="#cb2-7"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing axis title</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),  <span class="co"># Taking off the default grid</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>        <span class="at">plot.margin =</span> <span class="fu">unit</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), <span class="at">units =</span> , <span class="st">"cm"</span>),</span>
+<span id="cb2-10"><a href="#cb2-10"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"italic"</span>),  <span class="co"># Customizing legend text</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),  <span class="co"># Customizing legend title</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>        <span class="at">legend.position =</span> <span class="st">"right"</span>,  <span class="co"># Customizing legend position</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))  <span class="co"># Customizing plot caption</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>}   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this tutorial, we will use the Boston housing dataset. Our research question is:</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Research Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How do we predict the price of a house in Boston, based on other parameters Quantitative parameters such as area, location, rooms, and crime-rate in the neighbourhood?</p>
+<p>And how do we choose the “best” model, based on a tradeoff between Model Complexity and Model Accuracy?</p>
+</div>
+</div>
+<section id="read-the-data" class="level3"><h3 class="anchored" data-anchor-id="read-the-data">Read the Data</h3>
+<div class="cell" data-hash="multiple-regression_cache/html/unnamed-chunk-3_68e503c61ea74d6693acab5f70a0bdb5">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">data</span>(<span class="st">"BostonHousing2"</span>, <span class="at">package =</span> <span class="st">"mlbench"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>housing <span class="ot">&lt;-</span> BostonHousing2</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="fu">inspect</span>(housing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+categorical variables:  
+  name  class levels   n missing                                  distribution
+1 town factor     92 506       0 Cambridge (5.9%) ...                         
+2 chas factor      2 506       0 0 (93.1%), 1 (6.9%)                          
+
+quantitative variables:  
+      name   class       min          Q1     median          Q3       max
+1    tract integer   1.00000 1303.250000 3393.50000 3739.750000 5082.0000
+2      lon numeric -71.28950  -71.093225  -71.05290  -71.019625  -70.8100
+3      lat numeric  42.03000   42.180775   42.21810   42.252250   42.3810
+4     medv numeric   5.00000   17.025000   21.20000   25.000000   50.0000
+5    cmedv numeric   5.00000   17.025000   21.20000   25.000000   50.0000
+6     crim numeric   0.00632    0.082045    0.25651    3.677083   88.9762
+7       zn numeric   0.00000    0.000000    0.00000   12.500000  100.0000
+8    indus numeric   0.46000    5.190000    9.69000   18.100000   27.7400
+9      nox numeric   0.38500    0.449000    0.53800    0.624000    0.8710
+10      rm numeric   3.56100    5.885500    6.20850    6.623500    8.7800
+11     age numeric   2.90000   45.025000   77.50000   94.075000  100.0000
+12     dis numeric   1.12960    2.100175    3.20745    5.188425   12.1265
+13     rad integer   1.00000    4.000000    5.00000   24.000000   24.0000
+14     tax integer 187.00000  279.000000  330.00000  666.000000  711.0000
+15 ptratio numeric  12.60000   17.400000   19.05000   20.200000   22.0000
+16       b numeric   0.32000  375.377500  391.44000  396.225000  396.9000
+17   lstat numeric   1.73000    6.950000   11.36000   16.955000   37.9700
+           mean           sd   n missing
+1  2700.3557312 1.380037e+03 506       0
+2   -71.0563887 7.540535e-02 506       0
+3    42.2164403 6.177718e-02 506       0
+4    22.5328063 9.197104e+00 506       0
+5    22.5288538 9.182176e+00 506       0
+6     3.6135236 8.601545e+00 506       0
+7    11.3636364 2.332245e+01 506       0
+8    11.1367787 6.860353e+00 506       0
+9     0.5546951 1.158777e-01 506       0
+10    6.2846344 7.026171e-01 506       0
+11   68.5749012 2.814886e+01 506       0
+12    3.7950427 2.105710e+00 506       0
+13    9.5494071 8.707259e+00 506       0
+14  408.2371542 1.685371e+02 506       0
+15   18.4555336 2.164946e+00 506       0
+16  356.6740316 9.129486e+01 506       0
+17   12.6530632 7.141062e+00 506       0</code></pre>
+</div>
+</div>
+<p>The original data are 506 observations on 14 variables, <code>medv</code> being the target variable:</p>
+<table class="table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 88%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">crim</td>
+<td style="text-align: left;">per capita crime rate by town</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">zn</td>
+<td style="text-align: left;">proportion of residential land zoned for lots over 25,000 sq.ft</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">indus</td>
+<td style="text-align: left;">proportion of non-retail business acres per town</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">chas</td>
+<td style="text-align: left;">Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nox</td>
+<td style="text-align: left;">nitric oxides concentration (parts per 10 million)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rm</td>
+<td style="text-align: left;">average number of rooms per dwelling</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: left;">proportion of owner-occupied units built prior to 1940</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dis</td>
+<td style="text-align: left;">weighted distances to five Boston employment centres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rad</td>
+<td style="text-align: left;">index of accessibility to radial highways</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">tax</td>
+<td style="text-align: left;">full-value property-tax rate per USD 10,000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ptratio</td>
+<td style="text-align: left;">pupil-teacher ratio by town</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b</td>
+<td style="text-align: left;">
+<span class="math inline">\(1000(B - 0.63)^2\)</span> where B is the proportion of Blacks by town</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lstat</td>
+<td style="text-align: left;">percentage of lower status of the population</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">medv</td>
+<td style="text-align: left;">median value of owner-occupied homes in USD 1000’s</td>
+</tr>
+</tbody>
+</table>
+<p>The corrected data set has the following additional columns:</p>
+<table class="table"><tbody>
+<tr class="odd">
+<td style="text-align: left;">cmedv</td>
+<td style="text-align: left;">corrected median value of owner-occupied homes in USD 1000’s</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">town</td>
+<td style="text-align: left;">name of town</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tract</td>
+<td style="text-align: left;">census tract</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lon</td>
+<td style="text-align: left;">longitude of census tract</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lat</td>
+<td style="text-align: left;">latitude of census tract</td>
+</tr>
+</tbody></table>
+<p>Our response variable is <code>cmedv</code>, the <em>corrected median value of owner-occupied homes in USD 1000’</em>s. Their are many Quantitative feature variables that we can use to predict <code>cmedv</code>. And there are two Qualitative features, <code>chas</code> and <code>tax</code>.</p>
+</section></section><section id="workflow-maximal-multiple-regression-model" class="level2"><h2 class="anchored" data-anchor-id="workflow-maximal-multiple-regression-model">Workflow: Maximal Multiple Regression Model</h2>
+<p>We will create a regression model for <code>cmedv</code> using all the other numerical predictor features in the dataset.</p>
+<div class="cell" data-hash="multiple-regression_cache/html/maximal model_d138cc2284908a2acc9d55e6a73f96e0">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>housing_numeric <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">where</span>(is.numeric), </span>
+<span id="cb5-2"><a href="#cb5-2"></a>                                      </span>
+<span id="cb5-3"><a href="#cb5-3"></a>                    <span class="co"># remove medv</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>                    <span class="co"># an older version of cmedv</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>                                      <span class="sc">-</span><span class="fu">c</span>(medv))</span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="fu">names</span>(housing_numeric) <span class="co"># 16 variables, one target, 15 predictors</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "tract"   "lon"     "lat"     "cmedv"   "crim"    "zn"      "indus"  
+ [8] "nox"     "rm"      "age"     "dis"     "rad"     "tax"     "ptratio"
+[15] "b"       "lstat"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>housing_maximal <span class="ot">&lt;-</span> <span class="fu">lm</span>(cmedv <span class="sc">~</span> ., <span class="at">data =</span> housing_numeric)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="fu">summary</span>(housing_maximal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = cmedv ~ ., data = housing_numeric)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.9343  -2.7517  -0.6188   1.7107  26.1195 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -3.446e+02  3.235e+02  -1.065 0.287338    
+tract       -7.517e-04  4.457e-04  -1.687 0.092311 .  
+lon         -6.789e+00  3.436e+00  -1.976 0.048700 *  
+lat         -2.354e+00  5.361e+00  -0.439 0.660740    
+crim        -1.089e-01  3.279e-02  -3.320 0.000967 ***
+zn           4.397e-02  1.388e-02   3.167 0.001636 ** 
+indus        2.754e-02  6.197e-02   0.444 0.656919    
+nox         -1.551e+01  4.033e+00  -3.845 0.000136 ***
+rm           3.809e+00  4.198e-01   9.075  &lt; 2e-16 ***
+age          5.816e-03  1.339e-02   0.434 0.664163    
+dis         -1.384e+00  2.100e-01  -6.591 1.13e-10 ***
+rad          2.357e-01  8.466e-02   2.784 0.005583 ** 
+tax         -1.481e-02  3.737e-03  -3.962 8.54e-05 ***
+ptratio     -9.489e-01  1.410e-01  -6.730 4.74e-11 ***
+b            9.548e-03  2.675e-03   3.569 0.000394 ***
+lstat       -5.464e-01  5.062e-02 -10.795  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.729 on 490 degrees of freedom
+Multiple R-squared:  0.7426,    Adjusted R-squared:  0.7348 
+F-statistic: 94.27 on 15 and 490 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The maximal model has an R.squared of <span class="math inline">\(0.7426\)</span> which is much better than that we obtained for a simple model based on <code>rm</code> alone. How much can we simplify this maximal model, without losing out on <code>R.squared</code>?</p>
+</section><section id="workflow-model-reduction" class="level2"><h2 class="anchored" data-anchor-id="workflow-model-reduction">Workflow: Model Reduction</h2>
+<p>We now proceed naively by removing <u>one predictor after another.</u> We will resort to what may amount to <strong>p-hacking</strong> by sorting the predictors based on their p-value in the maximal model and removing them in decreasing order of their p-value.</p>
+<p>We will also use some powerful features from the <code>purrr</code> package (also part of the <code>tidyverse</code>), to create <strong>all</strong> these models all at once. Then we will be able to plot their <code>R.squared</code> values together and decide where we wish to trade off Explanability vs Complexity for our model.</p>
+<div class="cell" data-hash="multiple-regression_cache/html/Maximal Model and p-hacking_d58082221eeeab5beeb06e7d68d43115">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># No of Quant predictor variables in the dataset</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>n_vars <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric), <span class="sc">-</span><span class="fu">c</span>(cmedv, medv)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">length</span>()</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co"># Maximal Model, now tidied</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>housing_maximal_tidy <span class="ot">&lt;-</span> </span>
+<span id="cb9-8"><a href="#cb9-8"></a>  housing_maximal <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-10"><a href="#cb9-10"></a>  </span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="co"># Obviously remove "Intercept" ;-D</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-13"><a href="#cb9-13"></a>  </span>
+<span id="cb9-14"><a href="#cb9-14"></a>  <span class="co"># And horrors! Sort variables by p.value</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a>  <span class="fu">arrange</span>(p.value)</span>
+<span id="cb9-16"><a href="#cb9-16"></a>housing_maximal_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"lstat","2":"-5.464398e-01","3":"0.050618742","4":"-10.7952062","5":"1.619106e-24"},{"1":"rm","2":"3.809475e+00","3":"0.419779424","4":"9.0749437","5":"2.770619e-18"},{"1":"ptratio","2":"-9.489414e-01","3":"0.140991493","4":"-6.7304870","5":"4.738282e-11"},{"1":"dis","2":"-1.384370e+00","3":"0.210040970","4":"-6.5909526","5":"1.131653e-10"},{"1":"tax","2":"-1.480679e-02","3":"0.003737228","4":"-3.9619704","5":"8.537821e-05"},{"1":"nox","2":"-1.550638e+01","3":"4.032785904","4":"-3.8450787","5":"1.364052e-04"},{"1":"b","2":"9.547859e-03","3":"0.002675276","4":"3.5689241","5":"3.937358e-04"},{"1":"crim","2":"-1.088614e-01","3":"0.032788971","4":"-3.3200617","5":"9.670782e-04"},{"1":"zn","2":"4.396790e-02","3":"0.013883050","4":"3.1670203","5":"1.636138e-03"},{"1":"rad","2":"2.356740e-01","3":"0.084664664","4":"2.7836173","5":"5.583405e-03"},{"1":"lon","2":"-6.789354e+00","3":"3.435669521","4":"-1.9761372","5":"4.869969e-02"},{"1":"tract","2":"-7.517349e-04","3":"0.000445702","4":"-1.6866314","5":"9.231074e-02"},{"1":"indus","2":"2.754057e-02","3":"0.061966549","4":"0.4444425","5":"6.569189e-01"},{"1":"lat","2":"-2.354361e+00","3":"5.361064291","4":"-0.4391592","5":"6.607398e-01"},{"1":"age","2":"5.816235e-03","3":"0.013388012","4":"0.4344360","5":"6.641631e-01"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>And now we unleash the <code>purrr</code> package to create all the simplified models at once. We will construct a dataset containing three columns:</p>
+<ul>
+<li>A list of all quantitative predictor variables</li>
+<li>A sequence of numbers from 1 to <code>N(predictor)</code>
+</li>
+<li>A “list” column containing the <code>housing</code> data frame itself</li>
+</ul>
+<p>We will use the iteration capability of <code>purrr</code> to sequentially dropping one variable at a time from the maximal(15 predictor) model, build a new reduced model and compute the <code>r.squared</code>:</p>
+<div class="cell" data-hash="multiple-regression_cache/html/All models at once_501e7c0b3294471bc2765095c447a68c">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>housing_model_set <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">all_vars =</span> <span class="fu">list</span>(housing_maximal_tidy<span class="sc">$</span>term),</span>
+<span id="cb10-2"><a href="#cb10-2"></a>                            <span class="at">keep_vars =</span> <span class="fu">seq</span>(<span class="dv">1</span>, n_vars),</span>
+<span id="cb10-3"><a href="#cb10-3"></a>                            <span class="at">data =</span> <span class="fu">list</span>(housing_numeric))</span>
+<span id="cb10-4"><a href="#cb10-4"></a>housing_model_set</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["all_vars"],"name":[1],"type":["list"],"align":["right"]},{"label":["keep_vars"],"name":[2],"type":["int"],"align":["right"]},{"label":["data"],"name":[3],"type":["list"],"align":["right"]}],"data":[{"1":"<chr [15]>","2":"1","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"2","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"3","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"4","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"5","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"6","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"7","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"8","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"9","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"10","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"11","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"12","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"13","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"14","3":"<df[,16] [506 × 16]>"},{"1":"<chr [15]>","2":"15","3":"<df[,16] [506 × 16]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Unleash purrr in a series of mutates</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>housing_model_set <span class="ot">&lt;-</span> housing_model_set <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>  </span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="co"># list of predictor variables for each model</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">mutate</span>(<span class="at">mod_vars =</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>           <span class="fu">pmap</span>(</span>
+<span id="cb11-7"><a href="#cb11-7"></a>             <span class="at">.l =</span> <span class="fu">list</span>(all_vars, keep_vars, data),</span>
+<span id="cb11-8"><a href="#cb11-8"></a>             <span class="at">.f =</span> \(all_vars, keep_vars, data) all_vars[<span class="dv">1</span><span class="sc">:</span>keep_vars]</span>
+<span id="cb11-9"><a href="#cb11-9"></a>           )) <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>  </span>
+<span id="cb11-11"><a href="#cb11-11"></a>  <span class="co"># build a formula with these for linear regression</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>  <span class="fu">mutate</span>(<span class="at">formula =</span> <span class="fu">map</span>(<span class="at">.x =</span> mod_vars,</span>
+<span id="cb11-13"><a href="#cb11-13"></a>                       <span class="at">.f =</span> \(mod_vars) <span class="fu">as.formula</span>(<span class="fu">paste</span>(</span>
+<span id="cb11-14"><a href="#cb11-14"></a>                         <span class="st">"cmedv ~"</span>, <span class="fu">paste</span>(mod_vars, <span class="at">collapse =</span> <span class="st">"+"</span>)</span>
+<span id="cb11-15"><a href="#cb11-15"></a>                       )))) <span class="sc">%&gt;%</span></span>
+<span id="cb11-16"><a href="#cb11-16"></a>  </span>
+<span id="cb11-17"><a href="#cb11-17"></a>  <span class="co"># use the formulae to build multiple linear models</span></span>
+<span id="cb11-18"><a href="#cb11-18"></a>  <span class="fu">mutate</span>(<span class="at">models =</span></span>
+<span id="cb11-19"><a href="#cb11-19"></a>           <span class="fu">pmap</span>(</span>
+<span id="cb11-20"><a href="#cb11-20"></a>             <span class="at">.l =</span> <span class="fu">list</span>(data, formula),</span>
+<span id="cb11-21"><a href="#cb11-21"></a>             <span class="at">.f =</span> \(data, formula) <span class="fu">lm</span>(formula, <span class="at">data =</span> data)</span>
+<span id="cb11-22"><a href="#cb11-22"></a>           ))</span>
+<span id="cb11-23"><a href="#cb11-23"></a><span class="co"># Check everything after the operation</span></span>
+<span id="cb11-24"><a href="#cb11-24"></a>housing_model_set</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["all_vars"],"name":[1],"type":["list"],"align":["right"]},{"label":["keep_vars"],"name":[2],"type":["int"],"align":["right"]},{"label":["data"],"name":[3],"type":["list"],"align":["right"]},{"label":["mod_vars"],"name":[4],"type":["list"],"align":["right"]},{"label":["formula"],"name":[5],"type":["list"],"align":["right"]},{"label":["models"],"name":[6],"type":["list"],"align":["right"]}],"data":[{"1":"<chr [15]>","2":"1","3":"<df[,16] [506 × 16]>","4":"<chr [1]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"2","3":"<df[,16] [506 × 16]>","4":"<chr [2]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"3","3":"<df[,16] [506 × 16]>","4":"<chr [3]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"4","3":"<df[,16] [506 × 16]>","4":"<chr [4]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"5","3":"<df[,16] [506 × 16]>","4":"<chr [5]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"6","3":"<df[,16] [506 × 16]>","4":"<chr [6]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"7","3":"<df[,16] [506 × 16]>","4":"<chr [7]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"8","3":"<df[,16] [506 × 16]>","4":"<chr [8]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"9","3":"<df[,16] [506 × 16]>","4":"<chr [9]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"10","3":"<df[,16] [506 × 16]>","4":"<chr [10]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"11","3":"<df[,16] [506 × 16]>","4":"<chr [11]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"12","3":"<df[,16] [506 × 16]>","4":"<chr [12]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"13","3":"<df[,16] [506 × 16]>","4":"<chr [13]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"14","3":"<df[,16] [506 × 16]>","4":"<chr [14]>","5":"<S3: formula>","6":"<S3: lm>"},{"1":"<chr [15]>","2":"15","3":"<df[,16] [506 × 16]>","4":"<chr [15]>","5":"<S3: formula>","6":"<S3: lm>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Tidy up the models using broom to expose their metrics</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>housing_model_set <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">mutate</span>(<span class="at">tidy_models =</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>           <span class="fu">map</span>(</span>
+<span id="cb12-5"><a href="#cb12-5"></a>             <span class="at">.x =</span> models,</span>
+<span id="cb12-6"><a href="#cb12-6"></a>             <span class="at">.f =</span> \(x) broom<span class="sc">::</span><span class="fu">glance</span>(x,</span>
+<span id="cb12-7"><a href="#cb12-7"></a>                                     <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-8"><a href="#cb12-8"></a>                                     <span class="at">conf.lvel =</span> <span class="fl">0.95</span>)</span>
+<span id="cb12-9"><a href="#cb12-9"></a>           )) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>  <span class="co"># Remove unwanted columns, keep model and predictor count</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>  <span class="fu">select</span>(keep_vars, tidy_models) <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>  <span class="fu">unnest</span>(tidy_models) <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a>  </span>
+<span id="cb12-15"><a href="#cb12-15"></a>  <span class="co"># Plot r.squared vs predictor count</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a>  <span class="fu">gf_point</span>(<span class="dv">1</span> <span class="sc">-</span> r.squared <span class="sc">~</span> keep_vars) <span class="sc">%&gt;%</span></span>
+<span id="cb12-17"><a href="#cb12-17"></a>  <span class="fu">gf_line</span>(<span class="at">ylab =</span> <span class="st">"Loss of R.Squared"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18"></a>          <span class="at">xlab =</span> <span class="st">"No. params in the Linear Model"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-19"><a href="#cb12-19"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="multiple-regression_files/figure-html/All models at once-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>At the loss of some 4% in the <code>r.squared</code>, we can drop our model complexity from 15 predictors to say 4! Our final model will then be:</p>
+<div class="cell" data-hash="multiple-regression_cache/html/Final Model_11f7366d398f4d979984f00ab76cbd9b">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>housing_model_final <span class="ot">&lt;-</span> </span>
+<span id="cb13-2"><a href="#cb13-2"></a>  housing_model_set <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a href="#cb13-3"></a>  </span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="co"># filter for best model, with 4 variables</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="fu">filter</span>(keep_vars <span class="sc">==</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-6"><a href="#cb13-6"></a>  </span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="co"># tidy up the model</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="fu">mutate</span>(<span class="at">tidy_models =</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>           <span class="fu">map</span>(</span>
+<span id="cb13-10"><a href="#cb13-10"></a>             <span class="at">.x =</span> models,</span>
+<span id="cb13-11"><a href="#cb13-11"></a>             <span class="at">.f =</span> \(x) broom<span class="sc">::</span><span class="fu">tidy</span>(x,</span>
+<span id="cb13-12"><a href="#cb13-12"></a>                                     <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb13-13"><a href="#cb13-13"></a>                                     <span class="at">conf.lvel =</span> <span class="fl">0.95</span>)</span>
+<span id="cb13-14"><a href="#cb13-14"></a>           )) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-15"><a href="#cb13-15"></a>  </span>
+<span id="cb13-16"><a href="#cb13-16"></a>  <span class="co"># Remove unwanted columns, keep model and predictor count</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a>  <span class="fu">select</span>(keep_vars, tidy_models) <span class="sc">%&gt;%</span></span>
+<span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">unnest</span>(tidy_models)</span>
+<span id="cb13-19"><a href="#cb13-19"></a>housing_model_final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["keep_vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["term"],"name":[2],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"4","2":"(Intercept)","3":"24.4593215","4":"4.05100419","5":"6.037842","6":"3.044311e-09","7":"16.5002717","8":"32.4183712"},{"1":"4","2":"lstat","3":"-0.6730337","4":"0.04644289","5":"-14.491640","6":"5.363328e-40","7":"-0.7642805","8":"-0.5817869"},{"1":"4","2":"rm","3":"4.1991211","4":"0.42100994","5":"9.973924","6":"1.712219e-21","7":"3.3719586","8":"5.0262837"},{"1":"4","2":"ptratio","3":"-0.9572051","4":"0.11526258","5":"-8.304561","6":"9.410039e-16","7":"-1.1836627","8":"-0.7307475"},{"1":"4","2":"dis","3":"-0.5635616","4":"0.12611111","5":"-4.468770","6":"9.735101e-06","7":"-0.8113334","8":"-0.3157898"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>housing_model_final <span class="sc">%&gt;%</span>  </span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="co"># And plot the model</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="co"># Remove the intercept term</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="fu">gf_col</span>(estimate <span class="sc">~</span> term, <span class="at">fill =</span> <span class="sc">~</span> term, <span class="at">width =</span> <span class="fl">0.25</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">gf_errorbar</span>(conf.low <span class="sc">+</span> conf.high <span class="sc">~</span> term, <span class="at">linewidth =</span> <span class="dv">1</span>, </span>
+<span id="cb14-8"><a href="#cb14-8"></a>              <span class="at">title =</span> <span class="st">"Multiple Regression"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9"></a>              <span class="at">subtitle =</span> <span class="st">"Model Estimates with Confidence Intervals"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-10"><a href="#cb14-10"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="multiple-regression_files/figure-html/Final Model-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section><section id="workflow-diagnostics" class="level2"><h2 class="anchored" data-anchor-id="workflow-diagnostics">Workflow: Diagnostics</h2>
+</section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 
 
-
-</main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");

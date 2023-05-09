@@ -19,7 +19,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 
 |                                                                                                                  |     |                                                                                                             |     |
 |------------------|-------------------|------------------|------------------|
-| <a href="./files/multiple-regression.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>   |     | <a href="./files/lin-perm.qmd"> <i class="fa-bramds fa-r-project"></i> Permutation Test for Regression</a>  |     |
+| <a href="./files/multiple-regression.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>   |     | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -31,6 +31,9 @@ knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
 library(tidyverse)
 library(ggformula)
 library(mosaic)
+library(GGally)
+library(corrplot)
+library(corrgram)
 
 ```
 
@@ -124,6 +127,13 @@ Qualitative features, `chas` and `tax`.
 
 ## Workflow: EDA
 
+In order to fit the linear model, we need to choose **predictor**
+variables that have strong correlations with the **target** variable. We
+will first do this with `GGally`, and then with the `tidyverse` itself. Both give us a very unique view into the correlations that exist within this dataset. 
+
+::: panel-tabset
+### Correlations with GGally
+
 Let us select a few sets of Quantitative and Qualitative features, along
 with the target variable `cmedv` and do a pairs-plots with them:
 
@@ -175,6 +185,15 @@ as expected, has a strong (negative) correlation with `cmedv`;
 `rad`(index of accessibility to radial highways), `nox`(nitrous oxide)
 and `crim`(crime rate) also have fairly large correlations with `cmedv`.
 
+::: callout-important
+## Correlation Scores and Uncertainty
+
+Recall that `cor.test` reports a correlation score and the `p-value`
+for the same. There is also a `confidence interval` reported for the
+correlation score, an interval within which we are 95% sure that the true
+correlation value is to be found.  Note that GGally too reports the significance of the correlation scores using `***` or `**`. This indicates the p-value in the scores obtained by GGally; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally. 
+:::
+
 Let us also check the Qualitative variables:
 
 ```{r}
@@ -218,6 +237,42 @@ gf_point(data = housing,
 We have managed to get a decent idea which *predictor variables* might
 be useful in modelling `cmedv`.
 
+### Correlations using `cor.test` and `purrr`
+
+This is somewhat advanced material: We will use `purrr` to develop all
+correlations with respect to our target variable in one shot and also
+plot these correlation test scores in an error-bar plot. This has the
+advantage of being able to depict all correlations in one plot. Let us
+do this.
+
+We develop a list object containing all correlation test results with
+respect to `cmedv`, tidy these up using `broom::tidy` and then plot
+these:
+
+```{r}
+#| label: corrtest plots
+#| 
+all_corrs <- housing %>% 
+  select(where(is.numeric)) %>% 
+  select(-cmedv) %>%  # leave off cmedv and IDs to get all the remaining ones
+  purrr::map(.x = .,
+             .f = \(x) cor.test(x, housing$cmedv)) %>%
+  map_dfr(broom::tidy, .id = "predictor") 
+
+all_corrs
+
+all_corrs %>% gf_point(estimate ~ reorder(predictor, estimate)) %>% gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), width = 0.2) %>% 
+  gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
+  gf_theme(theme_minimal())
+
+
+```
+
+We can clearly see that `rm` and `lstat` have strong correlations with
+`cmedv` and should make good choices for setting up a minimal linear
+regression model.
+:::
+
 ::: callout-note
 ## Simple Regression vs Multiple Regression
 
@@ -237,9 +292,9 @@ other predictor/features as well.
 We will first execute the `lm` test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
 hand-calculate entire analysis for clear understanding. R offers a very
-simple command to execute an Linear Model: Note the familiar `formula`
-of stating the variables: ( $y \sim x$; where $y$ = target, $x$ =
-predictor)
+simple command `lm` to execute an Linear Model: Note the familiar
+`formula` of stating the variables: ( $y \sim x$; where $y$ = target,
+$x$ = predictor)
 
 ```{r}
 #| label: Linear Model with code
@@ -271,12 +326,14 @@ over-plotted.
 #| echo: true
 
 # Tidy Dataframe for the model using `broom`
-housing_lm_tidy <- housing_lm %>% broom::tidy(conf.int= TRUE, 
-                                              conf.level = 0.95)
+housing_lm_tidy <- housing_lm %>% 
+  broom::tidy(conf.int= TRUE, 
+              conf.level = 0.95)
 housing_lm_tidy
 
-housing_lm_augment <- housing_lm %>% broom::augment(se_fit = TRUE,
-                                                    interval = "confidence")
+housing_lm_augment <- housing_lm %>% 
+  broom::augment(se_fit = TRUE,
+                 interval = "confidence")
 housing_lm_augment
 
 intercept <- housing_lm_tidy %>%
@@ -342,18 +399,19 @@ gf_point(
 For any new value of `rm`, we go up to the red line and read off the
 predicted median price. That is how the model is used.
 
-In practice, we use the `broom` package functions to obtain a clear view
-of the model parameters and predictions of `cmedv` for all *existing*
-values of `rm`. To predict `cmedv` with *new* values of `rm`, we use
-`predict`. We see estimates for the intercept and slope (`rm`) for the
-linear model, along with the standard errors and p.values. And we see
-the fitted values of `cmedv` for the existing `rm`; these values will
-naturally line **on** the straight-line depicting the model. We will
-examine this `augment`-ed data more in the @sec-diagnostics.
+In practice, we use the `broom` package functions (`tidy`, `glance` and
+`augment`) to obtain a clear view of the model parameters and
+predictions of `cmedv` for all *existing* values of `rm`. To predict
+`cmedv` with *new* values of `rm`, we use `predict`. We see estimates
+for the intercept and slope (`rm`) for the linear model, along with the
+*standard errors* and *p.values*. And we see the fitted values of
+`cmedv` for the existing `rm`; these values will naturally line **on**
+the straight-line depicting the model. We will examine this `augment`-ed
+data more in the @sec-diagnostics.
 
 ```{r}
 #| label: predictions with new data
-new <- data.frame(rm = seq(3, 10))
+new <- data.frame(rm = seq(3, 10)) # must be named "rm"
 new %>% mutate(predictions =
                  stats::predict(
                    object = housing_lm,
@@ -383,6 +441,9 @@ intercepts ) that we can try as candidates for the best fit line:
 
 ```{r}
 #| echo: false
+# This code is not to be dissected in class
+# Discuss the results only (graphs)
+
 set.seed(1234)
 housing_sample <- housing_lm_augment %>% 
   slice_sample(n = 15)
@@ -399,11 +460,12 @@ lm_sample <- tibble(
   sample = list(housing_sample)
 )
 
-lm_sample <- lm_sample %>% mutate(line =
-                                    pmap(
-                                      .l = list(intercept, slope, sample),
-                                      .f = \(intercept, slope, sample) tibble(pred = intercept + slope * sample$rm,
-       rm = sample$rm))) %>%
+lm_sample <- lm_sample %>% 
+  mutate(line = pmap(
+    .l = list(intercept, slope, sample),
+    .f = \(intercept, slope, sample) 
+            tibble(pred = intercept + slope * sample$rm, 
+                   rm = sample$rm))) %>%
   
   mutate(graphs = pmap(
     .l = list(sample, line),
@@ -785,7 +847,8 @@ method in another Tutorial.
 
 ## Conclusions
 
-So our Linear Modelling workflow might look like this: we have not seen all stages yet, but that is for another course module or tutorial!
+So our Linear Modelling workflow might look like this: we have not seen
+all stages yet, but that is for another course module or tutorial!
 
 ```{mermaid}
 %%| echo: false

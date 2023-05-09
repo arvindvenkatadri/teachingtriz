@@ -340,7 +340,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">May 3, 2023</p>
+      <p class="date-modified">May 9, 2023</p>
     </div>
   </div>
     
@@ -367,16 +367,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/files/multiple-regression.html"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>&nbsp;&nbsp;</td>
 <td></td>
 <td>
-<a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/files/lin-perm.html"> <i class="fa-bramds fa-r-project"></i> Permutation Test for Regression</a>&nbsp;</td>
+<a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/files/lin-perm.html"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>&nbsp;</td>
 <td></td>
 </tr></tbody>
 </table></section><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
-<div class="cell" data-hash="LinReg_cache/html/setup_d50cb95889f7d78d16be595baec2c037">
+<div class="cell" data-hash="LinReg_cache/html/setup_2fce2cb9c60e3e650d5fe0ec47a0615e">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>,<span class="at">warning =</span> <span class="cn">FALSE</span>,<span class="at">message =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(ggformula)</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(mosaic)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="fu">library</span>(corrgram)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-hash="LinReg_cache/html/plot theme_f9be09b6e79a9fdc2230aed2c395645a">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Let us set a plot theme for Data visualisation</span></span>
@@ -554,6 +557,14 @@ quantitative variables:
 </tbody></table>
 <p>Our response variable is <code>cmedv</code>, the <em>corrected median value of owner-occupied homes in USD 1000’</em>s. Their are many Quantitative feature variables that we can use to predict <code>cmedv</code>. And there are two Qualitative features, <code>chas</code> and <code>tax</code>.</p>
 </section></section><section id="workflow-eda" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="workflow-eda">Workflow: EDA</h2>
+<p>In order to fit the linear model, we need to choose <strong>predictor</strong> variables that have strong correlations with the <strong>target</strong> variable. We will first do this with <code>GGally</code>, and then with the <code>tidyverse</code> itself. Both give us a very unique view into the correlations that exist within this dataset.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Correlations with GGally</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Correlations using <code>cor.test</code> and <code>purrr</code></a></li>
+</ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>Let us select a few sets of Quantitative and Qualitative features, along with the target variable <code>cmedv</code> and do a pairs-plots with them:</p>
 <div class="cell" data-hash="LinReg_cache/html/pairs plots 1_9bc2ca8b983346da8cea99a0ba43a96a">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>housing <span class="sc">%&gt;%</span> </span>
@@ -585,6 +596,19 @@ quantitative variables:
 </div>
 </div>
 <p>The variable <code>lstat</code> (proportion of lower classes in the neighbourhood) as expected, has a strong (negative) correlation with <code>cmedv</code>; <code>rad</code>(index of accessibility to radial highways), <code>nox</code>(nitrous oxide) and <code>crim</code>(crime rate) also have fairly large correlations with <code>cmedv</code>.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Correlation Scores and Uncertainty
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recall that <code>cor.test</code> reports a correlation score and the <code>p-value</code> for the same. There is also a <code>confidence interval</code> reported for the correlation score, an interval within which we are 95% sure that the true correlation value is to be found. Note that GGally too reports the significance of the correlation scores using <code>***</code> or <code>**</code>. This indicates the p-value in the scores obtained by GGally; Presumably, there is an internal <code>cor.test</code> that is run for each pair of variables and the p-value and confidence levels are also computed internally.</p>
+</div>
+</div>
 <p>Let us also check the Qualitative variables:</p>
 <div class="cell" data-hash="LinReg_cache/html/pairs plots 4_5e2342f6a4ea69185c25d2094387b9f1">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>housing <span class="sc">%&gt;%</span> </span>
@@ -622,6 +646,38 @@ quantitative variables:
 </div>
 </div>
 <p>We have managed to get a decent idea which <em>predictor variables</em> might be useful in modelling <code>cmedv</code>.</p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<p>This is somewhat advanced material: We will use <code>purrr</code> to develop all correlations with respect to our target variable in one shot and also plot these correlation test scores in an error-bar plot. This has the advantage of being able to depict all correlations in one plot. Let us do this.</p>
+<p>We develop a list object containing all correlation test results with respect to <code>cmedv</code>, tidy these up using <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy</a></code> and then plot these:</p>
+<div class="cell" data-hash="LinReg_cache/html/corrtest plots_ae2e21f3ca479776f23037f144e55b06">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>all_corrs <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">select</span>(<span class="sc">-</span>cmedv) <span class="sc">%&gt;%</span>  <span class="co"># leave off cmedv and IDs to get all the remaining ones</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> .,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>             <span class="at">.f =</span> \(x) <span class="fu">cor.test</span>(x, housing<span class="sc">$</span>cmedv)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">map_dfr</span>(broom<span class="sc">::</span>tidy, <span class="at">.id =</span> <span class="st">"predictor"</span>) </span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a>all_corrs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["predictor"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["parameter"],"name":[5],"type":["int"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[8],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"tract","2":"0.428251535","3":"10.6392091","4":"5.514616e-24","5":"504","6":"0.35430926","7":"0.49687193","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"lon","2":"-0.322946685","3":"-7.6606125","4":"9.548359e-14","5":"504","6":"-0.39888638","7":"-0.24260761","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"lat","2":"0.006825792","3":"0.1532422","4":"8.782686e-01","5":"504","6":"-0.08039072","7":"0.09393858","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"medv","2":"0.998475864","3":"406.1547102","4":"0.000000e+00","5":"504","6":"0.99818504","7":"0.99872012","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"crim","2":"-0.389582441","3":"-9.4963995","4":"8.711542e-20","5":"504","6":"-0.46109270","7":"-0.31304456","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"zn","2":"0.360386177","3":"8.6734797","4":"5.785518e-17","5":"504","6":"0.28207883","7":"0.43392342","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"indus","2":"-0.484754379","3":"-12.4423538","4":"3.522132e-31","5":"504","6":"-0.54873600","7":"-0.41512706","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"nox","2":"-0.429300219","3":"-10.6711394","4":"4.167568e-24","5":"504","6":"-0.49783900","7":"-0.35543236","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"rm","2":"0.696303794","3":"21.7792304","4":"1.307493e-74","5":"504","6":"0.64849616","7":"0.73864006","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"age","2":"-0.377998896","3":"-9.1661252","4":"1.241939e-18","5":"504","6":"-0.45032938","7":"-0.30073948","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"dis","2":"0.249314834","3":"5.7796099","4":"1.313250e-08","5":"504","6":"0.16574827","7":"0.32932645","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"rad","2":"-0.384765552","3":"-9.3584301","4":"2.664184e-19","5":"504","6":"-0.45661944","7":"-0.30792451","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"tax","2":"-0.471978807","3":"-12.0188056","4":"1.963250e-29","5":"504","6":"-0.53705221","7":"-0.40132119","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"ptratio","2":"-0.505654619","3":"-13.1580438","4":"3.362511e-34","5":"504","6":"-0.56779640","7":"-0.43778217","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"b","2":"0.334860832","3":"7.9782082","4":"1.006748e-14","5":"504","6":"0.25513951","7":"0.41006011","8":"Pearson's product-moment correlation","9":"two.sided"},{"1":"lstat","2":"-0.740835993","3":"-24.7611648","4":"3.731519e-89","5":"504","6":"-0.77777759","7":"-0.69879381","8":"Pearson's product-moment correlation","9":"two.sided"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>all_corrs <span class="sc">%&gt;%</span> <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with cmedv"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="LinReg_files/figure-html/corrtest plots-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can clearly see that <code>rm</code> and <code>lstat</code> have strong correlations with <code>cmedv</code> and should make good choices for setting up a minimal linear regression model.</p>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -638,16 +694,16 @@ Simple Regression vs Multiple Regression
 <div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Michael Crawley, <em>The R Book, Third Edition 2023. Chapter 9. Statistical Modelling</em></p></li></div></section><section id="workflow-model-building" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="workflow-model-building">Workflow: Model Building</h2>
 <div class="tabset-margin-container"></div><div class="panel-tabset page-columns page-full">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Model Code</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Linear Model Intuitive</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Linear Models Manually Demonstrated (Apologies to Spinoza)</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Model Code</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Linear Model Intuitive</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Linear Models Manually Demonstrated (Apologies to Spinoza)</a></li>
 </ul>
 <div class="tab-content page-columns page-full">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<p>We will first execute the <code>lm</code> test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding. R offers a very simple command to execute an Linear Model: Note the familiar <code>formula</code> of stating the variables: ( <span class="math inline">\(y \sim x\)</span>; where <span class="math inline">\(y\)</span> = target, <span class="math inline">\(x\)</span> = predictor)</p>
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<p>We will first execute the <code>lm</code> test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding. R offers a very simple command <code>lm</code> to execute an Linear Model: Note the familiar <code>formula</code> of stating the variables: ( <span class="math inline">\(y \sim x\)</span>; where <span class="math inline">\(y\)</span> = target, <span class="math inline">\(x\)</span> = predictor)</p>
 <div class="cell" data-hash="LinReg_cache/html/Linear Model with code_8a1657ccbac739d549340488ef04ccb4">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>housing_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(cmedv <span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="fu">summary</span>(housing_lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>housing_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(cmedv <span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="fu">summary</span>(housing_lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -675,11 +731,12 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 \tag{1}\]</span></span></p>
 <p>The effect of <code>rm</code> on predicting <code>cmedv</code> is significant, a (slope) value of <span class="math inline">\(9.09967\)</span> at p-value of <span class="math inline">\(&lt;2.2e-16\)</span>. The F-statistic for the Linear Model is given by <span class="math inline">\(474.3\)</span>, which is very high. The <code>R-squared</code> value is 48% which means that <code>rm</code> is able to explain about half of the trend in <code>cmedv</code>; there is substantial variation in <code>cmedv</code> that is left to explain, an indication that we should perhaps use a richer model, with more predictors. We will explore this in the Tutorials. <a href="#sec-tutorials">Section&nbsp;1</a></p>
 <p>We can plot the scatter plot of these two variables with the model also over-plotted.</p>
-<div class="cell" data-hash="LinReg_cache/html/model_d9f64677f5776fb2d437ab0b6d5fa7c5">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Tidy Dataframe for the model using `broom`</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>housing_lm_tidy <span class="ot">&lt;-</span> housing_lm <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int=</span> <span class="cn">TRUE</span>, </span>
-<span id="cb12-3"><a href="#cb12-3"></a>                                              <span class="at">conf.level =</span> <span class="fl">0.95</span>)</span>
-<span id="cb12-4"><a href="#cb12-4"></a>housing_lm_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/model_b78e5101858db0abd504d4edad968702">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Tidy Dataframe for the model using `broom`</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>housing_lm_tidy <span class="ot">&lt;-</span> housing_lm <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">conf.int=</span> <span class="cn">TRUE</span>, </span>
+<span id="cb14-4"><a href="#cb14-4"></a>              <span class="at">conf.level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a>housing_lm_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -688,9 +745,10 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>housing_lm_augment <span class="ot">&lt;-</span> housing_lm <span class="sc">%&gt;%</span> broom<span class="sc">::</span><span class="fu">augment</span>(<span class="at">se_fit =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb13-2"><a href="#cb13-2"></a>                                                    <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3"></a>housing_lm_augment</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>housing_lm_augment <span class="ot">&lt;-</span> housing_lm <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  broom<span class="sc">::</span><span class="fu">augment</span>(<span class="at">se_fit =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-3"><a href="#cb15-3"></a>                 <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a>housing_lm_augment</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -699,77 +757,77 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>intercept <span class="ot">&lt;-</span> housing_lm_tidy <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"(Intercept)"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">select</span>(estimate) <span class="sc">%&gt;%</span></span>
-<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">as.numeric</span>()</span>
-<span id="cb14-5"><a href="#cb14-5"></a></span>
-<span id="cb14-6"><a href="#cb14-6"></a>slope <span class="ot">&lt;-</span> housing_lm_tidy <span class="sc">%&gt;%</span></span>
-<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"rm"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-8"><a href="#cb14-8"></a>  <span class="fu">select</span>(estimate) <span class="sc">%&gt;%</span></span>
-<span id="cb14-9"><a href="#cb14-9"></a>  <span class="fu">as.numeric</span>()</span>
-<span id="cb14-10"><a href="#cb14-10"></a></span>
-<span id="cb14-11"><a href="#cb14-11"></a><span class="fu">gf_point</span>(</span>
-<span id="cb14-12"><a href="#cb14-12"></a>  <span class="at">data =</span> housing,</span>
-<span id="cb14-13"><a href="#cb14-13"></a>  cmedv <span class="sc">~</span> rm,</span>
-<span id="cb14-14"><a href="#cb14-14"></a>  <span class="at">title =</span> <span class="st">"Price vs Average no. of Rooms"</span>,</span>
-<span id="cb14-15"><a href="#cb14-15"></a>  <span class="at">ylab =</span> <span class="st">"Median Price"</span>,</span>
-<span id="cb14-16"><a href="#cb14-16"></a>  <span class="at">xlab =</span> <span class="st">"Avg. No. of Rooms"</span>,</span>
-<span id="cb14-17"><a href="#cb14-17"></a>  <span class="at">alpha =</span> <span class="fl">0.2</span></span>
-<span id="cb14-18"><a href="#cb14-18"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-19"><a href="#cb14-19"></a>  </span>
-<span id="cb14-20"><a href="#cb14-20"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> slope,</span>
-<span id="cb14-21"><a href="#cb14-21"></a>            <span class="at">intercept =</span> intercept,</span>
-<span id="cb14-22"><a href="#cb14-22"></a>            <span class="at">colour =</span> <span class="st">"red"</span>)  <span class="sc">%&gt;%</span></span>
-<span id="cb14-23"><a href="#cb14-23"></a>  </span>
-<span id="cb14-24"><a href="#cb14-24"></a>  <span class="fu">gf_segment</span>(</span>
-<span id="cb14-25"><a href="#cb14-25"></a>    <span class="dv">0</span> <span class="sc">+</span> <span class="dv">29</span> <span class="sc">~</span> <span class="dv">7</span> <span class="sc">+</span> <span class="dv">7</span>,</span>
-<span id="cb14-26"><a href="#cb14-26"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb14-27"><a href="#cb14-27"></a>    <span class="at">color =</span> <span class="st">"blue"</span>,</span>
-<span id="cb14-28"><a href="#cb14-28"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(</span>
-<span id="cb14-29"><a href="#cb14-29"></a>      <span class="at">angle =</span> <span class="dv">30</span>,</span>
-<span id="cb14-30"><a href="#cb14-30"></a>      <span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"inches"</span>),</span>
-<span id="cb14-31"><a href="#cb14-31"></a>      <span class="at">ends =</span> <span class="st">"last"</span>,</span>
-<span id="cb14-32"><a href="#cb14-32"></a>      <span class="at">type =</span> <span class="st">"closed"</span></span>
-<span id="cb14-33"><a href="#cb14-33"></a>    ),</span>
-<span id="cb14-34"><a href="#cb14-34"></a>    <span class="at">data =</span> housing_lm_augment</span>
-<span id="cb14-35"><a href="#cb14-35"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb14-36"><a href="#cb14-36"></a>  </span>
-<span id="cb14-37"><a href="#cb14-37"></a>  <span class="fu">gf_segment</span>(</span>
-<span id="cb14-38"><a href="#cb14-38"></a>    <span class="dv">29</span> <span class="sc">+</span> <span class="dv">29</span> <span class="sc">~</span> <span class="fl">2.5</span> <span class="sc">+</span> <span class="dv">7</span>,</span>
-<span id="cb14-39"><a href="#cb14-39"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb14-40"><a href="#cb14-40"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(</span>
-<span id="cb14-41"><a href="#cb14-41"></a>      <span class="at">angle =</span> <span class="dv">30</span>,</span>
-<span id="cb14-42"><a href="#cb14-42"></a>      <span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"inches"</span>),</span>
-<span id="cb14-43"><a href="#cb14-43"></a>      <span class="at">ends =</span> <span class="st">"first"</span>,</span>
-<span id="cb14-44"><a href="#cb14-44"></a>      <span class="at">type =</span> <span class="st">"closed"</span></span>
-<span id="cb14-45"><a href="#cb14-45"></a>    ),</span>
-<span id="cb14-46"><a href="#cb14-46"></a>    <span class="at">color =</span> <span class="st">"blue"</span>,</span>
-<span id="cb14-47"><a href="#cb14-47"></a>    <span class="at">data =</span> housing_lm_augment</span>
-<span id="cb14-48"><a href="#cb14-48"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb14-49"><a href="#cb14-49"></a>  </span>
-<span id="cb14-50"><a href="#cb14-50"></a>  <span class="fu">gf_refine</span>(</span>
-<span id="cb14-51"><a href="#cb14-51"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="dv">10</span>),</span>
-<span id="cb14-52"><a href="#cb14-52"></a>                       <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)),</span>
-<span id="cb14-53"><a href="#cb14-53"></a>    <span class="co"># removes plot panel margins</span></span>
-<span id="cb14-54"><a href="#cb14-54"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">55</span>),</span>
-<span id="cb14-55"><a href="#cb14-55"></a>                       <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</span>
-<span id="cb14-56"><a href="#cb14-56"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb14-57"><a href="#cb14-57"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>intercept <span class="ot">&lt;-</span> housing_lm_tidy <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"(Intercept)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">select</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb16-5"><a href="#cb16-5"></a></span>
+<span id="cb16-6"><a href="#cb16-6"></a>slope <span class="ot">&lt;-</span> housing_lm_tidy <span class="sc">%&gt;%</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"rm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="fu">select</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb16-10"><a href="#cb16-10"></a></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="fu">gf_point</span>(</span>
+<span id="cb16-12"><a href="#cb16-12"></a>  <span class="at">data =</span> housing,</span>
+<span id="cb16-13"><a href="#cb16-13"></a>  cmedv <span class="sc">~</span> rm,</span>
+<span id="cb16-14"><a href="#cb16-14"></a>  <span class="at">title =</span> <span class="st">"Price vs Average no. of Rooms"</span>,</span>
+<span id="cb16-15"><a href="#cb16-15"></a>  <span class="at">ylab =</span> <span class="st">"Median Price"</span>,</span>
+<span id="cb16-16"><a href="#cb16-16"></a>  <span class="at">xlab =</span> <span class="st">"Avg. No. of Rooms"</span>,</span>
+<span id="cb16-17"><a href="#cb16-17"></a>  <span class="at">alpha =</span> <span class="fl">0.2</span></span>
+<span id="cb16-18"><a href="#cb16-18"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-19"><a href="#cb16-19"></a>  </span>
+<span id="cb16-20"><a href="#cb16-20"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> slope,</span>
+<span id="cb16-21"><a href="#cb16-21"></a>            <span class="at">intercept =</span> intercept,</span>
+<span id="cb16-22"><a href="#cb16-22"></a>            <span class="at">colour =</span> <span class="st">"red"</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb16-23"><a href="#cb16-23"></a>  </span>
+<span id="cb16-24"><a href="#cb16-24"></a>  <span class="fu">gf_segment</span>(</span>
+<span id="cb16-25"><a href="#cb16-25"></a>    <span class="dv">0</span> <span class="sc">+</span> <span class="dv">29</span> <span class="sc">~</span> <span class="dv">7</span> <span class="sc">+</span> <span class="dv">7</span>,</span>
+<span id="cb16-26"><a href="#cb16-26"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb16-27"><a href="#cb16-27"></a>    <span class="at">color =</span> <span class="st">"blue"</span>,</span>
+<span id="cb16-28"><a href="#cb16-28"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(</span>
+<span id="cb16-29"><a href="#cb16-29"></a>      <span class="at">angle =</span> <span class="dv">30</span>,</span>
+<span id="cb16-30"><a href="#cb16-30"></a>      <span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"inches"</span>),</span>
+<span id="cb16-31"><a href="#cb16-31"></a>      <span class="at">ends =</span> <span class="st">"last"</span>,</span>
+<span id="cb16-32"><a href="#cb16-32"></a>      <span class="at">type =</span> <span class="st">"closed"</span></span>
+<span id="cb16-33"><a href="#cb16-33"></a>    ),</span>
+<span id="cb16-34"><a href="#cb16-34"></a>    <span class="at">data =</span> housing_lm_augment</span>
+<span id="cb16-35"><a href="#cb16-35"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-36"><a href="#cb16-36"></a>  </span>
+<span id="cb16-37"><a href="#cb16-37"></a>  <span class="fu">gf_segment</span>(</span>
+<span id="cb16-38"><a href="#cb16-38"></a>    <span class="dv">29</span> <span class="sc">+</span> <span class="dv">29</span> <span class="sc">~</span> <span class="fl">2.5</span> <span class="sc">+</span> <span class="dv">7</span>,</span>
+<span id="cb16-39"><a href="#cb16-39"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb16-40"><a href="#cb16-40"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(</span>
+<span id="cb16-41"><a href="#cb16-41"></a>      <span class="at">angle =</span> <span class="dv">30</span>,</span>
+<span id="cb16-42"><a href="#cb16-42"></a>      <span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"inches"</span>),</span>
+<span id="cb16-43"><a href="#cb16-43"></a>      <span class="at">ends =</span> <span class="st">"first"</span>,</span>
+<span id="cb16-44"><a href="#cb16-44"></a>      <span class="at">type =</span> <span class="st">"closed"</span></span>
+<span id="cb16-45"><a href="#cb16-45"></a>    ),</span>
+<span id="cb16-46"><a href="#cb16-46"></a>    <span class="at">color =</span> <span class="st">"blue"</span>,</span>
+<span id="cb16-47"><a href="#cb16-47"></a>    <span class="at">data =</span> housing_lm_augment</span>
+<span id="cb16-48"><a href="#cb16-48"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-49"><a href="#cb16-49"></a>  </span>
+<span id="cb16-50"><a href="#cb16-50"></a>  <span class="fu">gf_refine</span>(</span>
+<span id="cb16-51"><a href="#cb16-51"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="dv">10</span>),</span>
+<span id="cb16-52"><a href="#cb16-52"></a>                       <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)),</span>
+<span id="cb16-53"><a href="#cb16-53"></a>    <span class="co"># removes plot panel margins</span></span>
+<span id="cb16-54"><a href="#cb16-54"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">55</span>),</span>
+<span id="cb16-55"><a href="#cb16-55"></a>                       <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb16-56"><a href="#cb16-56"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-57"><a href="#cb16-57"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/model-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>For any new value of <code>rm</code>, we go up to the red line and read off the predicted median price. That is how the model is used.</p>
-<p>In practice, we use the <code>broom</code> package functions to obtain a clear view of the model parameters and predictions of <code>cmedv</code> for all <em>existing</em> values of <code>rm</code>. To predict <code>cmedv</code> with <em>new</em> values of <code>rm</code>, we use <code>predict</code>. We see estimates for the intercept and slope (<code>rm</code>) for the linear model, along with the standard errors and p.values. And we see the fitted values of <code>cmedv</code> for the existing <code>rm</code>; these values will naturally line <strong>on</strong> the straight-line depicting the model. We will examine this <code>augment</code>-ed data more in the <a href="#sec-diagnostics">Section&nbsp;6</a>.</p>
-<div class="cell" data-hash="LinReg_cache/html/predictions with new data_d265eb720b132d96facbfca231e768d5">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">rm =</span> <span class="fu">seq</span>(<span class="dv">3</span>, <span class="dv">10</span>))</span>
-<span id="cb15-2"><a href="#cb15-2"></a>new <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">predictions =</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a>                 stats<span class="sc">::</span><span class="fu">predict</span>(</span>
-<span id="cb15-4"><a href="#cb15-4"></a>                   <span class="at">object =</span> housing_lm,</span>
-<span id="cb15-5"><a href="#cb15-5"></a>                   <span class="at">newdata =</span> .,</span>
-<span id="cb15-6"><a href="#cb15-6"></a>                   <span class="at">se.fit =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a>                 ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In practice, we use the <code>broom</code> package functions (<code>tidy</code>, <code>glance</code> and <code>augment</code>) to obtain a clear view of the model parameters and predictions of <code>cmedv</code> for all <em>existing</em> values of <code>rm</code>. To predict <code>cmedv</code> with <em>new</em> values of <code>rm</code>, we use <code>predict</code>. We see estimates for the intercept and slope (<code>rm</code>) for the linear model, along with the <em>standard errors</em> and <em>p.values</em>. And we see the fitted values of <code>cmedv</code> for the existing <code>rm</code>; these values will naturally line <strong>on</strong> the straight-line depicting the model. We will examine this <code>augment</code>-ed data more in the <a href="#sec-diagnostics">Section&nbsp;6</a>.</p>
+<div class="cell" data-hash="LinReg_cache/html/predictions with new data_fd929fcd19d071eb27b831f075d0fdaf">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">rm =</span> <span class="fu">seq</span>(<span class="dv">3</span>, <span class="dv">10</span>)) <span class="co"># must be named "rm"</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>new <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">predictions =</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>                 stats<span class="sc">::</span><span class="fu">predict</span>(</span>
+<span id="cb17-4"><a href="#cb17-4"></a>                   <span class="at">object =</span> housing_lm,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>                   <span class="at">newdata =</span> .,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>                   <span class="at">se.fit =</span> <span class="cn">FALSE</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>                 ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -781,7 +839,7 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <p>Note that “negative values” for predicted <code>cmedv</code> would have no meaning!</p>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <p>All that is very well, but what is happening under the hood of the <code>lm</code> command? Consider the <code>cmedv</code> (target) variable and the <code>rm</code> feature/predictor variable. What we do is:</p>
 <ol type="1">
 <li>Plot a scatter plot <code>gf_point(cmedv ~ rm, housing)</code>
@@ -792,37 +850,37 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li>Use that “best” line henceforth as a model for prediction.</li>
 </ol>
 <p>How does one fit the “best” line? Consider a choice of “lines” that we can use to fit to the data. Here are 6 lines of varying slopes (and intercepts ) that we can try as candidates for the best fit line:</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-12_972433eb44ff32539393104fba7383d6">
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-13_0660652ffc9703b3cbda0ad5a5d392e6">
 
 </div>
-<div class="cell quarto-layout-panel" data-hash="LinReg_cache/html/unnamed-chunk-13_ad510a1315fa5e052a87222943a6fc64">
+<div class="cell quarto-layout-panel" data-hash="LinReg_cache/html/unnamed-chunk-14_af58c0a4b705f8b2ac9824f8114c84c4">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-3.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-3.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-4.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-4.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-5.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-5.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-13-6.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-14-6.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </div>
 <p>It should be apparent that while we cannot determine which line may be the best, the <strong>worst</strong> line seems to be the one in the final plot, which ignores the x-variable <code>rm</code> altogether. This corresponds to the <em>NULL Hypothesis</em>, that there is <em>no relationship</em> between the two variables. Any of the other lines could be a decent candidate, so how do we decide?</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-14_08190760116c92335e32cdde9d58a471">
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-15_f9695a3e9f3a1ac11ee29306c477f38c">
 <div class="cell-output-display">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>In Fig A, the <em>horizontal</em> <span style="color: dodgerblue;">blue line</span> is the overall mean of <code>cmedv</code>, denoted as <span class="math inline">\(\mu_{tot}\)</span>. The vertical <span style="color: green;">green lines</span> to the points show the departures of each point from this overall mean, called <span style="background-color: yellow;"><strong>residuals</strong></span>. The sum of <em>squares</em> of these residuals in Fig A is called the <span style="background-color: yellow;"><strong>Total Sum of Squares</strong> (SST)</span>.</p>
@@ -842,29 +900,29 @@ SSE = \Sigma [(y - a - b * rm)^2]
 </div>
 <p>We see that there is a quadratic minimum <span class="math inline">\(SSE\)</span> at the optimum value of slope and at all other slopes, the <span class="math inline">\(SSE\)</span> is higher. We can use this to find the optimum slope, which is what the function <code>lm</code> does.</p>
 </div>
-<div id="tabset-1-3" class="tab-pane page-columns page-full" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div id="tabset-2-3" class="tab-pane page-columns page-full" role="tabpanel" aria-labelledby="tabset-2-3-tab">
 <p>Let us hand-calculate the numbers so we know what the test is doing. Here is the SST: we pretend that there is no relationship between <code>cmedv</code> ans <code>rm</code> and compute a <strong>NULL</strong> model:</p>
 <div class="cell" data-hash="LinReg_cache/html/SST Total Sum of Squares_82e06d1c14989511634ec5b63b111c2c">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Calculate overall sum squares SST</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a></span>
-<span id="cb16-3"><a href="#cb16-3"></a>SST <span class="ot">&lt;-</span> <span class="fu">deviance</span>(<span class="fu">lm</span>(cmedv <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> housing))</span>
-<span id="cb16-4"><a href="#cb16-4"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># Calculate overall sum squares SST</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a></span>
+<span id="cb18-3"><a href="#cb18-3"></a>SST <span class="ot">&lt;-</span> <span class="fu">deviance</span>(<span class="fu">lm</span>(cmedv <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> housing))</span>
+<span id="cb18-4"><a href="#cb18-4"></a>SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 42577.74</code></pre>
 </div>
 </div>
 <p>And here is the SSE:</p>
 <div class="cell" data-hash="LinReg_cache/html/SSE Within Group Sum of Squares_9d50ba85b2b38362cd1416935195b109">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">deviance</span>(housing_lm)</span>
-<span id="cb18-2"><a href="#cb18-2"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">deviance</span>(housing_lm)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 21934.39</code></pre>
 </div>
 </div>
 <p>Given that the model leaves <strong>unexplained</strong> variations in <code>cmedv</code> to the extent of <span class="math inline">\(SSE\)</span>, we can compute the <span class="math inline">\(SSR\)</span>, <span style="background-color: yellow;">the Regression Sum of Squares</span>, the amount of variation in <code>cmedv</code> that the linear model <strong>does</strong> explain:</p>
 <div class="cell" data-hash="LinReg_cache/html/SSR_d627f49aed6a630bbfadcd4505140841">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>SSR <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
-<span id="cb20-2"><a href="#cb20-2"></a>SSR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>SSR <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
+<span id="cb22-2"><a href="#cb22-2"></a>SSR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 20643.35</code></pre>
 </div>
@@ -884,37 +942,37 @@ F_{stat} = \frac{SSR / df_{SSR}}{SSE / df_{SSE}}
 <li>And therefore <span class="math inline">\(SSR\)</span> has just <span class="math inline">\(1\)</span> degree of freedom.</li>
 </ul>
 <p>Now we are ready to compute the F-statistic:</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-19_aaa1ddd5f287d650af82226a8217840d">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>n <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span> <span class="fu">count</span>() <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
-<span id="cb22-2"><a href="#cb22-2"></a>df_SSR <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb22-3"><a href="#cb22-3"></a>df_SSE <span class="ot">&lt;-</span> n <span class="sc">-</span><span class="dv">2</span></span>
-<span id="cb22-4"><a href="#cb22-4"></a>F_stat <span class="ot">&lt;-</span> (SSR<span class="sc">/</span>df_SSR) <span class="sc">/</span> (SSE<span class="sc">/</span>df_SSE)</span>
-<span id="cb22-5"><a href="#cb22-5"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-20_97a1f1ed5a1f92b03322b08bb1dc800f">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>n <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span> <span class="fu">count</span>() <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb24-2"><a href="#cb24-2"></a>df_SSR <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb24-3"><a href="#cb24-3"></a>df_SSE <span class="ot">&lt;-</span> n <span class="sc">-</span><span class="dv">2</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>F_stat <span class="ot">&lt;-</span> (SSR<span class="sc">/</span>df_SSR) <span class="sc">/</span> (SSE<span class="sc">/</span>df_SSE)</span>
+<span id="cb24-5"><a href="#cb24-5"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 474.3349</code></pre>
 </div>
 </div>
 <p>The F-stat is compared with a <strong>critical value</strong> of the F-statistic, which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to 0.95, and quote the two relevant degrees of freedom as parameters to <code><a href="https://rdrr.io/r/stats/Fdist.html">qf()</a></code> which computes the critical F value as a <strong>quartile</strong>:</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-20_29f97593a57f52ba9f85efe521ca7d21">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>F_crit <span class="ot">&lt;-</span>  <span class="fu">qf</span>(<span class="at">p =</span> <span class="fl">0.95</span>,     <span class="co"># Significance level is 5%</span></span>
-<span id="cb24-2"><a href="#cb24-2"></a>              <span class="at">df1 =</span> df_SSR, <span class="co"># Numerator degrees of freedom </span></span>
-<span id="cb24-3"><a href="#cb24-3"></a>              <span class="at">df2 =</span> df_SSE) <span class="co"># Denominator degrees of freedom</span></span>
-<span id="cb24-4"><a href="#cb24-4"></a>F_crit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-21_ce1d8452226a46aba571f17ffb19885a">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>F_crit <span class="ot">&lt;-</span>  <span class="fu">qf</span>(<span class="at">p =</span> <span class="fl">0.95</span>,     <span class="co"># Significance level is 5%</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>              <span class="at">df1 =</span> df_SSR, <span class="co"># Numerator degrees of freedom </span></span>
+<span id="cb26-3"><a href="#cb26-3"></a>              <span class="at">df2 =</span> df_SSE) <span class="co"># Denominator degrees of freedom</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>F_crit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3.859975</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>F_stat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 474.3349</code></pre>
 </div>
 </div>
 <div class="page-columns page-full"><p>The F_crit value can also be seen in a plot<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</p></li></div></div>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-21_ae37b870b2db87a82b9c23cc70da3e67">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>mosaic<span class="sc">::</span><span class="fu">pdist</span>(<span class="at">dist =</span> <span class="st">"f"</span>,</span>
-<span id="cb28-2"><a href="#cb28-2"></a>              <span class="at">q =</span> F_crit, </span>
-<span id="cb28-3"><a href="#cb28-3"></a>              <span class="at">df1 =</span> df_SSR, <span class="at">df2 =</span> df_SSE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-22_4c123aa18a46fc34a53024f00867d54f">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>mosaic<span class="sc">::</span><span class="fu">pdist</span>(<span class="at">dist =</span> <span class="st">"f"</span>,</span>
+<span id="cb30-2"><a href="#cb30-2"></a>              <span class="at">q =</span> F_crit, </span>
+<span id="cb30-3"><a href="#cb30-3"></a>              <span class="at">df1 =</span> df_SSR, <span class="at">df2 =</span> df_SSE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.95</code></pre>
@@ -925,14 +983,14 @@ F_{stat} = \frac{SSR / df_{SSR}}{SSE / df_{SSE}}
 <p><span class="math display">\[
 R.squared = \frac{SSR}{SST} = \frac{SSY-SSE}{SST}
 \]</span></p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-22_fb7b66a0834c9c2a0b8564380671c123">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>r_squared <span class="ot">&lt;-</span> (SST <span class="sc">-</span> SSE)<span class="sc">/</span>SST</span>
-<span id="cb30-2"><a href="#cb30-2"></a>r_squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-23_d8472806cf85f93a6a7c79dddaa48b9d">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>r_squared <span class="ot">&lt;-</span> (SST <span class="sc">-</span> SSE)<span class="sc">/</span>SST</span>
+<span id="cb32-2"><a href="#cb32-2"></a>r_squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.484839</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="co"># Also computable by</span></span>
-<span id="cb32-2"><a href="#cb32-2"></a><span class="co"># mosaic::rsquared(housing_lm)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># Also computable by</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="co"># mosaic::rsquared(housing_lm)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>So <code>R.squared</code> = 0.484839</p>
 <p>The value of Slope and Intercept are computed using a maximum likelihood derivation and the knowledge that the means square error is a minimum at the optimum slope: for a linear model <span class="math inline">\(y \sim mx + c\)</span></p>
@@ -944,13 +1002,13 @@ slope = \frac{\Sigma[(y - y_{mean})*(x - x_{mean})]}{\Sigma(x - x_{mean})^2}
 Intercept = y_{mean} - slope * x_{mean}
 \]</span></p>
 <div class="cell" data-hash="LinReg_cache/html/slope and intercept_21520278d83f16723aaeb2bfb9f1a914">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>slope <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">cov</span>(cmedv <span class="sc">~</span> rm, <span class="at">data =</span> housing) <span class="sc">/</span> mosaic<span class="sc">::</span><span class="fu">var</span>(<span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
-<span id="cb33-2"><a href="#cb33-2"></a>slope</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>slope <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">cov</span>(cmedv <span class="sc">~</span> rm, <span class="at">data =</span> housing) <span class="sc">/</span> mosaic<span class="sc">::</span><span class="fu">var</span>(<span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
+<span id="cb35-2"><a href="#cb35-2"></a>slope</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 9.09967</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>intercept <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">mean</span>(<span class="sc">~</span> cmedv, <span class="at">data =</span> housing) <span class="sc">-</span> slope <span class="sc">*</span> mosaic<span class="sc">::</span><span class="fu">mean</span>(<span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
-<span id="cb35-2"><a href="#cb35-2"></a>intercept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>intercept <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">mean</span>(<span class="sc">~</span> cmedv, <span class="at">data =</span> housing) <span class="sc">-</span> slope <span class="sc">*</span> mosaic<span class="sc">::</span><span class="fu">mean</span>(<span class="sc">~</span> rm, <span class="at">data =</span> housing)</span>
+<span id="cb37-2"><a href="#cb37-2"></a>intercept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -34.65924</code></pre>
 </div>
@@ -970,8 +1028,8 @@ Intercept = y_{mean} - slope * x_{mean}
 <section id="checks-for-uncertainty" class="level4"><h4 class="anchored" data-anchor-id="checks-for-uncertainty">Checks for Uncertainty</h4>
 <p>Let us first look at the uncertainties in the estimates of slope and intercept. These are most easily read off from the <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy</a></code>-ed model:</p>
 <div class="cell" data-hash="LinReg_cache/html/uncertainty and confidence_c7fc082425e82e9e69dd4acee6e2c6a6">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="co"># housing_lm_tidy &lt;-  housing_lm %&gt;% broom::tidy()</span></span>
-<span id="cb37-2"><a href="#cb37-2"></a>housing_lm_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># housing_lm_tidy &lt;-  housing_lm %&gt;% broom::tidy()</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a>housing_lm_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -982,14 +1040,14 @@ Intercept = y_{mean} - slope * x_{mean}
 </div>
 </div>
 <p>Plotting this is simple too:</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-25_9a6e2578a0f97f62adfa48f6ee224457">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>housing_lm_tidy <span class="sc">%&gt;%</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">gf_col</span>(estimate <span class="sc">~</span> term, <span class="at">fill =</span> <span class="sc">~</span> term, <span class="at">width =</span> <span class="fl">0.25</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-3"><a href="#cb38-3"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-4"><a href="#cb38-4"></a>  <span class="fu">gf_errorbar</span>(conf.low <span class="sc">+</span> conf.high <span class="sc">~</span> term, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">title =</span> <span class="st">"Model Estimates with Confidence Intervals"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-5"><a href="#cb38-5"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-26_63ee430deb9c5a783bdeadd9af491e91">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>housing_lm_tidy <span class="sc">%&gt;%</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">gf_col</span>(estimate <span class="sc">~</span> term, <span class="at">fill =</span> <span class="sc">~</span> term, <span class="at">width =</span> <span class="fl">0.25</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-3"><a href="#cb40-3"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-4"><a href="#cb40-4"></a>  <span class="fu">gf_errorbar</span>(conf.low <span class="sc">+</span> conf.high <span class="sc">~</span> term, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">title =</span> <span class="st">"Model Estimates with Confidence Intervals"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-5"><a href="#cb40-5"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="LinReg_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+<p><img src="LinReg_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section><section id="checks-for-constant-varianceheteroscedasticity" class="level4 page-columns page-full"><h4 class="anchored" data-anchor-id="checks-for-constant-varianceheteroscedasticity">Checks for Constant Variance/Heteroscedasticity</h4>
@@ -1003,30 +1061,30 @@ Intercept = y_{mean} - slope * x_{mean}
 </ol>
 <p>We can check these using checks and graphs: Here we plot the residuals against the independent/feature variable and see if there is a gross variation in their range</p>
 <div class="cell" data-hash="LinReg_cache/html/Check for Constant Variance_e861d618b69608cf555559ad583674a4">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
-<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">gf_point</span>(.resid <span class="sc">~</span> .fitted, <span class="at">title =</span> <span class="st">"Residuals vs Fitted"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a>  <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb39-4"><a href="#cb39-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
+<span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">gf_point</span>(.resid <span class="sc">~</span> .fitted, <span class="at">title =</span> <span class="st">"Residuals vs Fitted"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3"></a>  <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb41-4"><a href="#cb41-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/Check for Constant Variance-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">gf_qq</span>(<span class="sc">~</span> .std.resid, <span class="at">title =</span> <span class="st">"Q-Q Residuals"</span>) <span class="sc">%&gt;%</span> <span class="fu">gf_qqline</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb40-3"><a href="#cb40-3"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">gf_qq</span>(<span class="sc">~</span> .std.resid, <span class="at">title =</span> <span class="st">"Q-Q Residuals"</span>) <span class="sc">%&gt;%</span> <span class="fu">gf_qqline</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/Check for Constant Variance-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
-<span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">gf_point</span>(<span class="fu">sqrt</span>(.std.resid) <span class="sc">~</span> .fitted, <span class="at">title =</span> <span class="st">"Scale-Location Plot"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb41-3"><a href="#cb41-3"></a>    <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb41-4"><a href="#cb41-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
+<span id="cb43-2"><a href="#cb43-2"></a>  <span class="fu">gf_point</span>(<span class="fu">sqrt</span>(.std.resid) <span class="sc">~</span> .fitted, <span class="at">title =</span> <span class="st">"Scale-Location Plot"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb43-3"><a href="#cb43-3"></a>    <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-4"><a href="#cb43-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/Check for Constant Variance-3.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
-<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">gf_point</span>(.std.resid <span class="sc">~</span> .hat, <span class="at">title =</span> <span class="st">"Residuals vs Leverage"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb42-3"><a href="#cb42-3"></a>    <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb42-4"><a href="#cb42-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>housing_lm_augment <span class="sc">%&gt;%</span> </span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">gf_point</span>(.std.resid <span class="sc">~</span> .hat, <span class="at">title =</span> <span class="st">"Residuals vs Leverage"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a>    <span class="fu">gf_smooth</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb44-4"><a href="#cb44-4"></a>  <span class="fu">gf_theme</span>(my_theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/Check for Constant Variance-4.png" class="img-fluid" width="672"></p>
 </div>
@@ -1034,8 +1092,8 @@ Intercept = y_{mean} - slope * x_{mean}
 
 <div class="no-row-height column-margin column-container"><div class="">
 <p>Base R has a crisp command to plot these diagnostic graphs. But we will continue to use <code>ggformula</code>.</p>
-<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-27_4b27cb6c1be18ff834e9260b7bef92bb">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="fu">plot</span>(housing_lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-28_3bbbbedcaf04ca8f31ed0da2d6ebe01e">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">plot</span>(housing_lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div></div><p>The residuals are not quite “like the night sky”, i.e.&nbsp;random enough. The Q-Q plot of residuals also has significant deviations from the normal quartiles. These point to the need for a richer model, with more predictors.</p>
 </section></section><section id="multiple-regression" class="level2"><h2 class="anchored" data-anchor-id="multiple-regression">Multiple Regression</h2>
