@@ -18,7 +18,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
 |                                                                                                                  |     |                                                                                                             |     |
-|------------------|-------------------|------------------|------------------|
+|------------------------------------------------------------------------------------------------------------------|-----|-------------------------------------------------------------------------------------------------------------|-----|
 | <a href="./files/multiple-regression.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>   |     | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -94,7 +94,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:-------------------------|:---------------------------------------------|
+|:--------|:----------------------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -125,11 +125,13 @@ owner-occupied homes in USD 1000'*s. Their are many Quantitative feature
 variables that we can use to predict `cmedv`. And there are two
 Qualitative features, `chas` and `tax`.
 
-## Workflow: EDA
+## {{< iconify flat-color-icons:workflow >}} Workflow: EDA
 
 In order to fit the linear model, we need to choose **predictor**
 variables that have strong correlations with the **target** variable. We
-will first do this with `GGally`, and then with the `tidyverse` itself. Both give us a very unique view into the correlations that exist within this dataset. 
+will first do this with `GGally`, and then with the `tidyverse` itself.
+Both give us a very unique view into the correlations that exist within
+this dataset.
 
 ::: panel-tabset
 ### Correlations with GGally
@@ -188,10 +190,14 @@ and `crim`(crime rate) also have fairly large correlations with `cmedv`.
 ::: callout-important
 ## Correlation Scores and Uncertainty
 
-Recall that `cor.test` reports a correlation score and the `p-value`
-for the same. There is also a `confidence interval` reported for the
-correlation score, an interval within which we are 95% sure that the true
-correlation value is to be found.  Note that GGally too reports the significance of the correlation scores using `***` or `**`. This indicates the p-value in the scores obtained by GGally; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally. 
+Recall that `cor.test` reports a correlation score and the `p-value` for
+the same. There is also a `confidence interval` reported for the
+correlation score, an interval within which we are 95% sure that the
+true correlation value is to be found. Note that GGally too reports the
+significance of the correlation scores using `***` or `**`. This
+indicates the p-value in the scores obtained by GGally; Presumably,
+there is an internal `cor.test` that is run for each pair of variables
+and the p-value and confidence levels are also computed internally.
 :::
 
 Let us also check the Qualitative variables:
@@ -242,8 +248,9 @@ be useful in modelling `cmedv`.
 This is somewhat advanced material: We will use `purrr` to develop all
 correlations with respect to our target variable in one shot and also
 plot these correlation test scores in an error-bar plot. This has the
-advantage of being able to depict all correlations in one plot. Let us
-do this.
+advantage of being able to depict all correlations in one plot. (We will
+use this approach agan here when we trim our linear models down from the
+*maximal* one to a workable one of lesser complexity.). Let us do this.
 
 We develop a list object containing all correlation test results with
 respect to `cmedv`, tidy these up using `broom::tidy` and then plot
@@ -546,8 +553,8 @@ p1 + p2 + patchwork::plot_annotation(tag_levels = c("A", "B"),)
 
 In Fig A, the *horizontal* [blue line]{style="color: dodgerblue;"} is
 the overall mean of `cmedv`, denoted as $\mu_{tot}$. The vertical [green
-lines]{style="color: green;"} to the points show the departures of each
-point from this overall mean, called
+lines]{style="color: palegreen;"} to the points show the departures of
+each point from this overall mean, called
 [**residuals**]{style="background-color: yellow;"}. The sum of *squares*
 of these residuals in Fig A is called the [**Total Sum of Squares**
 (SST)]{style="background-color: yellow;"}.
@@ -780,7 +787,9 @@ Plotting this is simple too:
 housing_lm_tidy %>%
   gf_col(estimate ~ term, fill = ~ term, width = 0.25) %>% 
   gf_hline(yintercept = 0) %>% 
-  gf_errorbar(conf.low + conf.high ~ term, linewidth = 1, title = "Model Estimates with Confidence Intervals") %>% 
+  gf_errorbar(conf.low + conf.high ~ term, 
+              width = 0.1, 
+              title = "Model Estimates with Confidence Intervals") %>% 
   gf_theme(my_theme())
 
 ```
@@ -808,16 +817,19 @@ housing_lm_augment %>%
   gf_theme(my_theme)
 
 housing_lm_augment %>% 
-  gf_qq(~ .std.resid, title = "Q-Q Residuals") %>% gf_qqline() %>%
+  gf_qq(~ .std.resid, title = "Q-Q Residuals") %>% 
+  gf_qqline() %>%
   gf_theme(my_theme)
 
 housing_lm_augment %>% 
-  gf_point(sqrt(.std.resid) ~ .fitted, title = "Scale-Location Plot") %>%
+  gf_point(sqrt(.std.resid) ~ .fitted, 
+           title = "Scale-Location Plot") %>%
     gf_smooth() %>% 
   gf_theme(my_theme)
 
 housing_lm_augment %>% 
-  gf_point(.std.resid ~ .hat, title = "Residuals vs Leverage") %>%
+  gf_point(.std.resid ~ .hat, 
+           title = "Residuals vs Leverage") %>%
     gf_smooth() %>% 
   gf_theme(my_theme)
 ```
@@ -853,8 +865,8 @@ all stages yet, but that is for another course module or tutorial!
 ```{mermaid}
 %%| echo: false
 flowchart TD
-    A[(A: Data)] -->|mosaic + ggformula|B[B:EDA] 
-    B --> |corrplot + corrgram| C(C: Check Relationships)
+    A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
+    B --> |corrplot +  corrgram  + purrr + ggformula| C(C: Check Relationships)
     C --> D[D: Decide on Simple/Complex Model]
     D --> E{E: Is Simple Model Possible?}
     E --> |Yes| G[G: Build Model]
@@ -862,7 +874,7 @@ flowchart TD
     F --> D
     G --> H{H: Check Model Diagnostics}
     H --> |Problems| D
-    H --> |All good| I(Interpret Your Model)
+    H --> |All   good| I(Interpret Your Model)
     I --> J(((Apply the Model for Predictions)))
 ```
 

@@ -74,7 +74,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:--------|:----------------------------------------------------------------------|
+|:-------------|:---------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -138,7 +138,7 @@ and removing them in decreasing order of their p-value.
 We will also use some powerful features from the `purrr` package (also
 part of the `tidyverse`), to create **all** these models all at once.
 Then we will be able to plot their `R.squared` values together and
-decide where we wish to trade off Explanability vs Complexity for our
+decide where we wish to trade off Explainability vs Complexity for our
 model.
 
 ```{r}
@@ -154,10 +154,10 @@ housing_maximal_tidy <-
   housing_maximal %>% 
   broom::tidy() %>% 
   
-  # Obviously remove "Intercept" ;-D
+# Obviously remove "Intercept" ;-D
   filter(term != "(Intercept)") %>% 
   
-  # And horrors! Sort variables by p.value
+# And horrors! Sort variables by p.value
   arrange(p.value)
 housing_maximal_tidy
 
@@ -170,9 +170,9 @@ models at once. We will construct a dataset containing three columns:
 -   A sequence of numbers from 1 to `N(predictor)`
 -   A "list" column containing the `housing` data frame itself
 
-We will use the iteration capability of `purrr` to sequentially dropping
-one variable at a time from the maximal(15 predictor) model, build a new
-reduced model and compute the `r.squared`:
+We will use the iteration capability of `purrr` to sequentially drop one
+variable at a time from the maximal(15 predictor) model, build a new
+reduced model each time, and compute the `r.squared`:
 
 ```{r}
 #| label: All models at once
@@ -184,20 +184,20 @@ housing_model_set
 # Unleash purrr in a series of mutates
 housing_model_set <- housing_model_set %>%
   
-  # list of predictor variables for each model
+# list of predictor variables for each model
   mutate(mod_vars =
            pmap(
              .l = list(all_vars, keep_vars, data),
              .f = \(all_vars, keep_vars, data) all_vars[1:keep_vars]
            )) %>%
   
-  # build a formula with these for linear regression
+# build a formula with these for linear regression
   mutate(formula = map(.x = mod_vars,
                        .f = \(mod_vars) as.formula(paste(
                          "cmedv ~", paste(mod_vars, collapse = "+")
                        )))) %>%
   
-  # use the formulae to build multiple linear models
+# use the formulae to build multiple linear models
   mutate(models =
            pmap(
              .l = list(data, formula),
@@ -250,7 +250,7 @@ housing_model_final <-
            )) %>% 
   
   # Remove unwanted columns, keep model and predictor count
-  select(keep_vars, tidy_models) %>%
+  select(keep_vars, models, tidy_models) %>%
   unnest(tidy_models)
 housing_model_final
   
@@ -261,7 +261,8 @@ housing_model_final %>%
   filter(term != "(Intercept)") %>% 
   gf_col(estimate ~ term, fill = ~ term, width = 0.25) %>% 
   gf_hline(yintercept = 0) %>% 
-  gf_errorbar(conf.low + conf.high ~ term, linewidth = 1, 
+  gf_errorbar(conf.low + conf.high ~ term, 
+              width = 0.1, 
               title = "Multiple Regression",
               subtitle = "Model Estimates with Confidence Intervals") %>% 
   gf_theme(my_theme())
@@ -269,6 +270,81 @@ housing_model_final %>%
 
 ```
 
+Our current best model can be stated as:
+
+$$
+\widehat{cmedv} \sim 24.459 - 0.673 * lstat + 4.199 * rm - 0.957 * ptratio - 0.563 * dis
+$$ {#eq-multiple-regression-model}
+
 ## Workflow: Diagnostics
 
+Let us use `broom::augment` to calculate residuals and predictions to
+arrive at a quick set of diagnostic plots.
+
+```{r}
+housing_model_final_augment <- 
+  housing_model_set %>% 
+  filter(keep_vars == 4) %>% 
+  
+# augment the model
+  mutate(augment_models =
+           map(
+             .x = models,
+             .f = \(x) broom::augment(x)
+           )) %>% 
+  unnest(augment_models) %>% 
+  select(cmedv:last_col())
+
+housing_model_final_augment
+```
+
+```{r}
+#| label: Diagnostic Plots for Multiple Regression
+#| layout-nrow: 2
+#| message: false
+#| warning: false
+housing_model_final_augment %>% 
+  gf_point(.resid ~ .fitted, title = "Residuals vs Fitted") %>%
+  gf_smooth() %>% 
+  gf_theme(my_theme)
+
+housing_model_final_augment %>% 
+  gf_qq(~ .std.resid, title = "Q-Q Residuals") %>% 
+  gf_qqline() %>%
+  gf_theme(my_theme)
+
+housing_model_final_augment %>% 
+  gf_point(sqrt(.std.resid) ~ .fitted, 
+           title = "Scale-Location Plot") %>%
+    gf_smooth() %>% 
+  gf_theme(my_theme)
+
+housing_model_final_augment %>% 
+  gf_point(.std.resid ~ .hat, 
+           title = "Residuals vs Leverage") %>%
+    gf_smooth() %>% 
+  gf_theme(my_theme)
+
+```
+
+The residuals plot shows a curved trend, and certainly does not
+resemblethe *stars at night*, so it is possible that we have left out
+some possible richness in our model-making, a "systemic inadequacy".
+
+The Q-Q plot of residuals also shows a `J-shape` which indicates a
+non-normal distribution of residuals.
+
+These could indicate that more complex model ( e.g. linear model with
+**interactions** between variables ( i.e. product terms ) may be
+necessary.
+
 ## Conclusion
+
+We have used a multiple-regression workflow that takes all predictor
+variables into account in a linear model, and then systematically
+simplified that model such that the performance was just adequate.
+However, the models we chose were all all linear and without interaction
+terms. When the diagnostic plots were examined, we did see some
+shortcomings in the model. This could be overcome with a more complex
+model.
+
