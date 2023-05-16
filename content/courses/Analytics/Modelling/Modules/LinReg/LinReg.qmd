@@ -1,5 +1,5 @@
 ---
-title: "Modelling Linear Regression"
+title: "Modelling with Linear Regression"
 author: "Arvind Venkatadri"
 date: 13/Apr/2023
 date-modified: "`r Sys.Date()`"
@@ -17,15 +17,15 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
-|                                                                                                                  |     |                                                                                                             |     |
-|------------------------------------------------------------------------------------------------------------------|-----|-------------------------------------------------------------------------------------------------------------|-----|
-| <a href="./files/multiple-regression.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression</a>   |     | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
+|                                                                                                                                    |                                                                                                                                        |                                                                                                             |     |
+|------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|-----|
+| <a href="./files/forward-selection.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-2.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
 #| label: setup
-#| message: true
+#| message: false
 #| warning: false
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
 library(tidyverse)
@@ -34,6 +34,8 @@ library(mosaic)
 library(GGally)
 library(corrplot)
 library(corrgram)
+
+library(nomnoml)
 
 ```
 
@@ -81,9 +83,10 @@ parameters Quantitative parameters such as area, location, rooms, and
 crime-rate in the neighbourhood?
 :::
 
-### Read the Data
+## {{< iconify flat-color-icons:workflow >}} Workflow: Read the Data
 
 ```{r}
+#| column: page
 data("BostonHousing2", package = "mlbench")
 housing <- BostonHousing2
 inspect(housing)
@@ -143,10 +146,28 @@ with the target variable `cmedv` and do a pairs-plots with them:
 #| label: pairs plots 1
 #| message: false
 #| warning: false
+#| column: screen-inset-shaded
+#| layout-nrow: 1
 housing %>% 
   # Target variable and Rooms / Age / Distance to City Centres / Radial Highway Access 
   select(cmedv, rm, age, dis) %>% 
-  GGally::ggpairs()
+  GGally::ggpairs(title = "Plot 1")
+
+housing %>% 
+# Target variable and Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
+  select(cmedv, rad, zn, indus, tax) %>% 
+  GGally::ggpairs(title = "Plot 2")
+
+housing %>% 
+  # Target variable and Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
+  select(cmedv, crim, nox, rad, b, lstat) %>% 
+  GGally::ggpairs(title = "Plot 3")
+
+
+housing %>% 
+  # Target variable and Access to Charles River
+  select(cmedv,chas) %>% 
+  GGally::ggpairs(title = "Plot 4")
 
 
 ```
@@ -157,35 +178,16 @@ correlations of `rm` with`cmedv`. The variable`age` (proportion of
 owner-occupied units built prior to 1940) may also be a significant
 influence on `cmedv`. (See top row)
 
-```{r}
-#| label: pairs plots 2
-#| message: false
-#| warning: false
-housing %>% 
-# Target variable and Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
-  select(cmedv, rad, zn, indus, tax) %>% 
-  GGally::ggpairs()
-
-```
-
-None of these Quant variables have a overly strong correlation with
-`cmedv`. (See top row)
-
-```{r}
-#| label: pairs plots 3
-#| message: false
-#| warning: false
-housing %>% 
-  # Target variable and Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
-  select(cmedv, crim, nox, rad, b, lstat) %>% 
-  GGally::ggpairs()
-
-```
+None of the Quant variables `rad, zn, indus, tax` have a overly strong
+correlation with `cmedv`. (See top row)
 
 The variable `lstat` (proportion of lower classes in the neighbourhood)
 as expected, has a strong (negative) correlation with `cmedv`;
 `rad`(index of accessibility to radial highways), `nox`(nitrous oxide)
 and `crim`(crime rate) also have fairly large correlations with `cmedv`.
+
+Let us also check the Qualitative variables: Access to the Charles river
+(`chas`) does seem to affect the prices somewhat.
 
 ::: callout-important
 ## Correlation Scores and Uncertainty
@@ -194,30 +196,14 @@ Recall that `cor.test` reports a correlation score and the `p-value` for
 the same. There is also a `confidence interval` reported for the
 correlation score, an interval within which we are 95% sure that the
 true correlation value is to be found. Note that GGally too reports the
-significance of the correlation scores using `***` or `**`. This
+significance of the correlation scores using stars, `***` or `**`. This
 indicates the p-value in the scores obtained by GGally; Presumably,
 there is an internal `cor.test` that is run for each pair of variables
 and the p-value and confidence levels are also computed internally.
 :::
 
-Let us also check the Qualitative variables:
-
-```{r}
-#| label: pairs plots 4
-#| message: false
-#| warning: false
-#| 
-housing %>% 
-  # Target variable and Access to Charles River
-  select(cmedv,chas) %>% 
-  GGally::ggpairs()
-
-
-```
-
-Access to the Charles river (`chas`) does seem to affect the prices
-somewhat. Let us plot (again) scatter plots of Quant Variables that have
-strong correlation with `cmedv`:
+Let us plot (again) scatter plots of Quant Variables that have strong
+correlation with `cmedv`:
 
 ```{r}
 #| layout-nrow: 1
@@ -249,8 +235,9 @@ This is somewhat advanced material: We will use `purrr` to develop all
 correlations with respect to our target variable in one shot and also
 plot these correlation test scores in an error-bar plot. This has the
 advantage of being able to depict all correlations in one plot. (We will
-use this approach agan here when we trim our linear models down from the
-*maximal* one to a workable one of lesser complexity.). Let us do this.
+use this approach again here when we trim our linear models down from
+the *maximal* one to a workable one of lesser complexity.). Let us do
+this.
 
 We develop a list object containing all correlation test results with
 respect to `cmedv`, tidy these up using `broom::tidy` and then plot
@@ -261,17 +248,24 @@ these:
 #| 
 all_corrs <- housing %>% 
   select(where(is.numeric)) %>% 
-  select(-cmedv) %>%  # leave off cmedv and IDs to get all the remaining ones
-  purrr::map(.x = .,
-             .f = \(x) cor.test(x, housing$cmedv)) %>%
+  # leave off target variable cmedv and IDs
+  # get all the remaining ones
+  select(-cmedv) %>%  
+
+  purrr::map(.x = ., # All numeric variables selected in the previous step
+             .f = \(x) cor.test(x, housing$cmedv)) %>% # Apply the cor.test with `cmedv`
+  
+  # Tidy up the cor.test outputs into neat columns
   map_dfr(broom::tidy, .id = "predictor") 
 
 all_corrs
 
-all_corrs %>% gf_point(estimate ~ reorder(predictor, estimate)) %>% gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), width = 0.2) %>% 
+all_corrs %>% 
+  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
+  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
+              width = 0.2) %>% 
   gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
   gf_theme(theme_minimal())
-
 
 ```
 
@@ -283,12 +277,24 @@ regression model.
 ::: callout-note
 ## Simple Regression vs Multiple Regression
 
-We would typically start with a **maximal model**[^1] and progressively
-simplify the model by knocking off predictors that have the least impact
-on model accuracy. We will do that in another tutorial (see above
+If there are many predictor variables, we would typically want to use
+more of them to make our model and predictions. There are three ways[^1]
+to include more predictors:
+
+-   **Backward Selection**: We would typically start with a **maximal
+    model**[^2] and progressively simplify the model by knocking off
+    predictors that have the least impact on model accuracy.
+-   **Forward Selection**: Start with no predictors and systematically
+    add them one by one to increase the quality of the model
+-   **Mixed Selection**: Wherein we start with no predictors and add
+    them to gain improvement, or remove them at as their *significance*
+    changes based on other predictors that have been added.
+
+We will do the first two in the other tutorials (see above
 @sec-tutorials) but for simplicity we will first use just one predictor
 `rm`(Avg. no. of Rooms) to model housing prices. Later we will include
-other predictor/features as well.
+other predictor/features as well. Mixed Selection we will leave for a
+more advanced course.
 :::
 
 ## Workflow: Model Building
@@ -319,9 +325,10 @@ $$ {#eq-rm-model}
 
 The effect of `rm` on predicting `cmedv` is significant, a (slope) value
 of $9.09967$ at p-value of $<2.2e-16$. The F-statistic for the Linear
-Model is given by $474.3$, which is very high. The `R-squared` value is
-48% which means that `rm` is able to explain about half of the trend in
-`cmedv`; there is substantial variation in `cmedv` that is left to
+Model is given by $474.3$, which is very high. ( We will use the
+F-statistic again when we do Multiple Regression.) The `R-squared` value
+is 48% which means that `rm` is able to explain about half of the trend
+in `cmedv`; there is substantial variation in `cmedv` that is left to
 explain, an indication that we should perhaps use a richer model, with
 more predictors. We will explore this in the Tutorials. @sec-tutorials
 
@@ -332,23 +339,27 @@ over-plotted.
 #| label: model
 #| echo: true
 
-# Tidy Dataframe for the model using `broom`
-housing_lm_tidy <- housing_lm %>% 
+# Tidy Data frame for the model using `broom`
+housing_lm_tidy <- 
+  housing_lm %>% 
   broom::tidy(conf.int= TRUE, 
               conf.level = 0.95)
 housing_lm_tidy
 
-housing_lm_augment <- housing_lm %>% 
+housing_lm_augment <- 
+  housing_lm %>% 
   broom::augment(se_fit = TRUE,
                  interval = "confidence")
 housing_lm_augment
 
-intercept <- housing_lm_tidy %>%
+intercept <- 
+  housing_lm_tidy %>%
   filter(term == "(Intercept)") %>%
   select(estimate) %>%
   as.numeric()
 
-slope <- housing_lm_tidy %>%
+slope <- 
+  housing_lm_tidy %>%
   filter(term == "rm") %>%
   select(estimate) %>%
   as.numeric()
@@ -449,6 +460,7 @@ intercepts ) that we can try as candidates for the best fit line:
 ```{r}
 #| echo: false
 # This code is not to be dissected in class
+# For exposition purposes only
 # Discuss the results only (graphs)
 
 set.seed(1234)
@@ -684,7 +696,7 @@ F_stat
 
 ```
 
-The F_crit value can also be seen in a plot[^2]:
+The F_crit value can also be seen in a plot[^3]:
 
 ```{r}
 mosaic::pdist(dist = "f",
@@ -862,6 +874,7 @@ method in another Tutorial.
 So our Linear Modelling workflow might look like this: we have not seen
 all stages yet, but that is for another course module or tutorial!
 
+::: column-page
 ```{mermaid}
 %%| echo: false
 flowchart TD
@@ -871,12 +884,15 @@ flowchart TD
     D --> E{E: Is Simple Model Possible?}
     E --> |Yes| G[G: Build Model]
     E -->|Nope| F[F: Transform Variables]
+    E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
+    K --> D
     F --> D
     G --> H{H: Check Model Diagnostics}
     H --> |Problems| D
     H --> |All   good| I(Interpret Your Model)
     I --> J(((Apply the Model for Predictions)))
 ```
+:::
 
 ## References
 
@@ -884,16 +900,22 @@ flowchart TD
     [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)
 2.  <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>
 3.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
-4.  David C Howell, [Permutation Tests for Factorial ANOVA
+4.  Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
+    *Introduction to Statistical Learning*, Springer, 2021. Chapter 3.
+    <https://www.statlearning.com/>
+5.  David C Howell, [Permutation Tests for Factorial ANOVA
     Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)
-5.  Marti Anderson, [Permutation tests for univariate or multivariate
+6.  Marti Anderson, [Permutation tests for univariate or multivariate
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-[^1]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+[^1]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
+    *Introduction to Statistical Learning, Springer, 2021. Chapter 3.
+    Linear Regression*. [Available
+    Online](https://www.statlearning.com/)
+
+[^2]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
     Statistical Modelling*
 
-[^2]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
-    Students to 'Think with Data' Using R." The R Journal, 9(1),
-    77--102.
-    https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
+[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+    Statistical Modelling*

@@ -1,0 +1,419 @@
+---
+title: "Tutorial: Multiple Linear Regression with Forward Selection"
+author: "Arvind Venkatadri"
+date: 13/May/2023
+date-modified: "`r Sys.Date()`"
+categories: 
+  - Linear Regression
+  - Quantitative Predictor
+  - Quantitative Response
+  - Sum of Squares
+  - Residuals
+abstract: "Using Multiple Regression to predict Quantitative Target Variables"
+---
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| message: true
+#| warning: false
+options(scipen = 1, digits = 3) #set to three decimal 
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE) 
+library(tidyverse)
+library(ggformula)
+library(mosaic)
+library(GGally)
+library(corrgram)
+library(corrplot)
+
+# datasets
+library(ISLR)
+
+```
+
+```{r}
+#| label: plot theme
+# Let us set a plot theme for Data visualisation
+
+my_theme <- function(){  # Creating a function
+  theme_classic() +  # Using pre-defined theme as base
+  theme(axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
+        axis.text.y = element_text(size = 12, face = "bold"),
+        axis.title = element_text(size = 14, face = "bold"),  # Customizing axis title
+        panel.grid = element_blank(),  # Taking off the default grid
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+        legend.text = element_text(size = 12, face = "italic"),  # Customizing legend text
+        legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
+        legend.position = "right",  # Customizing legend position
+        plot.caption = element_text(size = 12))  # Customizing plot caption
+}   
+
+```
+
+In this tutorial, we will use the ~~Boston housing~~ `Hitters`
+dataset**(s)** from the `ISLR` package. Our research question is:
+
+::: callout-note
+## Research Question
+
+How do we predict the `Salary` of baseball players based on other
+**Quantitative** parameters such as `Hits`, `HmRun` `AtBat`?
+
+And how do we choose the "best" model, based on a trade-off between
+Model Complexity and Model Accuracy?
+:::
+
+## {{< iconify flat-color-icons:workflow >}} Workflow Plan
+
+Our target variable is `Salary`.
+
+We will start with an examination of correlations between `Salary` and
+other Quant predictors.
+
+We will use a single quantitative predictor for our Linear Regression
+Model at first. Based on the examination of the *residuals* we will add
+another quantitative predictor. We will follow this process through up
+to a point where the gains in model accuracy are good enough to justify
+the additional model complexity.
+
+::: callout-note
+This approach is the exact opposite of the earlier tutorial on multiple
+linear regression, where we started with a **maximal model** and trimmed
+it down based on an assessment of `r.squared`.
+:::
+
+## {{< iconify flat-color-icons:workflow >}} Workflow: EDA
+
+The `Hitters` dataset has the following variables:
+
+```{r}
+
+data("Hitters")
+inspect(Hitters)
+
+```
+
+We should examine scatter plots of `Salary` against these variables.
+
+Let us select a few sets of Quantitative and Qualitative features, along
+with the target variable `Salary` and do a pairs-plots with them:
+
+```{r}
+#| label: pairs plots 1
+#| message: false
+#| warning: false
+#| column: screen-inset-shaded
+#| layout-nrow: 2
+Hitters %>% 
+  select(Salary, AtBat, Hits, HmRun) %>% 
+  GGally::ggpairs(title = "Plot 1")
+
+Hitters %>% 
+  select(Salary, Runs, RBI, Walks,Years) %>% 
+  GGally::ggpairs(title = "Plot 2")
+
+Hitters %>% 
+  select(Salary, CRBI, CAtBat, CHits, CHmRun, CRuns, CWalks) %>% 
+  GGally::ggpairs(title = "Plot 3")
+
+
+Hitters %>% 
+  select(Salary, PutOuts,Assists,Errors) %>% 
+  GGally::ggpairs(title = "Plot 4")
+
+Hitters %>% 
+  select(Salary, League,Division,NewLeague) %>% 
+  GGally::ggpairs(title = "Plot 5")
+
+```
+
+`AtBat` and `Hits` seem relevant predictors for `Salary`. So are `Runs`,
+`RBI`,`Walks`, and `Years`. From Plot 2, both `RBI` and `Walks` are also
+inter-correlated with `Runs`. All the `C*` variables are well correlated
+with `Salary` and also among one another. (Plot3). Plot 4 has no
+significant correlations at all. Plot 5 shows `Salary` nearly equally
+distributed across `League`, `Division`, and `NewLeague`.
+
+We can also plot all correlations in one graph using `cor.test` and
+`purrr`:
+
+```{r}
+#| label: corr-test plots
+
+all_corrs <- 
+  Hitters %>% 
+  select(where(is.numeric)) %>% 
+  
+  # leave off Salary and year to get all the remaining ones
+  select(- Salary) %>% 
+  
+  
+  # perform a cor.test for all variables against Salary
+  purrr::map(.x = .,
+             .f = \(x) cor.test(x, Hitters$Salary)) %>%
+  
+  # tidy up the cor.test outputs into a tidy data frame
+  map_dfr(broom::tidy, .id = "predictor") 
+
+all_corrs
+
+all_corrs %>% 
+  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
+  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
+              color = ~ -log10(p.value),
+              width = 0.2) %>% 
+  gf_hline(yintercept = 0, linewidth = 2, color = "grey") %>% 
+  gf_labs(x = NULL, y = "Correlation with Salary") %>% 
+  gf_theme(theme = theme_minimal) %>% 
+  gf_refine(scale_color_gradient("significance",low = "blue", high = "red"),
+                       theme(axis.text.x = element_text(angle = 30, hjust = 1)))
+
+```
+
+There are a good many predictors which have significant correlations
+with `Salary`.
+
+We now start with setting up simple Linear Regressions with **no**
+predictors, only an intercept. We then fit separate Linear Models using
+each predictor **individually**. Then based on the the improvement in
+`r.squared` offered by each predictor, we progressively add it to the
+model, until we are "satisfied" with the quality of the model ( using
+`rsquared` and other means).
+
+Let us now do this.
+
+## {{< iconify flat-color-icons:workflow >}} Workflow: Minimal Multiple Regression Model
+
+```{r}
+lm_min <- lm(data = Hitters, Salary ~ 1)
+summary(lm_min)
+lm_min %>% broom::tidy()
+lm_min %>% broom::glance()
+
+```
+
+OK, so the intercept is highly significant, the `t-statistic` is also
+high, but the intercept contributes *nothing* to the `r.squared`!!
+
+## {{< iconify flat-color-icons:workflow >}} Workflow: Individual Model Addition
+
+We will now set up individual models for each predictor and look at the
+`p.value` and `r.squared` offered by each separate model:
+
+```{r}
+#| label: Round1-All individual models at once
+
+names <- names(Hitters %>%
+  select(where(is.numeric), 
+         -c(Salary)))
+names
+
+n_vars <- length(names)
+
+Hitters_model_set <- tibble(all_vars = list(names),
+                            keep_vars = seq(1, n_vars),
+                            data = list(Hitters))
+Hitters_model_set # 12 rows
+
+# Unleash purrr in a series of mutates
+Hitters_model_set <- Hitters_model_set %>%
+  
+# list of predictor variables for each model
+  mutate(mod_vars =
+           pmap(
+             .l = list(all_vars, keep_vars, data),
+             .f = \(all_vars, keep_vars, data) all_vars[keep_vars]
+           )) %>%
+  
+# build formulae with these for linear regression
+  mutate(formula = map(.x = mod_vars,
+                       .f = \(mod_vars) as.formula(paste(
+                         "Salary ~", paste(mod_vars, collapse = "+")
+                       )))) %>%
+  
+# use the formulae to build multiple linear models
+  mutate(models =
+           pmap(
+             .l = list(data, formula),
+             .f = \(data, formula) lm(formula, data = data)
+           ))
+# Check everything after the operation
+Hitters_model_set
+
+# Tidy up the models using broom to expose their metrics
+Hitters_model_set <- 
+  Hitters_model_set %>% 
+  mutate(tidy_models =
+           map(
+             .x = models,
+             .f = \(x) broom::glance(x,
+                                     conf.int = TRUE,
+                                     conf.lvel = 0.95)
+           ),
+         predictor_name = names[keep_vars]) %>% 
+
+  # Remove unwanted columns, keep model and predictor count
+  select(keep_vars,predictor_name, tidy_models) %>%
+  unnest(tidy_models)
+
+
+# Plot r.squared vs predictor count
+Hitters_model_set %>% 
+  gf_point(r.squared ~ reorder(predictor_name, r.squared), 
+           color = "black",
+           ylab = "R.Squared",
+          xlab = "Params in the Linear Model") %>%
+  gf_theme(my_theme()) %>% 
+  gf_refine(theme(axis.text.x = element_text(angle = 30,
+                                             hjust = 1)))
+
+```
+
+```{r}
+# Which is the winning Predictor?
+winner <- Hitters_model_set %>% 
+  arrange(desc(r.squared)) %>% 
+  select(predictor_name) %>% 
+  head(1) %>% as.character()
+winner
+
+```
+
+So we can add `r winner` as a predictor to our model.
+
+```{r}
+# Here is the Round 1 Model
+lm_round1 <- update(lm_min, ~. + CRBI)
+lm_round1 %>% broom::tidy()
+lm_round1 %>% broom::glance()
+
+```
+
+So adding `CRBI` to the model as a predictor gives us an improved
+`r.squared` of $0.321$, which is the square of the correlation between
+`Salary` and `CRBI`, $.567$.
+
+And the model itself is: $$
+Salary \sim 274.580 + 0.791 \times CRBI
+$$ {#eq-round1}
+
+Let's press on to Round 2.
+
+## {{< iconify flat-color-icons:workflow >}} Workflow: Round 2
+
+We will set up a **round-2** model using `CRBI` as the predictor, and
+then proceed to add each of the other predictors as an `update` to the
+model.
+
+```{r}
+#| label: Round 2
+
+# Preliminaries
+names <- names(Hitters %>%
+  select(where(is.numeric), -c(Salary, winner)))
+names
+
+n_vars <- length(names)
+n_vars
+# names <- names %>% str_remove(winner)
+# names
+# n_vars <- n_vars-1
+
+
+# Round 2 Iteration
+Hitters_model_set <- tibble(all_vars = list(names),
+                            keep_vars = seq(1, n_vars),
+                            data = list(Hitters))
+Hitters_model_set 
+
+# Unleash purrr in a series of mutates
+Hitters_model_set <- Hitters_model_set %>%
+  
+# list of predictor variables for each model
+  mutate(mod_vars =
+           pmap(
+             .l = list(all_vars, keep_vars, data),
+             .f = \(all_vars, keep_vars, data) all_vars[keep_vars]
+           )) %>%
+  
+# build formulae with these for linear regression
+  mutate(formula = map(.x = mod_vars,
+                       .f = \(mod_vars) as.formula(paste(
+                         "Salary ~ CRBI +", paste(mod_vars, collapse = "+")
+                       )))) %>%
+  
+# use the formulae to build multiple linear models
+  mutate(models =
+           pmap(
+             .l = list(data, formula),
+             .f = \(data, formula) lm(formula, data = data)
+           ))
+# Check everything after the operation
+Hitters_model_set
+
+# Tidy up the models using broom to expose their metrics
+Hitters_model_set <- 
+  Hitters_model_set %>% 
+  mutate(tidy_models =
+           map(
+             .x = models,
+             .f = \(x) broom::glance(x,
+                                     conf.int = TRUE,
+                                     conf.lvel = 0.95)
+           ),
+         predictor_name = names[keep_vars]) %>% 
+
+  # Remove unwanted columns, keep model and predictor count
+  select(keep_vars,predictor_name, tidy_models) %>%
+  unnest(tidy_models)
+Hitters_model_set
+
+# Plot r.squared vs predictor count
+Hitters_model_set %>% 
+  gf_point(r.squared ~ reorder(predictor_name, r.squared),
+                               ylab = "Loss of R.Squared",
+                               xlab = "Param in the Linear Model") %>%
+  gf_theme(my_theme()) %>% 
+  gf_refine(theme(axis.text.x = element_text(angle = 30, hjust = 1)))
+
+# Which is the winning Predictor?
+winner <- Hitters_model_set %>% 
+  arrange(desc(r.squared)) %>% 
+  select(predictor_name) %>% 
+  head(1) %>% as.character()
+winner
+
+# Here is the Round 1 Model
+lm_round2 <- update(lm_round1, ~. + Hits)
+lm_round2 %>% broom::tidy()
+lm_round2 %>% broom::glance()
+
+```
+
+## Conclusion
+
+It is interesting that the second variable to be added was `Hits` which
+has a lower correlation of $0.439$ with `Salary` compared to some other
+Quant predictors such as `Chits`( \$0.525\$ ). This is because `CRBI` is
+hugely correlated with all of these predictors, so `CRDI` effectively
+acts as a proxy for all of these. See Plot 3.
+
+We see that adding `Hits` to the model gives us an improved `r.squared`
+of $0.425$
+
+We can proceed in this way to subsequent rounds and decide to stop when
+the model complexity (no. of predictors ) and the resulting gain in
+`r.squared` does not seem worth it.
+
+::: callout-note
+### Iteration
+
+We ought to convert the code into a function and run it that way for a
+specific number of rounds to see how things pan out. That is in the next
+version of this Tutorial! 😇
+:::
+
+## References
+
+1.  https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/

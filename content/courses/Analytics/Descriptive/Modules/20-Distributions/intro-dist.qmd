@@ -20,19 +20,18 @@ categories:
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                            |                                                                                                                          |                                                                                                    |                                                                                        |
+|                                                                                             |                                                                                                                          |                                                                                                    |                                                                                        |
 |------------------|-------------------|------------------|------------------|
-| <a href="./files/distributions.qmd"><i class="fa-brands                                    
-                                    fa-r-project"></i> R Tutorial</a>                        | <a href="./files/distributions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+| <a href="./files/distributions.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a>   | <a href="./files/distributions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
 #| label: setup
+#| include: true
 #| message: false
 #| warning: false
 
-library(fontawesome)
 library(tidyverse)
 library(mosaic)
 library(palmerpenguins)
@@ -125,71 +124,45 @@ data manipulation first! More later!
 ```{r}
 #| label: charts
 #| echo: true
+#| layout-nrow: 2
+
 mpg <- mpg %>% mutate(drv= as_factor(drv))
 
-p1 <- gf_histogram(~ hwy, 
-                   fill = ~ drv, 
-                   alpha = 0.3, 
-                   data = mpg) %>%
+gf_histogram(~ hwy, fill = ~ drv, alpha = 0.3, data = mpg) %>%
   gf_labs(title = "Histogram")
 
-p2 <- gf_density(~ hwy, 
-                 fill = ~ drv, 
-                 data = mpg) %>% 
+gf_density(~ hwy, fill = ~ drv, data = mpg) %>% 
   gf_labs(title = "Frequency Density")
 
-p3 <- gf_boxplot(hwy ~ drv, 
-                 fill = ~ drv, 
-                 data = mpg) %>% 
+gf_boxplot(hwy ~ drv, fill = ~ drv, data = mpg) %>% 
   gf_labs(title = "Boxplot")
 
-p4 <- gf_violin(hwy ~ drv, 
-                fill = ~ drv, 
-                data = mpg) %>% 
+gf_violin(hwy ~ drv, fill = ~ drv, data = mpg) %>% 
     gf_labs(title = "Violin")
-
-```
-
-```{r}
-#| echo: false
-(p1+p3)/(p2+p4) + 
-  plot_layout(nrow = 3) +
-  plot_annotation(title = "Single Quant Variable",
-                  subtitle = "And one Qual Variable too",
-                  tag_levels = list(c("1","3", "2","4")),tag_prefix = "p") +
-  theme_minimal()
-
 
 ```
 
 ```{r}
 #| label: more-charts
 #| echo: true
+#| layout-nrow: 2
+
 mpg <- mpg %>% mutate(drv= as_factor(drv))
 
-p5 <- gf_density_ridges(drv ~ hwy, 
-                        fill = ~ drv, 
-                        alpha = 0.3, 
+gf_density_ridges(drv ~ hwy, fill = ~ drv, alpha = 0.3, 
                         rel_min_height = 0.005, data = mpg) %>% 
-  
   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
             scale_x_continuous(expand = c(0.01, 0))) %>% 
   gf_theme(theme_minimal()) %>% 
   gf_labs(title = "Ridge Plot")
 
-p7 <- gf_hex(cty ~ hwy, fill = ~ drv, data = mpg) %>% 
+gf_hex(cty ~ hwy, fill = ~ drv, data = mpg) %>% 
   gf_theme(theme_minimal()) %>% 
   gf_labs(title = "Hex Bin Plot")
 
-p8 <- gf_density_2d(cty ~ hwy, data = mpg) %>% 
+gf_density_2d(cty ~ hwy, data = mpg) %>% 
   gf_theme(theme_minimal()) %>% 
     gf_labs(title = "2D Density Plot")
-```
-
-```{r}
-#| echo: false
-(p7 + p8) / p5 + plot_layout(guides = 'keep') + 
-  plot_annotation(title = "Two Quant Variables",subtitle = "And one Qual Variable too", tag_levels = list(c("7", "8", "5")),tag_prefix = "p")
 
 ```
 
@@ -204,7 +177,7 @@ p8 <- gf_density_2d(cty ~ hwy, data = mpg) %>%
 -   Box Plots "dwell upon" **medians** and **Quartiles**
 -   Qualitative data variables can be plotted as **counts**, using Bar
     Charts, or using Heat Maps
--   2D density plots are used for describing *two quant* variables\
+-   2D density plots are used for describing *two quant* variables
 -   Ridge Plots are **density plots** used for describing one Quant and
     one Qual variable (by inherent splitting)
 -   We can split all these plots on the basis of another Qualitative
@@ -217,9 +190,7 @@ p8 <- gf_density_2d(cty ~ hwy, data = mpg) %>%
 
 1.  Click on the Dataset Icon above, and unzip that archive. Try to make
     distribution plots with each of the three tools.
-
-2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>\
-
+2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
 3.  Old Faithful Data in R ( Find it!)
 
 `inspect` the dataset in each case and develop a set of Questions, that
@@ -231,6 +202,5 @@ show the distribution.
 1.  See the scrolly animation for a histogram at this website:
     **Exploring Histograms, an essay by Aran Lunzer and Amelia
     McNamara** <https://tinlizzie.org/histograms/?s=09>
-
 2.  Minimal R using `mosaic`.
     <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>

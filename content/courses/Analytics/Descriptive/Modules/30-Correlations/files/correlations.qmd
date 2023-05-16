@@ -162,19 +162,25 @@ cor_test(height ~ father, data = Galton %>% filter(sex == "F"))
 cor_test(height ~ mother, data = Galton %>% filter(sex == "F"))
          
 ```
+
 ::: callout-important
 ## Correlation Scores and Uncertainty
 
 Note how the `cor.test` reports a correlation score and the `p-value`
 for the same. There is also a `confidence interval` reported for the
-correlation score, an interval within which we are 95% sure that the true
-correlation value is to be found.  Note that GGally too reports the significance of the correlation scores using `***` or `**`. This indicates the p-value in the scores obtained by GGally; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally. 
+correlation score, an interval within which we are 95% sure that the
+true correlation value is to be found. Note that GGally too reports the
+significance of the correlation scores using `***` or `**`. This
+indicates the p-value in the scores obtained by GGally; Presumably,
+there is an internal `cor.test` that is run for each pair of variables
+and the p-value and confidence levels are also computed internally.
 :::
 
-We can also visualise this uncertainty and the confidence levels in a plot
-too, using `gf_errorbar` and a handy set of functions within `purrr`
-which is part of the tidyverse: Assuming `heights` is the variable we want to correlate every other (quantitative) variable against, we can proceed very quickly as follows:
-
+We can also visualise this uncertainty and the confidence levels in a
+plot too, using `gf_errorbar` and a handy set of functions within
+`purrr` which is part of the tidyverse: Assuming `heights` is the
+variable we want to correlate every other (quantitative) variable
+against, we can proceed very quickly as follows:
 
 ```{r}
 #| label: corrtest plots
@@ -196,16 +202,22 @@ all_corrs
 
 all_corrs %>% 
   gf_point(estimate ~ reorder(predictor, estimate)) %>% 
-  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
+  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
+              color = ~ -log10(p.value),
               width = 0.2) %>% 
+  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
   gf_labs(x = NULL, y = "Correlation with height in Galton") %>% 
-  gf_theme(theme_minimal())
+  gf_theme(theme_minimal()) %>% 
+  gf_refine(scale_color_gradient("significance",low = "grey", high = "red"))
 
 
 ```
 
-We can clearly see the size of the correlations and the confidence intervals marked in this plot. `father` has somewhat greater correlation with  children's `height`, as compared to `mother`. `nkids` seems to matter very little. This kind of plot will be very useful when we pursue linear regression models. 
-
+We can clearly see the size of the correlations and the confidence
+intervals marked in this plot. `father` has somewhat greater correlation
+with children's `height`, as compared to `mother`. `nkids` seems to
+matter very little. This kind of plot will be very useful when we pursue
+linear regression models.
 
 Q.4. How can we show this correlation in a set of Scatter Plots +
 Regression Lines? Can we recreate Galton's famous diagram?

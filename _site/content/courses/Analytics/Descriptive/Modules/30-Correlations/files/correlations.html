@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.340">
+<meta name="generator" content="quarto-1.2.475">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
-<meta name="dcterms.date" content="2023-05-09">
+<meta name="dcterms.date" content="2023-05-15">
 <title>The Foundation Series - Correlations in R</title>
 <style>
 code{white-space: pre-wrap;}
@@ -16,10 +16,9 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -46,13 +45,43 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
+    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 <script src="../../../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -93,10 +122,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <meta property="og:title" content="The Foundation Series - Correlations in R">
 <meta property="og:description" content="Tests, Tables, and Graphs for Correlations in R">
-<meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/30-Correlations/files/correlations_files/figure-html/unnamed-chunk-4-1.png">
 <meta property="og:site-name" content="The Foundation Series">
-<meta property="og:image:height" content="960">
-<meta property="og:image:width" content="1344">
 </head>
 <body class="nav-sidebar docked nav-fixed">
 
@@ -107,63 +133,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span class="navbar-title">The Foundation Series</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../../index.html" rel="" target="">
+    <a class="nav-link" href="../../../../../../../index.html">
  <span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../../www.linkedin.com/in/arvindvenkatadri"><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
-</div>
+<div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
-    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Correlations in R</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
+    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Correlations in R</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
-        </div>
+      </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text">Teaching</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -171,9 +189,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Data Analytics</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" aria-expanded="false" aria-label="Toggle section">
+            <a href="../../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">Data Analytics</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" aria-expanded="false">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -181,50 +198,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Tools/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tools and Software</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Tools/listing.html" class="sidebar-item-text sidebar-link">Tools and Software</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Descriptive/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Descriptive Analytics</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Descriptive/listing.html" class="sidebar-item-text sidebar-link">Descriptive Analytics</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Statistical Inference</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">Statistical Inference</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Inferential Modelling</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Inferential Modelling</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Predictive/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Predictive Analytics</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Predictive/listing.html" class="sidebar-item-text sidebar-link">Predictive Analytics</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Prescriptive/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Prescriptive Analytics</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Prescriptive/listing.html" class="sidebar-item-text sidebar-link">Prescriptive Analytics</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/Analytics/Workflow/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Workflow</span></a>
+  <a href="../../../../../../../content/courses/Analytics/Workflow/listing.html" class="sidebar-item-text sidebar-link">Workflow</a>
   </div>
 </li>
       </ul>
@@ -232,36 +242,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/R4Artists/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">R for Artists and Managers</span></a>
+  <a href="../../../../../../../content/courses/R4Artists/listing.html" class="sidebar-item-text sidebar-link">R for Artists and Managers</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">TRIZ for Innovation</span></a>
+  <a href="../../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">TRIZ for Innovation</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/MathModelsDesign/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Math Models in Design</span></a>
+  <a href="../../../../../../../content/courses/MathModelsDesign/listing.html" class="sidebar-item-text sidebar-link">Math Models in Design</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/NoCode/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Data Vis with No Code</span></a>
+  <a href="../../../../../../../content/courses/NoCode/listing.html" class="sidebar-item-text sidebar-link">Data Vis with No Code</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/courses/ISTW/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">In Short, the World</span></a>
+  <a href="../../../../../../../content/courses/ISTW/listing.html" class="sidebar-item-text sidebar-link">In Short, the World</a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -269,22 +274,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Posts</span></a>
+  <a href="../../../../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">Posts</a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Blogs</span></a>
+  <a href="../../../../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">Blogs</a>
   </div>
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
@@ -301,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Correlations in R</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title d-none d-lg-block">Correlations in R</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 </div>
 
 
@@ -318,7 +319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 9, 2023</p>
+      <p class="date">May 15, 2023</p>
     </div>
   </div>
   
@@ -342,16 +343,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(NHANES) <span class="co"># survey data collected by the US National Center for Health Statistics (NCHS)</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(corrplot) <span class="co"># For Correlogram plots</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" style="background: beige">
+<div class="callout-tip callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
+<div class="callout-caption-container flex-fill">
 Tip
 </div>
 </div>
-<div class="callout-body-container callout-body">
+<div class="callout-body-container callout-body" style="background: beige">
 <p>Note the standard method for all commands from the <code>mosaic</code> package:</p>
 <p><code>goal( y ~ x | z, data = mydata, …)</code></p>
 <p>With <code>ggformula</code>, one can create any graph/chart using:</p>
@@ -554,12 +555,12 @@ sample estimates:
 0.3136984 </code></pre>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-important callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
+<div class="callout-caption-container flex-fill">
 Correlation Scores and Uncertainty
 </div>
 </div>
@@ -568,7 +569,7 @@ Correlation Scores and Uncertainty
 </div>
 </div>
 <p>We can also visualise this uncertainty and the confidence levels in a plot too, using <code>gf_errorbar</code> and a handy set of functions within <code>purrr</code> which is part of the tidyverse: Assuming <code>heights</code> is the variable we want to correlate every other (quantitative) variable against, we can proceed very quickly as follows:</p>
-<div class="cell" data-hash="correlations_cache/html/corrtest plots_baefb7982c457eada4aaa6af715cf8d5">
+<div class="cell" data-hash="correlations_cache/html/corrtest plots_f4e7e934950701185c438c8971c922e1">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>all_corrs <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> </span>
 <span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
 <span id="cb23-3"><a href="#cb23-3"></a>  </span>
@@ -593,10 +594,13 @@ Correlation Scores and Uncertainty
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>all_corrs <span class="sc">%&gt;%</span> </span>
 <span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate), </span>
-<span id="cb24-4"><a href="#cb24-4"></a>              <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-5"><a href="#cb24-5"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with height in Galton"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-6"><a href="#cb24-6"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate),</span>
+<span id="cb24-4"><a href="#cb24-4"></a>              <span class="at">color =</span> <span class="sc">~</span> <span class="sc">-</span><span class="fu">log10</span>(p.value),</span>
+<span id="cb24-5"><a href="#cb24-5"></a>              <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-6"><a href="#cb24-6"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"grey"</span>, <span class="at">linewidth =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-7"><a href="#cb24-7"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with height in Galton"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-8"><a href="#cb24-8"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-9"><a href="#cb24-9"></a>  <span class="fu">gf_refine</span>(<span class="fu">scale_color_gradient</span>(<span class="st">"significance"</span>,<span class="at">low =</span> <span class="st">"grey"</span>, <span class="at">high =</span> <span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="correlations_files/figure-html/corrtest plots-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -683,23 +687,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
-      }
-    }
-    return false;
-  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
+    target: function(trigger) {
+      return trigger.previousElementSibling;
     }
   });
   clipboard.on('success', function(e) {
@@ -815,157 +805,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-      // Handle positioning of the toggle
-      window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-      const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
-      for (let i=0; i<annoteTargets.length; i++) {
-        const annoteTarget = annoteTargets[i];
-        const targetCell = annoteTarget.getAttribute("data-target-cell");
-        const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
-        const contentFn = () => {
-          const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          if (content) {
-            const tipContent = content.cloneNode(true);
-            tipContent.classList.add("code-annotation-tip-content");
-            return tipContent.outerHTML;
-          }
-        }
-        const config = {
-          allowHTML: true,
-          content: contentFn,
-          onShow: (instance) => {
-            selectCodeLines(instance.reference);
-            instance.reference.classList.add('code-annotation-active');
-            window.tippy.hideAll();
-          },
-          onHide: (instance) => {
-            unselectCodeLines();
-            instance.reference.classList.remove('code-annotation-active');
-          },
-          maxWidth: 300,
-          delay: [50, 0],
-          duration: [200, 0],
-          offset: [5, 10],
-          arrow: true,
-          appendTo: function(el) {
-            return el.parentElement.parentElement.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'quarto',
-          placement: 'right',
-          popperOptions: {
-            modifiers: [
-            {
-              name: 'flip',
-              options: {
-                flipVariations: false, // true by default
-                allowedAutoPlacements: ['right'],
-                fallbackPlacements: ['right', 'top', 'top-start', 'top-end'],
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                mainAxis: false,
-                altAxis: false
-              }
-            }
-            ]        
-          }      
-        };
-        window.tippy(annoteTarget, config); 
-      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -1004,12 +843,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -1184,108 +1023,117 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb30-173"><a href="#cb30-173"></a><span class="fu">cor_test</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>))</span>
 <span id="cb30-174"><a href="#cb30-174"></a>         </span>
 <span id="cb30-175"><a href="#cb30-175"></a><span class="in">```</span></span>
-<span id="cb30-176"><a href="#cb30-176"></a>::: callout-important</span>
-<span id="cb30-177"><a href="#cb30-177"></a><span class="fu">## Correlation Scores and Uncertainty</span></span>
-<span id="cb30-178"><a href="#cb30-178"></a></span>
-<span id="cb30-179"><a href="#cb30-179"></a>Note how the <span class="in">`cor.test`</span> reports a correlation score and the <span class="in">`p-value`</span></span>
-<span id="cb30-180"><a href="#cb30-180"></a>for the same. There is also a <span class="in">`confidence interval`</span> reported for the</span>
-<span id="cb30-181"><a href="#cb30-181"></a>correlation score, an interval within which we are 95% sure that the true</span>
-<span id="cb30-182"><a href="#cb30-182"></a>correlation value is to be found.  Note that GGally too reports the significance of the correlation scores using <span class="in">`***`</span> or <span class="in">`**`</span>. This indicates the p-value in the scores obtained by GGally; Presumably, there is an internal <span class="in">`cor.test`</span> that is run for each pair of variables and the p-value and confidence levels are also computed internally. </span>
-<span id="cb30-183"><a href="#cb30-183"></a>:::</span>
-<span id="cb30-184"><a href="#cb30-184"></a></span>
-<span id="cb30-185"><a href="#cb30-185"></a>We can also visualise this uncertainty and the confidence levels in a plot</span>
-<span id="cb30-186"><a href="#cb30-186"></a>too, using <span class="in">`gf_errorbar`</span> and a handy set of functions within <span class="in">`purrr`</span></span>
-<span id="cb30-187"><a href="#cb30-187"></a>which is part of the tidyverse: Assuming <span class="in">`heights`</span> is the variable we want to correlate every other (quantitative) variable against, we can proceed very quickly as follows:</span>
-<span id="cb30-188"><a href="#cb30-188"></a></span>
+<span id="cb30-176"><a href="#cb30-176"></a></span>
+<span id="cb30-177"><a href="#cb30-177"></a>::: callout-important</span>
+<span id="cb30-178"><a href="#cb30-178"></a><span class="fu">## Correlation Scores and Uncertainty</span></span>
+<span id="cb30-179"><a href="#cb30-179"></a></span>
+<span id="cb30-180"><a href="#cb30-180"></a>Note how the <span class="in">`cor.test`</span> reports a correlation score and the <span class="in">`p-value`</span></span>
+<span id="cb30-181"><a href="#cb30-181"></a>for the same. There is also a <span class="in">`confidence interval`</span> reported for the</span>
+<span id="cb30-182"><a href="#cb30-182"></a>correlation score, an interval within which we are 95% sure that the</span>
+<span id="cb30-183"><a href="#cb30-183"></a>true correlation value is to be found. Note that GGally too reports the</span>
+<span id="cb30-184"><a href="#cb30-184"></a>significance of the correlation scores using <span class="in">`***`</span> or <span class="in">`**`</span>. This</span>
+<span id="cb30-185"><a href="#cb30-185"></a>indicates the p-value in the scores obtained by GGally; Presumably,</span>
+<span id="cb30-186"><a href="#cb30-186"></a>there is an internal <span class="in">`cor.test`</span> that is run for each pair of variables</span>
+<span id="cb30-187"><a href="#cb30-187"></a>and the p-value and confidence levels are also computed internally.</span>
+<span id="cb30-188"><a href="#cb30-188"></a>:::</span>
 <span id="cb30-189"><a href="#cb30-189"></a></span>
-<span id="cb30-192"><a href="#cb30-192"></a><span class="in">```{r}</span></span>
-<span id="cb30-193"><a href="#cb30-193"></a><span class="co">#| label: corrtest plots</span></span>
-<span id="cb30-194"><a href="#cb30-194"></a></span>
-<span id="cb30-195"><a href="#cb30-195"></a>all_corrs <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> </span>
-<span id="cb30-196"><a href="#cb30-196"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-197"><a href="#cb30-197"></a>  </span>
-<span id="cb30-198"><a href="#cb30-198"></a>  <span class="co"># leave off height to get all the remaining ones</span></span>
-<span id="cb30-199"><a href="#cb30-199"></a>  <span class="fu">select</span>(<span class="sc">-</span> height) <span class="sc">%&gt;%</span>  </span>
-<span id="cb30-200"><a href="#cb30-200"></a>  </span>
-<span id="cb30-201"><a href="#cb30-201"></a>  <span class="co"># perform a cor.test for all variables against height</span></span>
-<span id="cb30-202"><a href="#cb30-202"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> .,</span>
-<span id="cb30-203"><a href="#cb30-203"></a>             <span class="at">.f =</span> \(x) <span class="fu">cor.test</span>(x, Galton<span class="sc">$</span>height)) <span class="sc">%&gt;%</span></span>
-<span id="cb30-204"><a href="#cb30-204"></a>  </span>
-<span id="cb30-205"><a href="#cb30-205"></a>  <span class="co"># tidy up the cor.test outputs into a tidy data frame</span></span>
-<span id="cb30-206"><a href="#cb30-206"></a>  <span class="fu">map_dfr</span>(broom<span class="sc">::</span>tidy, <span class="at">.id =</span> <span class="st">"predictor"</span>) </span>
-<span id="cb30-207"><a href="#cb30-207"></a></span>
-<span id="cb30-208"><a href="#cb30-208"></a>all_corrs</span>
-<span id="cb30-209"><a href="#cb30-209"></a></span>
-<span id="cb30-210"><a href="#cb30-210"></a>all_corrs <span class="sc">%&gt;%</span> </span>
-<span id="cb30-211"><a href="#cb30-211"></a>  <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-212"><a href="#cb30-212"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate), </span>
-<span id="cb30-213"><a href="#cb30-213"></a>              <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-214"><a href="#cb30-214"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with height in Galton"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-215"><a href="#cb30-215"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span>
-<span id="cb30-216"><a href="#cb30-216"></a></span>
-<span id="cb30-217"><a href="#cb30-217"></a></span>
-<span id="cb30-218"><a href="#cb30-218"></a><span class="in">```</span></span>
-<span id="cb30-219"><a href="#cb30-219"></a></span>
-<span id="cb30-220"><a href="#cb30-220"></a>We can clearly see the size of the correlations and the confidence intervals marked in this plot. <span class="in">`father`</span> has somewhat greater correlation with  children's <span class="in">`height`</span>, as compared to <span class="in">`mother`</span>. <span class="in">`nkids`</span> seems to matter very little. This kind of plot will be very useful when we pursue linear regression models. </span>
-<span id="cb30-221"><a href="#cb30-221"></a></span>
-<span id="cb30-222"><a href="#cb30-222"></a></span>
-<span id="cb30-223"><a href="#cb30-223"></a>Q.4. How can we show this correlation in a set of Scatter Plots +</span>
-<span id="cb30-224"><a href="#cb30-224"></a>Regression Lines? Can we recreate Galton's famous diagram?</span>
+<span id="cb30-190"><a href="#cb30-190"></a>We can also visualise this uncertainty and the confidence levels in a</span>
+<span id="cb30-191"><a href="#cb30-191"></a>plot too, using <span class="in">`gf_errorbar`</span> and a handy set of functions within</span>
+<span id="cb30-192"><a href="#cb30-192"></a><span class="in">`purrr`</span> which is part of the tidyverse: Assuming <span class="in">`heights`</span> is the</span>
+<span id="cb30-193"><a href="#cb30-193"></a>variable we want to correlate every other (quantitative) variable</span>
+<span id="cb30-194"><a href="#cb30-194"></a>against, we can proceed very quickly as follows:</span>
+<span id="cb30-195"><a href="#cb30-195"></a></span>
+<span id="cb30-198"><a href="#cb30-198"></a><span class="in">```{r}</span></span>
+<span id="cb30-199"><a href="#cb30-199"></a><span class="co">#| label: corrtest plots</span></span>
+<span id="cb30-200"><a href="#cb30-200"></a></span>
+<span id="cb30-201"><a href="#cb30-201"></a>all_corrs <span class="ot">&lt;-</span> Galton <span class="sc">%&gt;%</span> </span>
+<span id="cb30-202"><a href="#cb30-202"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-203"><a href="#cb30-203"></a>  </span>
+<span id="cb30-204"><a href="#cb30-204"></a>  <span class="co"># leave off height to get all the remaining ones</span></span>
+<span id="cb30-205"><a href="#cb30-205"></a>  <span class="fu">select</span>(<span class="sc">-</span> height) <span class="sc">%&gt;%</span>  </span>
+<span id="cb30-206"><a href="#cb30-206"></a>  </span>
+<span id="cb30-207"><a href="#cb30-207"></a>  <span class="co"># perform a cor.test for all variables against height</span></span>
+<span id="cb30-208"><a href="#cb30-208"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(<span class="at">.x =</span> .,</span>
+<span id="cb30-209"><a href="#cb30-209"></a>             <span class="at">.f =</span> \(x) <span class="fu">cor.test</span>(x, Galton<span class="sc">$</span>height)) <span class="sc">%&gt;%</span></span>
+<span id="cb30-210"><a href="#cb30-210"></a>  </span>
+<span id="cb30-211"><a href="#cb30-211"></a>  <span class="co"># tidy up the cor.test outputs into a tidy data frame</span></span>
+<span id="cb30-212"><a href="#cb30-212"></a>  <span class="fu">map_dfr</span>(broom<span class="sc">::</span>tidy, <span class="at">.id =</span> <span class="st">"predictor"</span>) </span>
+<span id="cb30-213"><a href="#cb30-213"></a></span>
+<span id="cb30-214"><a href="#cb30-214"></a>all_corrs</span>
+<span id="cb30-215"><a href="#cb30-215"></a></span>
+<span id="cb30-216"><a href="#cb30-216"></a>all_corrs <span class="sc">%&gt;%</span> </span>
+<span id="cb30-217"><a href="#cb30-217"></a>  <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-218"><a href="#cb30-218"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate),</span>
+<span id="cb30-219"><a href="#cb30-219"></a>              <span class="at">color =</span> <span class="sc">~</span> <span class="sc">-</span><span class="fu">log10</span>(p.value),</span>
+<span id="cb30-220"><a href="#cb30-220"></a>              <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-221"><a href="#cb30-221"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"grey"</span>, <span class="at">linewidth =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-222"><a href="#cb30-222"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with height in Galton"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-223"><a href="#cb30-223"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-224"><a href="#cb30-224"></a>  <span class="fu">gf_refine</span>(<span class="fu">scale_color_gradient</span>(<span class="st">"significance"</span>,<span class="at">low =</span> <span class="st">"grey"</span>, <span class="at">high =</span> <span class="st">"red"</span>))</span>
 <span id="cb30-225"><a href="#cb30-225"></a></span>
-<span id="cb30-228"><a href="#cb30-228"></a><span class="in">```{r}</span></span>
-<span id="cb30-229"><a href="#cb30-229"></a><span class="co"># For the sons</span></span>
-<span id="cb30-230"><a href="#cb30-230"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
-<span id="cb30-231"><a href="#cb30-231"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb30-232"><a href="#cb30-232"></a></span>
-<span id="cb30-233"><a href="#cb30-233"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
-<span id="cb30-234"><a href="#cb30-234"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb30-235"><a href="#cb30-235"></a></span>
-<span id="cb30-236"><a href="#cb30-236"></a><span class="co"># For the daughters</span></span>
-<span id="cb30-237"><a href="#cb30-237"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
-<span id="cb30-238"><a href="#cb30-238"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-239"><a href="#cb30-239"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
-<span id="cb30-240"><a href="#cb30-240"></a></span>
-<span id="cb30-241"><a href="#cb30-241"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
-<span id="cb30-242"><a href="#cb30-242"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-243"><a href="#cb30-243"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb30-226"><a href="#cb30-226"></a></span>
+<span id="cb30-227"><a href="#cb30-227"></a><span class="in">```</span></span>
+<span id="cb30-228"><a href="#cb30-228"></a></span>
+<span id="cb30-229"><a href="#cb30-229"></a>We can clearly see the size of the correlations and the confidence</span>
+<span id="cb30-230"><a href="#cb30-230"></a>intervals marked in this plot. <span class="in">`father`</span> has somewhat greater correlation</span>
+<span id="cb30-231"><a href="#cb30-231"></a>with children's <span class="in">`height`</span>, as compared to <span class="in">`mother`</span>. <span class="in">`nkids`</span> seems to</span>
+<span id="cb30-232"><a href="#cb30-232"></a>matter very little. This kind of plot will be very useful when we pursue</span>
+<span id="cb30-233"><a href="#cb30-233"></a>linear regression models.</span>
+<span id="cb30-234"><a href="#cb30-234"></a></span>
+<span id="cb30-235"><a href="#cb30-235"></a>Q.4. How can we show this correlation in a set of Scatter Plots +</span>
+<span id="cb30-236"><a href="#cb30-236"></a>Regression Lines? Can we recreate Galton's famous diagram?</span>
+<span id="cb30-237"><a href="#cb30-237"></a></span>
+<span id="cb30-240"><a href="#cb30-240"></a><span class="in">```{r}</span></span>
+<span id="cb30-241"><a href="#cb30-241"></a><span class="co"># For the sons</span></span>
+<span id="cb30-242"><a href="#cb30-242"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
+<span id="cb30-243"><a href="#cb30-243"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
 <span id="cb30-244"><a href="#cb30-244"></a></span>
-<span id="cb30-245"><a href="#cb30-245"></a><span class="in">```</span></span>
-<span id="cb30-246"><a href="#cb30-246"></a></span>
-<span id="cb30-247"><a href="#cb30-247"></a>An approximation to Galton's famous plot (see Wikipedia):</span>
-<span id="cb30-248"><a href="#cb30-248"></a></span>
-<span id="cb30-251"><a href="#cb30-251"></a><span class="in">```{r}</span></span>
-<span id="cb30-252"><a href="#cb30-252"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> (father <span class="sc">+</span> mother)<span class="sc">/</span><span class="dv">2</span>, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-253"><a href="#cb30-253"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-254"><a href="#cb30-254"></a>  <span class="fu">gf_density_2d</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-255"><a href="#cb30-255"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>)</span>
+<span id="cb30-245"><a href="#cb30-245"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
+<span id="cb30-246"><a href="#cb30-246"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>)) <span class="sc">%&gt;%</span> <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb30-247"><a href="#cb30-247"></a></span>
+<span id="cb30-248"><a href="#cb30-248"></a><span class="co"># For the daughters</span></span>
+<span id="cb30-249"><a href="#cb30-249"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> father, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
+<span id="cb30-250"><a href="#cb30-250"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-251"><a href="#cb30-251"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
+<span id="cb30-252"><a href="#cb30-252"></a></span>
+<span id="cb30-253"><a href="#cb30-253"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> mother, <span class="at">data =</span> Galton <span class="sc">%&gt;%</span> </span>
+<span id="cb30-254"><a href="#cb30-254"></a>           <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-255"><a href="#cb30-255"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span>
 <span id="cb30-256"><a href="#cb30-256"></a></span>
 <span id="cb30-257"><a href="#cb30-257"></a><span class="in">```</span></span>
 <span id="cb30-258"><a href="#cb30-258"></a></span>
-<span id="cb30-259"><a href="#cb30-259"></a>How would you interpret this plot?</span>
+<span id="cb30-259"><a href="#cb30-259"></a>An approximation to Galton's famous plot (see Wikipedia):</span>
 <span id="cb30-260"><a href="#cb30-260"></a></span>
-<span id="cb30-261"><a href="#cb30-261"></a><span class="fu">## Case Study -2: Dataset from `NHANES`</span></span>
-<span id="cb30-262"><a href="#cb30-262"></a></span>
-<span id="cb30-263"><a href="#cb30-263"></a>We will "live code" this in class!</span>
-<span id="cb30-264"><a href="#cb30-264"></a></span>
-<span id="cb30-265"><a href="#cb30-265"></a><span class="fu"># Conclusion</span></span>
-<span id="cb30-266"><a href="#cb30-266"></a></span>
-<span id="cb30-267"><a href="#cb30-267"></a>We have a decent Correlations related *workflow* in R:\</span>
-<span id="cb30-268"><a href="#cb30-268"></a><span class="ss">- </span>load the dataset\</span>
-<span id="cb30-269"><a href="#cb30-269"></a><span class="ss">- </span><span class="in">`inspect`</span> the dataset, identify Quant and Qual variables\</span>
-<span id="cb30-270"><a href="#cb30-270"></a><span class="ss">- </span>Develop Pair-Wise plots + Correlations using <span class="in">`GGally::ggpairs()`</span>\</span>
-<span id="cb30-271"><a href="#cb30-271"></a><span class="ss">- </span>Develop Correlogram <span class="in">`corrplot::corrplot`</span>\</span>
-<span id="cb30-272"><a href="#cb30-272"></a><span class="ss">- </span>Check everything with a <span class="in">`cor_test`</span>\</span>
-<span id="cb30-273"><a href="#cb30-273"></a><span class="ss">- </span>Plot scatter plots using <span class="in">`gf_point`</span> if needed.\</span>
-<span id="cb30-274"><a href="#cb30-274"></a><span class="ss">- </span>Add extra lines using <span class="in">`gf_abline()`</span> to compare hypotheses that you may</span>
-<span id="cb30-275"><a href="#cb30-275"></a>have.</span>
+<span id="cb30-263"><a href="#cb30-263"></a><span class="in">```{r}</span></span>
+<span id="cb30-264"><a href="#cb30-264"></a><span class="fu">gf_point</span>(height <span class="sc">~</span> (father <span class="sc">+</span> mother)<span class="sc">/</span><span class="dv">2</span>, <span class="at">data =</span> Galton) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-265"><a href="#cb30-265"></a>  <span class="fu">gf_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-266"><a href="#cb30-266"></a>  <span class="fu">gf_density_2d</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-267"><a href="#cb30-267"></a>  <span class="fu">gf_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>)</span>
+<span id="cb30-268"><a href="#cb30-268"></a></span>
+<span id="cb30-269"><a href="#cb30-269"></a><span class="in">```</span></span>
+<span id="cb30-270"><a href="#cb30-270"></a></span>
+<span id="cb30-271"><a href="#cb30-271"></a>How would you interpret this plot?</span>
+<span id="cb30-272"><a href="#cb30-272"></a></span>
+<span id="cb30-273"><a href="#cb30-273"></a><span class="fu">## Case Study -2: Dataset from `NHANES`</span></span>
+<span id="cb30-274"><a href="#cb30-274"></a></span>
+<span id="cb30-275"><a href="#cb30-275"></a>We will "live code" this in class!</span>
+<span id="cb30-276"><a href="#cb30-276"></a></span>
+<span id="cb30-277"><a href="#cb30-277"></a><span class="fu"># Conclusion</span></span>
+<span id="cb30-278"><a href="#cb30-278"></a></span>
+<span id="cb30-279"><a href="#cb30-279"></a>We have a decent Correlations related *workflow* in R:\</span>
+<span id="cb30-280"><a href="#cb30-280"></a><span class="ss">- </span>load the dataset\</span>
+<span id="cb30-281"><a href="#cb30-281"></a><span class="ss">- </span><span class="in">`inspect`</span> the dataset, identify Quant and Qual variables\</span>
+<span id="cb30-282"><a href="#cb30-282"></a><span class="ss">- </span>Develop Pair-Wise plots + Correlations using <span class="in">`GGally::ggpairs()`</span>\</span>
+<span id="cb30-283"><a href="#cb30-283"></a><span class="ss">- </span>Develop Correlogram <span class="in">`corrplot::corrplot`</span>\</span>
+<span id="cb30-284"><a href="#cb30-284"></a><span class="ss">- </span>Check everything with a <span class="in">`cor_test`</span>\</span>
+<span id="cb30-285"><a href="#cb30-285"></a><span class="ss">- </span>Plot scatter plots using <span class="in">`gf_point`</span> if needed.\</span>
+<span id="cb30-286"><a href="#cb30-286"></a><span class="ss">- </span>Add extra lines using <span class="in">`gf_abline()`</span> to compare hypotheses that you may</span>
+<span id="cb30-287"><a href="#cb30-287"></a>have.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer">
     <div class="nav-footer-left">Website made with 💜 and <a href="https://quarto.org/">Quarto</a>, by Arvind Venkatadri. License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>   
-    <div class="nav-footer-center">
-      &nbsp;
-    </div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
 <li class="nav-item compact">
