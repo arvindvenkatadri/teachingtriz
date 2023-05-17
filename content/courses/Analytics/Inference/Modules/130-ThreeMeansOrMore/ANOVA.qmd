@@ -10,6 +10,8 @@ order: 130
 image: preview.jpg
 ---
 
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
 ```{r}
 #| label: setup
 #| message: true
@@ -35,7 +37,7 @@ library(infer)
 */
 ```
 
-## Introduction
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 Suppose we have three sales strategies on our website, to sell a certain
 product, say men's shirts. We have website interaction over several
@@ -69,11 +71,17 @@ In this tutorial, our research question is:
 How does frogspawn hatching time vary with temperature?
 :::
 
-### Read the Data
+## {{< iconify flat-color-icons:workflow >}} Workflow: Read the Data
 
-Download the data by clicking the button below:
+Download the data by clicking the button below.
 
 {{< downloadthis data/frogs.csv dname="frogs" label="Download the frogs data" icon="database-fill-down" type="info" >}}
+
+::: callout-important
+## Data Folder
+
+Save the CSV it in a subfolder titled "data" inside your R work folder.
+:::
 
 ```{r}
 
@@ -85,11 +93,15 @@ frogs_orig
 Our response variable is the hatching `Time`. Our explanatory variable
 is a *factor*, `Temperature`, with 3 levels: 13°C, 18°C and 25°C.
 Different samples of spawn were subject to each of these temperatures
-respectively. The data is badly organized, with a separate column for
-each Temperature, with NA entries since not all samples of spawn could
-be subject to all temperatures. Hence, we should `pivot_longer()` this
-data, so all Time readings are in one numerical column, all Temperatures
-are also in a column that we should convert into a `factor`:
+respectively.
+
+The data is badly organized, with a separate column for each
+Temperature, and a common column for Sample ID. There are NA entries
+since not all samples of spawn are subject to all temperatures. (E.g.
+Sample ID #1 was maintained at 13°C). Hence, we should `pivot_longer()`
+this data, so all Time readings are in one numerical column, all
+Temperatures are also in a column that we should convert into a
+`factor`:
 
 ```{r}
 
@@ -124,7 +136,7 @@ frogs_long %>% count(TempFac)
 
 So we have `20` samples for Hatching `Time` per `TempFac` setting.
 
-## EDA
+## {{< iconify flat-color-icons:workflow >}} Workflow: EDA
 
 Let us set a plot theme:
 
@@ -161,7 +173,7 @@ gf_histogram(data = frogs_long,
 
 ```
 
-We should also look at boxplots
+We should also look at boxplots:
 
 ```{r}
 
@@ -169,7 +181,7 @@ gf_boxplot(data = frogs_long,
              Time ~ TempFac, 
              fill = ~ TempFac) %>% 
   gf_vline(xintercept = ~ mean(Time)) %>% 
-  gf_labs(x = "Hatching Time") %>% 
+  gf_labs(x = "Temperature") %>% 
   gf_theme(theme = theme_frogs()) %>% 
   gf_theme(guides(fill = guide_legend(title = "Temperature level (°C)")))
 
@@ -181,7 +193,7 @@ significant effect on Hatching Time.
 
 Let's go ahead with our ANOVA test.
 
-## ANOVA
+## {{< iconify flat-color-icons:workflow >}} Workflow: ANOVA
 
 We will first execute the ANOVA test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
@@ -196,26 +208,27 @@ familiar `formula` of stating the variables:
 ```{r}
 #| label: ANOVA with code
 frogs_anova <- aov(Time ~ TempFac, data = frogs_long)
-frogs_anova %>% broom::tidy()
 summary(frogs_anova)
-
+frogs_anova %>% broom::tidy()
+frogs_anova %>% broom::glance()
 ```
 
 The effect of Temperature on Hatching time is significant, with a
 p-value of $<2e-16$. The F-statistic for the ANOVA test is given by
-$385.9$, which is very high. Clearly `Temperature` has a very
+$385.9$, which is very high, and the `r.squared` value ( to be discussed
+later) is also large, $0.931$. Clearly `Temperature` has a very
 significant effect on the hatching `Time`.
 
 To find which specific value of `TempFac` has the most effect will
 require *pairwise comparison* of the group means, using a standard
-t-test. The confidence level for such repeated comparisons will need
+`t-test`. The confidence level for such repeated comparisons will need
 what is called ***Bonferroni correction***[^2] to prevent us from
 detecting a significant (pair-wise) difference simply by chance. To do
-this we take $\alpha$ the confidence level used and divide it by $K$,
-the number of pair-wise comparisons we intend to make. So using an
-$\alpha = 0.05$ for ANOVA, the pairwise comparisons in our current data
-will have to use $\alpha/3 = 0.0166$ as the confidence level. We will
-discuss this more in the section titled "ANOVA Intuitive".
+this we take $\alpha = 0.05$, the confidence level used and divide it by
+$K$, the number of pair-wise comparisons we intend to make. This new
+value is used to decide on the significance of the estimated parameter.
+So the pairwise comparisons in our current data will have to use
+$\alpha/3 = 0.0166$ as the confidence level.
 
 ### ANOVA Intuitive {#sec-anova-intuitive}
 
@@ -227,8 +240,9 @@ Qual variable has two levels, the Quant data has 20 observations per
 Qual level.
 
 ```{r}
-library(patchwork)
-ggplot2::theme_set(theme_classic())
+#| layout-nrow: 1
+#| label: Anova Intuitive
+
 data = tibble(index = 1:40,
               qual = c(rep(x = "A", 20),rep(x = "B", 20)),
               quant = c(rnorm(n = 20, mean = 0, sd = 2), 
@@ -243,20 +257,20 @@ grouped_means <- data %>%
              summarise(grouped_means = mean(quant))
 #grouped_means
 
-p1 <- gf_point(quant ~ index, 
+gf_point(quant ~ index, 
                color = ~ qual,
-         data = data) %>% 
+         data = data, title = "Fig. A") %>% 
   gf_hline(yintercept =  ~ overall_mean,
              data = overall_mean) %>% 
   gf_segment(data = data, 
              color = "black",
-             overall_mean$overall_mean + quant ~ index + index)
+             overall_mean$overall_mean + quant ~ index + index) %>% 
+  gf_theme(theme = theme_frogs()) 
 
-p2 <- gf_point(quant ~ index, 
+gf_point(quant ~ index, 
          group = ~ qual, 
          colour = ~ qual, 
-         data = data) %>% 
-  
+         data = data, title = "Fig. B") %>% 
   gf_hline(yintercept = ~ mean, 
            colour = ~ qual,
            data = data %>% 
@@ -265,19 +279,19 @@ p2 <- gf_point(quant ~ index,
   gf_segment(data = data %>% filter(qual == "A"),
              grouped_means$grouped_means[1] + quant ~ index + index
              ) %>% 
-    gf_segment(data = data %>% filter(qual == "B"),
+  gf_segment(data = data %>% filter(qual == "B"),
              grouped_means$grouped_means[2] + quant ~ index + index
-             ) 
+             ) %>% 
+  gf_theme(theme = theme_frogs())
 
-p1 + p2 + patchwork::plot_annotation(tag_levels = c("A", "B"))
 
 ```
 
 In Fig A, the *horizontal* black line is the overall mean of `quant`,
 denoted as $\mu_{tot}$. The vertical black lines to the points show the
 departures of each point from this overall mean. The sum of *squares* of
-these vertical black lines in Fig A is called the **Total Sum of
-Squares** (SST).
+these vertical black lines in Fig A is called the [**Total Sum of
+Squares** (SST)]{style="background-color: yellow;"}.
 
 $$
 SST = \Sigma (y - \mu_{tot})^2
@@ -296,7 +310,8 @@ In Fig B, the *horizontal* green and red lines are the means of the
 individual groups, respectively $\mu_A$ and $\mu_B$. The green and red
 vertical lines are the departures, or errors, of each point from *its
 own group-mean*. The sum of the *squares* of the green and red lines is
-called the **Total Error Sum of Squares** (SSE).
+called the [**Total Error Sum of Squares**
+(SSE)]{style="background-color: yellow;"}.
 
 $$
 SSE = \Sigma [(y - \mu_i)^2 +... (y - \mu_k)^2]
@@ -316,7 +331,8 @@ $$
 SSA = SST - SSE
 $$ {#eq-SSA}
 
-$SSA$ is called the **Treatment Sum of Squares** and is a measure the
+[$SSA$ is called the **Treatment Sum of
+Squares**]{style="background-color: yellow;"} and is a measure the
 differences in means of observations at different levels of the factor.
 
 $SSA$ can also directly be re-written in a very symmetric fashion as:
@@ -334,12 +350,14 @@ of these undivided summations and divides by $n$.
 Comparing $SSA$ and $SSE$ now provides us with a method that helps us
 decide whether these means are different. The logic is that we compare
 global differences and local differences. The comparison is of course in
-the form of a ratio, the F-statistic. Since each of these measures uses
-a different sets of observations, the comparison is done after scaling
-each of $SSA$ and $SSE$ by the number of observations influencing them.
-This means that we need to divide each of $SSA$ and $SSE$ by their
-*degrees of freedom*, which gives us [a ratio of
-**variances**:]{.underline}
+the form of a [ratio, the
+F-statistic]{style="background-color: yellow;"}. Since each of these
+measures uses a different sets of observations, the comparison is done
+after scaling each of $SSA$ and $SSE$ by the number of observations
+influencing them. This means that we need to divide each of $SSA$ and
+$SSE$ by their [*degrees of
+freedom*]{style="background-color: yellow;"}, which gives us [a ratio of
+**variances**:]{style="background-color: yellow;"}
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
@@ -352,7 +370,9 @@ significantly different by analyzing (a ratio of) variances! Hence
 
 In order to find which of the means is significantly different from
 others, we need to make a pair-wise comparison of the means, applying
-the Bonferroni correction as stated before.
+the Bonferroni correction as stated before. This means we divide the
+critial p.value we expect by the number of comparisons we make between
+levels of the Qual variable.
 
 ### ANOVA Manually Demonstrated(Apologies to Spinoza[^3])
 
@@ -404,7 +424,10 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot, 
              color = "black",
-             frogs_mean$overall_mean + Time ~ index + index)
+             frogs_mean$overall_mean + Time ~ index + index) %>% 
+  
+  gf_theme(theme = theme_frogs())
+
 ```
 
 And here is the SSE:
@@ -463,7 +486,9 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot %>% filter(TempFac == 25),
              frogs_grouped_means$grouped_means[3] + Time ~ index + index
-             ) 
+             ) %>% 
+  gf_theme(theme_frogs())
+
 ```
 
 OK, we have $SST$ and $SSE$, so let's get $SSA$:
@@ -489,7 +514,8 @@ $$
 where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
 in SSA and SSE.
 
-Let us calculate these Degrees of Freedom. With $k = 2$ levels in the
+Let us calculate these [Degrees of
+Freedom]{style="background-color: yellow;"}. With $k = 2$ levels in the
 factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has
 degree of freedom $kn-1$, since it uses all observations but loses one
 degree to calculate the global mean. (If each level did not have the
@@ -540,8 +566,8 @@ Now we are ready to compute the F-statistic:
 
 ```{r}
 # Finally F_Stat!
-## Combine the sum-square_error for each level of the factor
-# weighted by degrees of freedom per level
+# Combine the sum-square_error for each level of the factor
+# Weighted by degrees of freedom **per level**
 # Which are of course equal here ;-D
 
 MSE <- frogs_within_groups %>% 
@@ -557,40 +583,52 @@ F_stat
 
 ```
 
-The F-stat is compared with a **critical value** of the F-statistic,
+The `F-stat` is compared with a **critical value** of the F-statistic,`F_crit`
 which is computed using the formula for the f-distribution in R. As with
-our hypothesis tests, we set the significance level to 0.95, and quote
-the two relevant degrees of freedom as parameters to `qf()` which
-computes the critical F value as a **quartile**:
+our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
 
 ```{r}
-F_crit <-  qf(p = 0.95,     # Significance level is 5%
-              df1 = df_SSA, # Numerator degrees of freedom 
-              df2 = df_SSE) # Denominator degrees of freedom
+F_crit <-  
+  qf(p = (1 - 0.05/3),  # Significance level is 5% + Bonferroni Correction
+          df1 = df_SSA, # Numerator degrees of freedom 
+          df2 = df_SSE  # Denominator degrees of freedom
+     ) 
 F_crit
 F_stat
 
 ```
 
-The F_crit value can also be seen in a plot[^4]:
+The `F_crit` value can also be seen in a plot[^4]:
 
 ```{r}
 
-mosaic::pdist(dist = "f",
-              q = 3.158843, 
-              df1=df_SSA, df2=df_SSE)
+mosaic::xpf(q = F_crit, 
+            df1 = df_SSA, df2 = df_SSE,
+            log.p = FALSE,lower.tail = TRUE)
+
+gf_dist(dist = "f",
+        params = list(df1 = df_SSA, df2=df_SSE),
+        linewidth  = 1,
+        xlim = c(0.002, 400), title = "F distribution for Frog ANOVA") %>% 
+  gf_vline(xintercept = F_crit, linetype = "dotted", 
+           colour = "red") %>% 
+  gf_vline(xintercept = F_stat, linetype = "dashed", 
+           color = "dodgerblue") %>% 
+  gf_text( 0.25 ~ 360, label = "F_stat", colour = "dodgerblue") %>% 
+  gf_text( 0.25 ~ 20, label = "F_crit", colour = "red") %>% 
+  gf_theme(theme_frogs())
 
 ```
 
-Any value of F more than the F_crit occurs with smaller probability than
-0,05. Our F_stat is much higher than F_crit, by orders of magnitude! And
-so we can say with confidence that Temperature has a significant effect
-on spawn Time.
+Any value of F more than the `F_crit` occurs with smaller probability
+than $0.05/3$. Our F_stat is much higher than `F_crit`, by orders of
+magnitude! And so we can say with confidence that Temperature has a
+significant effect on spawn Time.
 
 And that is how ANOVA computes!
 :::
 
-## Checking ANOVA Assumptions
+## {{< iconify flat-color-icons:workflow >}} Workflow: Checking ANOVA Assumptions
 
 ANOVA makes 3 fundamental assumptions:
 
@@ -682,11 +720,8 @@ Response data with different variances at different levels of an
 violates one of the assumptions of ANOVA.
 
 To check if the `Time` readings are similar in `variance` across levels
-of `TempFac`, we can use the Levene Test, or since our per-group
-observations are not normally distributed, a non-parametric rank-based
-Fligner-Killeen test. The NULL hypothesis is that the data **are** with
-similar variances. The tests assess how probable this is with the given
-data assuming this NULL hypothesis:
+of `TempFac`, we can use the [Levene Test]{style="background-color: yellow;"}, or since our per-group observations are not normally distributed, a non-parametric rank-based [Fligner-Killeen Test]{style="background-color: yellow;"}. The NULLhypothesis is that the data **are** with similar variances. The tests assess how probable this is with the given data assuming this NULL
+hypothesis:
 
 ```{r}
 frogs_long %>% 
@@ -710,13 +745,18 @@ This is an experiment *design* concern; the way the data is gathered
 must be specified such that data for each level of the factors ( factor
 combinations if there are more than one) should be independent.
 
-## Effect Size
+## {{< iconify flat-color-icons:workflow >}} Workflow: Effect Size
 
 The simplest way to find the actual `effect sizes` detected by an ANOVA
 test is to use (paradoxically) the `summary.lm()` command:
 
 ```{r}
-summary.lm(frogs_anova) %>% broom::tidy()
+
+tidy_anova <- 
+  frogs_anova %>% 
+  summary.lm() %>% 
+  broom::tidy()
+tidy_anova
 
 ```
 
@@ -731,11 +771,31 @@ We can easily plot bar-chart with error bars for the effect size:
 
 ```{r}
 
-tidy_anova <- frogs_anova %>% 
-  summary.lm() %>% 
-  broom::tidy()
-tidy_anova
+tidy_anova %>% 
+  mutate(hi = estimate + std.error,
+         lo = estimate - std.error) %>% 
+  gf_hline(data = ., yintercept = 0, 
+           colour ="grey", 
+           linewidth = 2) %>% 
+  gf_col(estimate ~ term, 
+         fill = "grey", 
+         color = "black",
+         width = 0.15) %>% 
+  gf_errorbar(hi + lo ~ term,
+              color = "blue",
+              width = 0.2) %>% 
+  gf_point(estimate ~ term,
+           color = "red", 
+           size = 3.5) %>% 
+  gf_theme(theme_frogs()) %>% 
+  gf_refine(scale_x_discrete("Temp Values", 
+                             labels = c("13°C", "18°C", "25°C")))
+  
+```
 
+If we want an "absolute value" plot for effect size, it needs just a little bit of work:
+
+```{r}
 # Merging group averages with `std.error`
 frogs_long %>% 
   group_by(TempFac) %>% 
@@ -743,19 +803,25 @@ frogs_long %>%
   cbind(std.error = tidy_anova$std.error) %>% 
   mutate(hi = mean + std.error,
          lo = mean - std.error) %>% 
-  gf_col(data = ., mean ~ TempFac, 
+  gf_hline(data = ., yintercept = 0, 
+           colour ="grey", 
+           linewidth = 2) %>% 
+  gf_col(mean ~ TempFac, 
          fill = "grey", 
-         color = "black") %>% 
+         color = "black", width = 0.15) %>% 
+  gf_errorbar(hi + lo ~ TempFac,
+                color = "blue",
+                width =0.2) %>% 
   gf_point(mean ~ TempFac, 
            color = "red", 
-           size = 4) %>% 
-    gf_errorbar(hi + lo ~ TempFac,
-                color = "blue",
-                linetype = "dashed")
-
+           size = 3.5) %>% 
+  gf_theme(theme_frogs()) %>% 
+  gf_refine(scale_x_discrete("Temp Values", 
+                             labels = c("13°C", "18°C", "25°C")))
 ```
 
-## ANOVA using Permutation Tests
+
+## {{< iconify flat-color-icons:workflow >}} Workflow: ANOVA using Permutation Tests
 
 We wish to establish the significance of the effect size due to each of
 the levels in `TempFac`. From the normality tests conducted earlier we
@@ -775,34 +841,38 @@ distribution of the F-statistic over the many permutations and the
 p-value is given by the proportion of times the F-statistic equals or
 exceeds that observed.
 
-We will use `mosaic` and also try with `infer`.
+We will use `mosaic` first, and also try with `infer`.
 
 ::: panel-tabset
-#### Using `mosaic`
+### Using `mosaic`
 
 `mosaic` offers an easy and intuitive way of doing a repeated
 permutation test, using the `do()` command. We will `shuffle` the
-`TempFac` factor to jumble up the `Time` observations, 10000 times. Each
+`TempFac` factor to jumble up the `Time` observations, 5000 times. Each
 time we shuffle, we compute the F_statistic and record it. We then plot
-the 10000 F-statistics and compare that with the real-world observation
+the 5000 F-statistics and compare that with the real-world observation
 of `F-stat`.
 
 ```{r}
 #| label: permutation test for ANOVA with mosaic
 
-obs_F_stat <- frogs_anova %>% 
+obs_F_stat <- 
+  frogs_anova %>% 
   broom::tidy() %>% 
   select(statistic)
 observed_mosaic <- obs_F_stat$statistic[1]
+observed_mosaic
 
-null_dist_mosaic <- do(10000) * aov(Time ~ shuffle(TempFac), data = frogs_long)
+null_dist_mosaic <- do(5000) * aov(Time ~ shuffle(TempFac), 
+                                    data = frogs_long)
 null_dist_mosaic %>% head()
 
 null_dist_mosaic %>% drop_na() %>% 
   select(F) %>% 
   gf_histogram(data = ., ~ F, 
                fill = ~ F >= observed_mosaic,
-               title = "Null Distribution of ANOVA F-statistic" )
+               title = "Null Distribution of ANOVA F-statistic" ) %>% 
+  gf_theme(theme_frogs())
 
 
 ```
@@ -817,7 +887,7 @@ p_value
 
 ```
 
-#### Using `infer`
+### Using `infer`
 
 We calculate the observed F-stat with `infer`, which also has a very
 direct, if verbose, syntax for doing permutation tests:
@@ -825,7 +895,8 @@ direct, if verbose, syntax for doing permutation tests:
 ```{r}
 #| label: ANOVA F-statistic with infer
 
-observed_infer <- frogs_long %>% 
+observed_infer <- 
+  frogs_long %>% 
   specify(Time ~ TempFac) %>% 
   hypothesise(null = "independence") %>% 
   calculate(stat = "F")
@@ -843,13 +914,14 @@ the factor `TempFac`:
 null_dist_infer <- frogs_long %>% 
   specify(Time ~ TempFac) %>% 
   hypothesise(null = "independence") %>% 
-  generate(reps = 1000, type = "permute") %>% 
+  generate(reps = 5000, type = "permute") %>% 
   calculate(stat = "F")
 
 head(null_dist_infer)
 
 null_dist_infer %>% 
-  visualise()
+  visualise() %>% 
+  gf_theme(theme_frogs())
 
 ```
 
@@ -877,7 +949,8 @@ tests can be carried out when these assumptions do not quite hold.
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-[^1]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
+[^1]: The ANOVA tutorial at [Our Coding
+    Club](https://ourcodingclub.github.io/tutorials/anova/).
 
 [^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
