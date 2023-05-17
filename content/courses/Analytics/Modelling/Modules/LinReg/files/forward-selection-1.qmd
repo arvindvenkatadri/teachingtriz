@@ -71,11 +71,10 @@ Our target variable is `Salary`.
 We will start with an examination of correlations between `Salary` and
 other Quant predictors.
 
-We will use a single quantitative predictor for our Linear Regression
-Model at first. Based on the examination of the *residuals* we will add
-another quantitative predictor. We will follow this process through up
-to a point where the gains in model accuracy are good enough to justify
-the additional model complexity.
+We will use a null model for our Linear Regression at first, keeping
+just an `intercept` term. Based on the examination of the *r-square* 
+improvement offered by each predictor *individually*, we will add another quantitative predictor. We will follow this process through up to a point 
+where the gains in model accuracy are good enough to justify the additional model complexity.
 
 ::: callout-note
 This approach is the exact opposite of the earlier tutorial on multiple
@@ -159,20 +158,20 @@ all_corrs <-
 all_corrs
 
 all_corrs %>% 
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
+  gf_hline(yintercept = 0, linewidth = 2, color = "grey") %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
               color = ~ -log10(p.value),
               width = 0.2) %>% 
-  gf_hline(yintercept = 0, linewidth = 2, color = "grey") %>% 
+  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_labs(x = NULL, y = "Correlation with Salary") %>% 
-  gf_theme(theme = theme_minimal) %>% 
+  gf_theme(theme = my_theme()) %>% 
   gf_refine(scale_color_gradient("significance",low = "blue", high = "red"),
                        theme(axis.text.x = element_text(angle = 30, hjust = 1)))
 
 ```
 
-There are a good many predictors which have significant correlations
-with `Salary`.
+There are a good many predictors which have statistically significant
+correlations with `Salary`, such as `CRuns` , `CHmRun`.
 
 We now start with setting up simple Linear Regressions with **no**
 predictors, only an intercept. We then fit separate Linear Models using
@@ -185,6 +184,8 @@ Let us now do this.
 
 ## {{< iconify flat-color-icons:workflow >}} Workflow: Minimal Multiple Regression Model
 
+Note the formula structure here: we want just and `intercept`.
+
 ```{r}
 lm_min <- lm(data = Hitters, Salary ~ 1)
 summary(lm_min)
@@ -196,7 +197,7 @@ lm_min %>% broom::glance()
 OK, so the intercept is highly significant, the `t-statistic` is also
 high, but the intercept contributes *nothing* to the `r.squared`!!
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: Individual Model Addition
+## {{< iconify flat-color-icons:workflow >}} Workflow: Predictor Addition (Round#1)
 
 We will now set up individual models for each predictor and look at the
 `p.value` and `r.squared` offered by each separate model:
@@ -261,9 +262,10 @@ Hitters_model_set <-
 # Plot r.squared vs predictor count
 Hitters_model_set %>% 
   gf_point(r.squared ~ reorder(predictor_name, r.squared), 
+           size = 3.5, 
            color = "black",
            ylab = "R.Squared",
-          xlab = "Params in the Linear Model") %>%
+           xlab = "Params in the Linear Model") %>%
   gf_theme(my_theme()) %>% 
   gf_refine(theme(axis.text.x = element_text(angle = 30,
                                              hjust = 1)))
@@ -300,7 +302,7 @@ $$ {#eq-round1}
 
 Let's press on to Round 2.
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: Round 2
+## {{< iconify flat-color-icons:workflow >}} Workflow: Predictor Addition (Round #2)
 
 We will set up a **round-2** model using `CRBI` as the predictor, and
 then proceed to add each of the other predictors as an `update` to the
@@ -371,11 +373,13 @@ Hitters_model_set
 
 # Plot r.squared vs predictor count
 Hitters_model_set %>% 
-  gf_point(r.squared ~ reorder(predictor_name, r.squared),
-                               ylab = "Loss of R.Squared",
+  gf_point(r.squared ~ reorder(predictor_name, r.squared), 
+                               size = 3.5,
+                               ylab = "R.Squared",
                                xlab = "Param in the Linear Model") %>%
   gf_theme(my_theme()) %>% 
-  gf_refine(theme(axis.text.x = element_text(angle = 30, hjust = 1)))
+  gf_refine(theme(axis.text.x = element_text(angle = 30, 
+                                             hjust = 1)))
 
 # Which is the winning Predictor?
 winner <- Hitters_model_set %>% 
@@ -391,29 +395,38 @@ lm_round2 %>% broom::glance()
 
 ```
 
-## Conclusion
+And now the model itself is: $$
+Salary \sim -47.96 + 0.691 \times CRBI + 3.30 \times Hits
+$$ {#eq-round2}
+
+Note the change in both `intercept` and the `slope` for `CRBI` when the new predictor `Hits` is added!!
+
+
+## Discussion
 
 It is interesting that the second variable to be added was `Hits` which
 has a lower correlation of $0.439$ with `Salary` compared to some other
-Quant predictors such as `Chits`( \$0.525\$ ). This is because `CRBI` is
+Quant predictors such as `Chits`( $0.525$ ). This is because `CRBI` is
 hugely correlated with all of these predictors, so `CRDI` effectively
 acts as a proxy for all of these. See Plot 3.
 
 We see that adding `Hits` to the model gives us an improved `r.squared`
-of $0.425$
+of $0.425$.
+
+
+## Conclusion
 
 We can proceed in this way to subsequent rounds and decide to stop when
 the model complexity (no. of predictors ) and the resulting gain in
 `r.squared` does not seem worth it.
 
 ::: callout-note
-### Iteration
+### Iteration Method
 
-We ought to convert the code into a function and run it that way for a
-specific number of rounds to see how things pan out. That is in the next
+We ought to convert the above code into an R `function` and run it that way for a specific number of rounds to see how things pan out. That is in the next
 version of this Tutorial! 😇
 :::
 
 ## References
 
-1.  https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/
+1.  <https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/>

@@ -73,7 +73,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:--------|:----------------------------------------------------------------------|
+|:-------------|:---------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -114,10 +114,10 @@ We can use `purrr` to evaluate all pair-wise correlations in one shot:
 all_corrs <- housing %>% 
   select(where(is.numeric)) %>% 
   
-  # leave off height to get all the remaining ones
+  # leave off cmedv/medv to get all the remaining ones
   select(- cmedv, -medv) %>%  
   
-  # perform a cor.test for all variables against height
+  # perform a cor.test for all variables against cmedv
   purrr::map(.x = .,
              .f = \(x) cor.test(x, housing$cmedv)) %>%
   
@@ -127,18 +127,19 @@ all_corrs <- housing %>%
 all_corrs
 
 all_corrs %>% 
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
+  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
               colour = ~ -log10(p.value),
               width = 0.2,caption = "Significance = -log10(p.value)") %>% 
+  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_labs(x = NULL, y = "Correlation with Median House Price") %>% 
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
   gf_theme(theme_minimal()) %>% 
   gf_refine(scale_colour_gradient("significance", low = "grey", high = "red"))
 
 ```
 
-The variables `rm`, `lstat` seem to have high correlations with `cmedv`.
+The variables `rm`, `lstat` seem to have high correlations with `cmedv`
+which are also statistically significant.
 
 ## {{< iconify flat-color-icons:workflow >}} Workflow: Maximal Multiple Regression Model
 
@@ -198,10 +199,7 @@ housing_maximal_tidy
 
 ```
 
-The last 5 variables are insignificant and almost contribute nothing to
-the `r.squared` value. We can understand that only after we drop the
-10th and more significant variables, that we might see significant drop
-in `r.squared`.
+The last 5 variables are clearly statistically insignificant.
 
 And now we unleash the `purrr` package to create all the simplified
 models at once. We will construct a dataset containing three columns:
@@ -210,9 +208,9 @@ models at once. We will construct a dataset containing three columns:
 -   A sequence of numbers from 1 to `N(predictor)`
 -   A "list" column containing the `housing` data frame itself
 
-We will use the iteration capability of `purrr` to sequentially drop one
-variable at a time from the maximal(15 predictor) model, build a new
-reduced model each time, and compute the `r.squared`:
+We will use the iteration capability of `purrr` to **sequentially drop
+one variable at a time** from the maximal(15 predictor) model, build a
+new reduced model each time, and compute the `r.squared`:
 
 ```{r}
 #| label: All models at once
@@ -263,7 +261,7 @@ housing_model_set %>%
   unnest(tidy_models) %>%
   
   # Plot r.squared vs predictor count
-  gf_point(r.squared ~ keep_vars) %>%
+  gf_point(r.squared ~ keep_vars, size = 3.5) %>%
   gf_line(ylab = "R.Squared",
           xlab = "No. params in the Linear Model") %>%
   gf_hline(yintercept = 0.7, linetype = "dashed") %>% 
@@ -316,8 +314,8 @@ housing_model_final %>%
 Our current best model can be stated as:
 
 $$
-\widehat{cmedv} \sim 24.459 - 0.673 * lstat + 4.199 * rm - 0.957 * ptratio - 0.563 * dis
-$$ {#eq-multiple-regression-model}
+\widehat{cmedv} \sim 24.459 - 0.563 * dis - 0.673 * lstat - 0.957 * ptratio  + 4.199 * rm
+$$
 
 ## {{< iconify flat-color-icons:workflow >}} Workflow: Diagnostics
 
@@ -393,10 +391,6 @@ model.
 
 ## References
 
-1.  James, Witten, Hastie, Tibshirani, *An Introduction to Statistical
-    Learning. Chapter 3. Linear Regression.*
-    <https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html>
+1.  James, Witten, Hastie, Tibshirani, *An Introduction to Statistical Learning. Chapter 3. Linear Regression.* <https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html>
 
-[^1]: James, Witten, Hastie, Tibshirani, \\\* An Introduction to
-    Statistical Learning\\\*. Chapter 3. Linear Regression
-    \<https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html\>
+[^1]: James, Witten, Hastie, Tibshirani,*An Introduction to Statistical Learning*. Chapter 3. Linear Regression <https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html\>
