@@ -364,8 +364,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
-<col style="width: 24%">
-<col style="width: 24%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <tbody><tr class="odd">
 <td>
@@ -423,9 +423,9 @@ Research Question
 <p>How do we predict the price of a house in Boston, based on other parameters Quantitative parameters such as area, location, rooms, and crime-rate in the neighbourhood?</p>
 </div>
 </div>
-</section><section id="iconify-flat-color-icons-workflow-workflow-read-the-data" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-read-the-data">
+</section><section id="iconify-flat-color-icons-workflow-workflow-read-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-read-the-data">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</h2>
-<div class="cell column-page" data-hash="LinReg_cache/html/unnamed-chunk-3_035bdb602e369b14e9ff1d79c749df95">
+<div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-3_5541126625b39b39bb4211045c6cc4a1">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">data</span>(<span class="st">"BostonHousing2"</span>, <span class="at">package =</span> <span class="st">"mlbench"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2"></a>housing <span class="ot">&lt;-</span> BostonHousing2</span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="fu">inspect</span>(housing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -478,8 +478,8 @@ quantitative variables:
 <p>The original data are 506 observations on 14 variables, <code>medv</code> being the target variable:</p>
 <table class="table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 75%">
+<col style="width: 26%">
+<col style="width: 73%">
 </colgroup>
 <tbody>
 <tr class="odd">
@@ -658,7 +658,7 @@ Correlation Scores and Uncertainty
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>This is somewhat advanced material: We will use <code>purrr</code> to develop all correlations with respect to our target variable in one shot and also plot these correlation test scores in an error-bar plot. This has the advantage of being able to depict all correlations in one plot. (We will use this approach again here when we trim our linear models down from the <em>maximal</em> one to a workable one of lesser complexity.). Let us do this.</p>
 <p>We develop a list object containing all correlation test results with respect to <code>cmedv</code>, tidy these up using <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy</a></code> and then plot these:</p>
-<div class="cell" data-hash="LinReg_cache/html/corrtest plots_7a16a278f71b30d4d457b733d004de77">
+<div class="cell" data-hash="LinReg_cache/html/corrtest plots_c01470ef06565d60f64668ecd5974c3e">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>all_corrs <span class="ot">&lt;-</span> housing <span class="sc">%&gt;%</span> </span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> </span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="co"># leave off target variable cmedv and IDs</span></span>
@@ -681,11 +681,14 @@ Correlation Scores and Uncertainty
 </div>
 </div>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>all_corrs <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate), </span>
-<span id="cb8-4"><a href="#cb8-4"></a>              <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with cmedv"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">gf_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"grey"</span>, <span class="at">linewidth =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">gf_point</span>(estimate <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">gf_errorbar</span>(conf.high <span class="sc">+</span> conf.low <span class="sc">~</span> <span class="fu">reorder</span>(predictor, estimate), </span>
+<span id="cb8-5"><a href="#cb8-5"></a>              <span class="at">colour =</span> <span class="sc">~</span> <span class="sc">-</span><span class="fu">log10</span>(p.value),</span>
+<span id="cb8-6"><a href="#cb8-6"></a>              <span class="at">width =</span> <span class="fl">0.2</span>,<span class="at">caption =</span> <span class="st">"Significance = -log10(p.value)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Correlation with cmedv"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8"></a>   <span class="fu">gf_theme</span>(<span class="fu">theme_minimal</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="fu">gf_refine</span>(<span class="fu">scale_colour_gradient</span>(<span class="st">"significance"</span>, <span class="at">low =</span> <span class="st">"blue"</span>, <span class="at">high =</span> <span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="LinReg_files/figure-html/corrtest plots-1.png" class="img-fluid" width="672"></p>
 </div>
