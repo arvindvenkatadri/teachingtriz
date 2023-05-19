@@ -40,8 +40,9 @@ library(infer)
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 Suppose we have three sales strategies on our website, to sell a certain
-product, say men's shirts. We have website interaction over several
-months. How do we know which strategy makes people buy the fastest ?
+product, say men's shirts. We have observations of customer website
+interactions over several months. How do we know which strategy makes
+people buy the fastest ?
 
 If there is a University course that is offered in parallel in three
 different classrooms, is there a difference between the average marks
@@ -71,7 +72,7 @@ In this tutorial, our research question is:
 How does frogspawn hatching time vary with temperature?
 :::
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: Read the Data
+## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
 
 Download the data by clicking the button below.
 
@@ -136,7 +137,7 @@ frogs_long %>% count(TempFac)
 
 So we have `20` samples for Hatching `Time` per `TempFac` setting.
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: EDA
+## {{< iconify flat-color-icons workflow >}} Workflow: EDA
 
 Let us set a plot theme:
 
@@ -193,7 +194,7 @@ significant effect on Hatching Time.
 
 Let's go ahead with our ANOVA test.
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: ANOVA
+## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA
 
 We will first execute the ANOVA test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
@@ -515,7 +516,7 @@ where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
 in SSA and SSE.
 
 Let us calculate these [Degrees of
-Freedom]{style="background-color: yellow;"}. With $k = 2$ levels in the
+Freedom]{style="background-color: yellow;"}. With $k = 3$ levels in the
 factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has
 degree of freedom $kn-1$, since it uses all observations but loses one
 degree to calculate the global mean. (If each level did not have the
@@ -583,9 +584,12 @@ F_stat
 
 ```
 
-The `F-stat` is compared with a **critical value** of the F-statistic,`F_crit`
-which is computed using the formula for the f-distribution in R. As with
-our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
+The `F-stat` is compared with a **critical value** of the
+F-statistic,`F_crit` which is computed using the formula for the
+f-distribution in R. As with our hypothesis tests, we set the
+significance level to $\alpha = 0.95$, but here with the Bonferroni
+correction, and quote the two relevant degrees of freedom as parameters
+to `qf()` which computes the critical F value as a **quartile**:
 
 ```{r}
 F_crit <-  
@@ -628,7 +632,7 @@ significant effect on spawn Time.
 And that is how ANOVA computes!
 :::
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: Checking ANOVA Assumptions
+## {{< iconify flat-color-icons workflow >}} Workflow: Checking ANOVA Assumptions
 
 ANOVA makes 3 fundamental assumptions:
 
@@ -638,7 +642,7 @@ c.  Observations are independent.
 
 We can check these using checks and graphs.
 
-#### Checks for Normality
+### {{< iconify ic twotone-rule >}} Checks for Normality
 
 The `shapiro.wilk` test tests if a vector of numeric data is normally
 distributed and rejects the hypothesis of normality when the
@@ -713,14 +717,19 @@ shapiro.test(frogs_anova$residuals)
 
 Unsurprisingly, the residuals are also not normally distributed either.
 
-### Check for Similar Variance
+### {{< iconify ic twotone-rule >}} Check for Similar Variance
 
 Response data with different variances at different levels of an
 *explanatory* variable are said to exhibit **heteroscedasticity**. This
 violates one of the assumptions of ANOVA.
 
 To check if the `Time` readings are similar in `variance` across levels
-of `TempFac`, we can use the [Levene Test]{style="background-color: yellow;"}, or since our per-group observations are not normally distributed, a non-parametric rank-based [Fligner-Killeen Test]{style="background-color: yellow;"}. The NULLhypothesis is that the data **are** with similar variances. The tests assess how probable this is with the given data assuming this NULL
+of `TempFac`, we can use the [Levene
+Test]{style="background-color: yellow;"}, or since our per-group
+observations are not normally distributed, a non-parametric rank-based
+[Fligner-Killeen Test]{style="background-color: yellow;"}. The NULL
+hypothesis is that the data **are** with similar variances. The tests
+assess how probable this is with the given data assuming this NULL
 hypothesis:
 
 ```{r}
@@ -739,13 +748,13 @@ DescTools::LeveneTest(Time ~ TempFac, data = frogs_long)
 It seems that there is no cause for concern here; the data do not have
 significantly different variances.
 
-### Independent Observations
+### {{< iconify ic twotone-rule >}} Independent Observations
 
 This is an experiment *design* concern; the way the data is gathered
 must be specified such that data for each level of the factors ( factor
 combinations if there are more than one) should be independent.
 
-## {{< iconify flat-color-icons:workflow >}} Workflow: Effect Size
+## {{< iconify flat-color-icons workflow >}} Workflow: Effect Size
 
 The simplest way to find the actual `effect sizes` detected by an ANOVA
 test is to use (paradoxically) the `summary.lm()` command:
@@ -793,7 +802,8 @@ tidy_anova %>%
   
 ```
 
-If we want an "absolute value" plot for effect size, it needs just a little bit of work:
+If we want an "absolute value" plot for effect size, it needs just a
+little bit of work:
 
 ```{r}
 # Merging group averages with `std.error`
@@ -820,8 +830,7 @@ frogs_long %>%
                              labels = c("13°C", "18°C", "25°C")))
 ```
 
-
-## {{< iconify flat-color-icons:workflow >}} Workflow: ANOVA using Permutation Tests
+## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA using Permutation Tests
 
 We wish to establish the significance of the effect size due to each of
 the levels in `TempFac`. From the normality tests conducted earlier we
@@ -930,7 +939,7 @@ permutationally generated F-statistics are nowhere near that which was
 observed. The effect of `TempFac` is very strong.
 :::
 
-## Conclusions
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
 We have discussed ANOVA as a means of modelling the effects of a
 Categorical variable on a Continuous (Quant) variable. ANOVA can be
@@ -938,7 +947,7 @@ carried out using the standard formula `aov` when assumptions on
 distributions, variances, and independence are met. Permutation ANOVA
 tests can be carried out when these assumptions do not quite hold.
 
-## References
+## {{< iconify ooui references-rtl >}} References
 
 1.  The ANOVA tutorial at [Our Coding
     Club](https://ourcodingclub.github.io/tutorials/anova/).
