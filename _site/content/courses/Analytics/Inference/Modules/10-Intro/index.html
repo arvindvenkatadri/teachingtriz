@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.475">
+<meta name="generator" content="quarto-1.3.340">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
 <meta name="dcterms.date" content="2021-11-09">
+
 <title>The Foundation Series - 🧭 Basics of Statistical Inference</title>
 <style>
 code{white-space: pre-wrap;}
@@ -15,10 +18,11 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
+
 
 <script src="../../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../../../../../site_libs/quarto-nav/headroom.min.js"></script>
@@ -35,7 +39,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -53,197 +58,238 @@ ul.task-list li input[type="checkbox"] {
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit"
   }
-}</script><style>html{ scroll-behavior: smooth; }</style>
-<link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
 <meta property="og:title" content="The Foundation Series - 🧭 Basics of Statistical Inference">
-<meta property="og:description" content="In this set of modules we will explore Data, understand what types of data variables there are, and the kinds of statistical tests and visualizations we can create with them.">
-<meta property="og:image" content="https://av-quarto.netlify.app/content\courses\Analytics\Inference\Modules\10-Intro\featured.jpg">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/10-Intro/featured.jpg">
 <meta property="og:site-name" content="The Foundation Series">
 </head>
+
 <body class="nav-sidebar docked nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
     <a class="navbar-brand" href="../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-<li class="nav-item">
-    <a class="nav-link" href="../../../../../../index.html">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../../../index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
 </ul>
-<ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"><i class="bi bi-github" role="img">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v"><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri"><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-<div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
-    </nav><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title">🧭 Basics of Statistical Inference</h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🧭 Basics of Statistical Inference</li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
       </button>
     </div>
-  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
-      </div>
+        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
-<li class="sidebar-item sidebar-item-section">
+        <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Teaching</a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Teaching</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
-<li class="px-0"><hr class="sidebar-divider hi "></li>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">Data Analytics</a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" aria-expanded="false">
+            <a href="../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Analytics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="" class="collapse list-unstyled sidebar-section depth2 ">
-<li class="px-0"><hr class="sidebar-divider hi "></li>
+      <ul id="" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Tools/listing.html" class="sidebar-item-text sidebar-link">Tools and Software</a>
+  <a href="../../../../../../content/courses/Analytics/Tools/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tools and Software</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Descriptive/listing.html" class="sidebar-item-text sidebar-link">Descriptive Analytics</a>
+  <a href="../../../../../../content/courses/Analytics/Descriptive/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Descriptive Analytics</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">Statistical Inference</a>
+  <a href="../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Statistical Inference</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">Inferential Modelling</a>
+  <a href="../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inferential Modelling</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Predictive/listing.html" class="sidebar-item-text sidebar-link">Predictive Analytics</a>
+  <a href="../../../../../../content/courses/Analytics/Predictive/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Predictive Analytics</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Prescriptive/listing.html" class="sidebar-item-text sidebar-link">Prescriptive Analytics</a>
+  <a href="../../../../../../content/courses/Analytics/Prescriptive/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prescriptive Analytics</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/Analytics/Workflow/listing.html" class="sidebar-item-text sidebar-link">Workflow</a>
+  <a href="../../../../../../content/courses/Analytics/Workflow/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Workflow</span></a>
   </div>
 </li>
       </ul>
-</li>
+  </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/R4Artists/listing.html" class="sidebar-item-text sidebar-link">R for Artists and Managers</a>
+  <a href="../../../../../../content/courses/R4Artists/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R for Artists and Managers</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">TRIZ for Innovation</a>
+  <a href="../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">TRIZ for Innovation</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/MathModelsDesign/listing.html" class="sidebar-item-text sidebar-link">Math Models in Design</a>
+  <a href="../../../../../../content/courses/MathModelsDesign/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Math Models in Design</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/listing.html" class="sidebar-item-text sidebar-link">Data Vis with No Code</a>
+  <a href="../../../../../../content/courses/NoCode/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Vis with No Code</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/ISTW/listing.html" class="sidebar-item-text sidebar-link">In Short, the World</a>
+  <a href="../../../../../../content/courses/ISTW/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">In Short, the World</span></a>
   </div>
 </li>
           <li class="px-0"><hr class="sidebar-divider hi "></li>
       </ul>
-</li>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">Posts</a>
+  <a href="../../../../../../content/posts/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Posts</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">Blogs</a>
+  <a href="../../../../../../content/projects/listing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blogs</span></a>
   </div>
 </li>
     </ul>
-</div>
-</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
    
   <ul>
-<li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#the-big-ideas-in-stats" id="toc-the-big-ideas-in-stats" class="nav-link" data-scroll-target="#the-big-ideas-in-stats">The Big Ideas in Stats</a></li>
   <li><a href="#what-is-a-statistical-model" id="toc-what-is-a-statistical-model" class="nav-link" data-scroll-target="#what-is-a-statistical-model">What is a Statistical Model?</a></li>
-  <li>
-<a href="#uses-and-types-of-statistical-models" id="toc-uses-and-types-of-statistical-models" class="nav-link" data-scroll-target="#uses-and-types-of-statistical-models">Uses and Types of Statistical Models</a>
+  <li><a href="#uses-and-types-of-statistical-models" id="toc-uses-and-types-of-statistical-models" class="nav-link" data-scroll-target="#uses-and-types-of-statistical-models">Uses and Types of Statistical Models</a>
   <ul class="collapse">
-<li><a href="#the-intent-of-modelling" id="toc-the-intent-of-modelling" class="nav-link" data-scroll-target="#the-intent-of-modelling">The Intent of Modelling</a></li>
+  <li><a href="#the-intent-of-modelling" id="toc-the-intent-of-modelling" class="nav-link" data-scroll-target="#the-intent-of-modelling">The Intent of Modelling</a></li>
   <li><a href="#types-of-models" id="toc-types-of-models" class="nav-link" data-scroll-target="#types-of-models">Types of Models</a></li>
-  </ul>
-</li>
+  </ul></li>
   <li><a href="#degrees-of-freedom" id="toc-degrees-of-freedom" class="nav-link" data-scroll-target="#degrees-of-freedom">Degrees of Freedom</a></li>
   <li><a href="#effect-size" id="toc-effect-size" class="nav-link" data-scroll-target="#effect-size">Effect Size</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
-  </ul></nav>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title d-none d-lg-block">🧭 Basics of Statistical Inference</h1>
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">🧭 Basics of Statistical Inference</h1>
 </div>
 
 
@@ -261,70 +307,65 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">April 13, 2023</p>
+      <p class="date-modified">Invalid Date</p>
     </div>
   </div>
     
   </div>
   
 
-</header><p><img src="featured.jpg" class="img-fluid"></p>
-<section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+</header>
+
+<p><img src="featured.jpg" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>In this set of modules we will explore Data, understand what types of data variables there are, and the kinds of statistical tests and visualizations we can create with them.</p>
-</section><section id="the-big-ideas-in-stats" class="level2"><h2 class="anchored" data-anchor-id="the-big-ideas-in-stats">The Big Ideas in Stats</h2>
+</section>
+<section id="the-big-ideas-in-stats" class="level2">
+<h2 class="anchored" data-anchor-id="the-big-ideas-in-stats">The Big Ideas in Stats</h2>
 <p>Steven Stigler is the author of the book “<em>The Seven Pillars of Statistical Wisdom</em>”. The Big Ideas in Statistics from that book are:</p>
 <ol type="1">
-<li>
-<p>Aggregation</p>
+<li><p>Aggregation</p>
 <blockquote class="blockquote">
 <p>The first pillar I will call Aggregation, although it could just as well be given the nineteenth-century name, “The Combination of Observations,” or even reduced to the simplest example, taking a mean. Those simple names are misleading, in that I refer to an idea that is now old but was truly revolutionary in an earlier day—and it still is so today, whenever it reaches into a new area of application. How is it revolutionary? By stipulating that, given a number of observations, you can actually gain information by <strong>throwing information away</strong>! In taking a simple arithmetic mean, we discard the individuality of the measures, subsuming them to one summary.</p>
-</blockquote>
-</li>
-<li>
-<p>Information</p>
+</blockquote></li>
+<li><p>Information</p>
 <blockquote class="blockquote">
 <p>In the early eighteenth century it was discovered that in many situations the <strong>amount of information</strong> in a set of data was only proportional to the <strong>square root</strong> of the number n of observations, not the number n itself.</p>
-</blockquote>
-</li>
-<li>
-<p>Likelihood</p>
+</blockquote></li>
+<li><p>Likelihood</p>
 <blockquote class="blockquote">
 <p>By the name I give to the third pillar, Likelihood, I mean the calibration of inferences with the use of probability. The simplest form for this is in <strong>significance testing</strong> and the common <strong>P-value</strong>.</p>
-</blockquote>
-</li>
-<li>
-<p>Intercomparison</p>
+</blockquote></li>
+<li><p>Intercomparison</p>
 <blockquote class="blockquote">
 <p>It represents what was also once a radical idea and is now commonplace: that statistical comparisons do not need to be made with respect to an exterior standard but can often be made in terms <strong>interior to the data</strong> themselves. The most commonly encountered examples of intercomparisons are Student’s <strong>t-tests</strong> and the tests of the <strong>analysis of variance</strong>.</p>
-</blockquote>
-</li>
-<li>
-<p>Regression</p>
+</blockquote></li>
+<li><p>Regression</p>
 <blockquote class="blockquote">
 <p>I call the fifth pillar Regression, after Galton’s revelation of 1885, explained in terms of the bivariate normal distribution. Galton arrived at this by attempting to devise a mathematical framework for Charles Darwin’s theory of natural selection, overcoming what appeared to Galton to be an intrinsic <strong>contradiction in the theory</strong>: selection required increasing diversity, in contradiction to the appearance of the population stability needed for the definition of species.</p>
-</blockquote>
-</li>
-<li>
-<p>Design of Experiments and Observations</p>
+</blockquote></li>
+<li><p>Design of Experiments and Observations</p>
 <blockquote class="blockquote">
 <p>The sixth pillar is Design, as in “Design of Experiments,” but conceived of more broadly, as an ideal that can discipline our thinking in even observational settings.Starting in the late nineteenth century, a new understanding of the topic appeared, as Charles S. Peirce and then Fisher discovered the extraordinary role <strong>randomization</strong> could play in inference.</p>
-</blockquote>
-</li>
-<li>
-<p>Residuals</p>
+</blockquote></li>
+<li><p>Residuals</p>
 <blockquote class="blockquote">
 <p>The most common appearances in Statistics are our model diagnostics (<strong>plotting residuals</strong>), but more important is the way we explore high-dimensional spaces by fitting and comparing <strong>nested models</strong>.</p>
-</blockquote>
-</li>
+</blockquote></li>
 </ol>
 <p>In our work with Statistical Models, we will be working with all except Idea 6 above.</p>
-</section><section id="what-is-a-statistical-model" class="level2"><h2 class="anchored" data-anchor-id="what-is-a-statistical-model">What is a Statistical Model?</h2>
+</section>
+<section id="what-is-a-statistical-model" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-statistical-model">What is a Statistical Model?</h2>
 <p>From Daniel Kaplan’s book:</p>
 <p>“Modeling” is a process of <strong>asking questions</strong>. “Statistical” refers in part to data – the statistical models you will construct will be rooted in data. But it refers also to a distinctively modern idea: that <em>you can measure what you don’t know and that doing so contributes to your understanding.</em></p>
 <p>The conclusions you reach from data depend on the <strong>specific questions</strong> you ask.</p>
 <p>The word “modeling” highlights that <strong>your goals, your beliefs, and your current state of knowledge</strong> all influence your analysis of data.</p>
 <p>Similarly, in statistical modeling, you examine your data to see whether they are consistent with the <strong>hypotheses that frame your understanding of the system</strong> under study.</p>
-</section><section id="uses-and-types-of-statistical-models" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="uses-and-types-of-statistical-models">Uses and Types of Statistical Models</h2>
+</section>
+<section id="uses-and-types-of-statistical-models" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="uses-and-types-of-statistical-models">Uses and Types of Statistical Models</h2>
 <p>There are three main uses for statistical models. They are closely related, but distinct enough to be worth enumerating.</p>
 <blockquote class="blockquote">
 <p><strong>Description</strong>. Sometimes you want to describe the range or typical values of a quantity. For example, what’s a “normal” white blood cell count? Sometimes you want to describe the relationship between things. Example: What’s the relationship between the price of gasoline and consumption by automobiles?</p>
@@ -333,37 +374,47 @@ ul.task-list li input[type="checkbox"] {
 </blockquote>
 <p>The appropriate form of a model depends on the purpose. For example, a model that diagnoses a patient as ill based on an observation of a high number of white blood cells can be sensible and useful. But that same model could give absurd predictions about intervention: Do you really think that lowering the white blood cell count by bleeding a patient will make the patient better?</p>
 <p>To anticipate correctly the effects of an intervention you need to get <strong>the direction of cause and effect</strong> correct in your models. But for a model used for classification or prediction, it may be unnecessary to represent causation correctly. Instead, other issues, e.g., the reliability of data, can be the most important. One of the thorniest issues in statistical modeling – with tremendous consequences for science, medicine, government, and commerce – is <strong>how you can legitimately draw conclusions about interventions from models based on data collected without performing these interventions.</strong></p>
-<section id="the-intent-of-modelling" class="level3"><h3 class="anchored" data-anchor-id="the-intent-of-modelling">The Intent of Modelling</h3>
+<section id="the-intent-of-modelling" class="level3">
+<h3 class="anchored" data-anchor-id="the-intent-of-modelling">The Intent of Modelling</h3>
 <p>From Daniel T. Kaplan’s book:</p>
 <ol type="1">
 <li><p>Statistics is about <strong>variation</strong>. Describing and interpreting variation is a major goal of statistics.</p></li>
 <li><p>You can create empirical, mathematical descriptions not only of a single trait or variable but also of the relationships <strong>between</strong> two or more traits. (Empirical means based on measurements, data, observations.)</p></li>
-<li>
-<p>Models let you split variation into components: <strong>“explained”</strong> versus <strong>“unexplained.”</strong> How to measure the size of these components and how to compare them to one another is a central aspect of statistical methodology. Indeed, this provides a definition of statistics:</p>
+<li><p>Models let you split variation into components: <strong>“explained”</strong> versus <strong>“unexplained.”</strong> How to measure the size of these components and how to compare them to one another is a central aspect of statistical methodology. Indeed, this provides a definition of statistics:</p>
 <blockquote class="blockquote">
 <p>Statistics is the explanation of variation in the context of what remains unexplained.</p>
-</blockquote>
-</li>
+</blockquote></li>
 <li><p>By collecting data in ways that require care but are quite feasible, you can estimate how reliable your descriptions are, e.g., whether it’s plausible that you should see similar relationships if you collected new data. This notion of reliability is very narrow and there are some issues that depend critically on the context in which the data were collected and the correctness of assumptions that you make about how the world works.</p></li>
 <li><p>Relationships between pairs of traits can be studied in isolation only in special circumstances. In general, to get valid results it is necessary to study entire systems of traits simultaneously. Failure to do so can easily lead to conclusions that are grossly misleading.</p></li>
 <li><p>Descriptions of relationships are often subjective – they depend on choices that you, the modeler, make. These choices are generally rooted in your own beliefs about how the world works, or the theories accepted as plausible within some community of inquiry.</p></li>
 <li><p>If data are collected properly, you can get an indication of whether the data are consistent or inconsistent with your subjective beliefs or – and this is important – whether you don’t have enough data to tell either way.</p></li>
 <li><p>Models can be used to check out the sensitivity of your conclusions to different beliefs. People who disagree in their views of how the world works often may not be able to reconcile their differences based on data, but they will be able to decide objectively whether their own or the other party’s beliefs are reasonable given the data.</p></li>
 <li><p>Notwithstanding everything said above about the strong link between your prior, subjective beliefs and the conclusions you draw from data, by collecting data in a certain context – experiments – you can dramatically simplify the interpretation of the results. It’s actually possible to remove the dependence on identified subjective beliefs by intervening in the system under study experimentally.</p></li>
-</ol></section><section id="types-of-models" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="types-of-models">Types of Models</h3>
+</ol>
+</section>
+<section id="types-of-models" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="types-of-models">Types of Models</h3>
 <p>Let us look at the famous dataset pertaining to Francis Galton’s work on the heights of children and the heights of their parents. We can create 4 kinds of models based on the <em>types of variables</em> in that dataset.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
-<figure class="figure page-columns page-full"><p><img src="../../../../../..\content/materials/images/Models.png" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption margin-caption">Variables and Models</figcaption><p></p>
+<figure class="figure page-columns page-full">
+<p><img src="../../../../../..\content/materials/images/Models.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption margin-caption">Variables and Models</figcaption>
 </figure>
 </div>
 <p>Our method in this set of modules is to take <strong>the modern view that <em>all</em> these models can be viewed from a standpoint of the <em>Linear Model</em>, also called <em>Linear Regression</em></strong> <span class="math inline">\(y = \beta_1 *x + \beta_0\)</span> . For example, it is relatively straightforward to imagine Plot B (Quant vs Quant ) as an example of a Linear Model, with the dependent variable modelled as <span class="math inline">\(y\)</span> and the independent one as <span class="math inline">\(x\)</span>. We will try to work up to the intuition that this model can be used to understand all the models in the Figure.</p>
-</section></section><section id="degrees-of-freedom" class="level2"><h2 class="anchored" data-anchor-id="degrees-of-freedom">Degrees of Freedom</h2>
+</section>
+</section>
+<section id="degrees-of-freedom" class="level2">
+<h2 class="anchored" data-anchor-id="degrees-of-freedom">Degrees of Freedom</h2>
 <p>TBD</p>
-</section><section id="effect-size" class="level2"><h2 class="anchored" data-anchor-id="effect-size">Effect Size</h2>
+</section>
+<section id="effect-size" class="level2">
+<h2 class="anchored" data-anchor-id="effect-size">Effect Size</h2>
 <p>An <em>effect size</em> tells how the output of a model changes when a simple change is made to the input.</p>
 <p>Effect sizes always involve two variables: a response variable and a single explanatory variable. Effect size is always about a <em>model</em>. The model might have one explanatory variable or many explanatory variables. Each explanatory variable will have its own effect size, so a model with multiple explanatory variables will have multiple effect sizes.</p>
-</section><section id="references" class="level1"><h1>References</h1>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
 <ol type="1">
 <li><p>Tihamér von Ghyczy, <em>The Fruitful Flaws of Strategy Metaphors</em>. Harvard Business Review, 2003. <a href="https://hbr.org/2003/09/the-fruitful-flaws-of-strategy-metaphors" class="uri">https://hbr.org/2003/09/the-fruitful-flaws-of-strategy-metaphors</a></p></li>
 <li><p>Daniel T. Kaplan, <em>Statistical Models (second edition)</em>. Available online. <a href="https://dtkaplan.github.io/SM2-bookdown/" class="uri">https://dtkaplan.github.io/SM2-bookdown/</a></p></li>
@@ -373,7 +424,10 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 
 
-</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -400,9 +454,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -467,6 +535,157 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Handle positioning of the toggle
+      window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+      const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
+      for (let i=0; i<annoteTargets.length; i++) {
+        const annoteTarget = annoteTargets[i];
+        const targetCell = annoteTarget.getAttribute("data-target-cell");
+        const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
+        const contentFn = () => {
+          const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          if (content) {
+            const tipContent = content.cloneNode(true);
+            tipContent.classList.add("code-annotation-tip-content");
+            return tipContent.outerHTML;
+          }
+        }
+        const config = {
+          allowHTML: true,
+          content: contentFn,
+          onShow: (instance) => {
+            selectCodeLines(instance.reference);
+            instance.reference.classList.add('code-annotation-active');
+            window.tippy.hideAll();
+          },
+          onHide: (instance) => {
+            unselectCodeLines();
+            instance.reference.classList.remove('code-annotation-active');
+          },
+          maxWidth: 300,
+          delay: [50, 0],
+          duration: [200, 0],
+          offset: [5, 10],
+          arrow: true,
+          appendTo: function(el) {
+            return el.parentElement.parentElement.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'quarto',
+          placement: 'right',
+          popperOptions: {
+            modifiers: [
+            {
+              name: 'flip',
+              options: {
+                flipVariations: false, // true by default
+                allowedAutoPlacements: ['right'],
+                fallbackPlacements: ['right', 'top', 'top-start', 'top-end'],
+              },
+            },
+            {
+              name: 'preventOverflow',
+              options: {
+                mainAxis: false,
+                altAxis: false
+              }
+            }
+            ]        
+          }      
+        };
+        window.tippy(annoteTarget, config); 
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -505,12 +724,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp(/https:\/\/av-quarto\.netlify\.app/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
-    var links = window.document.querySelectorAll('a:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -523,11 +742,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer">
+<footer class="footer">
+  <div class="nav-footer">
     <div class="nav-footer-left">Website made with 💜 and <a href="https://quarto.org/">Quarto</a>, by Arvind Venkatadri. License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
-<li class="nav-item compact">
+    <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arvindvenkatadri/">
       <i class="bi bi-github" role="img">
 </i> 
@@ -546,9 +769,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </a>
   </li>  
 </ul>
-</div>
+    </div>
   </div>
 </footer>
+
 
 
 <script src="../../../../../../site_libs/quarto-html/zenscroll-min.js"></script>

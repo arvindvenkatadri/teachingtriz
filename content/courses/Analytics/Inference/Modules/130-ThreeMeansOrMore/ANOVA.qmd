@@ -121,8 +121,8 @@ frogs_long <- frogs_orig %>%
   
   # Convert Temp into TempFac, a 3-level factor
   mutate(TempFac = factor(x = TempFac,
-                              levels = c(13,18,25), 
-                              labels = c("13", "18", "25"))) %>% 
+                          levels = c(13,18,25), 
+                          labels = c("13", "18", "25"))) %>% 
   rename("Id" = `Frogspawn sample id`)
 
 frogs_long
@@ -243,7 +243,7 @@ Qual level.
 ```{r}
 #| layout-nrow: 1
 #| label: Anova Intuitive
-
+library(ggtext)
 data = tibble(index = 1:40,
               qual = c(rep(x = "A", 20),rep(x = "B", 20)),
               quant = c(rnorm(n = 20, mean = 0, sd = 2), 
@@ -266,7 +266,7 @@ gf_point(quant ~ index,
   gf_segment(data = data, 
              color = "black",
              overall_mean$overall_mean + quant ~ index + index) %>% 
-  gf_theme(theme = theme_frogs()) 
+  gf_theme(theme = theme_frogs())
 
 gf_point(quant ~ index, 
          group = ~ qual, 
@@ -661,15 +661,16 @@ at each level of the factor?
 ```{r}
 frogs_grouped <- frogs_long %>% 
   group_by(TempFac) %>% 
-  nest(.key = "list") 
+  nest(.key = "list") # naming the nested column "list"
 
+# Checking if we can purrr
 frogs_grouped %>% 
-  pluck("list", 1) %>% # naming the nested column "list"
+  pluck("list", 1) %>% 
   select(Time) %>% 
   as_vector() %>% 
   shapiro.test(.)
 
-# OK now we are set for group-wise Shapiro-Wilk testing:
+# OK now we are set for group-wise Shapiro-Wilk testing with purrr:
 
 frogs_grouped %>% 
   mutate(shaptest = 
@@ -692,7 +693,7 @@ normally distributed and estimates the probability that this could have
 happened by chance. Except for `TempFac = 18` the p-values are less than
 0.05 and we can reject the NULL hypothesis that each of these is
 normally distributed. Perhaps this is a sign that we need more than 20
-samples per factor level.
+samples per factor level. Let there be more frogs !!!
 
 We can also check the residuals post-model:
 
@@ -771,7 +772,7 @@ tidy_anova
 
 It may take a bit of effort to understand this. First the `TempFac` is
 arranged in order of levels, and the `mean` at the $TempFac = 13$ is
-titled `intercept`. That is $26.3$. The other two means for levels $18$
+titled `Intercept`. That is $26.3$. The other two means for levels $18$
 and $25$ are stated as **differences** from this intercept, $-5.3$ and
 $-10.1$ respectively. The `p.value` for all these effect sizes is well
 below the desired confidence level of $0.05$.
@@ -886,9 +887,10 @@ null_dist_mosaic %>% drop_na() %>%
 
 ```
 
-The Null distribution of the F_statistic under permutation shows it
-never crosses the real-world observed value, testifying the strength of
-the effect of `TempFac` on hatching `Time`. And the p-value is:
+The Null distribution of the `F_statistic` under permutation shows it
+never crosses the real-world observed value, testifying as to the
+strength of the effect of `TempFac` on hatching `Time`. And the
+`p-value` is:
 
 ```{r}
 p_value <- mean(null_dist_mosaic$F >= observed_mosaic, na.rm = TRUE)
