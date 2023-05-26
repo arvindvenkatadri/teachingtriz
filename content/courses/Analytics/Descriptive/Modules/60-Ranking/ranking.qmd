@@ -39,7 +39,7 @@ library(ggradar) # Radar Plots
 
 ```
 
-## What graphs are we going to see today?
+## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs are we going to see today?
 
 When we wish to compare the size of things and rank them, there are
 quite a few ways to do it.
@@ -50,19 +50,22 @@ rank things on *one* aspect or parameter.
 When we wish to rank the same set of objects against **multiple**
 aspects or parameters, then we can use Bump Charts and Radar Charts.
 
-## Lollipop Charts
+## {{< iconify openmoji poppy >}} Lollipop Charts
 
 ```{r}
 # Sample data set
 set.seed(1)
-df1 <- tibble(x = LETTERS[1:10],
-                 y = sample(20:35, 10, replace = TRUE))
+df1 <- tibble(product = LETTERS[1:10],
+                 rank = sample(20:35, 10, replace = TRUE))
 df1
 
-gf_segment(0 + y ~ x + x, data = df1) %>% 
+gf_segment(0 + rank ~ product + product, data = df1) %>% 
 # A formula with shape y + yend ~ x + xend.
   
-  gf_point(y ~ x, colour = ~ x, size = 5)
+  gf_point(rank ~ product, colour = ~ product, 
+           size = 5,
+           ylab = "Rank",
+           xlab = "Product")
 
 
 # Compare with ggplot code:
@@ -77,14 +80,15 @@ of decreasing ( or increasing ) $y$, using `forcats::fct_reorder`:
 
 ```{r}
 
-gf_segment(0 + y ~ fct_reorder(x, -y) + fct_reorder(x, -y), 
+gf_segment(0 + rank ~ fct_reorder(product, - rank) + 
+             fct_reorder(product, - rank), 
            data = df1) %>%
   # A formula with shape y + yend ~ x + xend.
   
-  gf_point(y ~ x, colour = ~ x, size = 5) %>%
+  gf_point(rank ~ product, colour = ~ product, size = 5) %>%
   
   gf_refine(coord_flip()) %>%
-  gf_labs(x = "Group", y = "") %>%
+  gf_labs(x = "Product", y = "Rank") %>%
   gf_theme(theme_minimal())
 
 
@@ -102,12 +106,12 @@ gf_segment(0 + y ~ fct_reorder(x, -y) + fct_reorder(x, -y),
 
 ```
 
-## Bump Charts
+## {{< iconify teenyicons curved-connector-outline >}} Bump Charts
 
 Bump Charts track the ranking of several objects based on *other*
 parameters, such as time/month or even category. For instance, what is
 the opinion score of a set of products across various categories of
-users:
+users?
 
 ```{r}
 year <- rep(2019:2021, 4)
@@ -117,30 +121,33 @@ product <- c("A", "A", "A",
             "C", "C", "C",
             "D", "D", "D")
 
-df2 <- tibble(x = year,
-                 y = position,
-                 group = product)
+df2 <- tibble(year,position,product)
 
 df2
 
 ```
 
+::: callout-note
+## `ggbump` uses `ggplot` syntax
+
 We need to use a new package called, what else, `ggbump` to create our
 `Bump Charts`: Here again we do not yet have a `ggformula` equivalent .
 Note the `+` syntax with ggplot code!!
+:::
 
 ```{r}
 #| label: bump-1
 library(ggbump)
 
 ggplot(df2) +
-  geom_bump(aes(x = x, y = y, color = group)) +
-  geom_point(aes(x = x, y = y, color = group), size = 6) +
-  theme_minimal() +
-  xlab("Time") +
-  ylab("Product Rank") +
-  scale_color_brewer(palette = "RdBu") # Change Colour Scale
-
+  geom_bump(aes(x = year, y = position, color = product)) +
+  geom_point(aes(x = year, y = position, color = product),
+             size = 6) +
+    theme_minimal() +
+    xlab("Year") +
+    ylab("Rank") +
+    scale_color_brewer(palette = "RdBu") # Change Colour Scale
+  
 ```
 
 We can add labels along the "bump lines" and remove the legend
@@ -150,32 +157,38 @@ altogether:
 #| label: bump-2
 
 ggplot(df2) +
-  geom_bump(aes(x = x, y = y, color = group)) +
-  geom_point(aes(x = x, y = y, color = group), size = 6) +
+  geom_bump(aes(x = year, y = position, color = product)) +
+  geom_point(aes(x = year, y = position, color = product),
+             size = 6) +
   theme_minimal() +
   scale_color_brewer(palette = "RdBu") + # Change Colour Scale
-# Same as before up to her
+# Same as before up to here
 # Add the labels at start and finish
 
-  geom_text(data = df2 %>% filter(x == min(x)),
-            aes(x = x - 0.1, label = group, y = y),
+  geom_text(data = df2 %>% filter(year == min(year)),
+            aes(x = year - 0.1, label = product, y = position),
             size = 5, hjust = 1) +
-  geom_text(data = df2 %>% filter(x == max(x)),
-            aes(x = x + 0.1, label = group, y = y),
+  geom_text(data = df2 %>% filter(year == max(year)),
+            aes(x = year + 0.1, label = product, y = position),
             size = 5, hjust = 0) +
-  xlab("Time") +
-  ylab("Product Rank") +
+  xlab("Year") +
+  ylab("Rank") +
   theme(legend.position = "none")
+
 ```
 
-## Radar Charts
+## {{< iconify ant-design radar-chart-outlined >}} Radar Charts
 
-The same data can be plotted on a roughly circular set of axes, with the
-radial distance defining the rank against each axes.
+What if your marketing folks had rated some products along several
+different desirable criteria? Such data, where a certain set of items
+(Qualitative!!) are **rated** (Quantitative !!) against another set
+(Qualitative again!!) can be plotted on a roughly circular set of axes,
+with the radial distance defining the rank against each axes.
 
-Of course, we can use `ggradar`, which is at this time (Feb 2023) a
-development version and not yet part of CRAN. We will still try it, and
-another package `ggiraphExtra` which IS a part of CRAN.
+Of course, we will use the aptly named `ggradar`, which is at this time
+(Feb 2023) a development version and not yet part of CRAN. We will still
+try it, and another package `ggiraphExtra` which IS a part of CRAN ( and
+has some other capabilities too, which are worth exploring!)
 
 ```{r using ggradar}
 
@@ -193,6 +206,35 @@ df3 <- tibble(Product = c("G1", "G2", "G3"),
               Universality = runif(3))
 df3
 
+```
+
+::: callout-note
+### Wide Form Data
+
+Look at the data: this is **wide form data**. The columns pertaining to
+each of the Product-Features would normally be stacked into two columns,
+one with the Feature and the other with the score. Note the trio:
+Qual(Product) + Quant(Scores) + Qual(Criteria, multi-column)
+:::
+
+::: column-margin
+#### {{< iconify icon-park pivot-table >}} Data: Wide to Long
+
+```{r}
+#| column: margin
+df3 %>% 
+  pivot_longer(cols = c(-Product), 
+               names_to = "Feature", 
+               values_to = "Score") %>% 
+  arrange(Product)
+
+```
+:::
+
+### {{< iconify icon-park radar-chart >}} Using `ggradar`
+
+```{r}
+
 ggradar::ggradar(plot.data = df3,
                  axis.label.size = 3, # Titles of Params
                  grid.label.size = 4, # Score Values/Circles
@@ -204,6 +246,8 @@ ggradar::ggradar(plot.data = df3,
   theme_void()
 
 ```
+
+### {{< iconify flat-color-icons radar-plot >}} Using `ggiraphExtra`
 
 From the `ggiraphExtra` website:
 
@@ -218,6 +262,7 @@ From the `ggiraphExtra` website:
 ggiraphExtra::ggRadar(data = df3,
         aes(colour = Product),
         rescale = FALSE,
+        title = "Using ggiraphExtra"
           )  + # recale = TRUE makes it look different...try!!
   theme_minimal()
 
@@ -227,14 +272,14 @@ ggiraphExtra::ggRadar(data = df3,
 Both render very similar-looking radar charts and the syntax is not too
 intimidating!!
 
-## Your Turn
+## {{< iconify icon-park me >}} Your Turn
 
 1.  Take the `HELPrct` dataset from our well used `mosaicData` package.
     Plot ranking charts using each of the public health issues that you
     can see in that dataset. What choice will you make for the the axes?
 2.  Try the `SaratogaHouses` dataset also from `mosaicData`.
 
-# References
+## {{< iconify ooui references-ltr >}} References
 
 1.  Keon-Woong Moon, R Package `ggiraphExtra`,
     <https://cran.r-project.org/web/packages/ggiraphExtra/vignettes/introduction.html>

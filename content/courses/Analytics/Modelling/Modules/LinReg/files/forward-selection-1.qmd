@@ -95,6 +95,8 @@ inspect(Hitters)
 
 ```
 
+### {{< iconify flat-color-icons scatter-plot >}} Scatter Plots
+
 We should examine scatter plots of `Salary` against these variables.
 
 Let us select a few sets of Quantitative and Qualitative features, along
@@ -135,6 +137,8 @@ inter-correlated with `Runs`. All the `C*` variables are well correlated
 with `Salary` and also among one another. (Plot3). Plot 4 has no
 significant correlations at all. Plot 5 shows `Salary` nearly equally
 distributed across `League`, `Division`, and `NewLeague`.
+
+### {{< iconify carbonchart-error-bar-alt >}} Correlation Error-Bars
 
 We can also plot all correlations in one graph using `cor.test` and
 `purrr`:
@@ -403,6 +407,76 @@ $$ {#eq-round2}
 
 Note the change in both `intercept` and the `slope` for `CRBI` when the
 new predictor `Hits` is added!!
+
+## {{< iconify openmoji chart-increasing >}} Workflow: Visualization
+
+Let us quickly see how this model might look. We know that with simple
+regression, we obtain a straight line as our model. Here, with two (or
+more) predictors, we should obtain a ....(hyper)plane!
+
+```{r, echo=FALSE,eval=FALSE}
+#| column: screen-inset-shaded
+#| layout-ncol: 2
+#| 
+library("plot3D")
+library(modelr)
+fit <- lm(Salary ~ CRBI + Hits, data = Hitters)
+preds <- Hitters %>% data_grid(CRBI = seq_range(CRBI, 26), 
+                      Hits = seq_range(Hits, 26)) %>% 
+  add_predictions(model = fit)
+preds_matrix <- as.matrix(preds$pred, ncol = 26, nrow = 26)
+# fitted points for drop-lines to surface
+fitpoints2 <- predict(fit)
+# scatter plot with regression plane
+scatter3D(Hitters$CRBI, Hitters$Hits, Hitters$Salary, 
+          pch = 18, cex = 1, 
+    theta = 120, phi = 20, ticktype = "detailed",
+    xlab = "CRBI", ylab = "Hits", zlab = "Salary",  
+    surf = list(x = preds$CRBI, y = preds$Hits, z = preds_matrix,
+               #fit = fitpoints2,
+                 facets = NA), 
+    main = "Multiple Regression for Hitters Dataset")
+
+# #######################
+# library(plotly)
+# #Graph Resolution (more important for more complex shapes)
+# graph_reso <- 0.5
+# 
+# #Setup Axis
+# axis_x <- seq(min(Hitters$CRBI), max(Hitters$CRBI), by = graph_reso)
+# axis_y <- seq(min(Hitters$Hits), max(Hitters$Hits), by = graph_reso)
+# 
+# #Sample points
+# hitters_lm_surface <- expand.grid(CRBI = axis_x, 
+#                                   Hits = axis_y,
+#                                   KEEP.OUT.ATTRS = F)
+# hitters_lm_surface$Salary <- predict.lm(lm_round2, newdata = hitters_lm_surface)
+# hitters_lm_surface <- acast(hitters_lm_surface, Hits ~ CRBI, value.var = "Salary") #y ~ x
+# 
+# hcolors=c("red","blue","green")
+# hitters_plot <- plot_ly(Hitters, 
+#                      x = ~ CRBI, 
+#                      y = ~ Hits, 
+#                      z = ~ Salary,
+#                      #text = ~species, # EDIT: ~ added
+#                      type = "scatter3d", 
+#                      mode = "markers",
+#                      marker = list(color = hcolors)
+#                      ) 
+#                      
+# # %>% layout(title = "Hitters: Salary predicted by CRBI and Hits")
+# 
+# ## and then add the surface:
+# 
+# hitters_plot <- add_trace(p = hitters_plot,
+#                        z = hitters_lm_surface,
+#                        x = axis_x,
+#                        y = axis_y,
+#                        type = "surface")
+# 
+# hitters_plot
+
+```
 
 ## {{< iconify octicon feed-discussion-16 >}} Discussion
 

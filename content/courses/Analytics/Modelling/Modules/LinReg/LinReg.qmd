@@ -18,7 +18,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
 |                                                                                                                                      |                                                                                                                                        |                                                                                                             |     |
-|--------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|-----|
+|------------------|------------------|------------------|------------------|
 | <a href="./files/forward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -97,7 +97,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:--------|:----------------------------------------------------------------------|
+|:-------------------|:---------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -267,14 +267,14 @@ all_corrs %>%
               colour = ~ -log10(p.value),
               width = 0.2,caption = "Significance = -log10(p.value)") %>% 
   gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
-   gf_theme(theme_minimal()) %>% 
+  gf_theme(theme_minimal()) %>% 
   gf_refine(scale_colour_gradient("significance", low = "blue", high = "red"))
 
 ```
 
 We can clearly see that `rm` and `lstat` have strong correlations with
 `cmedv` and should make good choices for setting up a minimal linear
-regression model.
+regression model. (`medv` is the older errored version of `cmedv`)
 :::
 
 ::: callout-note
@@ -293,24 +293,24 @@ to include more predictors:
     them to gain improvement, or remove them at as their *significance*
     changes based on other predictors that have been added.
 
-We will do the first two in the other tutorials (see above
-@sec-tutorials) but for simplicity we will first use just one predictor
-`rm`(Avg. no. of Rooms) to model housing prices. Later we will include
-other predictor/features as well. Mixed Selection we will leave for a
-more advanced course.
+We will do the first two in the other tutorials (see @sec-tutorials
+above); Mixed Selection we will leave for a more advanced course. But
+for now we will first use just one predictor `rm`(Avg. no. of Rooms) to
+model housing prices.
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Building
 
+We will first execute the `lm` test with code and evaluate the results.
+Then we will do an intuitive walk through of the process and finally,
+hand-calculate entire analysis for clear understanding.
+
 ::: panel-tabset
 ### Model Code
 
-We will first execute the `lm` test with code and evaluate the results.
-Then we will do an intuitive walk through of the process and finally,
-hand-calculate entire analysis for clear understanding. R offers a very
-simple command `lm` to execute an Linear Model: Note the familiar
-`formula` of stating the variables: ( $y \sim x$; where $y$ = target,
-$x$ = predictor)
+R offers a very simple command `lm` to execute an Linear Model: Note the
+familiar `formula` of stating the variables: ( $y \sim x$; where $y$ =
+target, $x$ = predictor)
 
 ```{r}
 #| label: Linear Model with code
@@ -863,28 +863,51 @@ plot(housing_lm)
 The residuals are not quite "like the night sky", i.e. random enough.
 The Q-Q plot of residuals also has significant deviations from the
 normal quartiles. These point to the need for a richer model, with more
-predictors.
+predictors. The "trend line" of residuals vs predictors show a U-shaped
+pattern, indicating significant nonlinearity: there is a curved
+relationship in the graph. The solution can be a **nonlinear
+transformation** of the predictor variables, such as $\sqrt(X)$,
+$log(X)$, or even $X^2$. For instance, we might try a model for `cmedv`
+using $rm^2$ instead of just `rm` as we have done. This will **still**
+be a linear model!
 
-## {{< iconify flat-color-icons workflow >}} Multiple Regression
+::: column-margin
+The `r-squared` for a model `lm(cmedv ~ rm^2)` shows some improvement:
 
-One way of modelling is to take **all possible** predictor variables and
-then selectively remove them, ensuring each time that the error
-increases by an insignificant amount by the removal. We will follow this
-method in another Tutorial.
+```{r}
+#| echo: false
+lm(cmedv ~ poly(rm,2), data = housing) %>% 
+  broom::glance() %>% select(r.squared) %>% as.numeric()
+```
+:::
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
+
+We have seen how starting from a basic EDA of the data, we have been
+able to choose a single Quantitative predictor variable to model a
+Quantitative target variable, using Linear Regression. As stated
+earlier, we may have wish to use more than one predictor variables, to
+build more sophisticated models with improved prediction capability. And
+there is more than one way of selecting these predictor variables, which
+we will examine in the Tutorials in @sec-tutorials. Sometimes it may be
+necessary to mathematically transform the variables in the dataset to
+enable the construction of better models, something that was not needed
+here. We may also encounter cases where the predictor variables seem to
+work together; one predictor may influence "how well" another predictor
+works, something called an *interaction effect* or a *synergy effect*.
+We might then have to modify our formula to include *interaction terms*
+that look like $predictor1 \times predictor2$.
 
 So our Linear Modelling workflow might look like this: we have not seen
 all stages yet, but that is for another course module or tutorial!
 
-::: column-page
 ```{mermaid}
 %%| echo: false
 flowchart TD
     A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
-    B --> |corrplot +  corrgram  + purrr + ggformula| C(C: Check Relationships)
+    B --> |corrplot +  corrgram  + ggformula + purrr + cor.test| C(C: Check Relationships)
     C --> D[D: Decide on Simple/Complex Model]
-    D --> E{E: Is Simple Model Possible?}
+    D --> E{E: Is the Model Possible?}
     E --> |Yes| G[G: Build Model]
     E -->|Nope| F[F: Transform Variables]
     E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
@@ -895,7 +918,6 @@ flowchart TD
     H --> |All   good| I(Interpret Your Model)
     I --> J(((Apply the Model for Predictions)))
 ```
-:::
 
 ## {{< iconify ooui references-rtl >}} References
 
