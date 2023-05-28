@@ -26,11 +26,15 @@ library(mosaic)
 library(GGally)
 library(corrgram)
 library(corrplot)
+library(broom)
 
 # datasets
 library(ISLR)
 
 ```
+
+
+
 
 ```{r}
 #| label: plot theme
@@ -64,6 +68,9 @@ And how do we choose the "best" model, based on a trade-off between
 Model Complexity and Model Accuracy?
 :::
 
+
+
+
 ## {{< iconify flat-color-icons workflow >}} Workflow Plan
 
 Our target variable is `Salary`.
@@ -84,6 +91,8 @@ linear regression, where we started with a **maximal model** and trimmed
 it down based on an assessment of `r.squared`.
 :::
 
+
+
 ## {{< iconify flat-color-icons workflow >}} Workflow: EDA
 
 The `Hitters` dataset has the following variables:
@@ -95,12 +104,11 @@ inspect(Hitters)
 
 ```
 
-### {{< iconify flat-color-icons scatter-plot >}} Scatter Plots
 
-We should examine scatter plots of `Salary` against these variables.
 
-Let us select a few sets of Quantitative and Qualitative features, along
-with the target variable `Salary` and do a pairs-plots with them:
+### {{< iconify flat-color-icons scatter-plot >}} Scatter Plots and Correlations
+
+We should examine scatter plots and Correlations of `Salary` against these variables. Let us select a few sets of Quantitative and Qualitative features, along with the target variable `Salary` and do a pairs-plots with them:
 
 ```{r}
 #| label: pairs plots 1
@@ -138,6 +146,9 @@ with `Salary` and also among one another. (Plot3). Plot 4 has no
 significant correlations at all. Plot 5 shows `Salary` nearly equally
 distributed across `League`, `Division`, and `NewLeague`.
 
+
+
+
 ### {{< iconify carbonchart-error-bar-alt >}} Correlation Error-Bars
 
 We can also plot all correlations in one graph using `cor.test` and
@@ -145,6 +156,7 @@ We can also plot all correlations in one graph using `cor.test` and
 
 ```{r}
 #| label: corr-test plots
+#| layout-nrow: 1
 
 all_corrs <- 
   Hitters %>% 
@@ -159,7 +171,8 @@ all_corrs <-
              .f = \(x) cor.test(x, Hitters$Salary)) %>%
   
   # tidy up the cor.test outputs into a tidy data frame
-  map_dfr(broom::tidy, .id = "predictor") 
+  map_dfr(broom::tidy, .id = "predictor") %>% 
+  arrange(desc(estimate))
 
 all_corrs
 
@@ -167,17 +180,22 @@ all_corrs %>%
   gf_hline(yintercept = 0, linewidth = 2, color = "grey") %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
               color = ~ -log10(p.value),
-              width = 0.2) %>% 
+              linewidth =  ~ -log10(p.value),
+              width = 0.5) %>% 
   gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_labs(x = NULL, y = "Correlation with Salary") %>% 
   gf_theme(theme = my_theme()) %>% 
-  gf_refine(scale_color_gradient("significance",low = "blue", high = "red"),
-                       theme(axis.text.x = element_text(angle = 30, hjust = 1)))
+  gf_refine(scale_color_gradient("significance",
+                                 low = "blue", high = "red"),
+            scale_linewidth_continuous("Significance", 
+                                       range = c(0.25,3)),
+            theme(axis.text.x = element_text(angle = 30, hjust = 1)))
 
 ```
 
 There are a good many predictors which have statistically significant
-correlations with `Salary`, such as `CRuns` , `CHmRun`.
+correlations with `Salary`, such as `CRuns` , `CHmRun`. The fatter the
+bar, the higher is the significance of the correlation.
 
 We now start with setting up simple Linear Regressions with **no**
 predictors, only an intercept. We then fit separate Linear Models using
@@ -188,45 +206,61 @@ model, until we are "satisfied" with the quality of the model ( using
 
 Let us now do this.
 
+
+
+
 ## {{< iconify flat-color-icons workflow >}} Workflow: Minimal Multiple Regression Model
 
 Note the formula structure here: we want just and `intercept`.
 
+
 ```{r}
 lm_min <- lm(data = Hitters, Salary ~ 1)
 summary(lm_min)
+
+```
+
+```{r}
+#| layout-ncol: 2
 lm_min %>% broom::tidy()
 lm_min %>% broom::glance()
 
 ```
 
+
+
+
 OK, so the intercept is highly significant, the `t-statistic` is also
 high, but the intercept contributes *nothing* to the `r.squared`!!
+
+
+
+
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Predictor Addition (Round#1)
 
 We will now set up individual models for each predictor and look at the
 `p.value` and `r.squared` offered by each separate model:
 
+
 ```{r}
 #| label: Round1-All individual models at once
+#| layout-nrow: 1
 
 names <- names(Hitters %>%
   select(where(is.numeric), 
          -c(Salary)))
-names
 
 n_vars <- length(names)
 
 Hitters_model_set <- tibble(all_vars = list(names),
                             keep_vars = seq(1, n_vars),
                             data = list(Hitters))
-Hitters_model_set # 12 rows
 
 # Unleash purrr in a series of mutates
 Hitters_model_set <- Hitters_model_set %>%
   
-# list of predictor variables for each model
+# Select Single Predictor for each Simple Model
   mutate(mod_vars =
            pmap(
              .l = list(all_vars, keep_vars, data),
@@ -245,8 +279,7 @@ Hitters_model_set <- Hitters_model_set %>%
              .l = list(data, formula),
              .f = \(data, formula) lm(formula, data = data)
            ))
-# Check everything after the operation
-Hitters_model_set
+
 
 # Tidy up the models using broom to expose their metrics
 Hitters_model_set <- 
@@ -262,8 +295,11 @@ Hitters_model_set <-
 
   # Remove unwanted columns, keep model and predictor count
   select(keep_vars,predictor_name, tidy_models) %>%
-  unnest(tidy_models)
+  unnest(tidy_models) %>% 
+  arrange(desc(r.squared))
 
+# Check everything after the operation
+Hitters_model_set
 
 # Plot r.squared vs predictor count
 Hitters_model_set %>% 
@@ -278,6 +314,8 @@ Hitters_model_set %>%
 
 ```
 
+
+
 ```{r}
 # Which is the winning Predictor?
 winner <- Hitters_model_set %>% 
@@ -288,25 +326,30 @@ winner
 
 ```
 
-So we can add `r winner` as a predictor to our model.
 
 ```{r}
+#| layout-nrow: 1
 # Here is the Round 1 Model
+# Minimal model updated to included winning predictor
 lm_round1 <- update(lm_min, ~. + CRBI)
 lm_round1 %>% broom::tidy()
 lm_round1 %>% broom::glance()
 
 ```
 
-So adding `CRBI` to the model as a predictor gives us an improved
-`r.squared` of $0.321$, which is the square of the correlation between
-`Salary` and `CRBI`, $.567$.
 
-And the model itself is: $$
+
+
+So we can add `r winner` as a predictor to our model as a predictor gives us an improved `r.squared` of $0.321$, which is the square of the correlation between `Salary` and `CRBI`, $.567$.
+
+And the model itself is: 
+$$
 Salary \sim 274.580 + 0.791 \times CRBI
 $$ {#eq-round1}
 
 Let's press on to Round 2.
+
+
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Predictor Addition (Round #2)
 
@@ -314,16 +357,19 @@ We will set up a **round-2** model using `CRBI` as the predictor, and
 then proceed to add each of the other predictors as an `update` to the
 model.
 
+
 ```{r}
 #| label: Round 2
+#| warning: false
+#| layout-nrow: 1
 
 # Preliminaries
 names <- names(Hitters %>%
   select(where(is.numeric), -c(Salary, winner)))
-names
+# names
 
 n_vars <- length(names)
-n_vars
+# n_vars
 # names <- names %>% str_remove(winner)
 # names
 # n_vars <- n_vars-1
@@ -333,7 +379,7 @@ n_vars
 Hitters_model_set <- tibble(all_vars = list(names),
                             keep_vars = seq(1, n_vars),
                             data = list(Hitters))
-Hitters_model_set 
+# Hitters_model_set 
 
 # Unleash purrr in a series of mutates
 Hitters_model_set <- Hitters_model_set %>%
@@ -358,7 +404,7 @@ Hitters_model_set <- Hitters_model_set %>%
              .f = \(data, formula) lm(formula, data = data)
            ))
 # Check everything after the operation
-Hitters_model_set
+# Hitters_model_set
 
 # Tidy up the models using broom to expose their metrics
 Hitters_model_set <- 
@@ -374,7 +420,9 @@ Hitters_model_set <-
 
   # Remove unwanted columns, keep model and predictor count
   select(keep_vars,predictor_name, tidy_models) %>%
-  unnest(tidy_models)
+  unnest(tidy_models) %>% 
+  arrange(desc(r.squared))
+
 Hitters_model_set
 
 # Plot r.squared vs predictor count
@@ -387,7 +435,16 @@ Hitters_model_set %>%
   gf_refine(theme(axis.text.x = element_text(angle = 30, 
                                              hjust = 1)))
 
+```
+
+
+
+
+
+```{r}
+#| layout-nrow: 1
 # Which is the winning Predictor?
+# 
 winner <- Hitters_model_set %>% 
   arrange(desc(r.squared)) %>% 
   select(predictor_name) %>% 
@@ -401,12 +458,16 @@ lm_round2 %>% broom::glance()
 
 ```
 
-And now the model itself is: $$
+And now the model itself is: 
+$$
 Salary \sim -47.96 + 0.691 \times CRBI + 3.30 \times Hits
 $$ {#eq-round2}
 
 Note the change in both `intercept` and the `slope` for `CRBI` when the
 new predictor `Hits` is added!!
+
+
+
 
 ## {{< iconify openmoji chart-increasing >}} Workflow: Visualization
 
@@ -414,67 +475,41 @@ Let us quickly see how this model might look. We know that with simple
 regression, we obtain a straight line as our model. Here, with two (or
 more) predictors, we should obtain a ....(hyper)plane!
 
-```{r, echo=FALSE,eval=FALSE}
-#| column: screen-inset-shaded
-#| layout-ncol: 2
-#| 
-library("plot3D")
+```{r,}
+#| echo: false
+#| message: false
+#| warning: false
+library(plotly)
 library(modelr)
-fit <- lm(Salary ~ CRBI + Hits, data = Hitters)
-preds <- Hitters %>% data_grid(CRBI = seq_range(CRBI, 26), 
-                      Hits = seq_range(Hits, 26)) %>% 
-  add_predictions(model = fit)
-preds_matrix <- as.matrix(preds$pred, ncol = 26, nrow = 26)
-# fitted points for drop-lines to surface
-fitpoints2 <- predict(fit)
-# scatter plot with regression plane
-scatter3D(Hitters$CRBI, Hitters$Hits, Hitters$Salary, 
-          pch = 18, cex = 1, 
-    theta = 120, phi = 20, ticktype = "detailed",
-    xlab = "CRBI", ylab = "Hits", zlab = "Salary",  
-    surf = list(x = preds$CRBI, y = preds$Hits, z = preds_matrix,
-               #fit = fitpoints2,
-                 facets = NA), 
-    main = "Multiple Regression for Hitters Dataset")
 
-# #######################
-# library(plotly)
-# #Graph Resolution (more important for more complex shapes)
-# graph_reso <- 0.5
-# 
-# #Setup Axis
-# axis_x <- seq(min(Hitters$CRBI), max(Hitters$CRBI), by = graph_reso)
-# axis_y <- seq(min(Hitters$Hits), max(Hitters$Hits), by = graph_reso)
-# 
-# #Sample points
-# hitters_lm_surface <- expand.grid(CRBI = axis_x, 
-#                                   Hits = axis_y,
-#                                   KEEP.OUT.ATTRS = F)
-# hitters_lm_surface$Salary <- predict.lm(lm_round2, newdata = hitters_lm_surface)
-# hitters_lm_surface <- acast(hitters_lm_surface, Hits ~ CRBI, value.var = "Salary") #y ~ x
-# 
-# hcolors=c("red","blue","green")
-# hitters_plot <- plot_ly(Hitters, 
-#                      x = ~ CRBI, 
-#                      y = ~ Hits, 
-#                      z = ~ Salary,
-#                      #text = ~species, # EDIT: ~ added
-#                      type = "scatter3d", 
-#                      mode = "markers",
-#                      marker = list(color = hcolors)
-#                      ) 
-#                      
-# # %>% layout(title = "Hitters: Salary predicted by CRBI and Hits")
-# 
-# ## and then add the surface:
-# 
-# hitters_plot <- add_trace(p = hitters_plot,
-#                        z = hitters_lm_surface,
-#                        x = axis_x,
-#                        y = axis_y,
-#                        type = "surface")
-# 
-# hitters_plot
+lm_round2_aug <- lm_round2 %>% broom::augment()
+lm_round2_aug
+
+# Prediction Matrix
+
+CRBI_axis <- seq(min(Hitters$CRBI), max(Hitters$CRBI), length.out = 25)
+Hits_axis <- seq(min(Hitters$Hits), max(Hitters$Hits), length.out = 25)
+
+# Create Prediction Grid for Regression Plan
+pred_grid <- expand.grid(CRBI = CRBI_axis,
+                         Hits = Hits_axis) %>%
+  modelr::add_predictions(lm_round2)
+
+# Convert to matrix for plotly
+pred_mx <- matrix(pred_grid$pred,
+                  ncol = 25,
+                  nrow = 25)
+
+lm_round2_aug %>% 
+  plot_ly(x = ~ CRBI, 
+        y = ~ Hits, 
+        z = ~ Salary) %>% 
+  add_markers() %>%
+  add_surface(x = ~ CRBI_axis, 
+              y = ~ Hits_axis, 
+              z = ~ pred_mx) %>% 
+  
+  layout(title = "Salaries of Baseball Players")
 
 ```
 

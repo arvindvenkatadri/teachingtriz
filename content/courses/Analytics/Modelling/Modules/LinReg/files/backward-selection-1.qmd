@@ -12,6 +12,7 @@ categories:
 abstract: "Using Multiple Regression to predict Quantitative Target Variables"
 ---
 
+
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
@@ -26,6 +27,9 @@ library(mosaic)
 library(infer)
 
 ```
+
+
+
 
 ```{r}
 #| label: plot theme
@@ -60,6 +64,8 @@ And how do we choose the "best" model, based on a tradeoff between Model
 Complexity and Model Accuracy?
 :::
 
+
+
 ## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
 
 ```{r}
@@ -73,7 +79,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:-----------------|:-----------------------------------------------------|
+|:--------------------|:--------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -104,6 +110,9 @@ owner-occupied homes in USD 1000'*s. Their are many Quantitative feature
 variables that we can use to predict `cmedv`. And there are two
 Qualitative features, `chas` and `tax`.
 
+
+
+
 ## {{< iconify flat-color-icons workflow >}} Workflow: Correlations
 
 We can use `purrr` to evaluate all pair-wise correlations in one shot:
@@ -130,16 +139,22 @@ all_corrs %>%
   gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
               colour = ~ -log10(p.value),
-              width = 0.2,caption = "Significance = -log10(p.value)") %>% 
+              width = 0.5,
+              linewidth = ~ -log10(p.value),
+              caption = "Significance = -log10(p.value)") %>% 
   gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_labs(x = NULL, y = "Correlation with Median House Price") %>% 
   gf_theme(theme_minimal()) %>% 
-  gf_refine(scale_colour_gradient("significance", low = "grey", high = "red"))
+  gf_refine(scale_colour_gradient("Significance", 
+                                  low = "grey", high = "red"),
+            scale_linewidth_continuous("Significance",range = c(0.25, 3)))
 
 ```
 
 The variables `rm`, `lstat` seem to have high correlations with `cmedv`
 which are also statistically significant.
+
+
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Maximal Multiple Regression Model
 
@@ -163,6 +178,8 @@ summary(housing_maximal)
 The maximal model has an R.squared of $0.7426$ which is much better than
 that we obtained for a simple model based on `rm` alone. How much can we
 simplify this maximal model, without losing out on `R.squared`?
+
+
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Reduction
 
@@ -212,8 +229,12 @@ We will use the iteration capability of `purrr` to **sequentially drop
 one variable at a time** from the maximal(15 predictor) model, build a
 new reduced model each time, and compute the `r.squared`:
 
+
+
+::: {layout="[ [1,1], [1]]"}
 ```{r}
 #| label: All models at once
+
 housing_model_set <- tibble(all_vars = 
                             list(housing_maximal_tidy$term), # p-hacked order!!
                             keep_vars = seq(1, n_vars),
@@ -269,6 +290,10 @@ housing_model_set %>%
 
 
 ```
+:::
+
+
+
 
 At the loss of some 4% in the `r.squared`, we can drop our model
 complexity from 15 predictors to say 4! Our final model will then be:
@@ -337,6 +362,7 @@ housing_model_final_augment <-
   select(cmedv:last_col())
 
 housing_model_final_augment
+
 ```
 
 ```{r}
