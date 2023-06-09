@@ -97,7 +97,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:-------------------|:---------------------------------------------------|
+|:--------------------|:--------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -239,7 +239,7 @@ use this approach again here when we trim our linear models down from
 the *maximal* one to a workable one of lesser complexity.). Let us do
 this.
 
-We develop a list object containing all correlation test results with
+We develop a *list object* containing all correlation test results with
 respect to `cmedv`, tidy these up using `broom::tidy` and then plot
 these:
 
@@ -250,7 +250,7 @@ all_corrs <- housing %>%
   select(where(is.numeric)) %>% 
   # leave off target variable cmedv and IDs
   # get all the remaining ones
-  select(-cmedv) %>%  
+  select(-cmedv, -medv) %>%  
 
   purrr::map(.x = ., # All numeric variables selected in the previous step
              .f = \(x) cor.test(x, housing$cmedv)) %>% # Apply the cor.test with `cmedv`
@@ -265,11 +265,14 @@ all_corrs %>%
   gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
               colour = ~ -log10(p.value),
-              width = 0.2,caption = "Significance = -log10(p.value)") %>% 
+              width = 0.5,
+              linewidth = ~ -log10(p.value),
+              caption = "Significance = -log10(p.value)") %>% 
   gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
   gf_theme(theme_minimal()) %>% 
-  gf_refine(scale_colour_gradient("significance", low = "blue", high = "red"))
-
+  gf_refine(scale_colour_gradient("Significance", 
+                                  low = "grey", high = "red"),
+            scale_linewidth_continuous("Significance",range = c(0.25, 3)))
 ```
 
 We can clearly see that `rm` and `lstat` have strong correlations with

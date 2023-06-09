@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.354">
+<meta name="generator" content="quarto-1.3.361">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-12-27">
@@ -347,7 +347,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">April 26, 2023</p>
+      <p class="date-modified">May 29, 2023</p>
     </div>
   </div>
     
@@ -960,8 +960,10 @@ sex      alcohol cocaine heroin
 <div id="tabset-2-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-4-tab">
 <p>Doing this with the <code>tidyverse</code> set of packages may seem counter-intuitively long-winded, but the workflow is easily understandable:</p>
 <p>First we develop the counts:</p>
-<div class="cell" data-hash="index_cache/html/tidyverse-for-Contingency-Tables_89766be9c5ed56af3e704dcce066c28c">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>diamonds <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(cut, clarity) <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">summarise</span>( <span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="index_cache/html/tidyverse-for-Contingency-Tables_7d41c914216fe3f03b3211db82d0c5a2">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
+<span id="cb51-2"><a href="#cb51-2"></a>  <span class="fu">group_by</span>(cut, clarity) <span class="sc">%&gt;%</span> </span>
+<span id="cb51-3"><a href="#cb51-3"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>( <span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -972,19 +974,21 @@ sex      alcohol cocaine heroin
 </div>
 </div>
 <p>We need to have the levels of <code>cut</code> as rows and the levels of <code>clarity</code> as columns. This means that we need to pivot this from “long” to wide” to obtain a Contingency Table:</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-15_ada9b3bc7a9e4b1bf1a18ad41e7169a6">
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-15_dbd7fcf0e9b03aff207d8112df678f2b">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>diamonds <span class="sc">%&gt;%</span> </span>
 <span id="cb52-2"><a href="#cb52-2"></a>  <span class="fu">group_by</span>(cut, clarity) <span class="sc">%&gt;%</span> </span>
 <span id="cb52-3"><a href="#cb52-3"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>( <span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
 <span id="cb52-4"><a href="#cb52-4"></a>  </span>
 <span id="cb52-5"><a href="#cb52-5"></a>  </span>
-<span id="cb52-6"><a href="#cb52-6"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> cut, <span class="at">names_from =</span> clarity, <span class="at">values_from =</span> count) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-7"><a href="#cb52-7"></a>  </span>
-<span id="cb52-8"><a href="#cb52-8"></a>  <span class="co"># Now add the row and column totals using the `janitor` package</span></span>
-<span id="cb52-9"><a href="#cb52-9"></a>  janitor<span class="sc">::</span><span class="fu">adorn_totals</span>(<span class="at">where =</span> <span class="fu">c</span>(<span class="st">"row"</span>, <span class="st">"col"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb52-10"><a href="#cb52-10"></a>  </span>
-<span id="cb52-11"><a href="#cb52-11"></a>  <span class="co"># Recover to tibble since janitor gives a "tabyl" format ( which can be useful )</span></span>
-<span id="cb52-12"><a href="#cb52-12"></a>  <span class="fu">as_tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-6"><a href="#cb52-6"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> cut, </span>
+<span id="cb52-7"><a href="#cb52-7"></a>              <span class="at">names_from =</span> clarity, </span>
+<span id="cb52-8"><a href="#cb52-8"></a>              <span class="at">values_from =</span> count) <span class="sc">%&gt;%</span> </span>
+<span id="cb52-9"><a href="#cb52-9"></a>  </span>
+<span id="cb52-10"><a href="#cb52-10"></a>  <span class="co"># Now add the row and column totals using the `janitor` package</span></span>
+<span id="cb52-11"><a href="#cb52-11"></a>  janitor<span class="sc">::</span><span class="fu">adorn_totals</span>(<span class="at">where =</span> <span class="fu">c</span>(<span class="st">"row"</span>, <span class="st">"col"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb52-12"><a href="#cb52-12"></a>  </span>
+<span id="cb52-13"><a href="#cb52-13"></a>  <span class="co"># Recover to tibble since janitor gives a "tabyl" format ( which can be useful )</span></span>
+<span id="cb52-14"><a href="#cb52-14"></a>  <span class="fu">as_tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">

@@ -17,7 +17,7 @@ image: feature.jpg
 ## {{< fa folder-open >}} Slides and Tutorials {#sec--slides-and-tutorials}
 
 |                                                                                                                   |     |     |     |
-|-------------------------------|--------------|--------------|--------------|
+|------------------------|----------------|----------------|----------------|
 | <a href="./files/timeseries.qmd"><i class="fa-brands fa-r-project"></i> Time Series Modelling and Forecasting</a> |     |     |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -32,8 +32,7 @@ library(tidyverse)
 library(lubridate)  # Deal with dates
 
 library(mosaic)
-library(fpp3) # Robert Hyndman's textbook package
-# Loads all the core timeseries packages, see messages
+library(fpp3) # Robert Hyndman's textbook package, Loads all the core timeseries packages, see messages
 
 # devtools::install_github("FinYang/tsdl")
 library(tsdl) # Time Series Data Library from Rob Hyndman
@@ -132,8 +131,8 @@ This can be easily plotted using base R and other more recent packages:
 #| layout-nrow: 1
 #| column: screen-inset
 plot(AirPassengers) # Base R
-tsbox::ts_plot(AirPassengers) # tsbox static plot
-TSstudio::ts_plot(AirPassengers) # TSstudio interactive plot
+tsbox::ts_plot(AirPassengers,ylab = "Passengers") # tsbox static plot
+TSstudio::ts_plot(AirPassengers,Xtitle = "Time", Ytitle = "Passengers") # TSstudio interactive plot
 
 ```
 
@@ -252,9 +251,7 @@ births_2000_2014 %>%
 ```
 
 Not particularly illuminating. This is because the data is **daily** and
-we have considerable variation over time.
-
-We should calculate the the **mean births on a month basis** in each
+we have considerable variation over time. Summaries will help, so we could calculate the the **mean births on a month basis** in each
 year and plot that:
 
 ```{r}
@@ -279,9 +276,8 @@ births_2000_2014 %>%
 
 ```
 
-So...average births per month were higher in 2005 to 2007 and have
-dropped since. We can do similar graphs using `day_of_week` as our basis
-for grouping, instead of month:
+These are graphs *for the same month each year*: we have a January graph and a February graph and so on. So...average births per month were higher in all months during 2005 to 2007 and have dropped since. 
+We can do similar graphs using `day_of_week` as our basis for grouping, instead of month:
 
 ```{r}
 #| message: false
@@ -325,8 +321,7 @@ So there are several numerical variables for `year`, `month`, and
 `day_of_month`, `day_of_week`, and of course the `births` on a **daily
 basis**. `tsbox::ts_plot` needs just the date and the births column to
 plot with and not be confused by the other numerical columns, so let us
-create a `time` column from these three, but retain them for now. We use
-the `lubridate` package from the `tidyverse`:
+create a single `date` column from these three, but retain them for now. We use the `lubridate` package from the `tidyverse`:
 
 ```{r}
 births_timeseries <- 
@@ -355,10 +350,7 @@ births_timeseries %>%
 
 ```
 
-If we need setup average monthly and weekly births as before, we need to
-understand more of *data processing with time series*, similar to what
-`dplyr` does for tibbles. We will do this shortly, but using `tsibble`
-however.
+Quite messy, as before. If we need summarise and develop average monthly and weekly births as before, we need to understand more of *data processing with time series*, similar to what `dplyr` does for tibbles. We will do this shortly, but using `tsibble` however.
 :::
 
 ### {{< iconify icon-park database-time >}} `tsibble` data
@@ -400,9 +392,7 @@ This is a large-ish dataset:
 -   the time index variable is called `Month`
 
 Note that there are multiple **Quantitative variables**
-(`Scripts`,`Cost`), a feature which is not supported in the `ts` format,
-but is supported in a `tsibble`. The **Qualitative Variables** are
-described below. [Type `help("PBS")` in your Console.]{.aside}
+(`Scripts`,`Cost`), each representing a timeseries, a feature which is not supported in the `ts` format, but is supported in a `tsibble`. The **Qualitative Variables** are described below. [Type `help("PBS")` in your Console.]{.aside}
 
 > The data is dis-aggregated/grouped using four `keys`:
 
@@ -442,8 +432,7 @@ time) variable and the `key` variables, things similar to what `dplyr`
 does.
 :::
 
-Let us first see how many observations there are for each combo of
-`keys:`
+Let us first see how many observations there are for each combo of `keys:`
 
 ```{r}
 
@@ -454,11 +443,10 @@ PBS %>%
 ```
 
 We have 336 combinations of **Qualitative** variables, each combo
-containing 204 observations (except some!): so let us filter for a few
-such combinations and plot:
+containing 204 observations (except some! Take a look!): so let us filter for a few such combinations and plot:
 
 ```{r}
-#| layout-ncol: 2
+#| layout-ncol: 3
 PBS %>% 
   tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>%
   gf_line(Cost ~ Month, 
@@ -468,7 +456,7 @@ PBS %>%
   gf_theme(theme_classic())
 
 
-# For a specific combo of Qual variables(keys)
+# Costs for a specific combo of Qual variables(keys)
 PBS %>% 
   dplyr::filter(Concession == "General", 
                       ATC1 == "A",
@@ -481,20 +469,31 @@ PBS %>%
   
   gf_theme(theme_classic())
 
+# Scripts for a specific combo of Qual variables(keys)
+PBS %>% 
+  dplyr::filter(Concession == "General", 
+                      ATC1 == "A",
+                      ATC2 == "A10") %>% 
+  
+  gf_line(Scripts ~ Month, 
+          colour = ~ Type, 
+          data = .) %>% 
+  gf_point() %>% 
+  
+  gf_theme(theme_classic())
+
 
 ```
 
 As can be seen, very different time patterns based on the two `Type`s of
-payment methods. Strongly seasonal for both, with seasonal variation
-increasing over the years, but there is an much stronger upward *trend*
-with the `Co-payments` method of payment.
+payment methods, and also with `Costs` and `Scripts`. Strongly seasonal for both, with seasonal variation increasing over the years; stronger upward *trend* with the `Co-payments` method of payment for the `Costs` time series, but with `Safety Net` for the `Scripts` time series.
 
 We can use `tsibble`'s dplyr-like commands to develop summaries by year,
-quarter, month(original data): Look carefully at the new time variable created each time:
+quarter, month(original data): Look carefully at the new time variable
+created each time:
 
 ```{r}
 #| layout-ncol: 2
-
 
 # Cost Summary by Year
 PBS %>% 
@@ -513,8 +512,8 @@ PBS %>%
 # Only grouping happens here
 PBS %>% 
   tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>% 
-  index_by() %>% 
-  summarise(mean = mean(Cost, na.rm = TRUE))
+  tsibble::index_by() %>% 
+  dplyr::summarise(mean = mean(Cost, na.rm = TRUE))
 
 # Original Data
 PBS
@@ -715,7 +714,7 @@ fabletools::components(births_STL_yearly)
 
 ```
 
-::: {.column-screen-inset}
+::: column-screen-inset
 ```{r}
 #| fig-column: screen-inset
 #| column: screen-inset
@@ -753,7 +752,7 @@ into periodic and aperiodic components, which can be used to make
 business decisions.
 
 In the Tutorial @sec--slides-and-tutorials, we will explore
-**modelling** and **forecasting** of timeseries.
+**modelling** and **forecasting** of time series.
 
 ## {{< iconify icon-park me >}} Your Turn
 
@@ -780,22 +779,17 @@ In the Tutorial @sec--slides-and-tutorials, we will explore
 3.  [What is seasonal adjustment and why is it
     used?](http://junkcharts.typepad.com/junk_charts/2010/11/what-is-seasonal-adjustment-and-why-is-it-used.html)
 
-4.  [The start-at-zero
-    rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)
+4.  [The start-at-zero rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)
 
-5.  [Keeping one's appetite after touring the sausage
-    factory](http://junkcharts.typepad.com/numbersruleyourworld/2011/02/keeping-ones-appetite-after-touring-the-sausage-factory.html)
+5.  [Keeping one's appetite after touring the sausage factory](http://junkcharts.typepad.com/numbersruleyourworld/2011/02/keeping-ones-appetite-after-touring-the-sausage-factory.html)
 
-6.  [How Common is Your Birthday? This Visualization Might Surprise
-    You](http://thedailyviz.com/2016/09/17/how-common-is-your-birthday-dailyviz/)
+6.  [How Common is Your Birthday? This Visualization Might Surprise You](http://thedailyviz.com/2016/09/17/how-common-is-your-birthday-dailyviz/)
 
 7.  [The Fallen of World War II](http://www.fallen.io/ww2/)
 
-8.  [Visualizing Statistical Mix Effects and Simpson's
-    Paradox](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42901.pdf)
+8.  [Visualizing Statistical Mix Effects and Simpson's Paradox](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42901.pdf)
 
-9.  [How To Fix a Toilet (And Other Things We Couldn't Do Without
-    Search)](http://how-to-fix-a-toilet.com/)
+9.  [How To Fix a Toilet (And Other Things We Couldn't Do Without Search)](http://how-to-fix-a-toilet.com/)
 
 ------------------------------------------------------------------------
 
