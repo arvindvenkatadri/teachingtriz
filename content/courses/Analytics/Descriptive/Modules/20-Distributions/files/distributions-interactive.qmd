@@ -1,5 +1,5 @@
 ---
-title: "EDA: Exploring Intereactive Graphs for Data Distributions in R"
+title: "EDA: Exploring Interactive Graphs for Data Distributions in R"
 author: "Arvind Venkatadri"
 date: 19/Nov/2022
 date-modified: "`r Sys.Date()`"
@@ -15,7 +15,7 @@ abstract: How to ask Questions of your Data and answer with Stats, and interacti
 #| warning: false
 #| message: false
 #| echo: true
-options(tibble.print_min = 4L, tibble.print_max = 4L,digits = 3)
+# options(tibble.print_min = 4L, tibble.print_max = 4L,digits = 3)
 library(tidyverse)
 library(mosaic) # package for stats, simulations, and basic plots
 library(mosaicData) # package containing datasets
@@ -23,8 +23,9 @@ library(ggformula) # package for professional looking plots, that use the formul
 library(skimr) # Summary statistics about variables in data frames
 library(NHANES) # survey data collected by the US National Center for Health Statistics (NCHS)
 
-library(echarts4r) # Interactive graphs using Javascript
-library(plotly)
+library(echarts4r) # Interactive graphs using Javascript in R
+library(plotly) # An older more established package for interactive graphs using Javascript in R
+
 ```
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} Introduction
@@ -72,30 +73,18 @@ The website for `echarts4r` is
 also quickly view this short introductory video on `echarts4r`:
 {{< video https://youtu.be/OBJxIWEFHdo >}}
 
-Let us set a commmon theme that we will consistently use here for
-`echarts4r`:[Type `?e_theme` in your Console]{.aside}
-
-```{r}
-e_theme_register(theme = "shine")
-
-```
-
 ## {{< iconify pajamas issue-type-test-case >}} Case Study-1: Galton Dataset from `mosaicData`
 
 Let us choose the famous `Galton` dataset:
 
 ```{r}
 data("Galton")
-
 ```
 
-### {{< iconify grommet-icons inspect >}} Look at the Data
+### {{< iconify grommet-icons inspect >}} Look at the Data:
 
 ```{r}
 skim(Galton)
-
-# This also works
-#mosaic::inspect(Galton)
 
 ```
 
@@ -131,14 +120,15 @@ observations(rows). We know from our examination of variable types that
 counting of observations must be done on the basis of **Qualitative**
 variables. So let us count and plot the counts in bar charts.
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.1 How many families in the data for each value of `nkids`(i.e. Count
 of families by size)?
+:::
+
+::: panel-tabset
+### Computations
 
 ```{r}
-#| layout-ncol: 2
 Galton_counts <- Galton %>%
   group_by(nkids) %>% 
   summarise(children = n()) %>% 
@@ -151,12 +141,26 @@ Galton_counts <- Galton %>%
     running_count_of_families = cumsum(No_of_families)) 
 Galton_counts
 
+```
+
+### Using `ggformula`
+
+```{r}
 Galton_counts %>% 
-  select(nkids, No_of_families) %>% 
-  
-  e_charts(nkids, height = 300) %>% 
+  gf_col(No_of_families ~ nkids) %>% 
+  gf_theme(theme_classic())
+
+```
+
+### Using `echarts4r`
+
+```{r}
+#| label: Question-1
+Galton_counts %>% 
+  e_charts(nkids) %>% 
   e_bar(No_of_families,
-        colorBy = "data",legend = FALSE) %>% # Or "series"
+        colorBy = "data",
+        legend = FALSE) %>% # Or "series"
   
 # https://echarts4r.john-coene.com/articles/grid.html
 # echarts4r does not "automatically" name the axes!
@@ -167,57 +171,76 @@ Galton_counts %>%
   
   e_tooltip(trigger = "item") %>% 
   e_title("No of Families of each size")
+
 ```
+
+### Using `plotly`
+
+```{r}
+
+Galton_counts %>% 
+  plot_ly(x = ~nkids, y = ~No_of_families) %>% 
+  add_bars()
+
+```
+:::
 
 **Insight**: There are 32 1-kid families; and $128/8 = 16$ 8-kid
 families! There is one great great 15-kid family. (Did you get the idea
 behind why we divide here?)
-:::
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.2. What is the count of Children by `sex` of the child and by family
 size `nkids`?
+:::
+
+::: panel-tabset
+### Using `ggformula`
+
+### Using `echarts4r`
 
 ```{r}
 #| message: false
 #| warning: false
 
-Galton %>% 
+Galton_counts_by_sex <- Galton %>% 
   mutate(family = as.integer(family)) %>% 
   group_by(nkids, sex) %>% 
   summarise(count_by_sex = n()) %>% 
   ungroup() %>% 
-  group_by(sex) %>% 
-  e_charts(nkids,height = 300) %>% 
-  e_bar(count_by_sex, legend = FALSE) %>% 
-  
+  group_by(sex) 
+Galton_counts_by_sex
+
+Galton_counts_by_sex%>% 
+  e_charts(nkids) %>% 
+  e_bar(count_by_sex) %>% 
+
   e_x_axis(name = "Family Size (nkids)", nameLocation = "center",
-           nameGap = 25,
-           type = "category") %>% 
-  e_y_axis(name = "How Many Children?", 
-           nameGap = 25,
+           nameGap = 20, type = "category") %>%
+  e_y_axis(name = "How Many Children?",
+           nameGap = 20,
            nameTextStyle = list(align = "center"),
-           nameLocation = "center") %>% 
-  e_legend(right = 5) %>% 
+           nameLocation = "center") %>%
+  e_legend(right = 25, orient = "vertical") %>% 
   e_facet(cols = 2) %>% 
   e_tooltip(trigger = "item") %>% 
   e_title("Child Counts by Sex over Family Size")
 
 ```
+:::
 
 **Insight**: Hmm...decent gender balance overall, across family sizes
 `nkids`.
-:::
 
-::: callout-note
+::: {.callout-note title="Follow-up Question"}
 Follow up Question: How would we look for "gender balance" in individual
 families? Should we look at the `family` column ?
+:::
 
 ```{r}
 #| message: false
 #| warning: false
+#| column: body-outset-right
 
 Galton %>% 
   mutate(family = as.integer(family)) %>% 
@@ -225,8 +248,10 @@ Galton %>%
   summarise(count_by_sex = n()) %>% 
   ungroup() %>% 
   group_by(sex) %>% 
-  e_charts(family, height = 300) %>% 
-  e_bar(count_by_sex, legend = FALSE) %>% 
+  
+  e_charts(family) %>% 
+  e_bar(count_by_sex) %>% 
+  
   e_x_axis(name = "nkids", nameLocation = "center",
            nameGap = 25, type = "category") %>% 
   e_y_axis(name = "How Many Children?", 
@@ -243,28 +268,23 @@ size`nkids`... However, this plot is too crowded and does not lead to
 any great insight. Using `family` ID was silly to plot against, wasn't
 it? Not all exploratory plots will be "necessary" in the end. But they
 are part of the journey of getting better acquainted with the data!
-:::
-
-OK, on to the Quantitative variables now!
 
 ### {{< iconify icon-park-outline overall-reduction >}} {{< icon-park-outline chart-histogram >}} Stat Summaries and Distributions
 
-What Questions might we have, that could relate *not to counts by Qual
-variables*, but to the numbers in Quant variables. Stat measures, like
-their ranges, max and min? Means, medians, distributions? And how these
-vary on the basis of *Qual* variables? All this using `histograms` and
-`densities`.
+OK, on to the Quantitative variables now! What Questions might we have,
+that could relate *not to counts by Qual variables*, but to the numbers
+in Quant variables. Stat measures, like their ranges, max and min?
+Means, medians, distributions? And how these vary on the basis of *Qual*
+variables? All this using `histograms` and `densities`.
 
-::: column-inset-page
-::: callout-note
-### Summary Stats
-
+::: {.callout-note title="Summary Stats"}
 As Stigler[@stigler2016] said, **summaries** are the first thing to look
 at in data. `skimr::skim` has already given us a lot summary data for
 Quant variables. We can now use `mosaic::favstats` to develop these
 further, by **slicing / facetting** these wrt other Qual variables. Let
 us tabulate some quick stat summaries of the important variables in
 `Galton`.
+:::
 
 ```{r}
 
@@ -279,15 +299,11 @@ measures
 66 inches. However, are Sons taller than Daughters? Difference in mean
 `height` is 5 inches! AND...that was the same difference between
 `fathers` and `mothers` mean heights! Is it so simple then?
+
+::: {.callout-note title="Question"}
+Q.4 How are the heights of the children distributed? Here is where we
+need a `e_histogram`...
 :::
-:::
-
-::: callout-note
-### Question
-
-Q.4 How are the heights of the children distributed?
-
-Here is where we need a `e_histogram`...
 
 ```{r}
 
@@ -314,13 +330,11 @@ check of we are missing some pattern. This is not completely easy with
 `echarts4r` which uses the "Sturges" algorithm to set the number of
 bins. Need to figure this out from the [echarts Apache API
 docs](https://echarts.apache.org/en/option.html#title).
-:::
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.5 Is there a difference in height distributions between Male and
 Female children?(Quant variable sliced by Qual variable)
+:::
 
 We will use the raw `Galton` data and previously-computed `measures`:
 
@@ -356,12 +370,10 @@ girls and boys. Is that significant, however? We will need a statistical
 inference test to figure that out!! Claus Wilke[^1] says comparisons of
 Quant variables across groups are best made between densities and not
 histograms...
-:::
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.6 Are Mothers generally shorter than fathers?
+:::
 
 ```{r}
 
@@ -380,22 +392,20 @@ Galton %>%
 
 ```
 
-Insight: Yes, moms are on average shorter than dads in this dataset.
+**Insight**: Yes, moms are on average shorter than dads in this dataset.
 Again, is this difference statistically significant? We will find out in
 when we do **Inference**.
+
+::: {.callout-note title="Question"}
+Q.7a. Are heights of children different based on the number of kids in
+the family? And For Male and Female children?
 :::
-
-::: callout-note
-### Question
-
-Q.7 Are heights of children different based on the number of kids in the
-family? And For Male and Female children?
 
 ```{r}
 
 Galton %>%
   group_by(nkids) %>% 
-  e_charts(height = 300) %>% 
+  e_charts(height = 400) %>% 
   e_boxplot(height,colorBy = "data",
             itemStyle = list(borderWidth = 3)) %>% 
   e_y_axis(max = 80, min = 50, name = "height", nameLocation = "center",
@@ -408,10 +418,17 @@ Galton %>%
   e_tooltip() %>% 
   e_title("Heights over Family Size")
 
-# Can do better at colouring/filling and fecetting...
+```
+
+::: {.callout-note title="Question"}
+Q.7b. Are heights of children different for Male and Female children?
+:::
+
+```{r}
+# Can do better at colouring/filling and facetting...
 Galton %>%
   group_by(nkids,sex) %>% 
-  e_charts(height = 300) %>% # no x-variable needed for boxplots
+  e_charts(height = 400) %>% # no x-variable needed for boxplots
   e_boxplot(height,colorBy = "data",
             itemStyle = list(borderWidth = 3)) %>% 
   e_y_axis(max = 80, min = 50, name = "height", nameLocation = "center",
@@ -430,13 +447,11 @@ Galton %>%
 than the female children. Box plots are used to show distributions of
 numeric data values and compare them between multiple groups (i.e
 Categorical Data, here `sex` and `nkids`).
-:::
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.8 Does the **mean** height of children in a family vary with the
 number of children in the family? (family size)?
+:::
 
 ```{r}
 #| message: false
@@ -456,15 +471,16 @@ Galton %>%
 with family size `nkids`. We saw this with the box plots earlier. This
 would be useful information in a **Modelling** and **Prediction**
 exercise.
-:::
 
-::: callout-note
-### Follow-up Question: Is height difference between sons and daughters related to height difference between `father` and `mother`?
+::: {.callout-note title="Follow-up Question"}
+Q. 8a. Is height difference between sons and daughters related to height
+difference between `father` and `mother`?
 
 Differences between `father` and `mother` heights influencing
 `height`...this would be like `height ~ (father-mother)`. This would be
 a relationship between **two** Quant variables. A histogram would not
 serve here and we plot this as a **Scatter Plot**:
+:::
 
 ```{r}
 Galton %>% 
@@ -475,30 +491,26 @@ Galton %>%
   select(family, sex, height, diff_height) %>% 
   ungroup() %>% 
   group_by(sex) %>% 
-  
+
   e_charts(diff_height, height = 300) %>% 
   e_scatter(height, symbol_size = 8) %>%
   
   # Fit a trend line
   e_lm(height ~ diff_height,
        name = c("Female", "Male")) %>% 
-  
   e_x_axis(max = 18, min = -5,
            name = "Father - Mother Height", 
            nameLocation = "center", nameGap = 25) %>% 
-  
   e_y_axis(max = 80, min = 50,  
            name = "Children's Heights", 
            nameLocation = "center", nameGap = 25) %>% 
-  
   e_tooltip(axisPointer = list(type = "cross"))
 
 ```
 
 **Insight**: There seems no relationship, or a very small one, between
 children's heights on the y-axis and the difference in parental height
-\*differences on the x-axis...
-:::
+differences on the x-axis...
 
 And so on.....we can proceed from simple visualizations based on
 Questions to larger questions that demand **inference** and
@@ -511,15 +523,13 @@ Console.]{.aside}
 
 ```{r}
 data("NHANES")
-
 ```
 
 ### {{< iconify grommet-icons inspect >}} Look at the Data
 
 ```{r}
-#| column: body-outset
+#| column: body-outset-right
 skim(NHANES)
-
 ```
 
 Again, lots of data from `skim`, about the Quant and Qual variables.
@@ -532,13 +542,12 @@ Spend a little time looking through this output.
 -   Why is there so much *missing* data? Which variable are the most
     affected by this?\
 
-### {{< iconify icon-park-outline overall-reduction >}} {{< icon-park-outline chart-histogram >}} Stat Summaries, Column and Bar Plots
+### {{< iconify eos-icons counting >}} Counts, and Charts with Counts
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.1 What are the Education levels and the counts of people with those
 levels?
+:::
 
 ```{r}
 
@@ -554,16 +563,14 @@ NHANES %>%
 **Insight**: The count goes up as we go from lower Education levels to
 higher. Need to keep that in mind. How do we understand the large number
 of `NA` entries?
-:::
 
-::: callout-note
-### Question
-
+::: {.callout-note title="Question"}
 Q.2 How do counts of Education vs Work-status look like?
+:::
 
 ```{r}
 #| message: false
-#| layout-ncol: 2
+#| layout: [[30], [70]]
 NHANES %>% 
   mutate(Education = as.factor(Education)) %>% 
   group_by(Work,Education) %>% 
@@ -574,41 +581,40 @@ NHANES %>%
   summarise(count = n()) %>% 
   e_charts(Education, height = 300) %>% 
   e_bar(count) %>% 
-  
   e_y_axis(max = 1750) %>% 
-  e_x_axis(type = "category")
+  e_x_axis(type = "category")  %>% e_tooltip()
 
 ```
 
 **Insight**: Clear increase in the number of Working people as Education
 goes from 8th Grade to College. No surprise. Are the `NotWorking` counts
 a surprise?
-:::
 
-::: callout-note
-### Question
+### {{< iconify icon-park-outline overall-reduction >}} {{< icon-park-outline chart-histogram >}} Stat Summaries, Histograms, and Densities
 
+::: {.callout-note title="Question"}
 Q.3. What is the distribution of Physical Activity Days, across Gender?
 Across Education?
+:::
 
 ```{r}
 #| layout-ncol: 2
-#| column: body-outset
+#| column: body-outset-right
 #| warning: false
 # NHANES %>% gf_histogram( ~ PhysActiveDays | Education, fill = ~ Education)
 NHANES %>% 
   group_by(Gender) %>% 
-  e_charts(PhysActiveDays,height = 300) %>%  
+  e_charts(PhysActiveDays,height = 350) %>%  
   e_histogram(PhysActiveDays) %>% 
   e_x_axis(max = 8) %>% 
-  e_facet(cols = 2)
+  e_facet(cols = 2) %>% e_tooltip()
 
 NHANES %>% 
   group_by(Education) %>% 
-  e_charts(PhysActiveDays,height = 300) %>% 
+  e_charts(PhysActiveDays) %>% 
   e_histogram(PhysActiveDays) %>% 
   e_x_axis(max = 8) %>% 
-  e_facet(rows = 2, cols = 3)
+  e_facet(rows = 2, cols = 3) %>% e_tooltip()
 
 
 ```
@@ -617,16 +623,14 @@ NHANES %>%
 category are different, as indicated by the different y-axis scales, so
 what do we need to do? Take percentages or ratios of course,
 **per-capita**! How would one do that?
+
+::: {.callout-note title="Question"}
+Q.3a. What is the distribution of Physical Activity Days, across
+Education and Sex, per capita?
 :::
 
-::: callout-note
-### Question
-
-Q.3a. What is the distribution of Physical Activity Days, across Gender,
-per capita? Across Education?
-
 ```{r}
-
+#| layout-ncol: 2
 NHANES %>% 
   group_by(Gender) %>% 
   summarize(mean_active = mean(PhysActiveDays,na.rm = TRUE))
@@ -640,22 +644,18 @@ NHANES %>%
 **Insight**: Hmm..no great differences in per-capita physical activity.
 Females are marginally more active than males. No need to even plot
 this.
-:::
 
-::: callout-note
-### Question
-
-Q.2. How are people Ages distributed across levels of Education?
-:::
+::: {.callout-note title="Question"} Q.4. How are people Ages
+distributed across levels of Education?
 
 ```{r}
 #| warning: false
 #| layout-nrow: 1
 # Recall there are missing data
-gf_boxplot(Age ~ Education, 
-           fill = ~ Education, # Always a good idea to fill boxes
-           data = NHANES) %>% 
-  gf_theme(theme_classic()) %>% plotly::ggplotly()
+# gf_boxplot(Age ~ Education, 
+#            fill = ~ Education, # Always a good idea to fill boxes
+#            data = NHANES) %>% 
+#   gf_theme(theme_classic()) %>% plotly::ggplotly()
 
 NHANES %>% 
   mutate(Education = as.factor(Education)) %>% 
@@ -676,15 +676,15 @@ slightly older age distributions...*So do College Educated people live
 longer?* That is a nice Question for some Inferential Modelling. And how
 to interpret the NA group?
 
-::: callout-note
-Q.3. How is Education distributed over Race?
+::: {.callout-note title="Question"}
+Q.5. How is Education distributed over Race?
 :::
 
 ```{r}
 #| warning: false
 #| message: false
-#| layout-nrow: 1
-#| column: body-outset
+#| layout: [[25], [75]]
+
 NHANES_by_Race1 <- NHANES %>% 
   group_by(Race1) %>% 
   summarize(population = n())
@@ -696,7 +696,7 @@ NHANES %>% group_by(Education, Race1) %>%
   mutate(percapita_educated = (n/population)*100) %>% 
   ungroup() %>%  
   group_by(Race1) %>% # Aesthetic 1
-  e_charts(Education, height = 300) %>%  # Aesthetic #2
+  e_charts(Education, height = 350) %>%  # Aesthetic #2
   e_bar(percapita_educated) %>% # Aesthetic #3
   
   e_x_axis(type = "category", axisTick = list(alignWithLabel = TRUE), 
@@ -712,8 +712,8 @@ NHANES %>% group_by(Education, Race1) %>%
 with college degrees, as a percentage of their population. Asians and
 other immigrants have a significant tendency towards higher education!
 
-::: callout-note
-Q.4. What is the distribution of people's BMI, split by Gender? By
+::: {.callout-note title="Question"}
+Q.6. What is the distribution of people's BMI, split by Gender? By
 Race1?
 :::
 
@@ -728,7 +728,7 @@ NHANES %>% group_by(Gender) %>%
   e_density(BMI)
 
 NHANES %>% group_by(Race1) %>% 
-  e_charts(height = 300) %>% 
+  e_charts(height = 350) %>% 
   e_density(BMI) %>% 
   e_facet(rows = 2, cols = 3)
 
@@ -738,14 +738,17 @@ NHANES %>% group_by(Race1) %>%
 populations with larger BMI. So these races perhaps tend to obesity. By
 and large BMI distributions are normal.
 
-::: callout-note
-Q.5. What is the distribution of people's Testosterone level vs BMI?
+::: {.callout-note title="Question"}
+Q.7. What is the distribution of people's Testosterone level vs BMI?
 Split By Race1?
 :::
 
 ```{r}
-NHANES %>%  gf_density2d(Testosterone ~ BMI | Race1) %>% 
-  plotly::ggplotly()
+#| warning: false
+NHANES %>%  
+  gf_density2d(Testosterone ~ BMI | Race1) %>% 
+  gf_theme(theme_classic()) %>% 
+plotly::ggplotly()
 
 ```
 
@@ -754,7 +757,7 @@ healthy levels of T exists only over a smaller range of BMI.
 
 Note: `echarts4r` does not seem to provide a 2D-density plot...yet!!
 
-## {{< iconify pajamas issue-type-test-case >}} Case Study#3: A complete example
+## {{< iconify pajamas issue-type-test-case >}} Case Study #3: A complete example with Banned Books
 
 Here is a dataset from Jeremy Singer-Vine's blog, [Data Is
 Plural](https://www.data-is-plural.com/). This is a list of all books
@@ -762,31 +765,25 @@ banned in schools across the US.
 
 {{< downloadthis data/banned.csv dname="banned.csv" label="Download the data"banned books icon="database-fill-down" type="info" >}}
 
+### {{< iconify grommet-icons inspect >}} Look at the Data
+
 ```{r, bar-charts}
 banned <- readxl::read_xlsx(path = "data/banned.xlsx",
                             sheet = "Sorted by Author & Title")
-banned
-
-names(banned)
+skim(banned)
 
 ```
 
-Clearly the variables are *all* Qualitative, except perhaps for *Date of
-Challenge/Removal, (which in this case has been badly mangled by Excel)
-So we need to make **counts** based on the* levels\* of the Qual
-variables and plot Bar/Column charts.
+**Insight**: Clearly the variables are *all* Qualitative, except perhaps
+for *Date of Challenge/Removal*, (which in this case has been badly
+mangled by Excel) So we need to make **counts** based on the\* levels\*
+of the Qual variables and plot Bar/Column charts. We will not find a use
+for histograms or densities.
 
-Let us quickly make some Stat Summaries ( using `inspect`)
+Let us try to answer this question, about counts:
 
-```{r}
-mosaic::inspect(banned)
-
-```
-
-Let us try to answer this question:
-
-::: callout-important
-*What is the count of banned books by type and by US state?*
+::: {.callout-note title="Question"}
+What is the count of banned books by type and by US state?
 :::
 
 ```{r}
@@ -820,6 +817,24 @@ gf_col(count ~ reorder(State, total),
 
 
 ```
+
+**Insight**: Do you want to live in Texas? If you are both illiterate
+and interested in horses, perhaps.
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+And that is a wrap!! Try to work with this procedure:\
+
+-   Inspect the data using `skim` or `inspect`
+-   Identify Qualitative and Quantitative variables\
+-   Notice variables that have missing data\
+-   Develop Counts of Observations for combinations of Qualitative
+    variables (factors)\
+-   Develop Histograms and Densities, and slice them by Qualitative
+    variables to develop facetted plots as needed
+-   At each step **record the insight and additional questions!!**
+-   Continue with other *Descriptive Graphs* as needed\
+-   And then on the *inference* and *modelling*!!
 
 ## {{< iconify ooui references-rtl >}} References
 

@@ -1,5 +1,5 @@
 ---
-title: "EDA: Exploring Statics Graphs for Distributions in R"
+title: "EDA: Exploring Static  Graphs for Distributions in R"
 author: "Arvind Venkatadri"
 date: 19/Nov/2022
 date-modified: "`r Sys.Date()`"
@@ -14,7 +14,7 @@ abstract: How to ask Questions of your Data and answer with Stats, and interacti
 #| warning: false
 #| message: false
 #| echo: true
-options(tibble.print_min = 4L, tibble.print_max = 4L)
+options(digits = 3)
 library(mosaic) # package for stats, simulations, and basic plots
 library(mosaicData) # package containing datasets
 library(ggformula) # package for professional looking plots, that use the formula interface from mosaic
@@ -30,15 +30,10 @@ ecosystem of packages in R (`mosaic`, `mosaicData` and `ggformula`).
 
 ::: {.callout-tip style="background: beige"}
 Note the standard method for all commands from the `mosaic` package:
-
 `goal( y ~ x | z, data = mydata, …)`
 
 With `ggformula`, one can create any graph/chart using:
-
-`gf_geometry(y ~ x | z, data = mydata)`
-
-OR
-
+`gf_geometry(y ~ x | z, data = mydata)` OR
 `mydata %>% gf_geometry( y ~ x | z)`
 
 The second method may be preferable, especially if you have done some
@@ -55,7 +50,8 @@ Let us choose the famous `Galton` dataset:
 
 ```{r}
 data("Galton")
-inspect(Galton)
+Galton_inspect <- inspect(Galton)
+Galton_inspect
 
 ```
 
@@ -77,309 +73,539 @@ is the dataset? How many variables? What types are they, Quant or Qual?
 If they are Qual, what are the *levels*? Are they *ordered* levels?
 Discuss!
 
-### {{< iconify icon-park-outline overall-reduction >}} Stat Summaries
+### {{< iconify eos-icons counting >}} Counts, and Charts with Counts
 
-As Stigler said, **summaries** are the first thing to look at in data.
-Let us tabulate some quick stat summaries of the important variables in
-`Galton`:
+Now that we know the variables, let us look at **counts** of data
+observations(rows). We know from our examination of variable types that
+counting of observations must be done on the basis of **Qualitative**
+variables. So let us count and plot the counts in bar charts.
 
-::: column-inset-page
+::: {.callout-note title="Question"}
+Q.1 How many families in the data for each value of `nkids`(i.e. Count
+of families by size)?
+
 ```{r}
-favstats(~ father, data = Galton)
-favstats(~ height | sex, data = Galton)
+#| layout-ncol: 2
+Galton_counts <- Galton %>%
+  group_by(nkids) %>% 
+  summarise(children = n()) %>% 
+  # just to check
+  mutate(
+    No_of_families = as.integer(children/nkids),
+    # Why do we divide
+    
+    running_count_of_children = cumsum(children),
+    running_count_of_families = cumsum(No_of_families)) 
+Galton_counts
+
+Galton_counts %>% 
+  gf_col(No_of_families ~ nkids) %>% 
+  gf_theme(theme_classic())
 
 ```
+
+**Insight**: There are 32 1-kid families; and $128/8 = 16$ 8-kid
+families! There is one great great 15-kid family. (Did you get the idea
+behind why we divide here?)
 :::
 
-Story: So fathers are on average taller than mothers on average, in this
-dataset.
-
-::: callout-note
-Q.1 How many families in the data for each value of `nkids`?
-:::
+::: {.callout-note title="Question"}
+Q.2. What is the count of Children by `sex` of the child and by family
+size `nkids`?
 
 ```{r}
-tally(~ nkids, data = Galton)
+#| layout-ncol: 2
+#| message: false
+#| warning: false
+Galton_counts_by_sex <- Galton %>% 
+  mutate(family = as.integer(family)) %>% 
+  group_by(nkids, sex) %>% 
+  summarise(count_by_sex = n()) %>% 
+  ungroup() %>% 
+  group_by(sex) 
+Galton_counts_by_sex
+
+Galton_counts_by_sex %>% 
+  gf_col(count_by_sex ~ nkids | sex, fill = ~sex) %>% 
+  gf_theme(theme_classic())
+
 ```
 
-Story: There are 32 1-kid families; and $128/8 = 16$ 8-kid families!
-There is one great great 15-kid family. ( Did you get the idea behind
-why we divide here?)
-
-::: callout-note
-Q.2. What is the break-up by `sex` of the child?
+**Insight**: Hmm...decent gender balance overall, across family sizes
+`nkids`.
 :::
 
-```{r}
-tally(~ nkids | sex, data = Galton)
-```
-
-Story: Hmm...decent gender balance overall, across families. How would
-we look for "gender balance" in individual families?
-
-### {{< icon-park-outline chart-histogram >}} Distribution Plots
-
-What Questions might we have, that we could answer with a Distribution?
-
-::: callout-note
-Q.1 How many families based on the number of children?
-:::
+::: {.callout-note title="Follow-up Question"}
+Follow up Question: How would we look for "gender balance" in individual
+families? Should we look at the `family` column ?
 
 ```{r}
+#| message: false
+#| warning: false
+#| layout-ncol: 2
 
-# Convert the tally into a dataframe. See the difference!
-family_count <- 
-  tally( ~ nkids | sex, data = Galton) %>% 
-  as_tibble() %>% 
+Galton_gender_family <- Galton %>% 
+  mutate(family = as.integer(family)) %>% 
+  group_by(family, sex) %>% 
+  summarise(count_by_sex = n()) %>% 
+  ungroup() %>% 
+  group_by(sex)
+Galton_gender_family
+Galton_gender_family %>% 
+  gf_col(count_by_sex ~ family | sex, fill = ~ sex) %>% 
+  gf_theme(theme_minimal())
   
-  # Convert nkids from char to int
-  mutate( nkids = as.integer(nkids))
-family_count
-
-family_count %>% gf_col(n ~ nkids | sex, 
-       fill = ~ sex, 
-       ylab = "Number of Families", 
-       xlab = "Number of Kids / Family")
-
-```
-
-Story: OK this explains the division we did earlier! Or does it??
-
-::: callout-note
-Q.2: How are the children's heights distributed?
-:::
-
-```{r}
-gf_histogram(~ height, data = Galton) %>% 
-  gf_vline(xintercept = mean(Galton$height))
-
-```
-
-Story: Fairly symmetric distribution...but there are a few very short
-and some very tall children!
-
-::: callout-note
-Q.3: Is there a difference in height distributions between Male and
-Female children?
-:::
-
-```{r}
-measures <- favstats(~ height | sex, data = Galton)
-measures
-
-gf_histogram(~ height | sex, data = Galton) %>% 
-  gf_vline(xintercept = ~ mean, data = measures)
-
-```
-
-Story: There is a 5 inch difference in average heights between girls and
-boys. Is that significant, however?
-
-::: callout-note
-Q.4: Are Mothers generally shorter than fathers?
-:::
-
-```{r}
-gf_density(~ father, 
-           data = Galton, 
-           fill = "blue", 
-           alpha = 0.3) %>% 
-  
-  gf_density( ~ mother, 
-              data = Galton, 
-              fill = "red", 
-              alpha = 0.3, 
-              xlab = "Heights")
   
 ```
 
-Story: Yes, moms are on average shorter than dads. Again, is this
-difference statistically significant? We will find out in when we do
-**Inference**.
-
-::: callout-note
-Q.5: Are heights of children different based on the number of kids in
-the family? For Male and Female children?
+**Insight**: The No of Children were distributed similarly across family
+size`nkids`... However, this plot is too crowded and does not lead to
+any great insight. Using `family` ID was silly to plot against, wasn't
+it? Not all exploratory plots will be "necessary" in the end. But they
+are part of the journey of getting better acquainted with the data!
 :::
 
+### {{< iconify icon-park-outline overall-reduction >}} {{< icon-park-outline chart-histogram >}} Stat Summaries and Distributions
+
+OK, on to the Quantitative variables now! What Questions might we have,
+that could relate *not to counts by Qual variables*, but to the numbers
+in Quant variables. Stat measures, like their ranges, max and min?
+Means, medians, distributions? And how these vary on the basis of *Qual*
+variables? All this using `histograms` and `densities`.
+
+::: {.callout-note title="Summary Stats"}
+As Stigler[@stigler2016] said, **summaries** are the first thing to look
+at in data. `skimr::skim` has already given us a lot summary data for
+Quant variables. We can now use `mosaic::favstats` to develop these
+further, by **slicing / facetting** these wrt other Qual variables. Let
+us tabulate some quick stat summaries of the important variables in
+`Galton`.
+
 ```{r}
-gf_boxplot(height ~ sex | nkids, data = Galton)
+
+# summaries facetted by sex of child
+Galton_measures <- favstats(~ height | sex, data = Galton)
+Galton_measures
 
 ```
 
-Story: Box plots are used to show distributions of numeric data values,
-especially when you want to compare them between multiple groups. So, at
-all family "strengths", the male children are taller than the female
-children.
-
-::: callout-note
-Q.6: Does the **mean** height of children in a family vary with the
-number of children in the family? ( family size)
+**Insight**: We saw earlier that the mean `height` of the Children was
+66 inches. However, are Sons taller than Daughters? Difference in mean
+`height` is 5 inches! AND...that was the same difference between
+`fathers` and `mothers` mean heights! Is it so simple then?
 :::
 
-```{r}
-mean( height ~ sex | nkids, data = Galton) %>% 
-  as_tibble() # not very inspiring!
+::: {.callout-note title="Question"}
+Q.4 How are the heights of the children distributed? Here is where we
+need a `gf_histogram`...
 
-by_sex_nkids <- favstats( height ~ sex + nkids, data = Galton)
-by_sex_nkids # much better!
+```{r}
+Galton %>% 
+  gf_histogram(~ height,bins = 30) %>% # ALWAYS try several settings for "bins"
+  gf_vline(xintercept = mean(Galton$height), color = "red") %>% 
+  gf_label(label = glue::glue("Mean Value\n {mean(Galton$height)}"),
+           gformula = 85 ~ 70) %>% # Where do we want the label (y ~ x) %>% 
+  gf_labs(title = "Galton Dataset",
+          subtitle = "",
+          x = "Heights of Children",
+          y = "Counts",
+          caption = "Using `ggformula` and Classic Theme") %>% 
+  gf_theme(theme_classic())
 
 ```
 
+**Insight**: Fairly symmetric distribution...but there are a few very
+short and some very tall children! *Always try to change the no. of bins
+to check of we are missing some pattern.*
+:::
+
+::: {.callout-note title="Question"}
+Q.5 Is there a difference in height distributions between Male and
+Female children?(*Quant variable sliced by Qual variable*)
+
 ```{r}
-gf_col(mean ~ sex.nkids, data = by_sex_nkids)
+mean_daughters <- Galton_measures %>% 
+             filter(sex == "F") %>% select(mean) %>% as.numeric()
+mean_sons <- Galton_measures %>% 
+             filter(sex == "M") %>% select(mean) %>% as.numeric()
+Galton %>% 
+  gf_density(~ height, group = ~sex, fill = ~ sex, alpha = 0.5) %>% 
+  gf_vline(xintercept = mean_daughters) %>%
+  gf_vline(xintercept = mean_sons) %>% 
+  
+   gf_label(label = glue::glue("Mean Daughters' heights\n {mean_daughters}"),
+           gformula = 0.15 ~ 59, # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  
+   gf_label(label = glue::glue("Mean Sons' heights \n {mean_sons}"),
+           gformula = 0.15 ~ 75,  # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  gf_theme(theme_classic())
 
 ```
 
-Story: Hmm...not a *very* informative plot...the table is better but
-also not too easy to interpret. But this question is rather similar to
-Question 5!
+**Insight**: There is a visible difference in average heights between
+girls and boys. Is that significant, however? We will need a statistical
+inference test to figure that out!! Claus Wilke[^1] says comparisons of
+Quant variables across groups are best made between densities and not
+histograms...
+:::
+
+::: {.callout-note title="Question"}
+Q.6 Are Mothers generally shorter than fathers?
+
+```{r}
+mean_fathers <- Galton %>% mosaic::mean(~ father, data = .) %>% as.numeric()
+
+mean_mothers <- Galton%>% mean(~ mother, data = .) %>% as.numeric()
+
+Galton %>% 
+  gf_density(~ father, fill = "dodgerblue", alpha = 0.3) %>% 
+  gf_density(~ mother, fill = "red", alpha = 0.3) %>% 
+    gf_vline(xintercept = mean_mothers) %>%
+  gf_vline(xintercept = mean_fathers) %>% 
+  gf_labs(x = "Parents' Heights") %>% 
+    
+   gf_label(label = glue::glue(" Average Mother \n {mean_mothers}"),
+           gformula = 0.15 ~ 60, # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  
+   gf_label(label = glue::glue("Average Father\n {mean_fathers}"),
+           gformula = 0.15 ~ 75,  # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  
+  gf_theme(theme_classic())
+
+
+```
+
+**Insight**: Yes, moms are on average shorter than dads in this dataset.
+Again, is this difference statistically significant? We will find out in
+when we do **Inference**.
+:::
+
+::: {.callout-note title="Question"}
+Q.7a. Are heights of children different based on the number of kids in
+the family? And For Male and Female children?
+
+```{r}
+# Boxplot series for daughters
+gf_boxplot(height ~ nkids, group = ~ nkids, fill = ~ sex, 
+           data = Galton %>% filter(sex == "F")) %>% 
+# Boxplot series for sons
+  gf_boxplot(height ~ nkids, group = ~ nkids, fill = ~ sex, 
+             data = Galton %>% filter(sex == "M")) %>% 
+  gf_labs(title = "Daughters vs Sons: Who is Taller?",
+          subtitle = "Family Size does not change height disparity ;-D",
+          x = "Family Size", y = "Heights of Children",
+          caption = "Made with `ggformula` and Classic Theme") %>% 
+  
+  gf_theme(theme_classic())
+
+
+```
+
+**Insight**: So, at all family "strengths" (`nkids`), the sons are
+taller than the daughters, based on distributions. Box plots are used to
+show distributions of numeric data values and compare them between
+multiple groups (i.e Categorical Data, here `sex` and `nkids`).
+:::
+
+::: {.callout-note title="Follow-up Question"}
+Q. 8a. Is height difference between sons and daughters related to height
+difference between `father` and `mother`?
+
+Differences between `father` and `mother` heights influencing
+`height`...this would be like `height ~ (father-mother)`. This would be
+a relationship between **two** Quant variables. A histogram would not
+serve here and we plot this as a **Scatter Plot**:
+
+```{r}
+#| layout: [[40], [60]]
+Galton_parents_diff <- Galton %>% 
+  group_by(family,sex) %>% 
+  
+  # Parental Height Difference
+  mutate(diff_height = father - mother) %>% 
+  select(family, sex, height, diff_height) %>% 
+  ungroup() %>% 
+  group_by(sex)
+Galton_parents_diff
+
+Galton_parents_diff %>% 
+  gf_point(height ~ diff_height, color = ~ sex, data = Galton_parents_diff) %>%
+  gf_lims(y = c(55,82)) %>% # note: Y-AXIS does not go to zero!!
+  
+  gf_rect(55 + 80 ~ 0 + 18, fill = "grey80", 
+          color = "white", alpha = 0.02) %>%
+  gf_rect(55 + 80 ~ -5 + 0, fill = "moccasin", 
+          color = "white", alpha = 0.02) %>%   
+  
+  # Note the repetition!
+  gf_point(height ~ diff_height, color = ~ sex, data = Galton_parents_diff) %>%
+  gf_smooth(method = "lm", se = FALSE) %>% 
+  gf_labs(x = "Parental Height Difference",
+          y = "Children's Heights") %>% 
+  
+  gf_label(label = glue::glue("Taller Mothers"),
+           gformula = 75 ~ -2.5, # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  
+  gf_label(label = glue::glue("Taller Fathers"),
+           gformula = 75 ~ 15,  # Where do we want the label (y ~ x) 
+           show.legend = FALSE,
+           fill = "white") %>% 
+  
+  gf_vline(xintercept = 0, linewidth = 2, 
+           title = "Does Parental Height Difference affect 
+                    Children's Height?",
+           caption = "Note Y-axis does not go to zero") %>% 
+  
+  gf_theme(theme_classic())
+
+```
+
+**Insight**: There seems no relationship, or a very small one, between
+children's `height`s on the y-axis and the difference in parental height
+differences (`father - mother`) on the x-axis...
+:::
+
+And so on.....we can proceed from simple visualizations based on
+Questions to larger questions that demand **inference** and
+**modelling**. We hinted briefly on these in the above Case Study.
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study-2: Dataset from `NHANES`
 
-Let us try the `NHANES` dataset. Try `help(NHANES)` in your Console.
+Let us try the `NHANES` dataset. [Try `help(NHANES)` in your
+Console.]{.aside}
 
 ```{r}
 data("NHANES")
-
 ```
 
-### {{< iconify icon-park-outline overall-reduction >}} Stat Summaries
+### {{< iconify grommet-icons inspect >}} Look at the Data
 
 ```{r}
-mosaic::inspect(NHANES)
+#| column: body-outset-right
+skimr::skim(NHANES)
 ```
 
-Again, lots of data from `inspect`, about the Quant and Qual variables.
-Spend a little time looking through the output of `inspect`. Which
-variables could have been data *given* by each respondent, and which
-ones could have been *measured* data variables? Why do you think so?\
-Why is there so much *missing* data? Which variable are the most
-affected by this?
+Again, lots of data from `skim`, about the Quant and Qual variables.
+Spend a little time looking through this output.
+
+-   Which variables could have been data that was *given/stated* by each
+    respondent?
+-   And which ones could have been *measured* dependent data variables?
+    Why do you think so?
+-   Why is there so much *missing* data? Which variable are the most
+    affected by this?\
+
+### {{< iconify eos-icons counting >}} Counts, and Charts with Counts
+
+::: {.callout-note title="Question"}
+Q.1 What are the Education levels and the counts of people with those
+levels?
 
 ```{r}
-tally(~ Education, data = NHANES)
+
+NHANES %>% 
+  group_by(Education) %>% 
+  summarise(total = n())
+
+# This also works
+# tally(~Education, data = NHANES) %>% as_tibble()
+
 ```
 
-Story: The count goes up as we go from lower Education levels to higher.
-Need to keep that in mind.
+**Insight**: The count goes up as we go from lower Education levels to
+higher. Need to keep that in mind. How do we understand the large number
+of `NA` entries? What could have led to these entries?
+:::
+
+::: {.callout-note title="Question"}
+Q.2 How do counts of Education vs Work-status look like?
 
 ```{r}
+#| message: false
+#| layout: [[30], [70]]
+NHANES %>% 
+  mutate(Education = as.factor(Education)) %>% 
+  group_by(Work,Education) %>% 
+  summarise(count = n())
 
-tally(Education ~ Work, data = NHANES)
+NHANES %>% 
+  group_by(Work, Education) %>% 
+  summarise(count = n()) %>% 
+  gf_col(count ~ Education, fill = ~ Work, position = "dodge") %>% 
+  gf_theme(theme_classic())
 
 ```
 
-Story: Clear increase in the number of Working people as Education goes
-from 8th Grade to College. No surprise. Is the NotWorking column a
-surprise?
+**Insight**: Clear increase in the number of Working people as Education
+goes from 8th Grade to College. No surprise. Are the `NotWorking` counts
+a surprise?
+:::
 
-### {{< icon-park-outline chart-histogram >}} Distribution Plots
+### {{< iconify icon-park-outline overall-reduction >}} {{< icon-park-outline chart-histogram >}} Stat Summaries, Histograms, and Densities
 
-::: callout-note
-Q.1. What is the distribution of Physical Activity Days, across Gender?
+::: {.callout-note title="Question"}
+Q.3. What is the distribution of Physical Activity Days, across Gender?
 Across Education?
-:::
 
 ```{r}
-gf_histogram(data = NHANES, ~ PhysActiveDays | Gender)
-gf_histogram(data = NHANES, ~ PhysActiveDays | Education)
+#| layout-ncol: 2
+#| column: body-outset-right
+#| warning: false
+
+NHANES %>% 
+  gf_histogram(~ PhysActiveDays | Gender, fill = ~Gender) %>% 
+  gf_theme(theme_classic())
+
+NHANES %>% 
+  gf_histogram(~ PhysActiveDays | Education, fill = ~ Education) %>% 
+  gf_theme(theme_classic())
 
 ```
 
-Story: Can we conclude anything here? The **populations** in each
-category are different, so what do we need to do? Take percentages or
-ratios of course, per-capita! How would one do that?
-
-::: callout-note
-Q.1a. What is the distribution of Physical Activity Days, across Gender,
-per capita? Across Education?
+**Insight**: Can we conclude anything here? The **populations** in each
+category are different, as indicated by the different heights of the
+bars, so what do we need to do? Take percentages or ratios of course,
+**per-capita**! How would one do that?
 :::
 
-```{r}
+::: {.callout-note title="Question"}
+Q.3a. What is the distribution of Physical Activity Days, across
+Education and Sex, **per capita**?
 
+```{r}
+#| layout-ncol: 2
+#| message: false
 NHANES %>% 
   group_by(Gender) %>% 
   summarize(mean_active = mean(PhysActiveDays,na.rm = TRUE))
 
 NHANES %>% 
-  group_by(Education) %>% 
+  group_by(Education, Work) %>% 
   summarize(mean_active = mean(PhysActiveDays,na.rm = TRUE))
 
 ```
 
-Story: Hmm..no great differences. Females are maginally more active than
-males.
-
-::: callout-note
-Q.2. How are people Ages distributed across levels of Education?
+**Insight**: Hmm..no great differences in per-capita physical activity.
+Females are marginally more active than males. No need to even plot
+this.
 :::
 
+::: {.callout-note title="Question"}
+Q.4. How are people's Ages distributed across levels of Education?
+
 ```{r}
-gf_boxplot(Age ~ Education, 
-           fill = ~ Education, # Always a good idea
-           data = NHANES)
+#| warning: false
+#| layout-nrow: 1
+# Recall there are missing data
+gf_boxplot(Age ~ Education,
+           fill = ~ Education, # Always a good idea to fill boxes
+           data = NHANES) %>%
+  gf_theme(theme_classic()) %>% 
+  
+  # And to turn this into an interactive plot
+  plotly::ggplotly()
+
 ```
 
-Story: Older age groups are more heavily represented in groups with
-lover educational status. How to interpret the NA group?
-
-::: callout-note
-Q.3. How is Education distributed over Race?
+**Insight**: Older age groups are somewhat more heavily represented in
+groups with lower educational status. College Graduates also have
+slightly narrow age....That is a nice Question for some Inferential
+Modelling. And how to interpret the NA group?
 :::
 
+::: {.callout-note title="Question"}
+Q.5. How is Education distributed over Race?
+
 ```{r}
+#| warning: false
+#| message: false
+#| layout: [[25], [75]]
 
 NHANES_by_Race1 <- NHANES %>% 
-  group_by(Race1) %>% summarize(population = n())
+  group_by(Race1) %>% 
+  summarize(population = n())
 NHANES_by_Race1
 
 NHANES %>% group_by(Education, Race1) %>% 
   summarize( n = n()) %>% 
   left_join(NHANES_by_Race1, by = c("Race1" = "Race1")) %>% 
   mutate(percapita_educated = (n/population)*100) %>% 
-  ungroup() %>%  # not really needed
-  gf_col(Education ~ percapita_educated | Race1, fill = ~ Race1)
+  ungroup() %>%  
+  group_by(Race1) %>%
+  gf_col(percapita_educated ~ Education | Race1, fill = ~ Race1) %>%
+  gf_refine(coord_flip()) %>%  
+  gf_theme(theme_classic()) %>% 
+
+  # And to turn this into an interactive plot
+  plotly::ggplotly()
+
 
 ```
 
-Story: Blacks, Hispanics, and Mexicans tend to have fewer people with
-college degrees, as a percentage of their population.
-
-::: callout-note
-Q.4. What is the distribution of people's BMI, split by Gender? By
-Race1?
+**Insight**: Blacks, Hispanics, and Mexicans tend to have fewer people
+with college degrees, as a percentage of their population. Asians and
+other immigrants have a significant tendency towards higher education!
 :::
 
+::: {.callout-note title="Question"}
+Q.6. What is the distribution of people's BMI, split by Gender? By
+Race1?
+
 ```{r}
+#| warning: false
+#| message: false
+#| layout-ncol: 2
 # One can also plot both histograms and densities in an overlay fashion,
-gf_dhistogram(~ BMI | Gender, data = NHANES) %>% 
-      gf_fitdistr(dist = "dnorm") 
 
+NHANES %>% 
+  group_by(Gender) %>% 
+  gf_density(~ BMI | Gender,fill = ~ Gender , alpha = 0.4) %>% 
+  gf_fitdistr(dist = "dnorm",color =  ~ Gender) %>% 
+  gf_theme(theme_classic()) %>% 
 
+  # And to turn this into an interactive plot
+  plotly::ggplotly()
 
-gf_dhistogram(~ BMI, data = NHANES) %>% 
-    gf_fitdistr(dist = "dnorm") %>% 
-  gf_refine(facet_wrap(~ Race1, scales = "free"))
-            
+NHANES %>% group_by(Race1) %>% 
+  gf_density(~ BMI | Race1, fill = ~ Race1) %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_theme(theme_classic()) %>% 
+
+  # And to turn this into an interactive plot
+  plotly::ggplotly()
 ```
 
-Story: Non-white races tend to have larger portions of their populations
+**Insight**: Blacks tend to have larger portions of their populations
 with larger BMI. So these races perhaps tend to obesity. By and large
 BMI distributions are normal.
-
-::: callout-note
-Q.4. What is the distribution of people's Testosterone level vs BMI?
-Split By Race1?
 :::
 
+::: {.callout-note title="Question"}
+Q.7. What is the distribution of people's Testosterone level vs BMI?
+Split By Race1?
+
 ```{r}
-NHANES %>%  gf_density2d(Testosterone ~ BMI | Race1) 
+#| warning: false
+NHANES %>%  
+  gf_density_2d(Testosterone ~ BMI | Race1) %>%
+  gf_theme(theme_classic()) %>% 
+plotly::ggplotly()
 
 ```
 
-Story: Low testosterone levels exist across all BMI values, but healthy
-levels of T exists only over a smaller range of BMI.
+**Insight**: Low testosterone levels exist across all BMI values, but
+healthy levels of T exists only over a smaller range of BMI.
+:::
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study#3: A complete example
 
@@ -389,11 +615,11 @@ banned in schools across the US.
 
 {{< downloadthis data/banned.csv dname="banned.csv" label="Download the data"banned books icon="database-fill-down" type="info" >}}
 
-```{r, bar-charts}
+```{r}
+#| label: Banned Books
 banned <- readxl::read_xlsx(path = "data/banned.xlsx",
                             sheet = "Sorted by Author & Title")
 banned
-
 names(banned)
 
 ```
@@ -410,45 +636,81 @@ mosaic::inspect(banned)
 
 ```
 
+**Insight**: Clearly the variables are *all* Qualitative, except perhaps
+for *Date of Challenge/Removal*, (which in this case has been badly
+mangled by Excel). So we need to make **counts** based on the\* levels\*
+of the Qual variables and plot Bar/Column charts. We will not find much
+use for histograms or densities.
+
 Let us try to answer this question:
 
-::: callout-important
-*What is the count of banned books by type and by US state?*
-:::
+::: {.callout-note title="Question"}
+Q.1.What is the count of banned books by type? By US state?
 
 ```{r}
-banned_by_state <- 
-  banned %>% 
-  group_by(State) %>% 
-  summarise(total = n()) %>% 
-  ungroup()
-banned_by_state
-
-banned %>% 
-  group_by(State, `Type of Ban`) %>% 
-  summarise(count = n()) %>% 
-  ungroup() %>% 
-  left_join(., banned_by_state, by = c("State" = "State")) %>% 
-  
- #  pivot_wider(.,id_cols = State,
- #              names_from = `Type of Ban`,
- #              values_from = count) %>% janitor::clean_names() %>% 
- #  replace_na(list(banned_from_libraries_and_classrooms = 0,
- #                  banned_from_libraries = 0,
- #                  banned_pending_investigation = 0,
- #                  banned_from_classrooms = 0)) %>% 
- # mutate(total = sum(across(where(is.integer)))) %>%
-gf_col(count ~ reorder(State, total), 
-          fill = ~ `Type of Ban`) %>% 
-  gf_labs(x = "Count of Banned Books",
-          y = "State") %>% 
-  gf_refine(coord_flip()) %>% 
-  gf_theme(theme = theme_minimal())
-
+#| message: false
+#| layout: [[60],[40]]
+banned %>% count(`Type of Ban`, sort = TRUE)
+banned %>% count(State, sort = TRUE)
 
 ```
+
+**Insight**: There are four types of book bans, and
+`Banned Pending Investigation` is the most frequent, but other types of
+bans are frequent too. Texas is the leader in book bans!
+
+From: <https://en.wikipedia.org/wiki/Bible_Belt>
+
+> The Bible Belt is a region of the Southern United States in which
+> socially conservative Protestant Christianity plays a strong role in
+> society. Church attendance across the denominations is generally
+> higher than the nation's average. The region contrasts with the
+> religiously diverse Midwest and Great Lakes, and the Mormon corridor
+> in Utah and southern Idaho.
+
+![Bible
+Belt](https://upload.wikimedia.org/wikipedia/commons/c/c2/BibleBelt.png){fig-align="center"}
+:::
+
+::: {.callout-note title="Question"}
+Q.2. What is the count of banned books by type **and** by US state?\*
+
+```{r}
+#| message: false
+
+banned %>% group_by(State, `Type of Ban`) %>% 
+  count(State, sort = TRUE) %>% 
+  slice_max(n = 10, order_by = n, with_ties = TRUE) %>% 
+  gf_col(reorder(State, n) ~ n, fill = ~`Type of Ban`,
+         xlab = "No of Banned Books", ylab = "State") %>% 
+  gf_refine(scale_fill_brewer(palette = "Set2")) %>% 
+  gf_theme(theme_classic())
+
+```
+
+**Insight**: Clearly Texas is the leading state in book bans in schools.
+California clearly doesn't bother itself with these things!!
+:::
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+And that is a wrap!! Try to work with this procedure:\
+
+-   Inspect the data using `skim` or `inspect`
+-   Identify Qualitative and Quantitative variables
+-   Notice variables that have missing data and decide if that matters
+-   Develop Counts of Observations for combinations of Qualitative
+    variables (factors)
+-   Develop Histograms and Densities, and slice them by Qualitative
+    variables to develop faceted plots as needed
+-   Continue with other *Descriptive Graphs* as needed
+-   At each step **record the insight and additional questions!!**
+-   Onwards with Correlations and other visuals...
+-   And then on the *inference* and *modelling*!!
 
 ## {{< iconify ooui references-rtl >}} References
 
 1.  A detailed analysis of the NHANES dataset,
     <https://awagaman.people.amherst.edu/stat230/Stat230CodeCompilationExampleCodeUsingNHANES.pdf>
+
+[^1]: Fundamentals of Data Visualization (clauswilke.com)

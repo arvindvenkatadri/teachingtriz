@@ -40,6 +40,7 @@ library(ggpol) # Parliament, Arc-Bar and other interesting charts
 
 library(tidygraph) # Trees, Dendros, and Circle Packings
 library(ggraph) # Trees, Dendros, and Circle Packings
+library(echarts4r) # Interactive Charts
 
 library(patchwork) # Arrange your plots
 
@@ -63,42 +64,114 @@ sum of the sectors equals 100%.
 
 The problem is that humans are pretty bad at reading angles. This
 ubiquitous chart is much vilified in the industry and `bar charts` that
-we have seen earlier, are viewed as better options. However do read this
-spirited defense of pie charts here.
+we have seen earlier, are viewed as better options. On the other hand, pie charts are ubiquitous in business circles, and are very much accepted! Do also read this spirited defense of pie charts here.
 <https://speakingppt.com/why-tufte-is-flat-out-wrong-about-pie-charts/>
 
-On the other hand, pie charts are ubiquitous in business circles, and
-are very much accepted ! So there is an attractive, and similar-looking
+And we will also see that there is an attractive, and similar-looking
 alternative, called a `fan chart` which we will explore here.
 
-(Base) R has a simple `pie` command that does the job.
+
+::: panel-tabset
+### Using Base R
+
+Base R has a simple `pie` command that does the job. Let's create some toy data first:
 
 ```{r}
-pie.sales <- c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12)
-labels <- c("Blueberry",
-            "Cherry",
-            "Apple",
-            "Boston Cream",
-            "Other",
-            "Vanilla Cream")
+#| layout-ncol: 2
+pie_data <- tibble(
+  sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
+  
+  # Labels MUST be character entries for `pie` to work
+  labels = c("Blueberry","Cherry","Apple","Boston Cream",
+             "Other","Vanilla Cream")
+  )
+pie_data
 pie(
-  x = pie.sales,
-  labels = labels,
+  x = pie_data$sales,
+  labels = pie_data$labels, # Character Vector is a MUST
+
+  # Pie is within a square of 1 X 1 units
+  # Reduce radius if needed to see labels properly
+  radius = 0.95,
+  
+  init.angle = 90, # First slice starts at 12 o'clock position
+  
+  # Change the default colours. Comment this and see what happens. 
   col =  grDevices::hcl.colors(palette = "Plasma", n = 6)
-) # default colours
+  )
 
 ```
 
-The `fan plot` displays numerical values as arcs of **overlapping
-sectors**. This allows for more effective comparison:
+### Using `echarts4r`
+
+Here is a basic interactive pie chart with`echarts4r`: 
+
+```{r}
+
+pie_data <- tibble(
+  sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
+
+  labels = c("Blueberry","Cherry","Apple","Boston Cream","Other",
+             "Vanilla Cream"))
+pie_data %>% 
+  e_charts(x = labels) %>% 
+  e_pie(serie = sales, clockwise = TRUE, 
+        startAngle = 90) %>% 
+  e_legend(list(orient = "vertical",
+                      left = "right")) %>% 
+  e_tooltip()
+
+```
+
+We can add more bells and whistles to the humble-pie chart, and make a Nightingale `rosechart` out of it:
+
+```{r}
+#| label: rose chart
+#| layout-ncol: 2
+pie_data <- tibble(
+  sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
+
+  labels = c("Blueberry","Cherry","Apple","Boston Cream","Other",
+             "Vanilla Cream"))
+pie_data %>% 
+  e_charts(x = labels) %>% 
+  e_pie(serie = sales, clockwise = TRUE, 
+        startAngle = 90, 
+        roseType = "area") %>% # try "radius"
+  
+  # Lets move the legend
+  e_legend(left = "right", orient = "vertical") %>% 
+  e_tooltip()
+
+pie_data %>% 
+  e_charts(x = labels) %>% 
+  e_pie(serie = sales, clockwise = TRUE, 
+        startAngle = 90, 
+        roseType = "radius") %>% 
+  
+  # Lets move the legend
+  e_legend(left = "right", orient = "vertical") %>% 
+  e_tooltip()
+
+```
+
+For more information and customization look at <https://echarts.apache.org/en/option.html#series-pie>
+
+:::
+
+### The `fan` Plot
+
+The `fan plot` (from the `plotrix` package) displays numerical values as arcs of **overlapping sectors**. This allows for more effective comparison:
 
 ```{r,echo=TRUE}
 plotrix::fan.plot(
-  x = pie.sales,
-  labels = labels,
+  x = pie_data$sales,
+  labels = pie_data$labels,
+  
   col = grDevices::hcl.colors(palette = "Plasma", n = 6),
   shrink = 0.03,
   # How much to shrink each successive sector
+
   label.radius = 1.15,
   main = "Fan Plot of Ice Cream Flavours",
   # ticks = 360,
@@ -109,11 +182,22 @@ plotrix::fan.plot(
 
 ```
 
+There is no fan plot possible with `echarts4r`, as far as I know. 
+
+### The `Donut` Chart
+
 The `donut` chart suffers from the same defects as the pie, so should be
 used with discretion. The `donut` chart is essentially a `gf_rect` from
 `ggformula`, plotted on a **polar coordinate** set of of axes:
 
-```{r donut-chart}
+::: panel-tabset
+
+#### Using `ggformula`
+Let us make some toy data:
+
+```{r}
+#| label:  donut-chart
+#| layout-ncol: 2
 
 # Data
 df <- tibble(group = LETTERS[1:3],
@@ -131,31 +215,31 @@ df <-
 
 df
 
-```
 
-```{r}
-#| label: donut chart
-
-gf_rect(ymin + ymax ~ 2 + 4,
-# gf_rect() formula: ymin + ymax ~ xmin + xmax
-        fill = ~ group,
-        colour = "black",
-        data = df) %>%
+df %>%  
+  # gf_rect() formula: ymin + ymax ~ xmin + xmax
+  # Bars with varying thickness (y) proportional to data
+  # Fixed length x (2 to 4)
+  gf_rect(ymin + ymax ~ 2 + 4,
+          fill = ~ group, colour = "black") %>%
   
   gf_label(labelPosition ~ 3.5, 
            label = ~ label,
            size = 4) %>%
-  
+
 # When switching to polar coords:
-# x maps to r
-# y maps to theta
-# so we create a "hole" in the radius, in in 
+# x maps to radius
+# y maps to angle theta
+# so we create a "hole" in the radius, in x 
   gf_refine(coord_polar(theta = "y", 
-                        direction = 1),
-            
-            # try to play with the "0"
-            xlim(c(0, 4))) %>% 
-  # Upto here will give us a pie chart
+                        direction = 1)) %>% 
+            # Up to here will give us a pie chart
+  
+  # Now to create the hole
+  # try to play with the "0"
+  # Recall x = [2,4]
+  gf_refine(xlim(c(-2, 5))) %>% 
+
   
   gf_theme(theme = theme_void()) %>% 
   gf_theme(legend.position = "none")
@@ -163,15 +247,56 @@ gf_rect(ymin + ymax ~ 2 + 4,
 
 ```
 
+#### Using `echarts4r`
+
+The `donut` chart is simply a variant of the pie chart in `echarts4r`:
+
+```{r}
+#| layout-ncol: 2
+df <- tibble(group = LETTERS[1:3],
+                 value = c(25, 20, 35))
+
+df <-
+  df %>% 
+  dplyr::mutate(fraction = value / sum(value), # percentages
+    ymax = cumsum(fraction), # cumulative percentages
+    ymin = lag(ymax, 1, default = 0),
+    # bottom edge of each
+    label = paste0(group, "\n value: ", value),
+    labelPosition = (ymax + ymin) / 2 # labels midway on arcs
+  )
+df
+
+df %>% 
+  e_charts(x = group, width = 400) %>% 
+  e_pie(serie = value, 
+        clockwise = TRUE, 
+        startAngle = 90,
+        
+        radius = c("50%", "70%")
+        ) %>% 
+  
+  e_legend(left = "right", orient = "vertical") %>% 
+  e_tooltip()
+
+```
+
+
+:::
+
+
 ## {{< iconify noto waffle >}} Waffle Charts
 
 Waffle charts are often called "square pie charts" !
 
 Here we will need to step outside of `ggformula` and get into `ggplot`
-itself momentarily. (Remember that `ggformula` is a simplified and
-intuitive method that runs on **top** of `ggplot`.)
+itself momentarily. (Always remember that `ggformula` is a simplified and
+intuitive method that runs on **top** of `ggplot`.) We will use the `waffle` package. 
 
-```{r using-waffle, warning=FALSE}
+```{r}
+#|  label: using-waffle
+#|  warning: false
+
 # install.packages("waffle", repos = "https://cinc.rud.is")
 library(waffle)
 
@@ -181,7 +306,7 @@ df <- tibble(group = LETTERS[1:3],
 df
 
 # Waffle plot
-# Using ggplot, sadly ot yet ggformula
+# Using ggplot, sadly not yet ggformula
 ggplot(df, aes(fill = group, values = value)) +
   geom_waffle(
     n_rows = 8,
@@ -202,12 +327,14 @@ ggplot(df, aes(fill = group, values = value)) +
 ## {{< iconify fa6-solid people-roof >}} Parliament Charts
 
 The package `ggpol` offers an interesting visualization in the shape of
-a array of "seats" in a parliament. ( There is also a package called
+a array of "seats" in a parliament. (There is also a package called
 `ggparliament` which in my opinion is a bit cumbersome, having a two
 step procedure to convert data into "parliament form" etc. )
 
-```{r using-ggpol}
-df <- data.frame(group = LETTERS[1:3],
+```{r}
+#| label: using-ggpol
+
+df <- tibble(group = LETTERS[1:3],
                  value = c(25, 20, 35))
 
 # Parliament Plot
@@ -258,13 +385,14 @@ Website](http://r-graph-gallery.com/index.html) :
 >     clustering divides a set of individuals in group according to
 >     their similarity. Its result can be visualized as a tree.
 
-```{r message=FALSE,warning=FALSE}
+```{r,  message=FALSE,warning=FALSE}
 
 # create an edge list data frame giving the hierarchical structure of your individuals
-d1 <- data.frame(from="origin", to=paste("group", seq(1,5), sep=""))
-d2 <- data.frame(from=rep(d1$to, each=5), to=paste("subgroup", seq(1,25), sep="_"))
+d1 <- tibble(from = "origin", to = paste("group", seq(1,5), sep = ""))
+d2 <- tibble(from = rep(d1$to, each=5), to = paste("subgroup", seq(1,25), sep="_"))
 edges <- rbind(d1, d2)
- 
+edges
+
 # Create a graph object 
 mygraph1 <- tidygraph::as_tbl_graph( edges )
  
@@ -274,32 +402,48 @@ p1 <- ggraph(mygraph1, layout = 'dendrogram', circular = TRUE) +
   geom_node_point() +
   theme_void()
 
+```
 
+
+```{r}
 # create a data frame 
-data <- data.frame(
+data <- tibble(
   level1="CEO",
   level2=c( rep("boss1",4), rep("boss2",4)),
   level3=paste0("mister_", letters[1:8])
 )
  
 # transform it to a edge list!
-edges_level1_2 <- data %>% select(level1, level2) %>% unique %>% rename(from=level1, to=level2)
-edges_level2_3 <- data %>% select(level2, level3) %>% unique %>% rename(from=level2, to=level3)
-edge_list=rbind(edges_level1_2, edges_level2_3)
- 
+edges_level1_2 <- data %>% 
+  select(level1, level2) %>% unique %>% rename(from=level1, to=level2)
+
+edges_level2_3 <- data %>% 
+  select(level2, level3) %>% unique %>% rename(from=level2, to=level3)
+
+edge_list <- rbind(edges_level1_2, edges_level2_3)
+edge_list
+
 # Now we can plot that
-mygraph2 <- as_tbl_graph( edge_list )
+mygraph2 <- as_tbl_graph(edge_list)
 p2 <- ggraph(mygraph2, layout = 'dendrogram', circular = FALSE) + 
   geom_edge_diagonal() +
   geom_node_point() +
   theme_void()
 
+```
+
+
+```{r}
+
 p1 + p2 + theme(aspect.ratio = 1)
+
 ```
 
 ### Circle Packing
 
-```{r ,warning=FALSE,message=FALSE}
+```{r}
+#| warning: FALSE
+#| message: FALSE
 library(tidygraph)
 library(ggraph)
 graph <- tbl_graph(flare$vertices, flare$edges)
@@ -312,7 +456,7 @@ ggraph(graph, 'circlepack', weight = size) +
 
 ```
 
-## Your Turn
+## {{< iconify bi person-up >}} Your Turn
 
 1.  Use the `penguins` dataset from the `palmerpenguins` package and
     plot pies, fans, and donuts as appropriate.
