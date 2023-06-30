@@ -1,16 +1,17 @@
 ---
 title: "\U0001F9ED Basics of Statistical Inference"
-date: "2021-11-09"
+author: "Arvind Venkatadri"
+date: 09/Nov/2022
 date-modified: "`r Sys.Date()`"
 subject: Statistical Inference
-summary: ""
 order: 10
+abstract: "What Do you want to Find Out Today?"
 bibliography: references.bib
 ---
 
 ![](featured.jpg)
 
-## Introduction
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 In this set of modules we will explore Data, understand what types of
 data variables there are, and the kinds of statistical tests and
@@ -109,14 +110,24 @@ There are three main uses for statistical models. They are closely
 related, but distinct enough to be worth enumerating.
 
 **Description**. Sometimes you want to describe the range or typical
- values of a quantity. For example, what's a "normal" white blood cell
- count? Sometimes you want to **describe the relationship between things**.
- Example: What's the relationship between the price of gasoline and
- consumption by automobiles?
+values of a quantity. For example, what's a "normal" white blood cell
+count? Sometimes you want to **describe the relationship between
+things**. Example: What's the relationship between the price of gasoline
+and consumption by automobiles?
 
- **Classification or Prediction**. You often have information about some observable traits, qualities, or attributes of a system you observe and want to draw conclusions about other things that you can't directly observe. For instance, you know a patient's white blood-cell count and other laboratory measurements and want to diagnose the patient's illness.
+**Classification or Prediction**. You often have information about some
+observable traits, qualities, or attributes of a system you observe and
+want to draw conclusions about other things that you can't directly
+observe. For instance, you know a patient's white blood-cell count and
+other laboratory measurements and want to diagnose the patient's
+illness.
 
- **Anticipating the consequences of interventions**. Here, **you intend to do something**: you are not merely an observer but an active participant in the system. For example, people involved in setting or debating public policy have to deal with questions like these: To what extent will increasing the tax on gasoline reduce consumption? To what extent will paying teachers more increase student performance?
+**Anticipating the consequences of interventions**. Here, **you intend
+to do something**: you are not merely an observer but an active
+participant in the system. For example, people involved in setting or
+debating public policy have to deal with questions like these: To what
+extent will increasing the tax on gasoline reduce consumption? To what
+extent will paying teachers more increase student performance?
 
 The appropriate form of a model depends on the purpose. For example, a
 model that diagnoses a patient as ill based on an observation of a high
@@ -126,17 +137,27 @@ think that lowering the white blood cell count by bleeding a patient
 will make the patient better?
 
 To anticipate correctly the effects of an intervention you need to get
-**the direction of cause (polarity)** and **effect (magnitude)** correct in your models. 
+**the direction of cause (polarity)** and **effect (magnitude)** correct
+in your models.
 
 ::: callout-note
-An *effect size* tells how the output of a model changes when a simple change is made to the input.Effect sizes always involve two variables: a response variable and a single explanatory variable. Effect size is always about a *model*. The model might have one explanatory variable or many explanatory variables. Each explanatory variable will have its own effect size, so a model with multiple explanatory variables will have multiple effect sizes.
+An *effect size* tells how the output of a model changes when a simple
+change is made to the input.Effect sizes always involve two variables: a
+response variable and a single explanatory variable. Effect size is
+always about a *model*. The model might have one explanatory variable or
+many explanatory variables. Each explanatory variable will have its own
+effect size, so a model with multiple explanatory variables will have
+multiple effect sizes.
 :::
 
 ::: callout-note
-But for a model used for classification or prediction, it may be unnecessary to represent causation correctly. Instead, other issues, e.g., the
-reliability of data, can be the most important. One of the thorniest
-issues in statistical modeling -- with tremendous consequences for
-science, medicine, government, and commerce -- is **how you can legitimately draw conclusions about interventions from models based on data collected without performing these interventions.**
+But for a model used for classification or prediction, it may be
+unnecessary to represent causation correctly. Instead, other issues,
+e.g., the reliability of data, can be the most important. One of the
+thorniest issues in statistical modeling -- with tremendous consequences
+for science, medicine, government, and commerce -- is **how you can
+legitimately draw conclusions about interventions from models based on
+data collected without performing these interventions.**
 :::
 
 ### Types of Models Based on Data Variables
@@ -148,6 +169,8 @@ the heights of children and the heights of their parents. We can create
 ![Variables and
 Models](/content/materials/images/Models.png){fig-align="center"}
 
+## Linear Models Everywhere
+
 Our method in this set of modules is to take **the modern view that
 *all* these models can be viewed from a standpoint of the *Linear
 Model*, also called *Linear Regression*** $y = \beta_1 *x + \beta_0$ .
@@ -157,6 +180,53 @@ modelled as $y$ and the independent one as $x$. We will try to work up
 to the intuition that this model can be used to understand all the
 models in the Figure.
 
+## A Flowchart of Statistical Inference Tests
+
+```{mermaid}
+flowchart TD
+    A[Inference for Means] -->|Check Assumptions|B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test\n Outliers: Box Plots]
+    B --> M[Means]
+
+ subgraph Means
+    direction TB
+      subgraph Single-Mean
+        direction LR
+        OM[Single Mean]<-->|p| TT[t.test]
+        TWT[t.test \n Welch]<-->|p diff var|OM[Single Mean]
+        WT[wilcox.test]<-->|np|OM[Single Mean]
+      end
+      subgraph Paired-Means
+        direction LR
+        TM[Paired Means]<-->|p| TTP[t.test with pairs]
+        WTP[wilcox.test with pairs\n Mann-Whitney U Test]-->|np|TM
+      end
+       subgraph Multiple-Means
+       direction LR
+        MM[Multiple Means] -->|p| ANO[ANOVA]
+        KW[kruskal.test]<-->|np indep| MM
+        FT[friedman.test]<-->|np dep| MM
+      end
+M -->Single-Mean
+Single-Mean-->Paired-Means
+Paired-Means-->Multiple-Means
+
+  subgraph LM
+    direction BT
+    LM[Linear Model] -->Means
+  end
+
+
+end
+
+
+
+  
+
+
+
+  
+    
+```
 
 ## References
 

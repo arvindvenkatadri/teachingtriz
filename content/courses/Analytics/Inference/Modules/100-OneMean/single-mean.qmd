@@ -3,13 +3,14 @@ title: "\U0001F0CF Inference for a Single Mean"
 author: "Arvind Venkatadri"
 date: 10/Nov/2022
 date-modified: "`r Sys.Date()`"
-abstract: "Using Permutation Tests to check the significance of a single Mean"
+abstract: "Using Randomization Tests to check the significance of a single Mean"
 order: 100
 categories:
-- Permutation
-- Monte Carlo Simulation
-- Random Number Generation
-- Distributions
+- t.test
+- Linear Model
+- Inference
+- Bootstrap
+- Null Distributions
 - Generating Parallel Worlds
 ---
 
@@ -24,302 +25,302 @@ knitr::opts_chunk$set(echo = TRUE,message = TRUE,warning = TRUE, fig.align = "ce
 options(digits=2)
 library(tidyverse)
 library(mosaic)
-library(ggmosaic) # plotting mosaic plots for Categorical Data
-library(vcd) # Creating Tables and plotting mosaic charts
-
+library(infer)
 ### Dataset from Chihara and Hesterberg's book (Second Edition)
 library(resampledata)
+library(openintro) # datasets
 
 ```
 
 ## Introduction
 
 We saw from the diagram created by Allen Downey that *there is only one
-test*! We will now use this philosophy to develop a technique that
+test* [^1]! We will now use this philosophy to develop a technique that
 allows us to mechanize several *Statistical Models* in that way, with
 nearly identical code.
 
 We will use two packages in R, `mosaic` to develop our intuition for
-what are called **permutation** based statistical tests. (There is also
-a more recent package called `infer` in R which can do pretty much all
-of this, including visualization. In my opinion, the code is a little
-too high-level and does not offer quite the detailed insight that the
-`mosaic` package does).
+what are called **bootstrap randomization** based statistical tests.
+(There is also a more recent package called `infer` in R which can do
+pretty much all of this, including visualization. In my opinion, the
+code is a little too high-level and does not offer quite the detailed
+insight that the `mosaic` package does).
 
-## Testing for Two or More Proportions
+## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Toy data
 
-Let us try a dataset with Qualitative / Categorical data. This is the
-`General Social Survey GSS dataset`, and we have people with different
-levels of `Education` stating their opinion on the `Death Penalty`. We
-want to know if these two Categorical variables have a correlation, i.e.
-can the opinions in favour of the `Death Penalty` be explained by the
-`Education` level?
+First we will use a toy dataset with three "imaginary" samples,
+$x, y, y2$. Each is normally distributed and made up of 50 observations.
 
-Since data is Categorical ( both variables ), we need to take `counts`
-in a table, and then implement a `chi-square test`. In the test, we will
-permute the `Education` variable to see if we can see how significant
-its *effect size* is.
+We start by creating a function that will allow us to produce samples of
+a given size (N) with a specified mean (mu) and standard deviation (sd).
 
-```{r}
-
-data(GSS2002)
-inspect(GSS2002)
-
+```{r data_genr}
+rnorm_fixed  <- function(N, mu = 0, sd = 1) {
+  scale(rnorm(N))* sd + mu
+}
 ```
 
-Note how *all* variables are Categorical !! `Education` has five
-`levels`, and of course `DeathPenalty` has three:
+We create three variables: x ( explanatory) and y, y2 ( dependent ).
 
-```{r}
+```{r toy_data}
+#| layout-ncol: 3
+set.seed(40) # for replication
 
-GSS2002 %>% count(Education)
-GSS2002 %>% count(DeathPenalty)
+# Data as vectors ( for t.tests etc)
+x <- rnorm_fixed(50, mu = 0.0, sd = 1) #explanatory
+y <- rnorm_fixed(50, mu = 0.3, sd = 2) # dependent #1
+y2 <- rnorm_fixed(50, mu = 0.5, sd = 1.5) # dependent #2
 
+# Make a tibble with all variables
+mydata_wide <- tibble(x = x, y = y, y2 = y2)
+
+# Long form data
+mydata_long <- 
+  mydata_wide %>%
+  pivot_longer(., cols = c(x,y,y2), 
+               names_to = "group", 
+               values_to = "value")
+
+# Long form data with only dependent variables
+mydata_long_y <- 
+  mydata_wide %>% 
+  select(-x) %>% 
+  pivot_longer(., cols = c(y,y2), 
+               names_to = "group", 
+               values_to = "value")
+mydata_wide
+mydata_long
+mydata_long_y
 ```
 
-Let us drop NA entries in `Education` and `Death Penalty` and set up a
-**Contingency Table**.
+## "Signed Rank" Values
 
-```{r,warning=FALSE,message=FALSE}
+Most statistical tests use the **actual values** of the data variables.
+However, in some *non-parametric* statistical tests, the data are used
+in **rank-transformed** sense/order. In some cases the **signed-rank**
+of the data values is used instead of the data itself.
 
+Signed Rank is calculated as follows:\
+1. Take the absolute value of each observation in a sample\
+2. Place the <u>*ranks*</u> in order of (absolute magnitude). The
+smallest number has *rank = 1* and so on.\
+3. Give each of the ranks the sign of the original observation ( + or -
+)
 
-gss2002 <- GSS2002 %>% 
-  dplyr::select(Education, DeathPenalty) %>% 
-  tidyr::drop_na(., c(Education, DeathPenalty))
-
-
-
-gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
-gss_table %>% 
-  addmargins()
-
+```{r signed_rank_function}
+signed_rank <- function(x) {sign(x) * rank(abs(x))}
 ```
 
-## Contingency Table Plots
 
-The Contingency Table can be plotted, as we have seen, using a `mosaic`
-plot using several packages:
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for a Single Mean
 
-::: panel-tabset
-### Using `ggformula`
+A series of tests deal with one mean value of a sample. The idea is to
+evaluate whether that mean is representative of the mean of the
+underlying population. Depending upon the nature of the (single) variable, the test that can be used are as follows:
 
-Need a little more work, to convert the Contigency Table into a tibble:
-
-```{r warning=FALSE,message=FALSE}
-# https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
-
-gss_summary <- gss2002 %>%
-  mutate(
-    Education = factor(
-      Education,
-      levels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS"),
-      labels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS")
-    ),
-    DeathPenalty = as.factor(DeathPenalty)
-  ) %>%
-  group_by(Education, DeathPenalty) %>%
-  summarise(count = n()) %>% # This is good for a chisq test
-  
-  # Add two more columns to facilitate mosaic/Marrimekko Plot
-  # 
-  mutate(edu_count = sum(count), 
-         edu_prop = count / sum(count)) %>%
-  ungroup() 
-
-gf_col(edu_prop ~ Education, data = gss_summary,
-       width = ~ edu_count, 
-       fill = ~ DeathPenalty,
-       stat = "identity", 
-       position = "fill", 
-       color = "black") %>% 
-  
-  gf_text(edu_prop ~ Education, 
-          label = ~ scales::percent(edu_prop),
-          position = position_stack(vjust = 0.5)) %>% 
-  
-  gf_facet_grid(~ Education, 
-                scales = "free_x", 
-                space = "free_x") %>% 
-  
-  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
-  gf_theme(theme_void())
-  
-
+```{mermaid}
+flowchart TD
+    A[Inference for Single Mean] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n]
+    B --> C{OK?}
+    C -->|Yes\n Parametric| D[t.test]
+    D <-->F[Linear Model\n with Data] 
+    C -->|No\n Non-Parametric| E[wilcox.test]
+    E <--> G[Linear Model\n with\n Signed-Ranks of Data]
+    C -->|No\n Non-Parametric| P[Bootstrap]
+    P <--> Q[Linear Model\n with Signed-Rank\n with Bootstrap]
  
-
 ```
 
-### Using `vcd`
 
-```{r}
-vcd::mosaic(gss_table, gp = shading_hsv)
 
-```
+## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
-### Using `ggmosaic`
 
-```{r mosaic-plot,warning=FALSE}
-#library(ggmosaic)
+### Testing Assumptions in the Data
 
-ggplot(data = gss2002) +
-  geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty))
 
-```
-:::
 
-## Observed Statistic: the $X^2$ metric
+### Inference
 
-When there are multiple proportions involved, the $X^2$ test is what is
-used.
+
 
 ::: panel-tabset
-### Intuitive Explanation
+#### The Student's t-test with one sample {.tabset}
 
-Let us look at the Contingency Table that we have:
+A. Model
 
-```{r echo=FALSE}
+A single number predicts y:
 
-gss_table %>% addmargins() %>% 
-  kableExtra::kbl(caption = "Contigency Table") %>%
-  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
+$$ 
+y = \beta_0 + \beta_1*x \\
+$$
+$$
+\\and\ further \\
+$$
+$$
+y = \beta_0\
+$$
 
-```
+and the second term vanishes, since "there is no x": all the x-values
+are made equal to zero in the linear model for a **single variable** !! The NULL Hypothesis therefore is:
 
-In the chi-square test, we check whether the two ( or more ) categorical
-variables are independent. To do this we perform a simple check on the
-Contingency Table. We first *re-compute* the totals in each row and
-column, based on what we could **expect** if there was independence
-(NULL Hypothesis). If the two variables were independent, then there
-should be **no difference** between real and expected scores.
+$$
+\ H_0: \beta_0 = 0
+$$
 
-How do we know what scores to expect?
+Note that if we **want** the NULL hypothesis to be that the mean is other than zero, we can use
 
-Consider the entry in location (1,1): 117. The number of **expected**
-entries there is probability of an entry landing in that square times
-the total number of entries:
+$$
+H_0:\ \beta_0 = \mu \ne 0
+$$ the `lm(...., mu = some_number, ..)` parameter in the command in the
+code.
 
-::: column-body-outset
-```{=tex}
-\begin{align}
+B. Code
 
-\text{Expected Value at location[1,1]}
-&= p_{row_1} * p_{col_1} * \text{Total Scores}\\\
-&= \frac{\text{Row-1-Total}}{\text{Total Scores}} * \frac{\text{Col-1-Total}}{\text{Total Scores}} * \text{Total Scores}\\\
-&= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
-&= 130
+If we compare the `t.test` with the appropriate `lm` model:
 
-
-\end{align}
-```
-:::
-
-Proceeding in this way for all the 15 entries in the Contingency Table,
-we get the "Expected" Contingency Table. Here are both tables for
-comparison:
-
-```{r echo=FALSE}
-# using prop.table with appropriate margin argument gives us a slick matrix of probabilities
-
-gss_exp <- gss_table * gss_table / ((
-  prop.table(gss_table, margin = 2) * prop.table(gss_table, margin = 1)
-) * 1307)
+```{r t_test_one_mean}
+# t-test
+t1 <- t.test(y, mu = 0, alternative = "two.sided")
+print(t1)
 
 ```
 
-```{r echo=FALSE}
+So even though y has a mean of 0.3, the confidence intervals straddle
+zero, and hence we cannot reject the NULL hypothesis that the true
+population, of which y is a sample, could have mean=0.
 
-gss_exp %>% addmargins() %>% 
-   kableExtra::kbl(caption = "Expected Contigency Table", digits = 0) %>%
-  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
+#### Wilcoxon's Signed-Rank Test
+
+Since we are dealing with the **mean**, the *sign* of the rank becomes
+important to use, in the case of a non-parametric single mean test.
+
+A. Model
+
+$$
+signed\_rank(y) = \beta_0 \\
+H_0: \beta_0 = 0
+$$
+
+B. Code
+
+```{r Wilcoxon_Signed_Rank_test_One_Mean}
+# Standard Wilcoxon Signed_Rank Test
+w1 <- wilcox.test(y)
+w1
+# Wilcoxon test with lm
+w2 <- lm(signed_rank(y) ~ 1 , data = mydata_wide)
+w2
+
+# t-test with signed_rank data
+w3 <- t.test(signed_rank(y))
+w3
 ```
 
-```{r echo=FALSE}
-
-gss_table %>% addmargins() %>% 
-   kableExtra::kbl(caption = "Actual Contigency Table") %>%
-  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
-
-
-```
-
-The $X^2$ statistic is sum of squared differences between `Observed` and
-`Expected` scores, scaled by the `Expected Scores`. For location \[1,1\]
-this would be: $(117-130)^2/189$. Do try to compute all of these and the
-$X^2$ statistic by hand !!
-
-### Code
-
-Let us now perform the base `chisq test`: We need a `table` and then the
-`chisq` test:
+#### Linear Model
 
 ```{r}
 
-# gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
-# gss_table
-
-# Get the observed chi-square statistic
-observedChi2 <- mosaic::chisq(tally(DeathPenalty ~ Education, data = gss2002))
-observedChi2
-
-# Actual chi-square test
-stats::chisq.test(tally(DeathPenalty ~ Education, data = gss2002))
-
+# linear model
+lm1 <- lm(y ~ 1, data = mydata_wide)
+lm1 %>% summary()
+lm1 %>% confint()
 ```
 
-We see that our observed $X^2 = 23.45$.
+The confidence intervals for both the `t.test` and the `lm` model are
+identical.
+
+t-test confidence intervals: `r t1$conf.int`\
+linear model confidence intervals: `r confint(lm1)`
+
+#### Using `bootstrap`
+
+
+
+
+#### Plots
+We can plot the y data both original and ranked to see where the mean
+lies in each case. The approximation to the true $\beta_0$ ( is good
+when the number of observations $n >=50$. Lindoloev has a [simulation
+on this.](https://lindeloev.github.io/tests-as-linear/simulations/simulate_wilcoxon.html).
+We can also plot the model using *lm* for both the original data and the
+sign-ranked data.
+
+```{r Mean_Related_Plots}
+p1 <- ggplot(mydata_wide, aes( x = 0, y = y)) +
+  geom_point(alpha = 0.4) +
+  geom_segment(aes(y = t1$estimate, 
+                   yend = t1$estimate, 
+                   x = -0.2, xend = 0.2)) + 
+  labs(title = "Student's\n t-Test")
+
+# t-test using linear model
+p2 <- ggplot(mydata_wide, aes( x = 0, y = y)) +
+  geom_point(alpha = 0.4) +
+  geom_segment(aes(y = lm(y ~ 1)$coefficient, 
+                   yend = lm(y ~ 1)$coefficient, 
+                   x = -0.2, xend = 0.2)) + 
+  labs(title = "Student's\n t-Test \n using lm")
+
+# Wilcoxon test, using signed-ranks of data
+p3 <- ggplot(mydata_wide, aes( x = 0, y = signed_rank(y))) +
+  geom_point(alpha = 0.4) +
+  geom_segment(aes(y = mean(signed_rank(y)), yend = mean(signed_rank(y)), x = -0.2, xend = 0.2)) + 
+  labs(title = "Wilcoxon \nSigned-Rank\n Test")
+
+# Wilcoxon test, using signed-ranks of data, and lm
+p4 <- ggplot(mydata_wide, aes( x = 0, y = signed_rank(y))) +
+  geom_point(alpha = 0.4) +
+  geom_segment(aes(y = lm(signed_rank(y) ~1)$coefficient, 
+                   yend = lm(signed_rank(y) ~1)$coefficient, 
+                   x = -0.2, xend = 0.2)) + 
+  labs(title = "Wilcoxon \n Signed-Rank \n Test with lm")
+
+
+patchwork::wrap_plots(p1,p2,p3,p4, nrow = 1, guides = "collect")
+```
+
 :::
 
-### Hypotheses Definition
 
-What would our Hypotheses be?
-
-$H_0: \text{Education does not affect votes for Death Penalty}$
-$H_a: \text{Education affects votes for Death Penalty}$
-
-### Permutation Test for `Education`
-
-We should now repeat the test with permutations on `Education`:
-
+## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Exam data
+Let us now choose a dataset from the `openintro` package:
 ```{r}
-
-null_chisq <- do(10000) * 
-  chisq.test(tally(DeathPenalty ~ shuffle(Education), 
-                   data = gss2002))
-
-head(null_chisq)
-
-gf_histogram( ~ X.squared, data = null_chisq) %>% 
-  
-  gf_vline(xintercept = observedChi2, 
-           color = "red") %>% 
-  gf_theme(theme = theme_classic())
-
-prop1(~ X.squared >= observedChi2, data = null_chisq)
-
+data("exam_grades")
+exam_grades
 ```
 
-The `p-value` is well below our threshold of $0.05$, so we would
-conclude that `Education` has a significant effect on `DeathPenalty`
-opinion!
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
-## Conclusion
 
-Why would a permutation test be a good idea here?
+### Testing Assumptions in the Data
 
-In our basic $X^2$ test, we calculate the test statistic of $X^2$ and
-look up a *theoretical* null distribution for that statistic, and see
-how unlikely our observed value is.
 
-With a permutation test, there are *no assumptions* of the null
-distribution: this is computed based on real data. We note in passing
-that, in this case, since the number of `cases` in each cell of the
-Contingency Table are fairly high ( \>= 5) the resulting NULL
-distribution is of the $X^2$ variety.
 
-## References
+### Inference
+
+::: panel-tabset
+#### `t.test`
+
+#### `Wilcoxon test`
+
+#### Linear Model
+
+#### Using Bootstrap
+
+#### Plots
+:::
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+
+
+
+## {{ \< iconify ooui references-ltr \>}} References
 
 1.  [OpenIntro Modern Statistics: Chapter
     17](https://openintro-ims.netlify.app/inference-one-prop.html)
 2.  
+
+[^1]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>

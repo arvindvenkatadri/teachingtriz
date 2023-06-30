@@ -52,7 +52,7 @@ of this, including visualization. In my opinion, the code is a little
 too high-level and does not offer quite the detailed insight that the
 `mosaic` package does).
 
-## Permutation Visually Demonstrated
+## {{< iconify svg-spinners blocks-shuffle-3 >}} Permutation Visually Demonstrated
 
 We will look visually at a permutation exercise. We will create dummy
 data that contains the following case study:
@@ -66,6 +66,7 @@ data that contains the following case study:
 ```{r}
 #| label: Artificial Data
 #| echo: false
+#| layout: [[30, 40, 10, 40]]
 set.seed(123456)
 data1 <- tibble(evaluator = rep(x = "F", times = 24),
                candidate = sample(c(0,1), 
@@ -95,14 +96,6 @@ summary
 obs_difference <- diff(mean(candidate ~ evaluator, data = data))
 obs_difference
 
-```
-
-So, we have a solid disparity in percentage of selection between the two
-evaluators! Let us first plot this:
-
-```{r}
-#| warning: false
-#| echo: false
 
 p0 <- data %>% 
   
@@ -141,35 +134,43 @@ p0 <- data %>%
                       labelsize = 4,
                       inherit.aes = TRUE) 
 p0
+
 ```
+
+So, we have a solid disparity in percentage of selection between the two
+evaluators!
+
+### {{< iconify mdi cards-playing-outline >}} Permutation
 
 Now we pretend that *there is no difference between the selections made
 by either set of evaluators*. So we can just:
 
--   Pool up all the evaluations
-
+-   Pool up all the evaluations\
 -   Arbitrarily re-assign a given candidate(selected or rejected) to
-    either of the two sets of evaluators, by permutation.
+    either of the two sets of evaluators, by permutation.\
 
-    How would that pooled shuffled set of evaluations look like?
+How would that pooled shuffled set of evaluations look like?
 
-    ```{r}
-    #| label: Shuffle the data once
-    #| echo: false
+```{r}
+#| label: Shuffle the data once
+#| echo: false
 
-    data_shuffled <- data %>%
-      mutate(evaluator = shuffle(evaluator)) 
-    #data_shuffled %>% select(evaluator, candidate)
-    data_shuffled %>% 
-      group_by(evaluator) %>% 
-      summarise(selection_ratio = mean(candidate == "0"), 
-            count = count(candidate == "0"),
-            n = n())
-    ```
+data_shuffled <- data %>%
+  mutate(evaluator = shuffle(evaluator))
+#data_shuffled %>% select(evaluator, candidate)
+data_shuffled %>%
+  group_by(evaluator) %>%
+  summarise(
+    selection_ratio = mean(candidate == "0"),
+    count = count(candidate == "0"),
+    n = n()
+  )
+```
 
-    ```{r}
-    #| echo: false
-    p1 <- data_shuffled %>% 
+```{r}
+#| echo: false
+#| layout: [[45,-10, 45]]
+data_shuffled %>% 
       group_by(evaluator, candidate) %>% 
       ggplot(aes(x = x, y = y, 
                  group = evaluator, 
@@ -181,12 +182,8 @@ by either set of evaluators*. So we can just:
       theme_void() + theme(legend.position = "top") +
       ggtitle(label = "Pooled Evaluations, Permuted")
 
-    ```
 
-```{r}
-#| warning: false
-#| echo: false
-p2 <- data_shuffled %>% 
+data_shuffled %>% 
   
   # knock off the coordinates
   # Do not use "group_by"!! Why not?
@@ -223,9 +220,11 @@ p2 <- data_shuffled %>%
 ```
 
 ```{r}
+#| label: Old code retained
 #| echo: false
 #| message: false
 #| warning: false
+#| eval: false
 
 library(patchwork)
 p1 + p2 + plot_annotation(tag_levels = "A") + plot_layout(widths = unit(c(7, 10), c('cm', 'cm')))
@@ -239,23 +238,33 @@ artificially created distribution compares with mother-nature, the
 originally observed figure.
 
 ```{r}
-null_dist <- do(10000) * diff(mean(candidate ~ shuffle(evaluator), data = data))
-null_dist %>% names()
+#| layout: [[60, -10, 30]]
+null_dist <- do(5000) * diff(mean(candidate ~ shuffle(evaluator), 
+                                   data = data))
+# null_dist %>% names()
 null_dist %>% gf_histogram( ~ M, 
-                            fill = ~ (M <= obs_difference)) %>% 
-  gf_vline(xintercept = ~ obs_difference, color = "red" )
+                  fill = ~ (M <= obs_difference), 
+                  bins = 25,show.legend = FALSE,
+                  xlab = "Bias Proportion", 
+                  ylab = "How Often?",
+                  title = "Permutation Test on Diffence between Groups",
+                  subtitle = "") %>% 
+  gf_vline(xintercept = ~ obs_difference, color = "red" ) %>% 
+  gf_label(500 ~ obs_difference, label = "Observed\n Bias", 
+           show.legend = FALSE) %>% 
+  gf_theme(theme_classic())
 
 mean(~ M<= obs_difference, data = null_dist)
 
 ```
 
-We see that the artificial data can hardly ever (\$ p = 0.012\$) mimic
-what the real world experiment is showing. Hence we had good reason to
-reject our Hypothesis that there is no bias.
+We see that the artificial data can hardly ever ($p = 0.012$) mimic what
+the real world experiment is showing. Hence we had good reason to reject
+our NULL Hypothesis that there is no bias.
 
 ## An Example
 
-## Conclusion
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 ## References
 

@@ -95,7 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 <meta property="og:title" content="The Foundation Series - 🃏 Testing a Single Proportion">
 <meta property="og:description" content="Using Permutation Tests to check the significance of a proportion">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/80-OneProp/preview.jpg">
@@ -294,9 +294,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
 <li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link active" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R packages</a></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#permutation-visually-demonstrated" id="toc-permutation-visually-demonstrated" class="nav-link" data-scroll-target="#permutation-visually-demonstrated">Permutation Visually Demonstrated</a></li>
+  <li>
+<a href="#iconify-svg-spinners-blocks-shuffle-3-permutation-visually-demonstrated" id="toc-iconify-svg-spinners-blocks-shuffle-3-permutation-visually-demonstrated" class="nav-link" data-scroll-target="#iconify-svg-spinners-blocks-shuffle-3-permutation-visually-demonstrated"><iconify-icon inline="" icon="svg-spinners:blocks-shuffle-3"></iconify-icon> Permutation Visually Demonstrated</a>
+  <ul class="collapse">
+<li><a href="#iconify-mdi-cards-playing-outline-permutation" id="toc-iconify-mdi-cards-playing-outline-permutation" class="nav-link" data-scroll-target="#iconify-mdi-cards-playing-outline-permutation"><iconify-icon inline="" icon="mdi:cards-playing-outline"></iconify-icon> Permutation</a></li>
+  </ul>
+</li>
   <li><a href="#an-example" id="toc-an-example" class="nav-link" data-scroll-target="#an-example">An Example</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#iconify-fluent-mdl2-decision-solid-conclusion" id="toc-iconify-fluent-mdl2-decision-solid-conclusion" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-decision-solid-conclusion"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></nav>
     </div>
@@ -333,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">May 29, 2023</p>
+      <p class="date-modified">June 24, 2023</p>
     </div>
   </div>
     
@@ -348,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R packages</h2>
-<div class="cell" data-hash="single-prop_cache/html/setup_4fe4ac7a4836ef812b74eafe2f452e27">
+<div class="cell" data-hash="single-prop_cache/html/setup_3217e02ecb5e54b5803d702c61b01df5">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>,<span class="at">message =</span> <span class="cn">TRUE</span>,<span class="at">warning =</span> <span class="cn">TRUE</span>, <span class="at">fig.align =</span> <span class="st">"center"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">options</span>(<span class="at">digits=</span><span class="dv">2</span>)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(tidyverse)</span>
@@ -366,13 +371,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>We saw from the diagram created by Allen Downey that <em>there is only one test</em>! We will now use this philosophy to develop a technique that allows us to mechanize several <em>Statistical Models</em> in that way, with nearly identical code.</p>
 <p>We will use two packages in R, <code>mosaic</code> to develop our intuition for what are called <strong>permutation</strong> based statistical tests. (There is also a more recent package called <code>infer</code> in R which can do pretty much all of this, including visualization. In my opinion, the code is a little too high-level and does not offer quite the detailed insight that the <code>mosaic</code> package does).</p>
-</section><section id="permutation-visually-demonstrated" class="level2"><h2 class="anchored" data-anchor-id="permutation-visually-demonstrated">Permutation Visually Demonstrated</h2>
+</section><section id="iconify-svg-spinners-blocks-shuffle-3-permutation-visually-demonstrated" class="level2"><h2 class="anchored" data-anchor-id="iconify-svg-spinners-blocks-shuffle-3-permutation-visually-demonstrated">
+<iconify-icon inline="" icon="svg-spinners:blocks-shuffle-3"></iconify-icon> Permutation Visually Demonstrated</h2>
 <p>We will look visually at a permutation exercise. We will create dummy data that contains the following case study:</p>
 <blockquote class="blockquote">
 <p>A set of identical resumes was sent to male and female evaluators. The candidates in the resumes were of both genders. We wish to see if there was difference in the way resumes were evaluated, by male and female evaluators. (We use just <em>one</em> male and <em>one</em> female evaluator here, to keep things simple!)</p>
 </blockquote>
-<div class="cell" data-hash="single-prop_cache/html/Artificial Data_c80041b0dcf7ef978dcbd1989e6aeabd">
-<div class="cell-output-display">
+<div class="cell quarto-layout-panel" data-hash="single-prop_cache/html/Artificial Data_2ba1e4e2f839d0e59b51eb2c76dc1f02">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 25.0%;justify-content: center;">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -380,7 +387,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 </div>
 </div>
-<div class="cell-output-display">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -388,24 +395,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 8.3%;justify-content: center;">
 <pre><code>         M 
 -0.3333333 </code></pre>
 </div>
-</div>
-<p>So, we have a solid disparity in percentage of selection between the two evaluators! Let us first plot this:</p>
-<div class="cell" data-hash="single-prop_cache/html/unnamed-chunk-3_a19652aacb400764c003bcefa39f555a">
-<div class="cell-output-display">
-<p><img src="single-prop_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<p><img src="single-prop_files/figure-html/Artificial Data-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
+</div>
+<p>So, we have a solid disparity in percentage of selection between the two evaluators!</p>
+<section id="iconify-mdi-cards-playing-outline-permutation" class="level3"><h3 class="anchored" data-anchor-id="iconify-mdi-cards-playing-outline-permutation">
+<iconify-icon inline="" icon="mdi:cards-playing-outline"></iconify-icon> Permutation</h3>
 <p>Now we pretend that <em>there is no difference between the selections made by either set of evaluators</em>. So we can just:</p>
 <ul>
-<li><p>Pool up all the evaluations</p></li>
-<li>
-<p>Arbitrarily re-assign a given candidate(selected or rejected) to either of the two sets of evaluators, by permutation.</p>
+<li>Pool up all the evaluations<br>
+</li>
+<li>Arbitrarily re-assign a given candidate(selected or rejected) to either of the two sets of evaluators, by permutation.<br>
+</li>
+</ul>
 <p>How would that pooled shuffled set of evaluations look like?</p>
-<div class="cell" data-hash="single-prop_cache/html/Shuffle the data once_674f094d9eab8ab70f5a4fc7752fc1ce">
+<div class="cell" data-hash="single-prop_cache/html/Shuffle the data once_d478c6ef6b466d70809787b276713b37">
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -415,40 +425,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="cell" data-hash="single-prop_cache/html/unnamed-chunk-5_74854b51fe1760c90119b1fd33ca6a5d">
+<div class="cell quarto-layout-panel" data-hash="single-prop_cache/html/unnamed-chunk-4_03a42b7a471cff3aafef409b11a8cf74">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
+<p><img src="single-prop_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="2100"></p>
+</div>
+<div class="quarto-figure-spacer quarto-layout-cell" style="flex-basis: 10.0%;justify-content: center;">
+<p>&nbsp;</p>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
+<p><img src="single-prop_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="2100"></p>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="single-prop_cache/html/Old code retained_340c4ba053e2cc294033fb571ec8d1f1">
 
-</div>
-</li>
-</ul>
-<div class="cell" data-hash="single-prop_cache/html/unnamed-chunk-6_67015cada7e485bfa0d908c6e8b89163">
-
-</div>
-<div class="cell" data-hash="single-prop_cache/html/unnamed-chunk-7_e273d93220dc0f9e6462cc2fb8d4de3f">
-<div class="cell-output-display">
-<p><img src="single-prop_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
-</div>
 </div>
 <p>As can be seen, the ratio is different! We can now do this many many times, to check out our Hypothesis that there is <em>no</em> bias. We can plot the distribution of the differences in selection ratio and see how that artificially created distribution compares with mother-nature, the originally observed figure.</p>
-<div class="cell" data-hash="single-prop_cache/html/unnamed-chunk-8_9362882b9e1448dca7f3c462e6410cb5">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>null_dist <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(candidate <span class="sc">~</span> <span class="fu">shuffle</span>(evaluator), <span class="at">data =</span> data))</span>
-<span id="cb3-2"><a href="#cb3-2"></a>null_dist <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "M"</code></pre>
+<div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>null_dist <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">5000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(candidate <span class="sc">~</span> <span class="fu">shuffle</span>(evaluator), </span>
+<span id="cb3-2"><a href="#cb3-2"></a>                                   <span class="at">data =</span> data))</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># null_dist %&gt;% names()</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>null_dist <span class="sc">%&gt;%</span> <span class="fu">gf_histogram</span>( <span class="sc">~</span> M, </span>
+<span id="cb3-5"><a href="#cb3-5"></a>                  <span class="at">fill =</span> <span class="sc">~</span> (M <span class="sc">&lt;=</span> obs_difference), </span>
+<span id="cb3-6"><a href="#cb3-6"></a>                  <span class="at">bins =</span> <span class="dv">25</span>,<span class="at">show.legend =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>                  <span class="at">xlab =</span> <span class="st">"Bias Proportion"</span>, </span>
+<span id="cb3-8"><a href="#cb3-8"></a>                  <span class="at">ylab =</span> <span class="st">"How Often?"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9"></a>                  <span class="at">title =</span> <span class="st">"Permutation Test on Diffence between Groups"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10"></a>                  <span class="at">subtitle =</span> <span class="st">""</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> obs_difference, <span class="at">color =</span> <span class="st">"red"</span> ) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="fu">gf_label</span>(<span class="dv">500</span> <span class="sc">~</span> obs_difference, <span class="at">label =</span> <span class="st">"Observed</span><span class="sc">\n</span><span class="st"> Bias"</span>, </span>
+<span id="cb3-13"><a href="#cb3-13"></a>           <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="fu">gf_theme</span>(<span class="fu">theme_classic</span>())</span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="fu">mean</span>(<span class="sc">~</span> M<span class="sc">&lt;=</span> obs_difference, <span class="at">data =</span> null_dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-hash="single-prop_cache/html/unnamed-chunk-6_f03ec74d08f1ce2f7a479d205adeeba2">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 60.0%;justify-content: center;">
+<p><img src="single-prop_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>null_dist <span class="sc">%&gt;%</span> <span class="fu">gf_histogram</span>( <span class="sc">~</span> M, </span>
-<span id="cb5-2"><a href="#cb5-2"></a>                            <span class="at">fill =</span> <span class="sc">~</span> (M <span class="sc">&lt;=</span> obs_difference)) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> obs_difference, <span class="at">color =</span> <span class="st">"red"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="single-prop_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure-spacer quarto-layout-cell" style="flex-basis: 10.0%;justify-content: center;">
+<p>&nbsp;</p>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">mean</span>(<span class="sc">~</span> M<span class="sc">&lt;=</span> obs_difference, <span class="at">data =</span> null_dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.0129</code></pre>
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 30.0%;justify-content: center;">
+<pre><code>[1] 0.0146</code></pre>
 </div>
 </div>
-<p>We see that the artificial data can hardly ever ($ p = 0.012$) mimic what the real world experiment is showing. Hence we had good reason to reject our Hypothesis that there is no bias.</p>
-</section><section id="an-example" class="level2"><h2 class="anchored" data-anchor-id="an-example">An Example</h2>
-</section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+</div>
+</div>
+<p>We see that the artificial data can hardly ever (<span class="math inline">\(p = 0.012\)</span>) mimic what the real world experiment is showing. Hence we had good reason to reject our NULL Hypothesis that there is no bias.</p>
+</section></section><section id="an-example" class="level2"><h2 class="anchored" data-anchor-id="an-example">An Example</h2>
+</section><section id="iconify-fluent-mdl2-decision-solid-conclusion" class="level2"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-decision-solid-conclusion">
+<iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</h2>
 </section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
 <ol type="1">
 <li><a href="https://openintro-ims.netlify.app/inference-one-prop.html">OpenIntro Modern Statistics: Chapter 17</a></li>

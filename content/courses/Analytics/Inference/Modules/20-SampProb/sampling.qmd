@@ -15,9 +15,9 @@ categories:
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                        |                                                                                                                     |                                                                                               |                                                                                        |
-|-----------------|---------------------|-----------------|-----------------|
-| <a href="./files/sampling.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a>   | <a href="./files/sampling.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/sampling.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+|                                                                                                 |                                                                                                                     |                                                                                               |                                                                                        |
+|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| <a href="./files/sampling-tutorial.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a>   | <a href="./files/sampling.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/sampling.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -95,8 +95,8 @@ population. So the question is, **can we estimate useful parameters of
 the population, using just samples? Can point estimates serve as useful
 guides to population parameters?**
 
-This act of generalizing from sample to population is at the heart of
-**statistical inference**.
+[This act of generalizing from sample to population is at the heart of
+**statistical inference**.]{style="background-color: yellow;"}
 :::
 
 ::: callout-important
@@ -107,6 +107,59 @@ NOTE: there is an
 [*mnemonic*](https://www.merriam-webster.com/dictionary/mnemonic) here:
 **S**amples have **S**tatistics; **P**opulations have **P**arameters.
 :::
+
+## {{< iconify fluent-mdl2 test-parameter >}} Population Parameters and Sample Statistics
+
+|                    | Population Parameter | Sample Statistic |
+|--------------------|----------------------|------------------|
+| Mean               | $\mu$                | $\bar{x}$        |
+| Standard Deviation | $\sigma$             | s                |
+| Proportion         | p                    | $\hat{p}$        |
+| Correlation        | $\rho$               | r                |
+| Slope (Regression) | $\beta_1$            | $b_1$            |
+
+: Parameters and Statistics
+
+::: callout-note
+## Question
+
+Q.1. What is the mean commute time for workers in a particular city?
+
+A.1. The *parameter* is the mean commute time $\mu$ for a *population*
+containing all workers who work in the city. We *estimate* it using
+$\bar{x}$, the mean of the random sample of people who work in the city.
+:::
+
+::: callout-note
+## Question
+
+Q.2. What is the correlation between the size of dinner bills and the
+size of tips at a restaurant?
+
+A.2. The *parameter is* $\rho$ , the correlation between bill amount and
+tip size for a *population* of all dinner bills at that restaurant. We
+estimate it using r, the correlation from a random sample of dinner
+bills.
+:::
+
+::: callout-note
+## Question
+
+Q.3. How much difference is there in the proportion of 30 to 39-year-old
+residents who have only a cell phone (no land line phone) compared to 50
+to 59-year-olds in the country?
+
+A.3. The *population* is all citizens of the country, and the parameter
+is $p_1 - p_2$, the difference in proportion of 30 to 39-year-old
+residents who have only a cell phone ($p_1$) and the proportion with the
+same property among all 50 to 59-year olds ($p_2$). We estimate it using
+($\hat{p_1} - \hat{p_2}$), the difference in sample proportions computed
+from random samples taken from each group.
+:::
+
+Sample statistics vary and in the following we will estimate this
+uncertainty and decide how reliable they might be as estimates of
+population parameters.
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Sampling the NHANES dataset
 
@@ -137,13 +190,13 @@ NHANES_adult <-
 
 ```
 
-### {{< iconify mdi head-thinking-outline >}} {{< iconify clarity group-solid >}} An Assumed Population
+### {{< iconify mdi head-thinking-outline >}} {{< iconify clarity group-solid >}} An "Assumed" Population
 
 ::: callout-important
 ## An "Assumed" Population
 
 For now, we will **treat** this dataset as our **Population**. So each
-variable in the dataset is a population for that particular
+variable in the dataset is a *population* for that particular
 quantity/category, with appropriate *population parameters* such as
 `mean`s, `sd`-s, and `proportions`.
 :::
@@ -513,6 +566,17 @@ pop_mean_height
 
 ```
 
+And the sample `sd`s:
+
+```{r}
+#| results: hold
+sd(~ mean, data  = samples_height_16)
+sd(~ mean, data  = samples_height_32)
+sd(~ mean, data  = samples_height_64)
+sd(~ mean, data  = samples_height_128)
+
+```
+
 ::: callout-note
 ## Central Limit Theorem
 
@@ -527,27 +591,16 @@ This is the **Central Limit Theorem (CLT)**
     `sd` decreases with increasing sample
     size.]{style="background-color: yellow;"}
 -   This is [regardless of the distribution of the *population*
-    parameter]{style="background-color: yellow;"} itself.
+    parameter]{style="background-color: yellow;"} itself.[^1]
 :::
 
-The `Height` variable seems to be normally distributed at population
-level. We will try other non-normal population variables as an exercise
-in the tutorials.
+## {{< iconify dashicons code-standards >}} Standard Error
 
 As we saw above, the standard deviations of the sample-mean
 distributions reduce with sample size. In fact their SDs are defined by:
 
-`sd = pop_sd/sqrt(sample_size)` where sample-size here is one of
+`sd = pop_sd/sqrt(sample_size)`[^2] where sample-size here is one of
 `c(16,32,64,128)`
-
-```{r}
-#| results: hold
-sd(~ mean, data  = samples_height_16)
-sd(~ mean, data  = samples_height_32)
-sd(~ mean, data  = samples_height_64)
-sd(~ mean, data  = samples_height_128)
-
-```
 
 The standard deviation of the **sample-mean distribution** is called the
 **Standard Error**. This statistic derived from the sample, will help us
@@ -583,21 +636,33 @@ degree of confidence about the **population mean**, based on the
 evaluation of **one** sample mean,not a whole large number of them. Give
 that sample-means are normally distributed around the **population
 means**, we can say that $68\%$ of *all possible sample-mean* lie within
-$\pm SE$of the *population mean*; and further that $95 \%$ of *all
-possible sample-mean* lie within $\pm 1.5*SE$ of the *population mean*.
+$\pm SE$ of the *population mean*; and further that $95 \%$ of *all
+possible sample-mean* lie within $\pm 2*SE$ of the *population mean*.
 
 These two intervals $sample.mean \pm SE$ and $sample.mean \pm 1.5*SE$
 are called the **confidence intervals** for the population mean, at
 levels $68\%$ and $95 \%$ probability respectively.
 
-Thus if we want to estimate a *population mean*:
+## {{< iconify flat-color-icons workflow >}} Workflow
 
--   we take one sample from the population
--   we calculate the sample-mean
+Thus if we want to estimate a *population parameter*:
+
+-   we take one **random** sample from the population
+
+-   we calculate the estimate from the sample
+
 -   we calculate the sample-sd
--   we calculate the Standard Error as $\frac{sample-sd}{\sqrt[]{n}}$
--   we calculate 95% confidence intervals for the *population mean*
-    based on the formula above.
+
+-   we calculate the *Standard Error* as $\frac{sample-sd}{\sqrt[]{n}}$
+
+-   we calculate 95% confidence intervals for the *population parameter*
+    based on the formula
+
+    $CI_{95\%}= sample.mean \pm 2*SE$.
+
+-   Since Standard Error decreases with sample size, we need to make our
+    sample of adequate size.( $n=30$ seems appropriate in most cases.
+    Why?)
 
 ## {{< iconify ooui references-rtl >}} References
 
@@ -628,3 +693,11 @@ Thus if we want to estimate a *population mean*:
 8.  Jeffrey Walker "Elements of Statistical Modeling for Experimental
     Biology".
     <https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/>
+
+[^1]: The \`Height\` variable seems to be normally distributed at
+    population level. We will try other non-normal population variables
+    as an exercise in the tutorials.
+
+[^2]: Once `sample size = population`, we have complete access to the
+    population and there is no question of estimation error! So
+    `sample_sd = pop_sd`!

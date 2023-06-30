@@ -1,5 +1,5 @@
 ---
-title: "\U0001F0CF Comparing Two Paired Means"
+title: "\U0001F0CF Inference for Comparing Two Paired Means"
 author: "Arvind Venkatadri"
 date: 10/Nov/2022
 subtitle: ""
@@ -13,258 +13,256 @@ tags:
 - Generating Parallel Worlds
 ---
 
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
 ```{r}
 #| label: setup
 #| include: true
 
-knitr::opts_chunk$set(echo = FALSE,message = TRUE,
-                      warning = TRUE, 
-                      fig.align = "center")
+knitr::opts_chunk$set(echo = FALSE,message = TRUE, warning = TRUE, fig.align = "center")
 library(tidyverse)
 library(mosaic)
+library(broom)
 
 ### Datasets from Chihara and Hesterberg's book (Second Edition)
 library(resampledata)
-
+library(nomnoml)
 ```
 
-## {{< fa folder-open >}} Slides and Tutorials
+## {{< iconify fluent pair-24-filled >}} What is Paired Data?
 
-| <a href="./files/paired-means-tutorial.qmd"><i class="fa-brands                     
-                     fa-r-project"></i> R Tutorial</a>                                | <a href="./files/two-means.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/two-means.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/sim-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
-|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for Paired Data
 
-## Introduction
-
-We saw from the diagram created by Allen Downey that *there is only one
-test*! We will now use this philosophy to develop a technique that
-allows us to mechanize several *Statistical Models* in that way, with
-nearly identical code.
-
-We will use two packages in R, `mosaic` and the relatively new `infer`
-package, to develop our intuition for what are called **permutation**
-based statistical tests.
-
-## Hypothesis Testing using Permutation
-
-From Reference #1:
-
-> Hypothesis testing can be thought of as a 4-step process:
->
-> 1.  State the null and alternative hypotheses.
->
-> 2.  Compute a test statistic.
->
-> 3.  Determine the p-value.
->
-> 4.  Draw a conclusion.
->
->     In a traditional introductory statistics course, once this general
->     framework has been mastered, the main work is in **applying the
->     correct formula** to compute the standard test statistics in step
->     2 and using a table or computer to **determine the p-value** based
->     on the known (usually approximate) **theoretical distribution of
->     the test statistic** under the null hypothesis.
->
->     In a **simulation-based approach**, steps 2 and 3 change. In Step
->     2, it is no longer required that the test statistic be normalized
->     to conform with a known, named distribution. Instead, natural test
->     statistics, like the difference between two sample means $y1 − y2$
->     can be used.
->
->     In Step 3, we use **randomization to approximate the sampling
->     distribution of the test statistic**. Our lady tasting tea example
->     demonstrates how this can be done from first principles. More
->     typically, we will use randomization **to create new simulated
->     data sets** ( "*Parallel Worlds*") that are like our original data
->     in some ways, but make the null hypothesis true. For each
->     simulated data set, we calculate our test statistic, just as we
->     did for the original sample. Together, this collection of test
->     statistics computed from the simulated samples constitute our
->     randomization distribution.
->
->     When creating a randomization distribution, we will attempt to
->     satisfy 3 guiding principles.
->
-> 5.  Be consistent with the null hypothesis. We need to **simulate a
->     world** in which the null hypothesis is true. If we don't do this,
->     we won't be testing our null hypothesis.
->
-> 6.  Use the data in the **original sample**. The original data should
->     shed light on some aspects of the distribution that are not
->     determined by null hypothesis. For example, a null hypothesis
->     about a mean doesn't tell us about the shape of the population
->     distribution, but the data give us some indication.
->
-> 7.  Reflect the way the original data were collected.
-
-From Chihara and Hesterberg:
-
-> This is the core idea of statistical significance or classical
-> hypothesis testing -- to calculate how often pure random chance would
-> give an effect as large as that observed in the data, in the absence
-> of any real effect. If that probability is small enough, we conclude
-> that the data provide convincing evidence of a real effect.
-
-### Permutations tests using mosaic::`shuffle()`
-
-The `mosaic` package provides the `shuffle()` function as a synonym for
-`sample()`. When used without additional arguments, this will permute
-its first argument.
-
-```{r, echo=TRUE}
-
-shuffle(1:10)
-
+```{mermaid}
+flowchart TD
+    A[Inference for Paire Means] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
+    B --> C{OK?}
+    C -->|Yes, both\n Parametric| D[t.test]
+    D <-->F[Linear Model\n Method] 
+    C -->|Yes, but not variance\n Parametric| W[t.test with\n Welch Correction]
+    W<-->F
+    C -->|No\n Non-Parametric| E[wilcox.test]
+    E <--> G[Linear Model\n with\n Signed-Ranks]
+    C -->|No\n Non-Parametric| P[Bootstrap\n or\n Permutation]
+    P <--> Q[Linear Model\n with Signed-Rank\n with Permutation]
+ 
 ```
 
-Applying shuffle() to an *explanatory variable* in a model allows us to
-test the null hypothesis that the explanatory variable has, in fact, no
-explanatory power. This idea can be used to test
+We will now use a couple to case studies to traverse all the possible
+pathways in the Workflow above.
 
--   the equivalence of two or more means,
--   the equivalence of two or more proportions,
--   whether a regression parameter is 0.
-
-We will now see examples of each of these models using Permutations.
-
-## Testing for Two or More Means
-
-### Case Study-1: Hot Wings Orders vs Gender (From Chihara and Hesterberg)
-
-A student conducted a study of hot wings and beer consumption at a Bar.
-She asked patrons at the bar to record their consumption of hot wings
-and beer over the course of several hours. She wanted to know if people
-who ate more hot wings would then drink more beer. In addition, she
-investigated whether or not gender had an impact on hot wings or beer
-consumption. Is the mean order value related to the gender of the person
-who is ordering?
-
-```{r echo=FALSE}
-knitr::include_url("https://images.rawpixel.com/image_400/cHJpdmF0ZS9zdGF0aWMvaW1hZ2Uvd2Vic2l0ZS8yMDIyLTA0L2xyL3B4NzE4NDYzLWltYWdlLWt3dnY3emV5LmpwZw.jpg")
-
-```
-
-```{r}
-
-data("Beerwings")
-inspect(Beerwings)
-
-```
-
-Let us calculate the observed difference in `Hotwings` consumption
-between Males and Females ( `Gender`): (using the `mosaic` package)
-
-```{r}
-
-mosaic::mean(Hotwings ~ Gender, data = Beerwings)
-obs_diff_wings <- mosaic::diffmean(data = Beerwings, Hotwings ~ Gender)
-obs_diff_wings 
-
-```
-
-```{r}
-
-gf_boxplot(data = Beerwings, Hotwings ~ Gender, title = "Hotwings Consumption by Gender") %>%  gf_theme(theme_classic)
-
-```
-
-The observed difference in mean consumption of Hotwings between Males
-and Females is 5.2. There is also a "visible" difference in *medians* as
-seen from the pair of box plots above.
-
-Could this have occurred by chance? Here is our formulation of the
-Hypotheses:
-
-$$
-H_0: \mu_M\ = \mu_F\\
-H_a: \mu_M\ \ne \mu_F\\
-$$Note that we have a **two-sided** test: we want to check for
-differences in mean order value, *either way*. So we perform a
-Permutation Test to check: we create a **null distribution** of the
-differences in mean by a `shuffle` operation on `gender`:
-
-```{r}
-
-null_dist_wings <- do(1000) * diffmean(Hotwings ~ shuffle(Gender), data = Beerwings)
-null_dist_wings %>% head()
-
-gf_histogram(data = null_dist_wings, ~ diffmean) %>% 
-  gf_vline(xintercept = obs_diff_wings, colour = "red") %>% gf_theme(theme_classic())
-
-gf_ecdf(data = null_dist_wings, ~ diffmean) %>% 
-  gf_vline(xintercept = obs_diff_wings, colour = "red") %>% gf_theme(theme_classic())
-
-prop1(~ diffmean >= obs_diff_wings, data = null_dist_wings)
-
-```
-
-The $\color{red}{red\ line}$ shows the actual measured mean difference
-in Hot Wings consumption. The probability that our Permutation
-distribution is able to equal or exceed that number is $0.001998002$ and
-we have to reject the Null Hypothesis that the means are identical.
-
-### Matched Pairs: Results from a diving championship.
+## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Results from a Diving Championship
 
 Sometimes the data is collected on the same set of individual
 categories, e.g. scores by sport persons in two separate tournaments, or
 sales of identical items in two separate locations of a chain store.
 Here we have swimming records across a Semi-Final and a Final:
 
-```{r}
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
+```{r}
+#| layout-nrow: 2
 data("Diving2017")
-head(Diving2017)
+Diving2017
 inspect(Diving2017)
 
 ```
 
-The data is made up of **paired** observations per swimmer. So we need
-to take the difference between the two swim records for *each* swimmer
-and then *shuffle the differences to either polarity*. Another way to
-look at this is to shuffle the records between `Semifinal` and `Final`
-on a per Swimmer basis. There are 12 swimmers and therefore 12 paired
-records.
+The data is made up of **paired** observations per swimmer, one for the
+*semi-final* and one for the *final* race. There are 12 swimmers and
+therefore 12 paired records. How can we quickly visualize this data?
 
-In order to ensure that the records are `paired`, we use the argument
+First, histograms and densities of the two variables at hand:
+
+```{r}
+#| layout-ncol: 3
+Diving2017 %>% 
+  gf_density(~ Semifinal, fill = "red", alpha = 0.3, 
+                title = "Semifinal Scores") %>% 
+  gf_fitdistr() %>% gf_theme(theme_classic())
+
+Diving2017 %>% 
+  gf_density(~ Final, fill = "green", alpha = 0.3, 
+                title = "Final Scores") %>% 
+  gf_fitdistr() %>% gf_theme(theme_classic())
+
+
+Diving2017 %>% 
+  gf_col(fct_reorder(Name, Semifinal) ~ Semifinal, fill = "red") %>% 
+  gf_col(fct_reorder(Name, Semifinal) ~ -Final, fill = "green",
+         xlab = "Scores",
+         ylab = "Name",
+         title = "Diving Scores",
+         subtitle = "Green = Final, Red = Semifinal") %>% 
+  gf_theme(theme_classic())
+
+```
+
+We see that:\
+- The data are not normally distributed. With just such few readings (n
+\< 30) it was quite unlikely. We will verify this aspect formally very
+shortly.  - There is no immediately identifiable **trend** in score
+changes from one race to the other.\
+
+A. {{< iconify mdi chart-bell-curve >}} Check for Normality Let us also
+complete a check for normality:
+
+```{r}
+#| layout-ncol: 2
+shapiro.test(Diving2017$Final)
+shapiro.test(Diving2017$Semifinal)
+
+```
+
+Hmmm....the Shapiro-Wilk test suggests that `Final` scores **are**
+normally distributed, while `Semifinal` scores are not.
+
+B. Check for Variances Let us check if the two variables have similar
+variances:
+
+```{r}
+var.test(Diving2017$Semifinal, Diving2017$Final)
+```
+
+The variances are not equal.
+
+### {{< iconify academicons hypothesis >}} Hypothesis
+
+Based on the graph, how would we formulate our Hypothesis? We wish to
+infer whether there is any change in performance, **per swimmer**
+between the two races. So accordingly:
+
+$$
+H_0: \mu_{semifinal} = \mu_{final}\\
+$$
+
+$$
+H_a: \mu_{semifinal} \ne \mu_{final}\
+$$
+
+What is the difference in the means between the two groups of scores? In
+order to ensure that the records are `paired`, we use the argument
 `only.2=FALSE` in the `diffmean` function:
 
 ```{r}
-
+#| layout: [[40,10,10]]
 Diving2017
-Diving2017 %>% diffmean(data = ., Final ~ Semifinal, only.2 = FALSE)
+Diving2017 %>% 
+  diffmean(data = ., Final ~ Semifinal, only.2 = FALSE) %>% 
+  as_tibble() %>% 
+  rename("difference" = value)
 
 obs_diff_swim <- mean(~ Final - Semifinal, data = Diving2017)
 obs_diff_swim
 
 ```
 
-How would we formulate our Hypothesis?
+### Inference
+
+::: panel-tabset
+#### Using *paired* `t.test`
+
+Since at least one of the data variables satisfies the assumption of
+being *normally distributed*, and though the variances are not equal,
+but not terribly far apart, we may attempt the classical `t.test` with
+paired data. (we will the `mosaic` variant)[Type `help(t.test)` in your
+Console]{.aside}
+
+```{r}
+mosaic::t.test(x = Diving2017$Semifinal, y = Diving2017$Final,
+               paired = TRUE)
+```
+
+The `confidence interval` spans the zero value, and the `p.value` is a
+high $0.259$, so there is no reason to accept alternative hypothesis
+that the means are different. Hence we say that there is no evidence of
+a difference between `SemiFinal` and `Final` scores.
+
+#### Using non-parametric *paired* Wilcoxon test
+
+Well, at least one of the variable does not meet the normality criteria.
+So we would be well-advised to attempt a non-parametric Wilcoxon test,
+that uses rank-sign data, instead of the data itself. Our model would
+be:
 
 $$
-H_0: \mu_{semifinal} = \mu_{final}\\
-H_a: \mu_{semifinal} \ne \mu_{final}\
+rank(y_i) = \beta_0 + \beta_1 * rank(x_i) \\
+where \\
+x_i= \left\{\begin{matrix}
+1\ when\ x\ \in\ Group 1\\ 
+0\ when\ x\ \in\ Group2
+\end{matrix}\right.
+\\
+H_0 : \beta_1 = 0
+\\
+H_a: \beta_1 \ne 0
 $$
 
 ```{r}
+wilcox.test(x = Diving2017$Semifinal, y = Diving2017$Final,
+               paired = TRUE)
+```
 
+Here also with the `p.value` being $0.3804$, we have no reason to accept
+the Alternative Hypothesis.
+
+#### Using the Linear Model Method
+
+```{r}
+#| layout-ncol: 2
+linmod <- lm(Semifinal ~ Final, data = Diving2017)
+summary(linmod)
+
+# Create a sign-rank function
+signed_rank <- function(x) {sign(x) * rank(abs(x))}
+
+linmod_ranks <- lm(signed_rank(Semifinal) ~ signed_rank(Final), data = Diving2017)
+summary(linmod_ranks)
+
+```
+
+#### Using Permutation Tests
+
+We saw from the diagram created by Allen Downey that *there is only one
+test*! We will now use this philosophy to develop a technique that
+allows us to mechanize several *Statistical Models* in that way, with
+nearly identical code.We will use two packages in R, `mosaic` and the
+relatively new `infer`package, to develop our intuition for what are
+called **permutation** based statistical tests. For the specific data at
+hand, we need to take the difference between the two swim records for
+*each* swimmer and then shuffle the records between `Semifinal` and
+`Final` on a per Swimmer basis.Another way to look at this is to take
+the differences between `Semifinal` and `Final` scores and *shuffle the
+differences to either polarity*.
+
+```{r}
+#| layout-ncol: 2
 polarity <- c(rep(1, 6), rep(-1, 6)) 
 # 12 +/- 1s, 
 # 6 each to make sure there is equal probability
 polarity
 
-
 null_dist_swim <- do(100000) *
   mean(data = Diving2017,
-       ~ (Final - Semifinal) * resample(polarity, replace = TRUE))
+       ~ (Final - Semifinal) * mosaic::resample(polarity, replace = TRUE))
 
-null_dist_swim %>% head()
+null_dist_swim
 
+```
+
+Let us plot the NULL distribution and compare it with the actual
+`observed differences` in the race times:
+
+```{r}
+#| layout-ncol: 2
 gf_histogram(data = null_dist_swim, ~ mean) %>%
-  gf_vline(xintercept = obs_diff_swim, colour = "red")
+  gf_vline(xintercept = obs_diff_swim, colour = "red") %>% 
+  gf_theme(theme_classic())
 
 gf_ecdf(data = null_dist_swim, ~ mean) %>%
-  gf_vline(xintercept = obs_diff_swim, colour = "red")
+  gf_vline(xintercept = obs_diff_swim, colour = "red")  %>% 
+  gf_theme(theme_classic())
+
 
 prop1(~ mean >= obs_diff_swim, data = null_dist_swim)
 
@@ -276,8 +274,9 @@ polarities, it does appear that we can not only obtain the current
 observed difference but even surpass it frequently. So it does seem that
 there is no difference in means between Semi-Final and Final swimming
 scores.
+:::
 
-### Walmart vs Target
+## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Walmart vs Target
 
 Is there a difference in the price of Groceries sold by the two
 retailers Target and Walmart? The data set `Groceries` contains a sample
@@ -294,24 +293,64 @@ d)  Create a ~~histogram~~ bar-chart of the difference in prices. What
 e)  Redo the hypothesis test without this observation. Do you reach the
     same conclusion?
 
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+
 ```{r}
 data("Groceries")
-Groceries <- Groceries %>% mutate(Product = stringr::str_squish(Product))
-head(Groceries)
+Groceries <- Groceries %>% 
+  mutate(Product = stringr::str_squish(Product))
+Groceries
 inspect(Groceries)
 
 ```
 
-We see that the comparison is to be made between two prices for the
-*same* product, and hence this is one more example of `paired data`, as
-in Case Study #4. Let us plot the prices for the products:
+There are just 30 prices for each vendor....just barely enough to get an
+idea of what the distribution might be. Let us plot histograms/densities
+of the two variables that we wish to compare. We will also overlay a
+Gaussian distribution for comparison:
+
+```{r}
+#| layout-ncol: 2
+#| layout-nrow: 2
+Groceries %>% 
+  gf_dhistogram(~ Walmart, fill = "red", alpha = 0.3, title = "Walmart Grocery Prices") %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_theme(theme_classic())
+
+Groceries %>% 
+  gf_dhistogram(~ Target, fill = "green", alpha = 0.3, title = "Target Grocery Prices") %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_theme(theme_classic())
+
+
+Groceries %>% 
+  gf_density(~ Walmart, fill = "red", alpha = 0.3, title = "Walmart Grocery Prices") %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_theme(theme_classic())
+
+Groceries %>% 
+  gf_density(~ Target, fill = "green", alpha = 0.3, title = "Target Grocery Prices") %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_theme(theme_classic())
+
+```
+
+Not close to the Gaussian...there is clearly some skew to the right,
+with some items being very costly compared to the rest. More when we
+check the assumptions on data for the tests.
+
+How about price differences, what we are interested in? We see that the
+comparison is to be made between two prices for the *same* product, and
+hence this is one more example of `paired data`. Let us plot the prices
+for the products:
 
 ```{r}
 
 gf_col(data = Groceries,
        Target ~ Product,
        fill = "#0073C299",
-       width = 0.5 ) %>% 
+       width = 0.5, title = "Grocery Prices at Walmart and Target",
+       subtitle = "Gold = Walmart, Blue = Target") %>% 
   gf_col(data = Groceries,
          -Walmart ~ Product,
          fill = "#EFC00099",
@@ -337,12 +376,53 @@ highest for the `Product` named `Quaker Oats Life Cereal Original`. Let
 us check the mean difference in prices:
 
 ```{r}
-
-diffmean(data = Groceries, Walmart ~ Target, only.2 = FALSE)
-obs_diff_price = mean( ~ Walmart - Target, data = Groceries)
+#| layout: [[75, 25]]
+diffmean(data = Groceries, Walmart ~ Target, only.2 = FALSE) %>% 
+  as_tibble() %>% 
+  rename("Difference" = value)
+obs_diff_price <-  mean( ~ Walmart - Target, data = Groceries)
 obs_diff_price
 
 ```
+
+### {{< iconify academicons hypothesis >}} Hypothesis
+
+Based on the graph, how would we formulate our Hypothesis? We wish to
+infer whether there is any change in prices, **per product** between the
+two Store chains. So accordingly:
+
+$$
+H_0: \mu_{Walmart} = \mu_{Target}\\
+\\
+H_a: \mu_{Walmart} \ne \mu_{Target}\
+$$
+
+### Testing for Assumptions on the Data
+
+There are a few checks we need to make of our data, to decide what test
+procedure to use.
+
+A. Test for Normality of Data
+
+```{r}
+shapiro.test(Groceries$Walmart)
+shapiro.test(Groceries$Target)
+
+```
+
+For both tests, we see that the `p.value` is very small, indicating that
+the data are unlikely to be normally distributed. This means we cannot
+apply a standard `paired t.test` and need to use other non-parametric
+tests, that do no rely on the assumption of normality.
+
+### {{< iconify fluent-mdl2 insights >}} Inference
+
+::: panel-tabset
+#### Using *paired* `t.test`
+
+#### Using non-parametric *paired* Wilcoxon test
+
+#### Using Permutation Tests
 
 Let us perform the pair-wise permutation test on prices, by shuffling
 the two store names:
@@ -364,7 +444,7 @@ gf_histogram(data = null_dist_price, ~mean) %>%
 
 Does not seem to be any significant difference in prices...
 
-Suppose we knock off the Quaker Cereal data item...
+Suppose we knock off the `Quaker Cereal` data item...
 
 ```{r}
 
@@ -387,17 +467,21 @@ gf_histogram(data = null_dist_price_less, ~mean) %>%
 
 ```
 
-## Conclusion
+Comments:
+:::
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 It should be fairly clear now that we can test for the equivalence of
-two means, using a very simple permutation tests. Given computing power,
-we can always mechanize this test very quickly to get our results. And
-that performing this test yields reliable results without having to rely
-on any assumption relating to underlying distributions and so on.
+two paired means, using a very simple permutation tests. Given computing
+power, we can always mechanize this test very quickly to get our
+results. And that performing this test yields reliable results without
+having to rely on any assumption relating to underlying distributions
+and so on.
 
-## References
+## {{< iconify ooui references-ltr >}} References
 
 1.  Randall Pruim, Nicholas J. Horton, Daniel T. Kaplan, [*Start
     Teaching with
     R*](https://github.com/ProjectMOSAIC/LittleBooks/raw/master/Starting/MOSAIC-StartTeaching.pdf)
-2.  https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307
+2.  <https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307>
