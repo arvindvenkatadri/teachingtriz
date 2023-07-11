@@ -58,14 +58,17 @@ boxplots, maps and many other statistical plots.
 ## Interactive Graphs with `echarts4r`
 
 We will also start using `echarts4r` side by side for interactive
-graphs. - Every function in the package starts with `e_`.\
-- You start coding a visualization by creating an echarts object with
-the `e_charts()` function. That takes your `data frame` and
-`x-axis column` as arguments.\
-- Next, you add a function for the type of chart (`e_line()`, `e_bar()`,
-etc.) with the `y-axis series column name` as an argument.\
-- The rest is mostly customization! `echarts4r` takes some effort in
-getting used to, but it totally worth it!
+graphs.
+
+-   Every function in the package starts with `e_`.
+-   You start coding a visualization by creating an echarts object with
+    the `e_charts()` function. That takes your `data frame` and
+    `x-axis column` as arguments.
+-   Next, you add a function for the type of chart (`e_line()`,
+    `e_bar()`, etc.) with the `y-axis series column name` as an
+    argument.
+-   The rest is mostly customization! `echarts4r` takes some effort in
+    getting used to, but it totally worth it!
 :::
 
 The website for `echarts4r` is
@@ -79,6 +82,7 @@ Let us choose the famous `Galton` dataset:
 
 ```{r}
 data("Galton")
+Galton <- as_tibble(Galton)
 ```
 
 ### {{< iconify grommet-icons inspect >}} Look at the Data:
@@ -222,7 +226,7 @@ Galton_counts_by_sex%>%
            nameTextStyle = list(align = "center"),
            nameLocation = "center") %>%
   e_legend(right = 25, orient = "vertical") %>% 
-  e_facet(cols = 2) %>% 
+  e_facet(cols = 2,rows = 1) %>% 
   e_tooltip(trigger = "item") %>% 
   e_title("Child Counts by Sex over Family Size")
 
@@ -257,7 +261,7 @@ Galton %>%
   e_y_axis(name = "How Many Children?", 
            nameGap = 25, nameLocation = "center") %>% 
   e_legend(right = 5) %>% 
-  e_facet(cols = 2) %>% 
+  e_facet(cols = 2,rows = 1) %>% 
   e_tooltip(trigger = "item") %>% 
   e_title("Child Counts by Sex over Family ID")
 
@@ -307,8 +311,9 @@ need a `e_histogram`...
 
 ```{r}
 
-e_charts(data = Galton,height = 300) %>% 
-  e_histogram(height) %>% 
+Galton %>% 
+  e_charts() %>% 
+  e_histogram(serie = height) %>% 
   e_tooltip(trigger = "item") %>% 
   
   e_mark_line(data = list(xAxis = mean(Galton$height)),

@@ -1,0 +1,320 @@
+---
+title: "\U0001F0CF Permutation Test for Two Proportions"
+author: "Arvind Venkatadri"
+date: 10/Nov/2022
+abstract: "Inference Test for Two Proportions"
+lastmod: "`r Sys.Date()`"
+order: 190
+image: preview.jpg
+image-alt: From The Internet Archive
+categories:
+- Permutation
+- Monte Carlo Simulation
+- Random Number Generation
+- Distributions
+- Generating Parallel Worlds
+---
+
+## Setting up the Packages
+
+```{r}
+#| label: setup
+#| include: true
+library(tidyverse)
+library(mosaic)
+library(ggmosaic) # plotting mosaic plots for Categorical Data
+
+### Dataset from Chihara and Hesterberg's book (Second Edition)
+library(resampledata)
+library(vcd)
+```
+
+## Introduction
+
+We saw from the diagram created by Allen Downey that *there is only one
+test*! We will now use this philosophy to develop a technique that
+allows us to mechanize several *Statistical Models* in that way, with
+nearly identical code.
+
+We will use two packages in R, `mosaic` and the relatively new `infer`
+package, to develop our intuition for what are called **permutation**
+based statistical tests.
+
+## Testing for Two or More Proportions
+
+Let us try a dataset with Qualitative / Categorical data. This is the
+`General Social Survey GSS dataset`, and we have people with different
+levels of `Education` stating their opinion on the `Death Penalty`. We
+want to know if these two Categorical variables have a correlation, i.e.
+can the opinions in favour of the `Death Penalty` be explained by the
+`Education` level?
+
+Since data is Categorical ( both variables ), we need to take `counts`
+in a table, and then implement a `chi-square test`. In the test, we will
+permute the `Education` variable to see if we can see how significant
+its *effect size* is.
+
+```{r}
+
+data(GSS2002)
+inspect(GSS2002)
+
+```
+
+Note how *all* variables are Categorical !! `Education` has five
+`levels`, and of course `DeathPenalty` has three:
+
+```{r}
+
+GSS2002 %>% count(Education)
+GSS2002 %>% count(DeathPenalty)
+
+```
+
+Let us drop NA entries in `Education` and `Death Penalty` and set up a
+**Contingency Table**.
+
+```{r,warning=FALSE,message=FALSE}
+
+
+gss2002 <- GSS2002 %>% 
+  dplyr::select(Education, DeathPenalty) %>% 
+  tidyr::drop_na(., c(Education, DeathPenalty))
+
+
+
+gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
+gss_table %>% 
+  addmargins()
+
+```
+
+## Contingency Table Plots
+
+The Contingency Table can be plotted, as we have seen, using a `mosaic`
+plot using several packages:
+
+::: panel-tabset
+### Using `ggformula`
+
+Need a little more work, to convert the Contigency Table into a tibble:
+
+```{r warning=FALSE,message=FALSE}
+# https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
+
+gss_summary <- gss2002 %>%
+  mutate(
+    Education = factor(
+      Education,
+      levels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS"),
+      labels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS")
+    ),
+    DeathPenalty = as.factor(DeathPenalty)
+  ) %>%
+  group_by(Education, DeathPenalty) %>%
+  summarise(count = n()) %>% # This is good for a chisq test
+  
+  # Add two more columns to facilitate mosaic/Marrimekko Plot
+  # 
+  mutate(edu_count = sum(count), 
+         edu_prop = count / sum(count)) %>%
+  ungroup() 
+
+gf_col(edu_prop ~ Education, data = gss_summary,
+       width = ~ edu_count, 
+       fill = ~ DeathPenalty,
+       stat = "identity", 
+       position = "fill", 
+       color = "black") %>% 
+  
+  gf_text(edu_prop ~ Education, 
+          label = ~ scales::percent(edu_prop),
+          position = position_stack(vjust = 0.5)) %>% 
+  
+  gf_facet_grid(~ Education, 
+                scales = "free_x", 
+                space = "free_x") %>% 
+  
+  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
+  gf_theme(theme_void())
+  
+
+ 
+
+```
+
+### Using `vcd`
+
+```{r}
+vcd::mosaic(gss_table, gp = shading_hsv)
+
+```
+
+### Using `ggmosaic`
+
+```{r mosaic-plot,warning=FALSE}
+#library(ggmosaic)
+
+ggplot(data = gss2002) +
+  geom_mosaic(aes(x = product(DeathPenalty, Education), 
+                  fill = DeathPenalty))
+
+```
+:::
+
+## Observed Statistic: the $X^2$ metric
+
+When there are multiple proportions involved, the $X^2$ test is what is
+used.
+
+::: panel-tabset
+### Intuitive Explanation
+
+Let us look at the Contingency Table that we have:
+
+```{r echo=FALSE}
+
+gss_table %>% addmargins() %>% 
+  kableExtra::kbl(caption = "Contigency Table") %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
+
+```
+
+In the chi-square test, we check whether the two ( or more ) categorical
+variables are independent. To do this we perform a simple check on the
+Contingency Table. We first *re-compute* the totals in each row and
+column, based on what we could **expect** if there was independence
+(NULL Hypothesis). If the two variables were independent, then there
+should be **no difference** between real and expected scores.
+
+How do we know what scores to expect?
+
+Consider the entry in location (1,1): 117. The number of **expected**
+entries there is probability of an entry landing in that square times
+the total number of entries:
+
+::: column-body-outset
+```{=tex}
+\begin{align}
+
+\text{Expected Value at location[1,1]}
+&= p_{row_1} * p_{col_1} * \text{Total Scores}\\\
+&= \frac{\text{Row-1-Total}}{\text{Total Scores}} * \frac{\text{Col-1-Total}}{\text{Total Scores}} * \text{Total Scores}\\\
+&= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
+&= 130
+
+
+\end{align}
+```
+:::
+
+Proceeding in this way for all the 15 entries in the Contingency Table,
+we get the "Expected" Contingency Table. Here are both tables for
+comparison:
+
+```{r echo=FALSE}
+# using prop.table with appropriate margin argument gives us a slick matrix of probabilities
+
+gss_exp <- gss_table * gss_table / ((
+  prop.table(gss_table, margin = 2) * prop.table(gss_table, margin = 1)
+) * 1307)
+
+```
+
+```{r echo=FALSE}
+
+gss_exp %>% addmargins() %>% 
+   kableExtra::kbl(caption = "Expected Contigency Table", digits = 0) %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
+
+```
+
+```{r echo=FALSE}
+
+gss_table %>% addmargins() %>% 
+   kableExtra::kbl(caption = "Actual Contigency Table") %>%
+  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
+
+
+```
+
+The $X^2$ statistic is sum of squared differences between `Observed` and
+`Expected` scores, scaled by the `Expected Scores`. For location \[1,1\]
+this would be: $(117-130)^2/189$. Do try to compute all of these and the
+$X^2$ statistic by hand !!
+
+### Code
+
+Let us now perform the base `chisq test`: We need a `table` and then the
+`chisq` test:
+
+```{r}
+
+# gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
+# gss_table
+
+# Get the observed chi-square statistic
+observedChi2 <- mosaic::chisq(tally(DeathPenalty ~ Education, data = gss2002))
+observedChi2
+
+# Actual chi-square test
+stats::chisq.test(tally(DeathPenalty ~ Education, data = gss2002))
+
+```
+
+We see that our observed $X^2 = 23.45$.
+:::
+
+### Hypotheses Definition
+
+What would our Hypotheses be?
+
+$H_0: \text{Education does not affect votes for Death Penalty}$
+$H_a: \text{Education affects votes for Death Penalty}$
+
+### Permutation Test for `Education`
+
+We should now repeat the test with permutations on `Education`:
+
+```{r}
+
+null_chisq <- do(10000) * 
+  chisq.test(tally(DeathPenalty ~ shuffle(Education), 
+                   data = gss2002))
+
+head(null_chisq)
+
+gf_histogram( ~ X.squared, data = null_chisq) %>% 
+  
+  gf_vline(xintercept = observedChi2, 
+           color = "red") %>% 
+  gf_theme(theme = theme_classic())
+
+prop1(~ X.squared >= observedChi2, data = null_chisq)
+
+```
+
+The `p-value` is well below our threshold of $0.05$, so we would
+conclude that `Education` has a significant effect on `DeathPenalty`
+opinion!
+
+## Conclusion
+
+Why would a permutation test be a good idea here?
+
+In our basic $X^2$ test, we calculate the test statistic of $X^2$ and
+look up a *theoretical* null distribution for that statistic, and see
+how unlikely our observed value is.
+
+With a permutation test, there are *no assumptions* of the null
+distribution: this is computed based on real data. We note in passing
+that, in this case, since the number of `cases` in each cell of the
+Contingency Table are fairly high ( \>= 5) the resulting NULL
+distribution is of the $X^2$ variety.
+
+## References
+
+1.  [OpenIntro Modern Statistics: Chapter
+    17](https://openintro-ims.netlify.app/inference-one-prop.html)
+2.  <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>
+3.  
