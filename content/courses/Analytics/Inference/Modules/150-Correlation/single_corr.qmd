@@ -1,30 +1,31 @@
 ---
-title: "Linear Model: Correlation Test"
+title: "Inference for Correlation"
 author: "Arvind Venkatadri"
 date: 25/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 140
 keywords: Statistics ; Tests; p-value; Feynman Technique
-abstract: "This module is intended to assist with making statistically significant insights that drive business decisions. This document deals with the basics of stats. The method followed is that of Jonas Lindoloev, wherein every stat test is treated as a linear model $y = mx + c$"
+abstract: "Statistical Significance Tests for Correlations between two Variables"
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R packages
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,warning = FALSE, message = FALSE,
-                      fig.align = "center", fig.width = 7, fig.height = 5)
+```{r}
+#| label: setup
+#| fig-align: center
+#| fig-dpi: 300
+
+knitr::opts_chunk$set(fig.align = "center", fig.width = 7, fig.height = 5)
 options(scipen = 8, digits = 3)
 # CRAN Packages
 library(tidyverse)
 library(broom)
-library(patchwork)
-library(kableExtra)
-
 library(mosaic)
 library(mosaicCore)
 library(mosaicData)
 
 library(openintro) # datasets and methods
+library(resampledata3) # datasets
 library(statsExpressions) # datasets and methods
 library(ggstatsplot) # special stats plots
 library(ggExtra)
@@ -33,7 +34,78 @@ library(ggExtra)
 # remotes::install_github("easystats/easystats")
 library(easystats)
 
+ggplot2::theme_set(theme_classic())
+
 ```
+
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
+
+Let us recap a few basic definitions:
+
+We have already encountered the `variance` of a variable:
+
+$$
+\begin{align*}
+var_x &= \frac{\sum_{i=1}^{n}(x_i - \mu_x)^2}{(n-1)}\\
+where ~ \mu_x &= mean(x)\\
+n &= sample\ size
+\end{align*}
+$$
+The *standard deviation* is:
+$$
+
+\sigma_x &= \sqrt{var_x}\\
+
+$$
+
+The **covariance** of two variables is defined as 
+$$
+\begin{align*}
+cov(x,y) &= \frac{\sum_{i = 1}^{n}(x_i - \mu_x)*(y_i - \mu_y)}{n-1}\\
+&= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{x_i *\mu_y}}{n-1} - \frac{\sum{y_i *\mu_x}}{n-1} + \frac{\sum{\mu_x *\mu_y}}{n-1}\\
+&= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{\mu_x *\mu_y}}{n-1}\\
+
+\end{align*}
+$$
+Hence covariance is *the expectation of the product minus the product of the expectations* of the two variables. 
+
+::: callout-tip
+### Covariance uses z-scores!
+Note that in both cases we are dealing with **z-scores**: variable minus its mean, $x_i - \mu_x$, which we have seen when dealing with the CLT and the Gaussian Distribution. 
+:::
+
+So, finally, the coefficient of **correlation* between two variables is defined as:
+
+$$
+\begin{align*}
+correlation ~ r &= \frac{cov(x,y)}{\sigma_x * \sigma_y}
+\\
+&= \frac{cov(x,y)}{\sqrt{var_x} * \sqrt{var_y}}
+\end{align*}
+$$
+Thus correlation coefficient is the *covariance scaled by the geometric mean of the variances*. Correlations define how one variables varies with another. One of the basic Questions we would have of our data is: Does some variable have a significant correlation score with another in some way? Does $y$ vary with $x$? A **Correlation Test** is designed to answer exactly this question.  The block diagram depicts the statistical procedures available to test for the significance of correlation scores between two variables. 
+
+
+```{mermaid}
+flowchart TD
+    A[Inference for Correlation] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
+    B --> C{OK?}
+    C -->|Yes, both\n Parametric| D[t.test]
+    D <-->F[Linear Model\n Method] 
+    C -->|Yes, but not variance\n Parametric| W[t.test with\n Welch Correction]
+    W<-->F
+    C -->|No\n Non-Parametric| E[wilcox.test]
+    E <--> G[Linear Model\n with\n Ranked Data]
+    C -->|No\n Non-Parametric| P[Bootstrap\n or\n Permutation]
+    P <--> Q[Linear Model\n with Ranked Data\n and Permutation]
+ ```
+ 
+## {{< iconify pajamas issue-type-test-case >}} Case Study #1: A Simple Data set with Two Quant Variables
+
+
+Let us now see how a Correlation Test can be re-formulated as a Linear
+Model + Hypothesis Test.
+
 
 ## The Linear Model
 
@@ -49,17 +121,7 @@ $$
 y = \beta_0 + \beta_1 *x
 $$
 
-## The Correlation Test
 
-TBD: Some introductory text here on Correlation itself)
-
-One of the basic Questions we would have of our data is: Does some
-variable depend upon another in some way? Does $y$ depend upon $x$?
-
-A **Correlation Test** is designed to answer exactly this question.
-
-Let us now see how a Correlation Test can be re-formulated as a Linear
-Model + Hypothesis Test.
 
 ### Some Toy Data
 

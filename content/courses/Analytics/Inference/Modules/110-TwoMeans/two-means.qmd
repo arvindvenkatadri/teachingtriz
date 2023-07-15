@@ -18,23 +18,14 @@ tags:
 #| label: setup
 #| include: true
 
-knitr::opts_chunk$set(echo = TRUE, message = TRUE, warning = TRUE, fig.align = "center")
-#####
-# For formatting numbers for good readability
-inline_hook <- function(x) {
-  if (is.numeric(x)) {
-    format(x, digits = 2)
-  } else x
-}
-knitr::knit_hooks$set(inline = inline_hook)
-#####
 library(tidyverse)
 library(mosaic) # Our go-to package
+library(ggformula)
 library(infer) # An alternative package for inference using tidy data
 library(broom) # Clean test results in tibble form
 library(skimr) # data inspection
 
-library(resampledata) # Datasets from Chihara and Hesterberg's book
+library(resampledata3) # Datasets from Chihara and Hesterberg's book
 library(openintro) # datasets
 library(gt) # for tables
 
@@ -62,7 +53,8 @@ flowchart TD
 # {{< iconify pajamas issue-type-test-case >}} Case Study #1: A Simple Data set with Two Quant Variables
 
 Let us look at the `MathAnxiety` dataset from the package
-`resampledata`. Here we have "anxiety" scores for boys and girls, for different components of mathematics. 
+`resampledata`. Here we have "anxiety" scores for boys and girls, for
+different components of mathematics.
 
 ## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
@@ -78,13 +70,16 @@ MathAnxiety_inspect$quantitative
 
 ```
 
-We have ~600 data entries, and with 4 Quant variables; `Age`,`AMAS`, `RCMAS`, and `AMAS`; and two Qual variables, `Gender` and `Grade`. 
-A simple dataset, with enough entries to make it worthwhile to explore as our first example. 
+We have \~600 data entries, and with 4 Quant variables; `Age`,`AMAS`,
+`RCMAS`, and `AMAS`; and two Qual variables, `Gender` and `Grade`. A
+simple dataset, with enough entries to make it worthwhile to explore as
+our first example.
 
 ::: callout-note
 ## Research Question
 
-Is there a difference between boy and girl "anxiety" levels for AMAS (test) in the MathAnxiety dataset?
+Is there a difference between boy and girl "anxiety" levels for AMAS
+(test) in the MathAnxiety dataset?
 :::
 
 First, histograms, densities and counts of the variable we are
@@ -114,7 +109,10 @@ MathAnxiety %>% group_by(Gender) %>% summarise(mean = mean(AMAS))
 
 ```
 
-The distributions for anxiety scores for boys and girls overlap considerably and are very similar, though the boxplot for boys shows a significant outlier. Are they close to being *normal distributions* too? We should check.
+The distributions for anxiety scores for boys and girls overlap
+considerably and are very similar, though the boxplot for boys shows a
+significant outlier. Are they close to being *normal distributions* too?
+We should check.
 
 ### A. {{< iconify mdi chart-bell-curve >}} Check for Normality
 
@@ -124,10 +122,10 @@ Statistical tests for means *usually* require a couple of checks[^1]
 -   Are the data normally distributed?\
 -   Are the data variances similar?
 
-Let us complete a check for normality: the `shapiro.wilk` test
-checks whether a Quant variable is from a normal distribution; the NULL
-hypothesis is that the data *are* from a normal distribution. We will also look at Q-Q plots for both variables:
-
+Let us complete a check for normality: the `shapiro.wilk` test checks
+whether a Quant variable is from a normal distribution; the NULL
+hypothesis is that the data *are* from a normal distribution. We will
+also look at Q-Q plots for both variables:
 
 ```{r}
 #| layout-ncol: 3
@@ -158,13 +156,21 @@ shapiro.test(girls_AMAS$AMAS)
 
 ```
 
-The distributions for anxiety scores for boys and girls are almost normal, visually speaking. With the Shapiro-Wilk test we find that the scores for `girls` **are** normally distributed, but the `boys` scores are not so. 
+The distributions for anxiety scores for boys and girls are almost
+normal, visually speaking. With the Shapiro-Wilk test we find that the
+scores for `girls` **are** normally distributed, but the `boys` scores
+are not so.
 
 ::: callout-note
-The `p.value` obtained in the `shapiro.wilk` test suggests the chances of the data, **given** the Assumption that they are normally distributed. 
+The `p.value` obtained in the `shapiro.wilk` test suggests the chances
+of the data, **given** the Assumption that they are normally
+distributed.
 :::
 
-We see that MathAnxiety contains discrete-level scores for anxiety for the two variables (for Boys and Girls) anxiety scores. The `boys` score has a significant outlier, which we saw earlier and perhaps that makes that variable lose out, perhaps narrowly.
+We see that MathAnxiety contains discrete-level scores for anxiety for
+the two variables (for Boys and Girls) anxiety scores. The `boys` score
+has a significant outlier, which we saw earlier and perhaps that makes
+that variable lose out, perhaps narrowly.
 
 ### B. {{< iconify mdi sigma-lower >}} Check for Variances
 
@@ -182,10 +188,11 @@ qf(0.975,275,322)
 
 ```
 
-The variances are quite similar as seen by the $p.value = 0.82$. We also saw it visually when we plotted the overlapped distributions earlier.
+The variances are quite similar as seen by the $p.value = 0.82$. We also
+saw it visually when we plotted the overlapped distributions earlier.
 
 ::: callout-important
-### Conditions: 
+### Conditions:
 
 1.  The two variables are not **both** normally distributed.
 2.  The two variances are significantly similar.
@@ -194,7 +201,8 @@ The variances are quite similar as seen by the $p.value = 0.82$. We also saw it 
 ## {{< iconify academicons hypothesis >}} Hypothesis
 
 Based on the graphs, how would we formulate our Hypothesis? We wish to
-infer whether there is any difference in the mean anxiety score between Girls and Boys in the dataset `MathAnxiety`. So accordingly:
+infer whether there is any difference in the mean anxiety score between
+Girls and Boys in the dataset `MathAnxiety`. So accordingly:
 
 $$
 H_0: \mu_{Boys} = \mu_{Girls}\\
@@ -202,10 +210,10 @@ $$ $$
 H_a: \mu_{Girls} \ne \mu_{Boys}\\
 $$
 
-
 ## {{< iconify academicons hypothesis >}} Observed and Test Statistic
 
-What would be the **test statistic** we would use? The **difference in means**. Is the observed difference in the means between the two groups
+What would be the **test statistic** we would use? The **difference in
+means**. Is the observed difference in the means between the two groups
 of scores non-zero? We use the `diffmean` function:
 
 ```{r}
@@ -213,13 +221,16 @@ obs_diff_amas <- diffmean(AMAS ~ Gender, data = MathAnxiety)
 obs_diff_amas
 ```
 
-Girls' `AMAS` anxiety scores are, on average, $1.76$ points higher than those for Boys. 
+Girls' `AMAS` anxiety scores are, on average, $1.76$ points higher than
+those for Boys.
 
-:::callout-note
+::: callout-note
 ### On Observed Difference Estimates
-Different tests here will show the difference as positive or negative, but with the same value! This depends upon the way the factor variable `Gender` is used, i.e. Boy-Girl or Girl-Boy...
-:::
 
+Different tests here will show the difference as positive or negative,
+but with the same value! This depends upon the way the factor variable
+`Gender` is used, i.e. Boy-Girl or Girl-Boy...
+:::
 
 ## {{< iconify fluent-mdl2 insights >}} Inference
 
@@ -227,7 +238,8 @@ Different tests here will show the difference as positive or negative, but with 
 ### Using the Parametric `t.test`
 
 Since the data are not both normally distributed, though the variances
-similar, we typically cannot use a parametric `t.test`. However, we can still examine the results:
+similar, we typically cannot use a parametric `t.test`. However, we can
+still examine the results:
 
 ```{r}
 mosaic::t_test(AMAS ~ Gender, 
@@ -235,16 +247,20 @@ mosaic::t_test(AMAS ~ Gender,
   broom::tidy()
 ```
 
-The `p.value` is $0.001$ ! And the `Confidence Interval` does not straddle $0$. So the `t.test` gives us good reason to reject the Null Hypothesis that
-the means are similar and that there **is** a significant difference between Boys and Girls when it comes to `AMAS` anxiety. But can we really believe this, given the non-normality of data?
-
+The `p.value` is $0.001$ ! And the `Confidence Interval` does not
+straddle $0$. So the `t.test` gives us good reason to reject the Null
+Hypothesis that the means are similar and that there **is** a
+significant difference between Boys and Girls when it comes to `AMAS`
+anxiety. But can we really believe this, given the non-normality of
+data?
 
 ### Using the Mann-Whitney Test
 
 Since the data variables do not satisfy the assumption of being
-*normally distributed*, and though the variances are similar,
-we use the classical `wilcox.test`[Type `help(wilcox.test)` in your
-Console.]{.aside}, which implements what we need here: the *Mann-Whitney U test*:[^3]
+*normally distributed*, and though the variances are similar, we use the
+classical `wilcox.test`[Type `help(wilcox.test)` in your
+Console.]{.aside}, which implements what we need here: the *Mann-Whitney
+U test*:[^3]
 
 > The Mann-Whitney test as a test of **mean ranks**. It first ranks all
 > your values from high to low, computes the mean rank *in each group*,
@@ -255,15 +271,12 @@ Console.]{.aside}, which implements what we need here: the *Mann-Whitney U test*
 
 $$
 mean(rank(AMAS_{Girls})) - mean(rank(AMAS_{Boys})) = \beta_1;\\
-$$
-$$
+$$ $$
 H_0: \beta_1 = 0;\\ 
 \\ 
-$$
-$$
+$$ $$
 H_a: \beta_1 \ne 0
 $$
-
 
 ```{r}
 wilcox.test(AMAS ~ Gender, data = MathAnxiety, 
@@ -272,7 +285,11 @@ wilcox.test(AMAS ~ Gender, data = MathAnxiety,
   broom::tidy()
 ```
 
-The `p.value` is  very similar, $0.00077$, and again the `Confidence Interval` does not straddle $0$, and we are hence able to reject the NULL hypothesis that the means are equal and accept the alternative hypothesis that there is a significant difference in mean anxiety scores between Boys and Girls. 
+The `p.value` is very similar, $0.00077$, and again the
+`Confidence Interval` does not straddle $0$, and we are hence able to
+reject the NULL hypothesis that the means are equal and accept the
+alternative hypothesis that there is a significant difference in mean
+anxiety scores between Boys and Girls.
 
 ### Using the Linear Model Interpretation
 
@@ -282,14 +299,11 @@ Model:
 
 $$
 lm(rank(AMAS) \sim  gender) = \beta_0 + \beta_1 * gender
-$$
-$$
+$$ $$
 H_0: \beta_1 = 0\\
-$$
-$$
+$$ $$
 H_a: \beta_1 \ne 0\\
 $$
-
 
 ```{r}
 #| label:  Independent_Data_Plots
@@ -329,7 +343,6 @@ MathAnxiety %>%
 
 ```
 
-
 ```{r}
 #| results: hold
 
@@ -344,23 +357,30 @@ lm(rank(AMAS) ~ Gender,
 ### Dummy Variables in `lm`
 
 Note how the **Qual** variable was used here in Linear Regression! The
-`Gender` variable was treated as a binary "dummy" variable[^6].
+`Gender` variable was treated as a binary "dummy" variable[^4].
 :::
 
-Here too we see that the `p.value` for the *slope term* ("GenderGirl") is significant at $7.4*10^{-4}$. 
+Here too we see that the `p.value` for the *slope term* ("GenderGirl")
+is significant at $7.4*10^{-4}$.
 
 ### Using the Permutation Test
 
 We saw from the diagram created by Allen Downey that *there is only one
-test*[^7]! We will now use this philosophy to develop a technique that
+test*[^5]! We will now use this philosophy to develop a technique that
 allows us to mechanize several *Statistical Models* in that way, with
-nearly identical code. 
+nearly identical code.
 
-We **pretend** that `Gender` has not *effect* on the `AMAS` anxiety scores. If this is our position, then the `Gender` labels are essentially meaningless, and we can pretend that any `AMAS` score belongs to a Boy or a Girl. This means we can `mosaic::shuffle` (permute) the `Gender` labels and see how **uncommon** our *real* data is. And we do not have to really worry about whether the data are normally distributed, or if their variances are nearly equal. 
+We **pretend** that `Gender` has not *effect* on the `AMAS` anxiety
+scores. If this is our position, then the `Gender` labels are
+essentially meaningless, and we can pretend that any `AMAS` score
+belongs to a Boy or a Girl. This means we can `mosaic::shuffle`
+(permute) the `Gender` labels and see how **uncommon** our *real* data
+is. And we do not have to really worry about whether the data are
+normally distributed, or if their variances are nearly equal.
 
 ::: callout-important
-The "pretend" position is exactly the NULL Hypothesis!!
-The "uncommon" part is the `p.value` under NULL!!
+The "pretend" position is exactly the NULL Hypothesis!! The "uncommon"
+part is the `p.value` under NULL!!
 :::
 
 ```{r}
@@ -382,10 +402,9 @@ gf_ecdf(data = null_dist_amas, ~ diffmean) %>%
 
 ```
 
-Clearly the `observed_diff_amas` is much beyond anything we can
-generate with permutations with `gender`! And hence there is a
-significant difference in weights across `gender`!
-
+Clearly the `observed_diff_amas` is much beyond anything we can generate
+with permutations with `gender`! And hence there is a significant
+difference in weights across `gender`!
 :::
 
 ### All Tests Together
@@ -437,10 +456,8 @@ lm(rank(AMAS) ~ Gender,
 
 ```
 
-As we can see, all tests are in agreement that there is a significant *effect* of `Gender` on the `AMAS` anxiety scores!
-
-
-
+As we can see, all tests are in agreement that there is a significant
+*effect* of `Gender` on the `AMAS` anxiety scores!
 
 # {{< iconify pajamas issue-type-test-case >}} Case Study #2: Youth Risk Behavior Surveillance System (YRBSS) survey
 
@@ -530,7 +547,7 @@ The longest data it can take (in R) is 5000. Since our data is longer,
 we will cannot use this procedure and have to resort to visual means.
 :::
 
-Let us plot frequency distribution and Q-Q plots[^4] for both variables.
+Let us plot frequency distribution and Q-Q plots[^6] for both variables.
 
 ```{r}
 #| results: hold
@@ -634,7 +651,7 @@ Since the data variables do not satisfy the assumption of being
 *normally distributed*, and the variances are significantly different,
 we use the classical `wilcox.test`[Type `help(wilcox.test)` in your
 Console.]{.aside}, which implements what we need here: the *Mann-Whitney
-U test*:[^5]
+U test*:[^7]
 
 > The Mann-Whitney test as a test of **mean ranks**. It first ranks all
 > your values from high to low, computes the mean rank *in each group*,
@@ -652,8 +669,7 @@ H_0: \beta_1 = 0;\\
 H_a: \beta_1 \ne 0
 $$
 
-Recall the earlier graph showing ranks of scores against Gender. 
-
+Recall the earlier graph showing ranks of scores against Gender.
 
 ```{r}
 wilcox.test(weight ~ gender, data = yrbss_select_gender, 
@@ -696,17 +712,17 @@ lm(rank(weight) ~ gender,
 ### Dummy Variables in `lm`
 
 Note how the **Qual** variable was used here in Linear Regression! The
-`gender` variable was treated as a binary "dummy" variable[^6].
+`gender` variable was treated as a binary "dummy" variable[^8].
 :::
 
 ### Using the Permutation Test
 
-For the specific data at hand, we need to shuffle
-the records between `Semifinal` and `Final` on a per Swimmer basis and
-take the `test statistic` (difference between the two swim records for
-*each* swimmer). Another way to look at this is to take the differences
-between `Semifinal` and `Final` scores and *shuffle the differences to
-either polarity*. We will follow this method in the code below:
+For the specific data at hand, we need to shuffle the records between
+`Semifinal` and `Final` on a per Swimmer basis and take the
+`test statistic` (difference between the two swim records for *each*
+swimmer). Another way to look at this is to take the differences between
+`Semifinal` and `Final` scores and *shuffle the differences to either
+polarity*. We will follow this method in the code below:
 
 ```{r}
 #| layout: [[15,40,40, 5]]
@@ -771,8 +787,8 @@ results. This is of course not surprising!
 
 # {{< iconify pajamas issue-type-test-case >}} Case Study #3: Weight vs Exercise in the YRBSS Survey
 
-Finally, consider the possible relationship between a highschooler's weight
-and their physical activity.
+Finally, consider the possible relationship between a highschooler's
+weight and their physical activity.
 
 First, let's create a new variable `physical_3plus`, which will be coded
 as either "yes" if the student is physically active for *at least* 3
@@ -1019,9 +1035,12 @@ similar to that of the Mann-Whitney U test.
 
 ### Using Permutation Tests
 
-For this last Case Study, we will do this in two ways, just for fun: one using our familiar `mosaic` package, and the other using the package `infer`.
+For this last Case Study, we will do this in two ways, just for fun: one
+using our familiar `mosaic` package, and the other using the package
+`infer`.
 
-But first, we need to initialize the test, which we will save as `obs_diff_**`.
+But first, we need to initialize the test, which we will save as
+`obs_diff_**`.
 
 ```{r}
 #| label:  inf-weight-habit-ht-initial
@@ -1180,10 +1199,10 @@ mosaic::cdata(~ diffmean, p = 0.95, data = null_dist_mosaic)
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-We have learnt how to perform inference for indendentnmeans. We have looked
-at the conditions that make the regular `t.test` possible, and learnt
-what to do if the conditions of normality and equal variance are not
-met. We have also looked at how these tests can be understood as
+We have learnt how to perform inference for independent means. We have
+looked at the conditions that make the regular `t.test` possible, and
+learnt what to do if the conditions of normality and equal variance are
+not met. We have also looked at how these tests can be understood as
 manifestations of the *linear model*, with data and sign-ranked data. It
 should also be fairly clear now that we can test for the equivalence of
 two paired means, using a very simple permutation tests. Given computing
@@ -1200,18 +1219,18 @@ and so on.
 2.  <https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307>
 3.  <https://statsandr.com/blog/wilcoxon-test-in-r-how-to-compare-2-groups-under-the-non-normality-assumption/>
 
-
-
 [^1]: <https://stats.stackexchange.com/questions/2492/is-normality-testing-essentially-useless>
 
 [^2]: <https://www.allendowney.com/blog/2023/01/28/never-test-for-normality/>
 
 [^3]: <https://stats.stackexchange.com/q/113337>
 
-[^4]: <https://stats.stackexchange.com/questions/92374/testing-large-dataset-for-normality-how-and-is-it-reliable>
+[^4]: <https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables>
 
-[^5]: <https://stats.stackexchange.com/q/113337>
+[^5]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
 
-[^6]: <https://en.wikipedia.org/wiki/Dummy_variable_(statistics)>
+[^6]: <https://stats.stackexchange.com/questions/92374/testing-large-dataset-for-normality-how-and-is-it-reliable>
 
-[^7]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
+[^7]: <https://stats.stackexchange.com/q/113337>
+
+[^8]: <https://en.wikipedia.org/wiki/Dummy_variable_(statistics)>

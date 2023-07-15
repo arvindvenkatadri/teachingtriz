@@ -348,15 +348,13 @@ sales95_forecast_tidy
 # "yearmon", which ggplot doesn't know how to deal with (like, we can't zoom in
 # on the plot with coord_cartesian). We use zoo::as.Date() to convert the
 # yearmon variable into a regular date
-sales95_forecast_tidy_real_date <- sales95_forecast_tidy %>% 
+sales95_forecast_tidy_real_date <- 
+  sales95_forecast_tidy %>% 
   mutate(actual_date = zoo::as.Date(index, frac = 1))
 sales95_forecast_tidy_real_date
 
-## Stuck here!! 1975 !!! What the hell!!!
-## 
-## 
 # Plot this puppy!
-ggplot(sales95_forecast_tidy_real_date, aes(x = actual_date, y = value, color = key)) +
+ggplot(sales95_forecast_tidy, aes(x = index, y = value, color = key)) +
   geom_ribbon(aes(ymin = lo.95, ymax = hi.95), 
               fill = "#3182bd", color = NA) +
   geom_ribbon(aes(ymin = lo.80, ymax = hi.80, fill = key), 
@@ -366,9 +364,11 @@ ggplot(sales95_forecast_tidy_real_date, aes(x = actual_date, y = value, color = 
   labs(x = NULL, y = "sales95") +
   scale_y_continuous(labels = scales::comma) +
   # Zoom in on 2012-2016
-  coord_cartesian(xlim = ymd(c("2012-01-01", "2016-01-01"))) +
+  #coord_cartesian(xlim = ymd(c("2004-07-01", "2007-07-31"))) +
   theme_minimal() +
   theme(legend.position = "bottom")
+
+plot_time_series(.data = sales95_forecast_tidy,.date_var = index,.value = value,.color_var = key,.smooth = FALSE)
 
 ```
 
@@ -382,13 +382,6 @@ We are always interested in the future. We will do this in three ways:
     predictions for weekly sales;
 -   And do the same using a package called 'prophet\`.
 
-## Workflow using Orange
-
-## Workflow using Radiant
-
-## Workflow using R
-
-[<i class="fas fa-file-csv"></i> `fred_raw.csv`](/data/fred_raw.csv)
 
 ## Conclusion
 

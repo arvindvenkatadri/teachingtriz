@@ -7,7 +7,7 @@
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-11-25">
 <meta name="keywords" content="Statistics ; Tests; p-value; Feynman Technique">
-<title>The Foundation Series - Linear Model: Correlation Test</title>
+<title>The Foundation Series - Inference for Correlation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -38,9 +72,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="../../../../../../site_libs/quarto-contrib/jquery-3.6.3/jquery-3.6.3.min.js"></script>
-<script src="../../../../../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.js" defer="true"></script>
-<link href="../../../../../../site_libs/quarto-contrib/code-fullscreen-1.0.0/code-fullscreen.css" rel="stylesheet">
 <script src="../../../../../../site_libs/quarto-contrib/iconify-1.0.0-beta.2/iconify-icon.min.js"></script><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -61,10 +92,12 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
+<meta name="mermaid-theme" content="forest">
+<script src="../../../../../../site_libs/quarto-diagram/mermaid.min.js"></script><script src="../../../../../../site_libs/quarto-diagram/mermaid-init.js"></script><link href="../../../../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-<meta property="og:title" content="The Foundation Series - Linear Model: Correlation Test">
-<meta property="og:description" content="This module is intended to assist with making statistically significant insights that drive business decisions. This document deals with the basics of stats. The method followed is that of Jonas Lindoloev, wherein every stat test is treated as a linear model \(y = mx + c\)">
+<meta property="og:title" content="The Foundation Series - Inference for Correlation">
+<meta property="og:description" content="Statistical Significance Tests for Correlations between two Variables">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/150-Correlation/single_corr_files/figure-html/Pearson_example_3-1.png">
 <meta property="og:site-name" content="The Foundation Series">
 <meta property="og:image:height" content="3000">
@@ -115,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Linear Model: Correlation Test</li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Inference for Correlation</li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -261,9 +294,10 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
 <li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link active" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R packages</a></li>
-  <li><a href="#the-linear-model" id="toc-the-linear-model" class="nav-link" data-scroll-target="#the-linear-model">The Linear Model</a></li>
+  <li><a href="#iconify-openmoji-japanese-symbol-for-beginner-introduction" id="toc-iconify-openmoji-japanese-symbol-for-beginner-introduction" class="nav-link" data-scroll-target="#iconify-openmoji-japanese-symbol-for-beginner-introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
+  <li><a href="#iconify-pajamas-issue-type-test-case-case-study-1-a-simple-data-set-with-two-quant-variables" id="toc-iconify-pajamas-issue-type-test-case-case-study-1-a-simple-data-set-with-two-quant-variables" class="nav-link" data-scroll-target="#iconify-pajamas-issue-type-test-case-case-study-1-a-simple-data-set-with-two-quant-variables"><iconify-icon inline="" icon="pajamas:issue-type-test-case"></iconify-icon> Case Study #1: A Simple Data set with Two Quant Variables</a></li>
   <li>
-<a href="#the-correlation-test" id="toc-the-correlation-test" class="nav-link" data-scroll-target="#the-correlation-test">The Correlation Test</a>
+<a href="#the-linear-model" id="toc-the-linear-model" class="nav-link" data-scroll-target="#the-linear-model">The Linear Model</a>
   <ul class="collapse">
 <li><a href="#some-toy-data" id="toc-some-toy-data" class="nav-link" data-scroll-target="#some-toy-data">Some Toy Data</a></li>
   </ul>
@@ -300,7 +334,7 @@ ul.task-list li input[type="checkbox"] {
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">Linear Model: Correlation Test</h1>
+<h1 class="title">Inference for Correlation</h1>
 </div>
 
 
@@ -324,7 +358,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">July 11, 2023</p>
+      <p class="date-modified">July 12, 2023</p>
     </div>
   </div>
     
@@ -333,25 +367,123 @@ ul.task-list li input[type="checkbox"] {
 <div>
   <div class="abstract">
     <div class="abstract-title">Abstract</div>
-    This module is intended to assist with making statistically significant insights that drive business decisions. This document deals with the basics of stats. The method followed is that of Jonas Lindoloev, wherein every stat test is treated as a linear model <span class="math inline">\(y = mx + c\)</span>
+    Statistical Significance Tests for Correlations between two Variables
   </div>
 </div>
 
 </header><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R packages</h2>
+<div class="cell" data-layout-align="center" data-fig.dpi="300" data-hash="single_corr_cache/html/setup_a869d021604399adefbd63d980d56301">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>fig.align <span class="op">=</span> <span class="st">"center"</span>, fig.width <span class="op">=</span> <span class="fl">7</span>, fig.height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">8</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co"># CRAN Packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://broom.tidymodels.org/">broom</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaicCore">mosaicCore</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaicData">mosaicData</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://openintrostat.github.io/openintro/">openintro</a></span><span class="op">)</span> <span class="co"># datasets and methods</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lchihara/MathStatsResamplingR">resampledata3</a></span><span class="op">)</span> <span class="co"># datasets</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://indrajeetpatil.github.io/statsExpressions/">statsExpressions</a></span><span class="op">)</span> <span class="co"># datasets and methods</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://indrajeetpatil.github.io/ggstatsplot/">ggstatsplot</a></span><span class="op">)</span> <span class="co"># special stats plots</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/daattali/ggExtra">ggExtra</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Non-CRAN Packages</span></span>
+<span><span class="co"># remotes::install_github("easystats/easystats")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://easystats.github.io/easystats/">easystats</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="iconify-openmoji-japanese-symbol-for-beginner-introduction" class="level2"><h2 class="anchored" data-anchor-id="iconify-openmoji-japanese-symbol-for-beginner-introduction">
+<iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</h2>
+<p>Let us recap a few basic definitions:</p>
+<p>We have already encountered the <code>variance</code> of a variable:</p>
+<p><span class="math display">\[
+\begin{align*}
+var_x &amp;= \frac{\sum_{i=1}^{n}(x_i - \mu_x)^2}{(n-1)}\\
+where ~ \mu_x &amp;= mean(x)\\
+n &amp;= sample\ size
+\end{align*}
+\]</span> The <em>standard deviation</em> is: $$</p>
+<p>_x &amp;= \</p>
+<p>$$</p>
+<p>The <strong>covariance</strong> of two variables is defined as $$ <span class="math display">\[\begin{align*}
+cov(x,y) &amp;= \frac{\sum_{i = 1}^{n}(x_i - \mu_x)*(y_i - \mu_y)}{n-1}\\
+&amp;= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{x_i *\mu_y}}{n-1} - \frac{\sum{y_i *\mu_x}}{n-1} + \frac{\sum{\mu_x *\mu_y}}{n-1}\\
+&amp;= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{\mu_x *\mu_y}}{n-1}\\
+
+\end{align*}\]</span> $$ Hence covariance is <em>the expectation of the product minus the product of the expectations</em> of the two variables.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Covariance uses z-scores!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that in both cases we are dealing with <strong>z-scores</strong>: variable minus its mean, <span class="math inline">\(x_i - \mu_x\)</span>, which we have seen when dealing with the CLT and the Gaussian Distribution.</p>
+</div>
+</div>
+<p>So, finally, the coefficient of **correlation* between two variables is defined as:</p>
+<p><span class="math display">\[
+\begin{align*}
+correlation ~ r &amp;= \frac{cov(x,y)}{\sigma_x * \sigma_y}
+\\
+&amp;= \frac{cov(x,y)}{\sqrt{var_x} * \sqrt{var_y}}
+\end{align*}
+\]</span> Thus correlation coefficient is the <em>covariance scaled by the geometric mean of the variances</em>. Correlations define how one variables varies with another. One of the basic Questions we would have of our data is: Does some variable have a significant correlation score with another in some way? Does <span class="math inline">\(y\)</span> vary with <span class="math inline">\(x\)</span>? A <strong>Correlation Test</strong> is designed to answer exactly this question. The block diagram depicts the statistical procedures available to test for the significance of correlation scores between two variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    A[Inference <span class="kw">for</span> Correlation] --&gt;|Check Assumptions| B[Normality: Shapiro<span class="ot">-W</span>ilk Test shapiro.test\n Variances: Fisher F<span class="ot">-t</span>est var.test]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    B --&gt; C{OK?}</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    C --&gt;|Yes, both\n Parametric| D[t.test]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    D &lt;--&gt;F[Linear Model\n Method] </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    C --&gt;|Yes, but <span class="ot">not</span> variance\n Parametric| W[t.test with\n Welch Correction]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    W&lt;--&gt;F</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    C --&gt;|No\n Non-Parametric| E[wilcox.test]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    E &lt;--&gt; G[Linear Model\n with\n Ranked Data]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    C --&gt;|No\n Non-Parametric| P[Bootstrap\n <span class="ot">or</span>\n Permutation]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    P &lt;--&gt; Q[Linear Model\n with Ranked Data\n <span class="ot">and</span> Permutation]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    A[Inference for Correlation] --&gt;|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
+    B --&gt; C{OK?}
+    C --&gt;|Yes, both\n Parametric| D[t.test]
+    D &lt;--&gt;F[Linear Model\n Method] 
+    C --&gt;|Yes, but not variance\n Parametric| W[t.test with\n Welch Correction]
+    W&lt;--&gt;F
+    C --&gt;|No\n Non-Parametric| E[wilcox.test]
+    E &lt;--&gt; G[Linear Model\n with\n Ranked Data]
+    C --&gt;|No\n Non-Parametric| P[Bootstrap\n or\n Permutation]
+    P &lt;--&gt; Q[Linear Model\n with Ranked Data\n and Permutation]
+</pre>
+</div>
+</div>
+</div>
+</div>
+</section><section id="iconify-pajamas-issue-type-test-case-case-study-1-a-simple-data-set-with-two-quant-variables" class="level2"><h2 class="anchored" data-anchor-id="iconify-pajamas-issue-type-test-case-case-study-1-a-simple-data-set-with-two-quant-variables">
+<iconify-icon inline="" icon="pajamas:issue-type-test-case"></iconify-icon> Case Study #1: A Simple Data set with Two Quant Variables</h2>
+<p>Let us now see how a Correlation Test can be re-formulated as a Linear Model + Hypothesis Test.</p>
 </section><section id="the-linear-model" class="level2"><h2 class="anchored" data-anchor-id="the-linear-model">The Linear Model</h2>
 <p>The premise here is that <strong>many common statistical tests are special cases of the linear model</strong>. A <strong>linear model</strong> estimates the relationship between dependent variable or “response” variable (<span class="math inline">\(y\)</span>) and an explanatory variable or “predictor” (<span class="math inline">\(x\)</span>). It is assumed that the relationship is <strong>linear</strong>. <span class="math inline">\(\beta_0\)</span> is the <em>intercept</em> and <span class="math inline">\(\beta_1\)</span> is the slope of the linear fit, that <strong>predicts</strong> the value of y based the value of x.</p>
 <p><span class="math display">\[
 y = \beta_0 + \beta_1 *x
 \]</span></p>
-</section><section id="the-correlation-test" class="level2"><h2 class="anchored" data-anchor-id="the-correlation-test">The Correlation Test</h2>
-<p>TBD: Some introductory text here on Correlation itself)</p>
-<p>One of the basic Questions we would have of our data is: Does some variable depend upon another in some way? Does <span class="math inline">\(y\)</span> depend upon <span class="math inline">\(x\)</span>?</p>
-<p>A <strong>Correlation Test</strong> is designed to answer exactly this question.</p>
-<p>Let us now see how a Correlation Test can be re-formulated as a Linear Model + Hypothesis Test.</p>
 <section id="some-toy-data" class="level3"><h3 class="anchored" data-anchor-id="some-toy-data">Some Toy Data</h3>
 <p>Most examples in this exposition are based on three “imaginary” samples, <span class="math inline">\(x, y1, y2\)</span>. Each is normally distributed and made up of 50 observations. The means and the sds are, respectively:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/data_genr_b3b579f4d9b5fbe82863cf01cd3facfe">
+<div class="cell" data-hash="single_corr_cache/html/data_genr_6a3284bc3b0f902cd9b492686dc01c51">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">rnorm_fixed</span>  <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">N</span>, <span class="va">mu</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">sd</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span><span class="op">*</span> <span class="va">sd</span> <span class="op">+</span> <span class="va">mu</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">params</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -361,19 +493,43 @@ y = \beta_0 + \beta_1 *x
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/toy_data_c6a6f91cf7225d9659847a9bf917bca1">
-
+<div class="cell" data-hash="single_corr_cache/html/toy_data_085b4702c6ae5b6c54582fc80afafe4e">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">40</span><span class="op">)</span> <span class="co"># for replication</span></span>
+<span></span>
+<span><span class="co"># Data as vectors ( for t.tests etc)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">rnorm_fixed</span><span class="op">(</span><span class="fl">50</span>, mu <span class="op">=</span> <span class="fl">0.0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">#explanatory</span></span>
+<span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu">rnorm_fixed</span><span class="op">(</span><span class="fl">50</span>, mu <span class="op">=</span> <span class="fl">0.3</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># dependent #1</span></span>
+<span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu">rnorm_fixed</span><span class="op">(</span><span class="fl">50</span>, mu <span class="op">=</span> <span class="fl">0.5</span>, sd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="co"># dependent #2</span></span>
+<span></span>
+<span><span class="co"># Make a tibble with all variables</span></span>
+<span><span class="va">mydata_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y1 <span class="op">=</span> <span class="va">y1</span>, y2 <span class="op">=</span> <span class="va">y2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Long form data</span></span>
+<span><span class="va">mydata_long</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="va">mydata_wide</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span><span class="va">.</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">x</span>,<span class="va">y1</span>,<span class="va">y2</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"group"</span>, </span>
+<span>               values_to <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Long form data with only dependent variables</span></span>
+<span><span class="va">mydata_long_y</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="va">mydata_wide</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">x</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span><span class="va">.</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">y1</span>,<span class="va">y2</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"group"</span>, </span>
+<span>               values_to <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us look at our toy data in three ways:</p>
 <ol type="1">
 <li>All three variables:</li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-1_ab9ff71aeb377b5b6d3ed4786ed8c610">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-3_6bc3ea83b3c49d86143bd2ee0ee9b20a">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mydata_wide</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["x"],"name":[1],"type":["dbl[,1]"],"align":["right"]},{"label":["y1"],"name":[2],"type":["dbl[,1]"],"align":["right"]},{"label":["y2"],"name":[3],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"0.4268","2":"1.9849","3":"0.1030"},{"1":"0.4441","2":"1.2713","3":"-0.2809"},{"1":"-0.8279","2":"-0.9443","3":"0.6239"},{"1":"-0.7993","2":"0.1033","3":"5.4268"},{"1":"-0.3231","2":"2.1904","3":"0.1681"},{"1":"-1.2446","2":"0.1919","3":"-0.5494"},{"1":"-1.3551","2":"4.8119","3":"0.3092"},{"1":"1.6156","2":"1.5517","3":"-0.9904"},{"1":"-0.2919","2":"3.3574","3":"-0.1720"},{"1":"-1.2494","2":"1.9249","3":"-0.1583"},{"1":"-0.0866","2":"-2.8805","3":"0.8539"},{"1":"-1.1707","2":"1.7505","3":"3.3391"},{"1":"0.7376","2":"-1.0843","3":"-1.8839"},{"1":"-0.4832","2":"0.9603","3":"2.4843"},{"1":"0.4033","2":"-1.5402","3":"-0.0487"},{"1":"0.9164","2":"-1.2436","3":"-0.6152"},{"1":"0.4167","2":"0.0319","3":"-0.2868"},{"1":"0.3314","2":"-1.3092","3":"-0.1235"},{"1":"1.5768","2":"-0.9966","3":"0.2994"},{"1":"-0.9929","2":"1.4215","3":"-1.0676"},{"1":"1.2246","2":"-0.9037","3":"0.1212"},{"1":"-0.5790","2":"2.9455","3":"-0.4009"},{"1":"1.4903","2":"2.5738","3":"-1.5555"},{"1":"-1.0653","2":"-1.2180","3":"-0.5190"},{"1":"-1.3914","2":"-2.1014","3":"-0.2486"},{"1":"0.6655","2":"0.9056","3":"1.3567"},{"1":"-1.5322","2":"0.5315","3":"0.1453"},{"1":"0.2901","2":"0.9008","3":"0.8356"},{"1":"0.6924","2":"0.1269","3":"2.2918"},{"1":"-1.7605","2":"2.6500","3":"2.7367"},{"1":"0.7208","2":"0.1344","3":"0.2757"},{"1":"-1.2240","2":"-2.7807","3":"3.1455"},{"1":"-0.7531","2":"1.9620","3":"0.5994"},{"1":"1.3280","2":"-4.2554","3":"1.0446"},{"1":"-0.2417","2":"0.5152","3":"-0.6882"},{"1":"0.5529","2":"0.3296","3":"1.1520"},{"1":"-1.3898","2":"0.1823","3":"-1.8669"},{"1":"0.2063","2":"0.7603","3":"4.2723"},{"1":"-0.3192","2":"3.5506","3":"0.4508"},{"1":"0.7848","2":"-0.5656","3":"-1.7095"},{"1":"1.2396","2":"-2.8808","3":"0.8469"},{"1":"0.2746","2":"3.0416","3":"-0.0390"},{"1":"1.8976","2":"-1.2941","3":"1.1196"},{"1":"-0.1926","2":"-3.4240","3":"1.0516"},{"1":"-1.4137","2":"-1.7534","3":"1.4959"},{"1":"0.3512","2":"1.8246","3":"1.8645"},{"1":"1.4512","2":"-2.3711","3":"1.3301"},{"1":"1.1703","2":"2.3434","3":"-0.1423"},{"1":"-0.8390","2":"1.8663","3":"-0.3977"},{"1":"0.3171","2":"-0.1498","3":"-0.9995"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["x"],"name":[1],"type":["dbl[,1]"],"align":["right"]},{"label":["y1"],"name":[2],"type":["dbl[,1]"],"align":["right"]},{"label":["y2"],"name":[3],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"0.42678011","2":"1.98488355","3":"0.10303468"},{"1":"0.44408399","2":"1.27130904","3":"-0.28089065"},{"1":"-0.82789086","2":"-0.94427745","3":"0.62388864"},{"1":"-0.79925305","2":"0.10328425","3":"5.42679005"},{"1":"-0.32313106","2":"2.19041969","3":"0.16807478"},{"1":"-1.24462433","2":"0.19192798","3":"-0.54936141"},{"1":"-1.35506516","2":"4.81186172","3":"0.30919557"},{"1":"1.61563907","2":"1.55169550","3":"-0.99039138"},{"1":"-0.29189503","2":"3.35737558","3":"-0.17200537"},{"1":"-1.24940474","2":"1.92492196","3":"-0.15832838"},{"1":"-0.08659233","2":"-2.88047669","3":"0.85387666"},{"1":"-1.17065349","2":"1.75053169","3":"3.33911133"},{"1":"0.73756421","2":"-1.08428013","3":"-1.88393968"},{"1":"-0.48316590","2":"0.96031018","3":"2.48425274"},{"1":"0.40328291","2":"-1.54016895","3":"-0.04867594"},{"1":"0.91641886","2":"-1.24357666","3":"-0.61515773"},{"1":"0.41673257","2":"0.03193645","3":"-0.28681098"},{"1":"0.33137777","2":"-1.30918647","3":"-0.12350146"},{"1":"1.57677526","2":"-0.99658718","3":"0.29936602"},{"1":"-0.99289810","2":"1.42150401","3":"-1.06763475"},{"1":"1.22460582","2":"-0.90365732","3":"0.12124860"},{"1":"-0.57899018","2":"2.94554205","3":"-0.40094019"},{"1":"1.49026764","2":"2.57375451","3":"-1.55553594"},{"1":"-1.06533835","2":"-1.21795541","3":"-0.51902218"},{"1":"-1.39136994","2":"-2.10136309","3":"-0.24857353"},{"1":"0.66547299","2":"0.90556693","3":"1.35671958"},{"1":"-1.53224607","2":"0.53146356","3":"0.14529688"},{"1":"0.29011158","2":"0.90084614","3":"0.83560170"},{"1":"0.69239937","2":"0.12687786","3":"2.29182497"},{"1":"-1.76053733","2":"2.64999575","3":"2.73673094"},{"1":"0.72082239","2":"0.13435947","3":"0.27574827"},{"1":"-1.22395587","2":"-2.78065291","3":"3.14550409"},{"1":"-0.75311013","2":"1.96202837","3":"0.59938464"},{"1":"1.32801392","2":"-4.25541004","3":"1.04460392"},{"1":"-0.24174865","2":"0.51517469","3":"-0.68821620"},{"1":"0.55292812","2":"0.32962526","3":"1.15201767"},{"1":"-1.38976342","2":"0.18227394","3":"-1.86691141"},{"1":"0.20633230","2":"0.76029377","3":"4.27233650"},{"1":"-0.31920849","2":"3.55063527","3":"0.45077005"},{"1":"0.78482776","2":"-0.56564635","3":"-1.70953625"},{"1":"1.23964789","2":"-2.88080049","3":"0.84694745"},{"1":"0.27462181","2":"3.04164950","3":"-0.03903472"},{"1":"1.89759493","2":"-1.29407455","3":"1.11956044"},{"1":"-0.19262565","2":"-3.42396604","3":"1.05156905"},{"1":"-1.41365701","2":"-1.75335473","3":"1.49593530"},{"1":"0.35118649","2":"1.82462838","3":"1.86447305"},{"1":"1.45121334","2":"-2.37113604","3":"1.33013723"},{"1":"1.17029448","2":"2.34340037","3":"-0.14230534"},{"1":"-0.83901696","2":"1.86633352","3":"-0.39773459"},{"1":"0.31714653","2":"-0.14984045","3":"-0.99949269"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -381,12 +537,13 @@ y = \beta_0 + \beta_1 *x
 <ol start="2" type="1">
 <li>Variables stacked and labelled (Note: <code>group</code> is now a Qual variable !!)</li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-2_39ace382322410bd9acc530808706ae4">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-4_02ba47f4b3d172a8e8e25ab855888a7c">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mydata_long</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["group"],"name":[1],"type":["chr"],"align":["left"]},{"label":["value"],"name":[2],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"x","2":"0.4268"},{"1":"y1","2":"1.9849"},{"1":"y2","2":"0.1030"},{"1":"x","2":"0.4441"},{"1":"y1","2":"1.2713"},{"1":"y2","2":"-0.2809"},{"1":"x","2":"-0.8279"},{"1":"y1","2":"-0.9443"},{"1":"y2","2":"0.6239"},{"1":"x","2":"-0.7993"},{"1":"y1","2":"0.1033"},{"1":"y2","2":"5.4268"},{"1":"x","2":"-0.3231"},{"1":"y1","2":"2.1904"},{"1":"y2","2":"0.1681"},{"1":"x","2":"-1.2446"},{"1":"y1","2":"0.1919"},{"1":"y2","2":"-0.5494"},{"1":"x","2":"-1.3551"},{"1":"y1","2":"4.8119"},{"1":"y2","2":"0.3092"},{"1":"x","2":"1.6156"},{"1":"y1","2":"1.5517"},{"1":"y2","2":"-0.9904"},{"1":"x","2":"-0.2919"},{"1":"y1","2":"3.3574"},{"1":"y2","2":"-0.1720"},{"1":"x","2":"-1.2494"},{"1":"y1","2":"1.9249"},{"1":"y2","2":"-0.1583"},{"1":"x","2":"-0.0866"},{"1":"y1","2":"-2.8805"},{"1":"y2","2":"0.8539"},{"1":"x","2":"-1.1707"},{"1":"y1","2":"1.7505"},{"1":"y2","2":"3.3391"},{"1":"x","2":"0.7376"},{"1":"y1","2":"-1.0843"},{"1":"y2","2":"-1.8839"},{"1":"x","2":"-0.4832"},{"1":"y1","2":"0.9603"},{"1":"y2","2":"2.4843"},{"1":"x","2":"0.4033"},{"1":"y1","2":"-1.5402"},{"1":"y2","2":"-0.0487"},{"1":"x","2":"0.9164"},{"1":"y1","2":"-1.2436"},{"1":"y2","2":"-0.6152"},{"1":"x","2":"0.4167"},{"1":"y1","2":"0.0319"},{"1":"y2","2":"-0.2868"},{"1":"x","2":"0.3314"},{"1":"y1","2":"-1.3092"},{"1":"y2","2":"-0.1235"},{"1":"x","2":"1.5768"},{"1":"y1","2":"-0.9966"},{"1":"y2","2":"0.2994"},{"1":"x","2":"-0.9929"},{"1":"y1","2":"1.4215"},{"1":"y2","2":"-1.0676"},{"1":"x","2":"1.2246"},{"1":"y1","2":"-0.9037"},{"1":"y2","2":"0.1212"},{"1":"x","2":"-0.5790"},{"1":"y1","2":"2.9455"},{"1":"y2","2":"-0.4009"},{"1":"x","2":"1.4903"},{"1":"y1","2":"2.5738"},{"1":"y2","2":"-1.5555"},{"1":"x","2":"-1.0653"},{"1":"y1","2":"-1.2180"},{"1":"y2","2":"-0.5190"},{"1":"x","2":"-1.3914"},{"1":"y1","2":"-2.1014"},{"1":"y2","2":"-0.2486"},{"1":"x","2":"0.6655"},{"1":"y1","2":"0.9056"},{"1":"y2","2":"1.3567"},{"1":"x","2":"-1.5322"},{"1":"y1","2":"0.5315"},{"1":"y2","2":"0.1453"},{"1":"x","2":"0.2901"},{"1":"y1","2":"0.9008"},{"1":"y2","2":"0.8356"},{"1":"x","2":"0.6924"},{"1":"y1","2":"0.1269"},{"1":"y2","2":"2.2918"},{"1":"x","2":"-1.7605"},{"1":"y1","2":"2.6500"},{"1":"y2","2":"2.7367"},{"1":"x","2":"0.7208"},{"1":"y1","2":"0.1344"},{"1":"y2","2":"0.2757"},{"1":"x","2":"-1.2240"},{"1":"y1","2":"-2.7807"},{"1":"y2","2":"3.1455"},{"1":"x","2":"-0.7531"},{"1":"y1","2":"1.9620"},{"1":"y2","2":"0.5994"},{"1":"x","2":"1.3280"},{"1":"y1","2":"-4.2554"},{"1":"y2","2":"1.0446"},{"1":"x","2":"-0.2417"},{"1":"y1","2":"0.5152"},{"1":"y2","2":"-0.6882"},{"1":"x","2":"0.5529"},{"1":"y1","2":"0.3296"},{"1":"y2","2":"1.1520"},{"1":"x","2":"-1.3898"},{"1":"y1","2":"0.1823"},{"1":"y2","2":"-1.8669"},{"1":"x","2":"0.2063"},{"1":"y1","2":"0.7603"},{"1":"y2","2":"4.2723"},{"1":"x","2":"-0.3192"},{"1":"y1","2":"3.5506"},{"1":"y2","2":"0.4508"},{"1":"x","2":"0.7848"},{"1":"y1","2":"-0.5656"},{"1":"y2","2":"-1.7095"},{"1":"x","2":"1.2396"},{"1":"y1","2":"-2.8808"},{"1":"y2","2":"0.8469"},{"1":"x","2":"0.2746"},{"1":"y1","2":"3.0416"},{"1":"y2","2":"-0.0390"},{"1":"x","2":"1.8976"},{"1":"y1","2":"-1.2941"},{"1":"y2","2":"1.1196"},{"1":"x","2":"-0.1926"},{"1":"y1","2":"-3.4240"},{"1":"y2","2":"1.0516"},{"1":"x","2":"-1.4137"},{"1":"y1","2":"-1.7534"},{"1":"y2","2":"1.4959"},{"1":"x","2":"0.3512"},{"1":"y1","2":"1.8246"},{"1":"y2","2":"1.8645"},{"1":"x","2":"1.4512"},{"1":"y1","2":"-2.3711"},{"1":"y2","2":"1.3301"},{"1":"x","2":"1.1703"},{"1":"y1","2":"2.3434"},{"1":"y2","2":"-0.1423"},{"1":"x","2":"-0.8390"},{"1":"y1","2":"1.8663"},{"1":"y2","2":"-0.3977"},{"1":"x","2":"0.3171"},{"1":"y1","2":"-0.1498"},{"1":"y2","2":"-0.9995"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["group"],"name":[1],"type":["chr"],"align":["left"]},{"label":["value"],"name":[2],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"x","2":"0.42678011"},{"1":"y1","2":"1.98488355"},{"1":"y2","2":"0.10303468"},{"1":"x","2":"0.44408399"},{"1":"y1","2":"1.27130904"},{"1":"y2","2":"-0.28089065"},{"1":"x","2":"-0.82789086"},{"1":"y1","2":"-0.94427745"},{"1":"y2","2":"0.62388864"},{"1":"x","2":"-0.79925305"},{"1":"y1","2":"0.10328425"},{"1":"y2","2":"5.42679005"},{"1":"x","2":"-0.32313106"},{"1":"y1","2":"2.19041969"},{"1":"y2","2":"0.16807478"},{"1":"x","2":"-1.24462433"},{"1":"y1","2":"0.19192798"},{"1":"y2","2":"-0.54936141"},{"1":"x","2":"-1.35506516"},{"1":"y1","2":"4.81186172"},{"1":"y2","2":"0.30919557"},{"1":"x","2":"1.61563907"},{"1":"y1","2":"1.55169550"},{"1":"y2","2":"-0.99039138"},{"1":"x","2":"-0.29189503"},{"1":"y1","2":"3.35737558"},{"1":"y2","2":"-0.17200537"},{"1":"x","2":"-1.24940474"},{"1":"y1","2":"1.92492196"},{"1":"y2","2":"-0.15832838"},{"1":"x","2":"-0.08659233"},{"1":"y1","2":"-2.88047669"},{"1":"y2","2":"0.85387666"},{"1":"x","2":"-1.17065349"},{"1":"y1","2":"1.75053169"},{"1":"y2","2":"3.33911133"},{"1":"x","2":"0.73756421"},{"1":"y1","2":"-1.08428013"},{"1":"y2","2":"-1.88393968"},{"1":"x","2":"-0.48316590"},{"1":"y1","2":"0.96031018"},{"1":"y2","2":"2.48425274"},{"1":"x","2":"0.40328291"},{"1":"y1","2":"-1.54016895"},{"1":"y2","2":"-0.04867594"},{"1":"x","2":"0.91641886"},{"1":"y1","2":"-1.24357666"},{"1":"y2","2":"-0.61515773"},{"1":"x","2":"0.41673257"},{"1":"y1","2":"0.03193645"},{"1":"y2","2":"-0.28681098"},{"1":"x","2":"0.33137777"},{"1":"y1","2":"-1.30918647"},{"1":"y2","2":"-0.12350146"},{"1":"x","2":"1.57677526"},{"1":"y1","2":"-0.99658718"},{"1":"y2","2":"0.29936602"},{"1":"x","2":"-0.99289810"},{"1":"y1","2":"1.42150401"},{"1":"y2","2":"-1.06763475"},{"1":"x","2":"1.22460582"},{"1":"y1","2":"-0.90365732"},{"1":"y2","2":"0.12124860"},{"1":"x","2":"-0.57899018"},{"1":"y1","2":"2.94554205"},{"1":"y2","2":"-0.40094019"},{"1":"x","2":"1.49026764"},{"1":"y1","2":"2.57375451"},{"1":"y2","2":"-1.55553594"},{"1":"x","2":"-1.06533835"},{"1":"y1","2":"-1.21795541"},{"1":"y2","2":"-0.51902218"},{"1":"x","2":"-1.39136994"},{"1":"y1","2":"-2.10136309"},{"1":"y2","2":"-0.24857353"},{"1":"x","2":"0.66547299"},{"1":"y1","2":"0.90556693"},{"1":"y2","2":"1.35671958"},{"1":"x","2":"-1.53224607"},{"1":"y1","2":"0.53146356"},{"1":"y2","2":"0.14529688"},{"1":"x","2":"0.29011158"},{"1":"y1","2":"0.90084614"},{"1":"y2","2":"0.83560170"},{"1":"x","2":"0.69239937"},{"1":"y1","2":"0.12687786"},{"1":"y2","2":"2.29182497"},{"1":"x","2":"-1.76053733"},{"1":"y1","2":"2.64999575"},{"1":"y2","2":"2.73673094"},{"1":"x","2":"0.72082239"},{"1":"y1","2":"0.13435947"},{"1":"y2","2":"0.27574827"},{"1":"x","2":"-1.22395587"},{"1":"y1","2":"-2.78065291"},{"1":"y2","2":"3.14550409"},{"1":"x","2":"-0.75311013"},{"1":"y1","2":"1.96202837"},{"1":"y2","2":"0.59938464"},{"1":"x","2":"1.32801392"},{"1":"y1","2":"-4.25541004"},{"1":"y2","2":"1.04460392"},{"1":"x","2":"-0.24174865"},{"1":"y1","2":"0.51517469"},{"1":"y2","2":"-0.68821620"},{"1":"x","2":"0.55292812"},{"1":"y1","2":"0.32962526"},{"1":"y2","2":"1.15201767"},{"1":"x","2":"-1.38976342"},{"1":"y1","2":"0.18227394"},{"1":"y2","2":"-1.86691141"},{"1":"x","2":"0.20633230"},{"1":"y1","2":"0.76029377"},{"1":"y2","2":"4.27233650"},{"1":"x","2":"-0.31920849"},{"1":"y1","2":"3.55063527"},{"1":"y2","2":"0.45077005"},{"1":"x","2":"0.78482776"},{"1":"y1","2":"-0.56564635"},{"1":"y2","2":"-1.70953625"},{"1":"x","2":"1.23964789"},{"1":"y1","2":"-2.88080049"},{"1":"y2","2":"0.84694745"},{"1":"x","2":"0.27462181"},{"1":"y1","2":"3.04164950"},{"1":"y2","2":"-0.03903472"},{"1":"x","2":"1.89759493"},{"1":"y1","2":"-1.29407455"},{"1":"y2","2":"1.11956044"},{"1":"x","2":"-0.19262565"},{"1":"y1","2":"-3.42396604"},{"1":"y2","2":"1.05156905"},{"1":"x","2":"-1.41365701"},{"1":"y1","2":"-1.75335473"},{"1":"y2","2":"1.49593530"},{"1":"x","2":"0.35118649"},{"1":"y1","2":"1.82462838"},{"1":"y2","2":"1.86447305"},{"1":"x","2":"1.45121334"},{"1":"y1","2":"-2.37113604"},{"1":"y2","2":"1.33013723"},{"1":"x","2":"1.17029448"},{"1":"y1","2":"2.34340037"},{"1":"y2","2":"-0.14230534"},{"1":"x","2":"-0.83901696"},{"1":"y1","2":"1.86633352"},{"1":"y2","2":"-0.39773459"},{"1":"x","2":"0.31714653"},{"1":"y1","2":"-0.14984045"},{"1":"y2","2":"-0.99949269"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -394,12 +551,13 @@ y = \beta_0 + \beta_1 *x
 <ol start="3" type="1">
 <li>Same as 2, but only for the dependent <code>y</code> variables:</li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-3_ea46d48f46c8579e24c3d756b4df0826">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-5_1709cb9dd8116a242f763b9f307c58cf">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mydata_long_y</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["group"],"name":[1],"type":["chr"],"align":["left"]},{"label":["value"],"name":[2],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"y1","2":"1.9849"},{"1":"y2","2":"0.1030"},{"1":"y1","2":"1.2713"},{"1":"y2","2":"-0.2809"},{"1":"y1","2":"-0.9443"},{"1":"y2","2":"0.6239"},{"1":"y1","2":"0.1033"},{"1":"y2","2":"5.4268"},{"1":"y1","2":"2.1904"},{"1":"y2","2":"0.1681"},{"1":"y1","2":"0.1919"},{"1":"y2","2":"-0.5494"},{"1":"y1","2":"4.8119"},{"1":"y2","2":"0.3092"},{"1":"y1","2":"1.5517"},{"1":"y2","2":"-0.9904"},{"1":"y1","2":"3.3574"},{"1":"y2","2":"-0.1720"},{"1":"y1","2":"1.9249"},{"1":"y2","2":"-0.1583"},{"1":"y1","2":"-2.8805"},{"1":"y2","2":"0.8539"},{"1":"y1","2":"1.7505"},{"1":"y2","2":"3.3391"},{"1":"y1","2":"-1.0843"},{"1":"y2","2":"-1.8839"},{"1":"y1","2":"0.9603"},{"1":"y2","2":"2.4843"},{"1":"y1","2":"-1.5402"},{"1":"y2","2":"-0.0487"},{"1":"y1","2":"-1.2436"},{"1":"y2","2":"-0.6152"},{"1":"y1","2":"0.0319"},{"1":"y2","2":"-0.2868"},{"1":"y1","2":"-1.3092"},{"1":"y2","2":"-0.1235"},{"1":"y1","2":"-0.9966"},{"1":"y2","2":"0.2994"},{"1":"y1","2":"1.4215"},{"1":"y2","2":"-1.0676"},{"1":"y1","2":"-0.9037"},{"1":"y2","2":"0.1212"},{"1":"y1","2":"2.9455"},{"1":"y2","2":"-0.4009"},{"1":"y1","2":"2.5738"},{"1":"y2","2":"-1.5555"},{"1":"y1","2":"-1.2180"},{"1":"y2","2":"-0.5190"},{"1":"y1","2":"-2.1014"},{"1":"y2","2":"-0.2486"},{"1":"y1","2":"0.9056"},{"1":"y2","2":"1.3567"},{"1":"y1","2":"0.5315"},{"1":"y2","2":"0.1453"},{"1":"y1","2":"0.9008"},{"1":"y2","2":"0.8356"},{"1":"y1","2":"0.1269"},{"1":"y2","2":"2.2918"},{"1":"y1","2":"2.6500"},{"1":"y2","2":"2.7367"},{"1":"y1","2":"0.1344"},{"1":"y2","2":"0.2757"},{"1":"y1","2":"-2.7807"},{"1":"y2","2":"3.1455"},{"1":"y1","2":"1.9620"},{"1":"y2","2":"0.5994"},{"1":"y1","2":"-4.2554"},{"1":"y2","2":"1.0446"},{"1":"y1","2":"0.5152"},{"1":"y2","2":"-0.6882"},{"1":"y1","2":"0.3296"},{"1":"y2","2":"1.1520"},{"1":"y1","2":"0.1823"},{"1":"y2","2":"-1.8669"},{"1":"y1","2":"0.7603"},{"1":"y2","2":"4.2723"},{"1":"y1","2":"3.5506"},{"1":"y2","2":"0.4508"},{"1":"y1","2":"-0.5656"},{"1":"y2","2":"-1.7095"},{"1":"y1","2":"-2.8808"},{"1":"y2","2":"0.8469"},{"1":"y1","2":"3.0416"},{"1":"y2","2":"-0.0390"},{"1":"y1","2":"-1.2941"},{"1":"y2","2":"1.1196"},{"1":"y1","2":"-3.4240"},{"1":"y2","2":"1.0516"},{"1":"y1","2":"-1.7534"},{"1":"y2","2":"1.4959"},{"1":"y1","2":"1.8246"},{"1":"y2","2":"1.8645"},{"1":"y1","2":"-2.3711"},{"1":"y2","2":"1.3301"},{"1":"y1","2":"2.3434"},{"1":"y2","2":"-0.1423"},{"1":"y1","2":"1.8663"},{"1":"y2","2":"-0.3977"},{"1":"y1","2":"-0.1498"},{"1":"y2","2":"-0.9995"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["group"],"name":[1],"type":["chr"],"align":["left"]},{"label":["value"],"name":[2],"type":["dbl[,1]"],"align":["right"]}],"data":[{"1":"y1","2":"1.98488355"},{"1":"y2","2":"0.10303468"},{"1":"y1","2":"1.27130904"},{"1":"y2","2":"-0.28089065"},{"1":"y1","2":"-0.94427745"},{"1":"y2","2":"0.62388864"},{"1":"y1","2":"0.10328425"},{"1":"y2","2":"5.42679005"},{"1":"y1","2":"2.19041969"},{"1":"y2","2":"0.16807478"},{"1":"y1","2":"0.19192798"},{"1":"y2","2":"-0.54936141"},{"1":"y1","2":"4.81186172"},{"1":"y2","2":"0.30919557"},{"1":"y1","2":"1.55169550"},{"1":"y2","2":"-0.99039138"},{"1":"y1","2":"3.35737558"},{"1":"y2","2":"-0.17200537"},{"1":"y1","2":"1.92492196"},{"1":"y2","2":"-0.15832838"},{"1":"y1","2":"-2.88047669"},{"1":"y2","2":"0.85387666"},{"1":"y1","2":"1.75053169"},{"1":"y2","2":"3.33911133"},{"1":"y1","2":"-1.08428013"},{"1":"y2","2":"-1.88393968"},{"1":"y1","2":"0.96031018"},{"1":"y2","2":"2.48425274"},{"1":"y1","2":"-1.54016895"},{"1":"y2","2":"-0.04867594"},{"1":"y1","2":"-1.24357666"},{"1":"y2","2":"-0.61515773"},{"1":"y1","2":"0.03193645"},{"1":"y2","2":"-0.28681098"},{"1":"y1","2":"-1.30918647"},{"1":"y2","2":"-0.12350146"},{"1":"y1","2":"-0.99658718"},{"1":"y2","2":"0.29936602"},{"1":"y1","2":"1.42150401"},{"1":"y2","2":"-1.06763475"},{"1":"y1","2":"-0.90365732"},{"1":"y2","2":"0.12124860"},{"1":"y1","2":"2.94554205"},{"1":"y2","2":"-0.40094019"},{"1":"y1","2":"2.57375451"},{"1":"y2","2":"-1.55553594"},{"1":"y1","2":"-1.21795541"},{"1":"y2","2":"-0.51902218"},{"1":"y1","2":"-2.10136309"},{"1":"y2","2":"-0.24857353"},{"1":"y1","2":"0.90556693"},{"1":"y2","2":"1.35671958"},{"1":"y1","2":"0.53146356"},{"1":"y2","2":"0.14529688"},{"1":"y1","2":"0.90084614"},{"1":"y2","2":"0.83560170"},{"1":"y1","2":"0.12687786"},{"1":"y2","2":"2.29182497"},{"1":"y1","2":"2.64999575"},{"1":"y2","2":"2.73673094"},{"1":"y1","2":"0.13435947"},{"1":"y2","2":"0.27574827"},{"1":"y1","2":"-2.78065291"},{"1":"y2","2":"3.14550409"},{"1":"y1","2":"1.96202837"},{"1":"y2","2":"0.59938464"},{"1":"y1","2":"-4.25541004"},{"1":"y2","2":"1.04460392"},{"1":"y1","2":"0.51517469"},{"1":"y2","2":"-0.68821620"},{"1":"y1","2":"0.32962526"},{"1":"y2","2":"1.15201767"},{"1":"y1","2":"0.18227394"},{"1":"y2","2":"-1.86691141"},{"1":"y1","2":"0.76029377"},{"1":"y2","2":"4.27233650"},{"1":"y1","2":"3.55063527"},{"1":"y2","2":"0.45077005"},{"1":"y1","2":"-0.56564635"},{"1":"y2","2":"-1.70953625"},{"1":"y1","2":"-2.88080049"},{"1":"y2","2":"0.84694745"},{"1":"y1","2":"3.04164950"},{"1":"y2","2":"-0.03903472"},{"1":"y1","2":"-1.29407455"},{"1":"y2","2":"1.11956044"},{"1":"y1","2":"-3.42396604"},{"1":"y2","2":"1.05156905"},{"1":"y1","2":"-1.75335473"},{"1":"y2","2":"1.49593530"},{"1":"y1","2":"1.82462838"},{"1":"y2","2":"1.86447305"},{"1":"y1","2":"-2.37113604"},{"1":"y2","2":"1.33013723"},{"1":"y1","2":"2.34340037"},{"1":"y2","2":"-0.14230534"},{"1":"y1","2":"1.86633352"},{"1":"y2","2":"-0.39773459"},{"1":"y1","2":"-0.14984045"},{"1":"y2","2":"-0.99949269"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -419,23 +577,31 @@ H_0: Null\ Hypothesis\ =&gt; \beta_1 = 0\\\
 H_a: Alternate\ Hypothesis\ =&gt; \beta_1 \ne 0\\
 \end{aligned}
 \]</span></p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Pearson_Correlation_daa8b839cea237031dba3ff30f1e56bb">
+<div class="cell" data-hash="single_corr_cache/html/Pearson_Correlation_7b1214513f80bff376c01a7d3636426a">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Pearson (built-in test)</span></span>
+<span><span class="va">cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor.test</a></span><span class="op">(</span><span class="va">y1</span>,<span class="va">x</span>,method <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>term <span class="op">=</span> <span class="st">"Pearson Correlation r"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span> </span>
+<span><span class="va">cor</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Pearson Correlation r","2":"-0.232","3":"0.105"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Pearson Correlation r","2":"-0.2317767","3":"0.1053192"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
 <p>Using the <em>linear model</em> method we get:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-4_39de3d20f457fbab5f96a00cee0d97dc">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-6_ebf2dd17c2e5d94b4878343bdb6f9fef">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Linear Model</span></span>
+<span><span class="va">lin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">y1</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">mydata_wide</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta_0"</span>, <span class="st">"beta_1"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="va">lin</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"0.300","3":"0.286"},{"1":"beta_1","2":"-0.464","3":"0.105"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"0.3000000","3":"0.2859059"},{"1":"beta_1","2":"-0.4635533","3":"0.1053192"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -443,19 +609,23 @@ H_a: Alternate\ Hypothesis\ =&gt; \beta_1 \ne 0\\
 <p>Why are <span class="math inline">\(r\)</span> and <span class="math inline">\(\beta_1\)</span> different, though the <code>p-value</code> is suspiciously the same!?</p>
 <p>Did we miss a factor of <span class="math inline">\(\frac{-0.463}{-0.231} = 2\)</span> somewhere…??</p>
 <p>Let us <strong>scale</strong> the variables to within <code>{-1, +1}</code> : (subtract the mean and divide by sd) and re-do the Linear Model with <strong>scaled</strong> versions <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-5_4e94c4ee461ab502b7f81dc133993fdb">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-7_d0d0576ed5944ebd534b694c37dcb187">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Scaled linear model</span></span>
+<span><span class="va">lin_scl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">y1</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">mydata_wide</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta_0"</span>, <span class="st">"beta_1"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="va">lin_scl</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"-9.06e-17","3":"1.000"},{"1":"beta_1","2":"-2.32e-01","3":"0.105"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"-9.056644e-17","3":"1.0000000"},{"1":"beta_1","2":"-2.317767e-01","3":"0.1053192"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
 <p>So we conclude:</p>
 <ol type="1">
-<li><p><strong>When both x and y have the same standard deviation, the slope from the linear model and the Pearson correlation are the same</strong>. Here, since x has twice the <code>sd</code> of y, the ratio of <strong>slope</strong> = -0.464 to <strong>r</strong> = -0.232 is 0.5.</p></li>
+<li><p><strong>When both x and y have the same standard deviation, the slope from the linear model and the Pearson correlation are the same</strong>. Here, since x has twice the <code>sd</code> of y, the ratio of <strong>slope</strong> = -0.4635533 to <strong>r</strong> = -0.2317767 is 0.5.</p></li>
 <li><p>There is this relationship between the <strong>slope in the linear model</strong> and <strong>Pearson correlation</strong>:</p></li>
 </ol>
 <p><span class="math display">\[
@@ -465,7 +635,7 @@ Slope\ \beta_1 = \frac{sd_y}{sd_x} * r
 <ol start="2" type="1">
 <li>Hence a linear model using <code><a href="https://rdrr.io/r/base/scale.html">scale()</a></code> for both variables will show slope = <strong>r</strong>.</li>
 </ol>
-<p>Slope_Scaled: -0.232 = Correlation: -0.232</p>
+<p>Slope_Scaled: -0.2317767 = Correlation: -0.2317767</p>
 <ol start="3" type="1">
 <li>Finally, the <em>p-value</em> for Pearson Correlation and that for the <em>slope</em> in the linear model is the same (<span class="math inline">\(0.1053\)</span>). Which means we cannot reject the NULL hypothesis of “no relationship”.</li>
 </ol></section><section id="example" class="level3"><h3 class="anchored" data-anchor-id="example">Example</h3>
@@ -475,31 +645,44 @@ Slope\ \beta_1 = \frac{sd_y}{sd_x} * r
 <p>In some cases the <strong>LINE</strong> assumptions may not hold.</p>
 <p>Nonlinear relationships, non-normally distributed data ( with large <strong>outliers</strong> ) and working with <em>ordinal</em> rather than continuous data: these situations necessitate the use of Spearman’s <em>ranked</em> correlation scores. (<strong>Ranked</strong>, not <strong>sign-ranked</strong>.).</p>
 <p>See the example below: We choose to look at the <code>gpa_study_hours</code> dataset. It has two numeric columns <code>gpa</code> and <code>study_hours</code>:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/gpa_study_hours_dfec570c4491d33a30f5a52e41d7ba23">
+<div class="cell" data-hash="single_corr_cache/html/gpa_study_hours_d2d56475f2a88cb4c0d1ec2d296d91a2">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">gpa_study_hours</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 193
 Columns: 2
-$ gpa         &lt;dbl&gt; 4.00, 3.80, 3.93, 3.40, 3.20, 3.52, 3.68, 3.40, 3.70, 3.75…
+$ gpa         &lt;dbl&gt; 4.000, 3.800, 3.930, 3.400, 3.200, 3.520, 3.680, 3.400, 3.…
 $ study_hours &lt;dbl&gt; 10, 25, 45, 10, 4, 10, 24, 40, 10, 10, 30, 7, 15, 60, 10, …</code></pre>
 </div>
 </div>
 <p>We can plot this:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Pearson_example_3_6d110a5dcb8b8b9d2f6e95272b5d0698">
+<div class="cell" data-hash="single_corr_cache/html/Pearson_example_3_7ae0abba97ea0f1a49d2350a1fc27855">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">gpa_study_hours</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">study_hours</span>, y <span class="op">=</span> <span class="va">gpa</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="single_corr_files/figure-html/Pearson_example_3-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
+<p><img src="single_corr_files/figure-html/Pearson_example_3-1.png" class="img-fluid" width="2100"></p>
 </div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># ggstatsplot::ggscatterstats(data = gpa_study_hours, </span></span>
+<span><span class="co">#                             x = study_hours, </span></span>
+<span><span class="co">#                             y = gpa,</span></span>
+<span><span class="co">#                             marginal = TRUE,</span></span>
+<span><span class="co">#                             title = "GPA vs Study Hours")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Hmm…not normally distributed, and there is a sort of increasing relationship, however is it linear? And there is some evidence of heteroscedasticity, so the LINE assumptions are clearly in violation. Pearson correlation would not be the best idea here.</p>
 <p>Let us quickly try it anyway, using a Linear Model for the <strong>scaled</strong> <code>gpa</code> and <code>study_hours</code> variables, from where we get:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Pearson_example_1_60e2ccc3bcaf91588df13d1671943239">
+<div class="cell" data-hash="single_corr_cache/html/Pearson_example_1_78d0d6f0804dd04be40e4f998f9e2f78">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Pearson Correlation as Linear Model</span></span>
+<span><span class="va">model_gpa</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">gpa</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">study_hours</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">gpa_study_hours</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_gpa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta_0"</span>, <span class="st">"beta_1"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">model_gpa</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>                                              <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span>, <span class="va">`2.5 %`</span>, <span class="va">`97.5 %`</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"3.05e-16","3":"1.0000","4":"-0.14109","5":"0.141"},{"1":"beta_1","2":"1.33e-01","3":"0.0652","4":"-0.00844","5":"0.274"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"beta_0","2":"3.047040e-16","3":"1.00000000","4":"-0.141087199","5":"0.1410872"},{"1":"beta_1","2":"1.330138e-01","3":"0.06517072","4":"-0.008440359","5":"0.2744679"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -515,27 +698,65 @@ $ study_hours &lt;dbl&gt; 10, 25, 45, 10, 4, 10, 24, 40, 10, 10, 30, 7, 15, 60, 
 <li><p>Place the <u><em>ranks</em></u> in order of (absolute magnitude). The smallest number has <em>rank = 1</em> and so on. This gives is <strong>ranked data</strong>.</p></li>
 <li><p>Give each of the ranks the sign of the original observation ( + or -). This gives us <strong>signed</strong> ranked data.</p></li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/signed_rank_function_de5162731b2fffb9793307bfbd096575">
-
+<div class="cell" data-hash="single_corr_cache/html/signed_rank_function_fba320575d4f8a40706a2ade81a3e0a5">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">signed_rank</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html">sign</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="plotting-original-and-signed-rank-data" class="level2"><h2 class="anchored" data-anchor-id="plotting-original-and-signed-rank-data">Plotting Original and Signed Rank Data</h2>
 <p>Let us see how this might work by comparing data and its signed-rank version…A quick set of plots:</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/data_plots_fee86bd4b9057617528decbc3dcaf8c7">
+<div class="cell" data-hash="single_corr_cache/html/data_plots_a747768921087887445327e7554871a1">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">mydata_long</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">group</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html">geom_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.02</span>, height <span class="op">=</span> <span class="fl">0</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">group</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html">geom_segment</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">mydata_wide</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0</span>, yend <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>                                       x <span class="op">=</span> <span class="fl">.75</span>, </span>
+<span>                                       xend <span class="op">=</span> <span class="fl">1.25</span> <span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">0.5</span>, label <span class="op">=</span> <span class="st">"0"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html">geom_segment</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">mydata_wide</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0.3</span>, yend <span class="op">=</span> <span class="fl">0.3</span>, </span>
+<span>                                       x <span class="op">=</span> <span class="fl">1.75</span> , </span>
+<span>                                       xend <span class="op">=</span> <span class="fl">2.25</span> <span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">2</span>, y <span class="op">=</span> <span class="fl">0.6</span>, label <span class="op">=</span> <span class="st">"0.3"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html">geom_segment</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">mydata_wide</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0.5</span>, yend <span class="op">=</span> <span class="fl">0.5</span>, </span>
+<span>                                       x <span class="op">=</span> <span class="fl">2.75</span>, </span>
+<span>                                       xend <span class="op">=</span> <span class="fl">3.25</span> <span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3</span>, y <span class="op">=</span> <span class="fl">0.8</span>, label <span class="op">=</span> <span class="st">"0.5"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Original Data"</span>, subtitle <span class="op">=</span> <span class="st">"Black Lines show Means"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Response Variable"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">mydata_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span> s_value <span class="op">=</span> <span class="fu">signed_rank</span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">.</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">group</span>, y <span class="op">=</span> <span class="va">s_value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html">geom_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.02</span>, height <span class="op">=</span> <span class="fl">0</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">group</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html">stat_summary</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"point"</span>, colour <span class="op">=</span> <span class="st">"red"</span>, </span>
+<span>               size <span class="op">=</span> <span class="fl">8</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Signed Rank of Data"</span>, subtitle <span class="op">=</span> <span class="st">"Red Points are means of Ranks!"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Signed Rank of Response Variable"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html">wrap_plots</a></span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">1</span>, guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="single_corr_files/figure-html/data_plots-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
-</div>
+<p><img src="single_corr_files/figure-html/data_plots-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>So the means of the <strong>ranks</strong> three separate variables seem to be in the same order as the means of the data variables themselves.</p>
 <p>How about associations between data? Do ranks reflect well what the data might?</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Spearman_Plot_61cdd5a3654a907039816716eda9cdd9">
+<div class="cell" data-hash="single_corr_cache/html/Spearman_Plot_c406c6266de6638230c54cbfcc236ccc">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Plot the data</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">mydata_wide</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">" Pearson Correlation\n and Linear Models"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot ranked data</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">mydata_wide</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>x_rank <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,</span>
+<span>         y_rank <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">y1</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">.</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">x_rank</span>, <span class="va">y_rank</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">15</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">" Spearman Ranked Correlation\n and Linear Models"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html">wrap_plots</a></span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">1</span>, guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="single_corr_files/figure-html/Spearman_Plot-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
-</div>
+<p><img src="single_corr_files/figure-html/Spearman_Plot-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>The slopes are almost identical, <span class="math inline">\(0.25\)</span> for both original data and ranked data for <span class="math inline">\(y1\sim x\)</span>. So maybe <em>ranked</em> and even <em>sign_ranked</em> data could work, and if it can work despite LINE assumptions not being satisfied, that would be nice!</p>
@@ -552,32 +773,44 @@ H_a: Alternate\ Hypothesis\ =&gt; \beta_1 \ne 0\\
 \end{aligned}
 \]</span></p>
 <section id="code" class="level3"><h3 class="anchored" data-anchor-id="code">Code</h3>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Spearman_Correlation_db471699c210c4009ea2e044c0ccdfc6">
+<div class="cell" data-hash="single_corr_cache/html/Spearman_Correlation_08de805b882d8f0ce7edb4ae06ac4140">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Spearman</span></span>
+<span><span class="va">cor1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor.test</a></span><span class="op">(</span><span class="va">x</span>,<span class="va">y1</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>term <span class="op">=</span> <span class="st">"Spearman Correlation "</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="va">cor1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Spearman Correlation","2":"-0.227","3":"0.113"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Spearman Correlation","2":"-0.2266026","3":"0.1134565"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-6_5cee874e175bf9b243918f4a544cc90d">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-8_f7add6517817aba2eb072b08a2c49b9e">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Pearson using ranks</span></span>
+<span><span class="va">cor2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">y1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="va">cor2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.227","2":"0.114"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.2266026","2":"0.1135452"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-7_7cf8e5e57e069644eb6ce312355640d8">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-9_cc0a6b60103c1b5cb79c62856e154b84">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Linear Models using rank</span></span>
+<span><span class="va">cor3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">y1</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,data <span class="op">=</span> <span class="va">mydata_wide</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">estimate</span>, <span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="va">cor3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"31.278","2":"0.000000000911"},{"1":"-0.227","2":"0.113545171148"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"31.2783673","2":"9.108414e-10"},{"1":"-0.2266026","2":"1.135452e-01"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -588,68 +821,80 @@ H_a: Alternate\ Hypothesis\ =&gt; \beta_1 \ne 0\\
 <li><p>Note that the slope from the linear model now has an intuitive interpretation: <strong>the number of ranks y changes for each change in rank of x</strong>. ( Ranks are “independent” of <code>sd</code> )</p></li>
 </ol></section><section id="example-1" class="level3"><h3 class="anchored" data-anchor-id="example-1">Example</h3>
 <p>We examine the <code>cars93</code> data, where the numeric variables of interest are <code>weight</code> and <code>price</code>.</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Spearman_example_1_9f427a5c57a2de494b2c7a13f2a0c11b">
+<div class="cell" data-hash="single_corr_cache/html/Spearman_example_1_d4c7f26fff2dc863b7536a42e156e65c">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cars93</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">weight</span>, <span class="va">price</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Car Weight and Car Price have a nonlinear relationship"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="single_corr_files/figure-html/Spearman_example_1-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
-</div>
+<p><img src="single_corr_files/figure-html/Spearman_example_1-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>Let us try a Spearman Correlation score for these variables, since the data are not linearly related and the variance of <code>price</code> also is not constant over <code>weight</code></p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/Spearman_example_2_bfd481651e623810d7207ddb76494701">
+<div class="cell" data-hash="single_corr_cache/html/Spearman_example_2_7118ebb85d1f8b66af6727a501477bf7">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor.test</a></span><span class="op">(</span><span class="va">cars93</span><span class="op">$</span><span class="va">price</span>, <span class="va">cars93</span><span class="op">$</span><span class="va">weight</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"0.883","2":"3074","3":"1.07e-18","4":"Spearman's rank correlation rho","5":"two.sided"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"0.8828317","2":"3073.91","3":"1.066315e-18","4":"Spearman's rank correlation rho","5":"two.sided"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Using linear Model</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">price</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">weight</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">cars93</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
 lm(formula = rank(price) ~ rank(weight), data = cars93)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--20.068  -3.014   0.782   3.693  20.410 
+     Min       1Q   Median       3Q      Max 
+-20.0676  -3.0135   0.7815   3.6926  20.4099 
 
 Coefficients:
              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)    3.2207     2.0589    1.56     0.12    
-rank(weight)   0.8829     0.0651   13.55   &lt;2e-16 ***
+(Intercept)   3.22074    2.05894   1.564    0.124    
+rank(weight)  0.88288    0.06514  13.554   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 7.46 on 52 degrees of freedom
-Multiple R-squared:  0.779, Adjusted R-squared:  0.775 
-F-statistic:  184 on 1 and 52 DF,  p-value: &lt;2e-16</code></pre>
+Multiple R-squared:  0.7794,    Adjusted R-squared:  0.7751 
+F-statistic: 183.7 on 1 and 52 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Stats Plot</span></span>
+<span><span class="fu">ggstatsplot</span><span class="fu">::</span><span class="fu"><a href="https://indrajeetpatil.github.io/ggstatsplot/reference/ggscatterstats.html">ggscatterstats</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">cars93</span>, x <span class="op">=</span> <span class="va">weight</span>, </span>
+<span>                            y <span class="op">=</span> <span class="va">price</span>,</span>
+<span>                            type <span class="op">=</span> <span class="st">"nonparametric"</span>,</span>
+<span>                            title <span class="op">=</span> <span class="st">"Cars93: Weight vs Price"</span>,</span>
+<span>                            subtitle <span class="op">=</span> <span class="st">"Spearman Correlation"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="single_corr_files/figure-html/Spearman_example_2-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
-</div>
+<p><img src="single_corr_files/figure-html/Spearman_example_2-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>We see that using ranks of the <code>price</code> variable, we obtain a Spearman’s <span class="math inline">\(\rho = 0.882\)</span> with a <code>p-value</code> that is very small. Hence we are able to reject the NULL hypothesis and state that there is a relationship between these two variables. The <strong>linear</strong> relationship is evaluated as a correlation of <code>0.882</code>.</p>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-8_2e31f17949f2d84879bd6d0442b30ba6">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-10_52f7eab3533f004e3b9ff4f60ad33b24">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Other ways using other packages</span></span>
+<span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">gpa</span> <span class="op">~</span> <span class="va">study_hours</span>, data <span class="op">=</span> <span class="va">gpa_study_hours</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">estimate</span>, <span class="va">p.value</span>, <span class="va">conf.low</span>, <span class="va">conf.high</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.133","2":"0.0652","3":"-0.00838","4":"0.269"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.1330138","2":"0.06517072","3":"-0.008383868","4":"0.2691966"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="single_corr_cache/html/unnamed-chunk-9_84fe7d02b7710a12ffc41479cc4b7dd7">
+<div class="cell" data-hash="single_corr_cache/html/unnamed-chunk-11_e62a97045891a8f5054608001a017dea">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">statsExpressions</span><span class="fu">::</span><span class="fu"><a href="https://indrajeetpatil.github.io/statsExpressions/reference/corr_test.html">corr_test</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gpa_study_hours</span>, </span>
+<span>                            x <span class="op">=</span> <span class="va">study_hours</span>, </span>
+<span>                            y <span class="op">=</span> <span class="va">gpa</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["parameter1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["parameter2"],"name":[2],"type":["chr"],"align":["left"]},{"label":["effectsize"],"name":[3],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.level"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["df.error"],"name":[9],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[11],"type":["chr"],"align":["left"]},{"label":["n.obs"],"name":[12],"type":["int"],"align":["right"]},{"label":["conf.method"],"name":[13],"type":["chr"],"align":["left"]},{"label":["expression"],"name":[14],"type":["list"],"align":["right"]}],"data":[{"1":"study_hours","2":"gpa","3":"Pearson correlation","4":"0.133","5":"0.95","6":"-0.00838","7":"0.269","8":"1.85","9":"191","10":"0.0652","11":"Pearson correlation","12":"193","13":"normal","14":"<language>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["parameter1"],"name":[1],"type":["chr"],"align":["left"]},{"label":["parameter2"],"name":[2],"type":["chr"],"align":["left"]},{"label":["effectsize"],"name":[3],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.level"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["df.error"],"name":[9],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[11],"type":["chr"],"align":["left"]},{"label":["n.obs"],"name":[12],"type":["int"],"align":["right"]},{"label":["conf.method"],"name":[13],"type":["chr"],"align":["left"]},{"label":["expression"],"name":[14],"type":["list"],"align":["right"]}],"data":[{"1":"study_hours","2":"gpa","3":"Pearson correlation","4":"0.1330138","5":"0.95","6":"-0.008383868","7":"0.2691966","8":"1.854768","9":"191","10":"0.06517072","11":"Pearson correlation","12":"193","13":"normal","14":"<language>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -840,90 +1085,25 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
-      // Handle positioning of the toggle
-      window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-      const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
-      for (let i=0; i<annoteTargets.length; i++) {
-        const annoteTarget = annoteTargets[i];
-        const targetCell = annoteTarget.getAttribute("data-target-cell");
-        const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
-        const contentFn = () => {
-          const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          if (content) {
-            const tipContent = content.cloneNode(true);
-            tipContent.classList.add("code-annotation-tip-content");
-            return tipContent.outerHTML;
-          }
-        }
-        const config = {
-          allowHTML: true,
-          content: contentFn,
-          onShow: (instance) => {
-            selectCodeLines(instance.reference);
-            instance.reference.classList.add('code-annotation-active');
-            window.tippy.hideAll();
-          },
-          onHide: (instance) => {
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
             unselectCodeLines();
-            instance.reference.classList.remove('code-annotation-active');
-          },
-          maxWidth: 300,
-          delay: [50, 0],
-          duration: [200, 0],
-          offset: [5, 10],
-          arrow: true,
-          appendTo: function(el) {
-            return el.parentElement.parentElement.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'quarto',
-          placement: 'right',
-          popperOptions: {
-            modifiers: [
-            {
-              name: 'flip',
-              options: {
-                flipVariations: false, // true by default
-                allowedAutoPlacements: ['right'],
-                fallbackPlacements: ['right', 'top', 'top-start', 'top-end'],
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                mainAxis: false,
-                altAxis: false
-              }
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
             }
-            ]        
-          }      
-        };
-        window.tippy(annoteTarget, config); 
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
       }
   const findCites = (el) => {
     const parentEl = el.parentElement;
