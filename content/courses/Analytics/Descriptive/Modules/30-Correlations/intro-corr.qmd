@@ -19,9 +19,9 @@ categories:
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                                   |                                                                                                                  |                                                                                                   |                                                                                       |
-|-----------------|--------------------|-----------------|-----------------|
-| <a href="./files/correlations.qmd"><i class="fa-brands fa-r-project"></i> R (Static Graphs)</a>   | <a href="./files/correlations-interactive.qmd"> <i class="fa-brands fa-r-project"></i> R (Interactive Graphs</a> | <a href="./files/correlations.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-sold fa-database"></i> Datasets</a> |
+|                                                                                           |                                                                                                                  |     |     |
+|------------------|-------------------|------------------|------------------|
+| <a href="./files/correlations.qmd"><i class="fa-brands fa-r-project"></i> Tutorial </a>   | <a href="./files/correlations-interactive.qmd"> <i class="fa-brands fa-r-project"></i> R (Interactive Graphs</a> |     |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -29,33 +29,26 @@ categories:
 #| label: setup
 
 library(tidyverse) # Tidy data processing and plotting
-library(palmerpenguins) # Our favourite dataset
-library(patchwork) # Arranging plots side by side
 library(ggformula) # Formula based plots
 library(mosaic) # Our go to package
 library(GGally) # Corr plots
 library(corrplot) # More corrplots
-
-#library(grid)
-
-library(echarts4r)
 
 ```
 
 ## {{< iconify tabler exchange >}} What is Correlation?
 
 One of the basic Questions we would have of our data is: Does some
-variable depend upon another in some way? Does $y$ depend upon $x$? A
-**Correlation Test** is designed to answer exactly this question.
+variable depend upon another in some way? Does $y$ vary with $x$? A **Correlation Test** is designed to exactly answer this question.
 
-The word correlation is used in everyday life to denote some form of
+The word **correlation** is used in everyday life to denote some form of
 association. We might say that we have noticed a correlation between
 rainy days and reduced sales at supermarkets. However, in statistical
 terms we use correlation to denote association between two quantitative
 variables. We also assume that the association is **linear**, that one
 variable increases or decreases a fixed amount for a unit increase or
 decrease in the other. The other technique that is often used in these
-circumstances is regression, which involves estimating the best straight
+circumstances is **regression**, which involves estimating the best straight
 line to summarise the association.
 
 ### {{< iconify arcticons tapemeasure >}} Correlation coefficient
@@ -93,58 +86,165 @@ Some of the very basic and commonly used plots for data are:
 -   Correlogram
 -   Heatmap
 
+Let us look at the `mpg` dataset from R. Here we have `hwy` and `cty`
+mileages for cars of different types, makes, and models.
+
+## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+
+```{r}
+#| label: mpg-inspect
+#| echo: false
+mpg_describe <- inspect(mpg)
+
+mpg_describe$categorical
+mpg_describe$quantitative
+
+```
+
+The `mosaic::inspect` command provides the **schema** of the `mpg`
+dataset in table form, one table for each kind of variable (Qual and
+Quant).
+
+There are 6 Qual variables, and Quant variables.
+
+::: callout-note
+## Research Questions
+
+Is there a relationship between the `cty` and `hwy` variables in the
+`mpg` dataset? Does this relationship vary based on groupings by other
+Qual variables, such as `drv` and `cyl`?
+:::
+
 ### {{< iconify ph chart-scatter-bold >}} Scatter Plot
 
 ```{r}
 #| label: charts
-#| layout-ncol: 2
-mpg <- mpg %>% mutate(drv= as_factor(drv))
+#| warning: false
+#| layout-ncol: 3
+#| echo: false
+#mpg <- mpg %>% mutate(drv= as_factor(drv))
+
+gf_point(cty ~ hwy, data = mpg) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Correlation/Regression/Trend Line") %>% 
+  gf_theme(theme_classic())
 
 gf_point(cty ~ hwy, fill = ~drv, 
                colour = ~drv, 
                data = mpg) %>% 
-  gf_smooth(method = "lm", 
-            title = "Scatter Plot",
-            subtitle = "Correlation/Regression/Trend Line")
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Correlation/Regression/Trend Lines per Group") %>% 
+  gf_theme(theme_classic())
 
 gf_density_2d(cty ~ hwy, 
                     data = mpg, 
-                    title = "2D Density Plot")
+                    title = "2D Density Plot") %>% 
+  gf_theme(theme_classic())
 
 ```
 
-### Pairwise Correlation Plot
+It does appear from the scatter plots that there is a near-linear
+relationship between `cty` and `hwy` and that it is **positive**. This
+relationship also holds when we group the data by `drv`.
 
-```{r pairs-charts, warning=FALSE,message=FALSE}
+::: callout-important
+## Independent and Dependent Variables
 
-GGally::ggpairs(mpg, 
-                      columns = c("hwy", "cty", "displ","cyl"), 
-                      diag = list("densityDiag"), 
-                      title = "Pairwise Correlations Plot")
+Note that we have rather *arbitrarily* taken `hwy` as the independent
+variable, to be plotted on the `x-axis`, and `cty` on the `y-axis`. It
+could easily have been the other way around, based on our Research
+Question.
+
+:::
+
+How do we **quantize** this relationship, into a **correlation score**?
+There are two ways: using the `GGally` and `corplot` packages, and doing
+a formal **correlation test** with the `mosaic` package.
+
+### Pairwise Correlation Plot with `GGally`
+
+By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpairs.html) provides:
+
+- two different comparisons of each pair of columns 
+- displays either the density or count of the respective variable along the diagonal. 
+- With different parameter settings, the diagonal can be replaced with the axis values and variable labels.
+
+```{r}
+#| label: pairs chart
+#| message: false
+#| echo: false
+ggplot2::theme_set(theme_bw())
+GGally::ggpairs(mpg,
+                      # Select Quant variables only for now
+                      columns = c("hwy", "cty", "displ"),
+                      # Histogram on Diagonal locations, see below
+                      diag = list(continuous = "barDiag"),
+                      
+                      upper = list(),
+                      lower = list(continuous = "smooth"),
+                      title = "Pairwise Correlations Plots and Scores",
+                
+                switch = "both", # move labels to x and y standard locations
+                progress = FALSE)  # don't show calculation progress
 
 
 ```
 
-### Pairwise Correlogram
+### Pairwise Correlogram with `corrplot`
 
 In this chart, the correlation between pairs of variables is shown
-*symbolically* as coloured ellipses. The direction of the semi-major
-axis + the colour of the ellipse indicate whether the correlation score
-is positive or negative. And the more *eccentric* the ellipse, the
-higher is the correlation score in value.
+*symbolically* as coloured shapes or colours. Circles, Squares, and
+Ellipse for example. - The size, colour, and "orientation" of the shapes
+in question symbolically represent the strength and polarity of the
+correlation scores. E.g. direction of the semi-major axis + the colour
+of the ellipse indicate whether the correlation score is positive or
+negative; And the more *eccentric* the ellipse, the higher is the
+correlation score in value.
 
-```{r cor-plot, warning=FALSE,message=FALSE}
-library(corrplot)
+Whereas `GGally` **computes** the correlation scores, `corplot` "merely"
+displays them in an evocative way. We need to compute the correlations a
+priori. Note however:
+
+> R package `corrplot` provides a visual exploratory tool on correlation
+> matrix that supports automatic variable reordering to help detect
+> hidden patterns among variables. `corrplot` is very easy to use and
+> provides a rich array of plotting options in visualization method,
+> graphic layout, color, legend, text labels, etc. It also provides
+> `p-values` and `confidence intervals` to help users determine the
+> **statistical significance** of the correlations.
+
+```{r}
+#| label:  cor-plot
+#| warning: false
+#| message: false
+#| layout-ncol: 3
+#| echo: false
+
+# library(corrplot)
 
 mpg_num <- mpg %>% select(hwy, cty, displ, cyl)
 mydata_cor <- cor(mpg_num)
+mydata_cor %>% knitr::kable(caption = "Correlation Scores Matrix")
 
-corrplot(mydata_cor,method = "ellipse",
-         type = "lower",
+## View the matrix
+corrplot(mydata_cor, method = "number")
+
+# Default plot with circles
+corrplot(mydata_cor, 
+         method = "circle")
+
+# Ellipse plot
+corrplot::corrplot(mydata_cor, 
+                   method = "ellipse",
+                   main = "Correlogram with Ellipes")
+
+# Heatmap
+corrplot::corrplot(mydata_cor, method = "color", ## US Spelling only
          main = "Correlogram")
 
+
 # Heatmap with numbers
-corrplot.mixed(mydata_cor, 
+corrplot::corrplot.mixed(mydata_cor, 
                lower = "color",
                upper = "number",
                bg = "wheat",
@@ -156,5 +256,8 @@ corrplot.mixed(mydata_cor,
 
 ## {{< iconify ooui references-ltr >}} References
 
-1.  Minimal R using `mosaic`.
+1.  Using the GGally package \<[ggally\_\*(): List of available
+    high-level plots • GGally
+    (ggobi.github.io)](https://ggobi.github.io/ggally/articles/ggally_plots.html)\>
+3.  Minimal R using `mosaic`.
     <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>

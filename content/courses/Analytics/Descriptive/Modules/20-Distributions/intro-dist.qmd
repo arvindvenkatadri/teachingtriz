@@ -37,6 +37,9 @@ library(mosaic)
 library(palmerpenguins)
 library(ggformula)
 library(ggridges)
+
+ggplot2::theme_set(theme_classic())
+
 ```
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
@@ -123,16 +126,20 @@ data manipulation first! More later!
 
 ```{r}
 #| label: charts
-#| echo: true
-#| layout-nrow: 2
+#| layout-ncol: 2
 
 mpg <- mpg %>% mutate(drv= as_factor(drv))
 
+gf_histogram(~ hwy, data = mpg) %>%
+  gf_labs(title = "Histogram of Highway Mileage")
 gf_histogram(~ hwy, fill = ~ drv, alpha = 0.3, data = mpg) %>%
-  gf_labs(title = "Histogram")
+  gf_labs(title = "Histogram of Highway Mileage by Drive Train")
 
+gf_density(~ hwy, data = mpg) %>% 
+  gf_labs(title = "Frequency Density of Highway Mileage")
 gf_density(~ hwy, fill = ~ drv, data = mpg) %>% 
-  gf_labs(title = "Frequency Density")
+  gf_labs(title = "Frequency Density by Drive Train")
+
 
 gf_boxplot(hwy ~ drv, fill = ~ drv, data = mpg) %>% 
   gf_labs(title = "Boxplot")
@@ -140,11 +147,11 @@ gf_boxplot(hwy ~ drv, fill = ~ drv, data = mpg) %>%
 gf_violin(hwy ~ drv, fill = ~ drv, data = mpg) %>% 
     gf_labs(title = "Violin")
 
+
 ```
 
 ```{r}
 #| label: more-charts
-#| echo: true
 #| layout-nrow: 2
 
 mpg <- mpg %>% mutate(drv= as_factor(drv))

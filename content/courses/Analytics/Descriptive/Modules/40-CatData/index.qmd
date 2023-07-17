@@ -24,6 +24,8 @@ categories:
 #| include: true
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(mosaic) # Our trusted friend
+library(GGally) 
 library(skimr)
 library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
@@ -31,7 +33,6 @@ library(sjPlot) # Likert Scale Plots
 library(ggpubr) # Colours, Themes and geometries in ggplot
 library(ca) # Correspondence Analysis, for use some day
 
-library(mosaic) # Our trusted friend
 
 ## Making Tables
 library(kableExtra) # html styled tables
@@ -64,7 +65,7 @@ which may be `ordered` or `unordered`. Some typical examples are:
 As these examples suggest, categorical variables differ in the number of
 categories: we often distinguish binary variables (or dichotomous
 variables) such as Gender from those with more than two categories
-(called polytomous variables).
+(called *polytomous* variables).
 
 {{< video https://www.youtube.com/embed/7NhNeADL8fA >}}
 
@@ -371,7 +372,6 @@ diamonds %>%
   group_by(cut, clarity) %>% 
   dplyr::summarise( count = n()) %>% 
   
-  
   pivot_wider(id_cols = cut, 
               names_from = clarity, 
               values_from = count) %>% 
@@ -427,15 +427,15 @@ corresponding cell entry given the dimensions of previous splits.
 The `vcd::mosaic()` function needs the data in *contingency table* form.
 We will use our `vcd::structable()` function to construct one:
 
-```{r mosaic-plot-using-vcd}
-
+```{r}
+#| label:  mosaic-plot-using-vcd
+#| results: hold
 art <- vcd::structable(~ Treatment + Improved, data = Arthritis)
 art
 vcd::mosaic(art, gp = shading_max)
 
 ### Or
 ### vcd::mosaic(structable(~ Treatment + Improved, data = Arthritis), gp = shading_max, split_vertical = TRUE)
- 
 
 ```
 
