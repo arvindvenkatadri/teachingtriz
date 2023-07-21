@@ -18,7 +18,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
 |                                                                                                                                      |                                                                                                                                        |                                                                                                             |     |
-|---------------------|---------------------|-----------------|--------------|
+|-------------------|-------------------|-----------------|-----------------|
 | <a href="./files/forward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i>Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -83,6 +83,101 @@ parameters Quantitative parameters such as area, location, rooms, and
 crime-rate in the neighbourhood?
 :::
 
+## The Linear ( Regression ) Model
+
+The premise here is that many common statistical tests are special cases
+of the linear model.
+
+A linear model estimates the relationship between one *continuous* or
+*ordinal* variable (dependent variable or "response") and one or more
+other variables (explanatory variable or "predictors"). It is assumed
+that the relationship is linear:[^1]
+
+$$
+y = \beta_0 + \beta_1 *x
+$$ $\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear
+fit, that **predicts** the value of y based the value of x. Each
+prediction leaves a small "residual" error between the actual and
+predicted values. $\beta_0$ and $\beta_1$ are calculated based on
+minimizing the *sum of square*s of these residuals, and hence this
+method is called "ordinary least squares" regression.
+
+![Least Squares](../../../../../materials/images/OLS.png)
+
+The net *area* of all the shaded squares is minimized in the calculation
+of $\beta_0$ and $\beta_1$. It is also possible that there is more than
+one explanatory variable: this is **multiple regression.**
+
+$$
+y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
+$$
+
+where each of the $\beta_i$ are slopes defining the relationship between
+y and $x_i$. Together, the RHS of that equation defines an n-dimensional
+*hyperplane*.
+
+As per Lindoloev, many statistical tests, going from one-sample
+`t-tests` to `two-way ANOVA`, are special cases of this system. Also see
+[Jeffrey Walker "A
+linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables)
+
+## Linear Models as Hypothesis Tests
+
+Using linear models is based on the idea of **Testing of Hypotheses**.
+The Hypothesis Testing method typically defines a NULL Hypothesis where
+the statements read as "**there is no relationship**" between the
+variables at hand, explanatory and responses. The Alternative Hypothesis
+typically states that there *is* a relationship between the variables.
+
+Accordingly, in fitting a linear model, we follow the process as
+follows: With $y = \beta_0 + \beta_1 *x$\
+
+1.  Make the following hypotheses: $$
+    NULL\ Hypothesis\ H_0 => x\ and\ y\ are\ unrelated.\ (\beta_1 = 0)
+    $$ $$
+    Alternate\ Hypothesis\ H_1 => x\ and\ y\ are\ linearly\ related\ (\beta_1 \ne 0)
+    $$
+2.  We "assume" that $H_0$ is true.
+3.  We calculate $\beta_1$.
+4.  We then find probability **p** that \[$\beta_1 = Estimated\ Value$\]
+    **when the NULL Hypothesis** is **assumed** TRUE. This is the
+    **p-value**. If that probability is **p\>=0.05**, we say we "cannot
+    reject" $H_0$ and there is unlikely to be significant linear
+    relationship.\
+5.  However, if **p\<= 0.05** can we reject the NULL hypothesis, and say
+    that there could be a significant linear relationship,because
+    $\beta_1 = Estimated\ Value$ by mere chance under $H_0$ is very
+    small.
+
+## Assumptions in Linear Models
+
+We can write the assumptions in Linear Regression Models as an acronym,
+**LINE**:\
+1. **L**: $\color{blue}{linear}$ relationship\
+2. **I**: Errors are **independent** (across observations)\
+3. **N**: y is $\color{red}{normally}$ distributed at each "level" of
+x.\
+4. **E**: equal variance at all levels of x. No *heteroscedasticity*.\
+
+![OLS Assumptions](../../../../../materials/images/ols_assumptions.png)
+
+Hence a very concise way of expressing the Linear Model is:
+
+$$
+y \sim N(x_i^T * \beta, ~~\sigma^2)
+$$
+
+::: {.callout-important style="background: beige"}
+## General Linear Models
+
+The target variable $y$ is modelled as a *normally* distributed variable
+**whose mean depends upon a linear combination of predictor variables**
+$x$, and whose variance is $\sigma^2$.
+:::
+
+Let us now read in the data and check for these assumptions as part of
+our Workflow.
+
 ## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
 
 ```{r}
@@ -97,7 +192,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:-------------|:---------------------------------------------------------|
+|:--------------|:--------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -146,8 +241,8 @@ with the target variable `cmedv` and do a pairs-plots with them:
 #| label: pairs plots 1
 #| message: false
 #| warning: false
-#| column: screen-inset-shaded
-#| layout-nrow: 1
+#| column: body
+#| layout-nrow: 2
 housing %>% 
   # Target variable and Rooms / Age / Distance to City Centres / Radial Highway Access 
   select(cmedv, rm, age, dis) %>% 
@@ -277,18 +372,18 @@ all_corrs %>%
 
 We can clearly see that `rm` and `lstat` have strong correlations with
 `cmedv` and should make good choices for setting up a minimal linear
-regression model. (`medv` is the older errored version of `cmedv`)
+regression model. (`medv` is the older errorred version of `cmedv`)
 :::
 
 ::: callout-note
 ## Simple Regression vs Multiple Regression
 
 If there are many predictor variables, we would typically want to use
-more of them to make our model and predictions. There are three ways[^1]
+more of them to make our model and predictions. There are three ways[^2]
 to include more predictors:
 
 -   **Backward Selection**: We would typically start with a **maximal
-    model**[^2] and progressively simplify the model by knocking off
+    model**[^3] and progressively simplify the model by knocking off
     predictors that have the least impact on model accuracy.
 -   **Forward Selection**: Start with no predictors and systematically
     add them one by one to increase the quality of the model
@@ -428,14 +523,16 @@ In practice, we use the `broom` package functions (`tidy`, `glance` and
 predictions of `cmedv` for all *existing* values of `rm`. To predict
 `cmedv` with *new* values of `rm`, we use `predict`. We see estimates
 for the intercept and slope (`rm`) for the linear model, along with the
-*standard errors* and *p.values*. And we see the fitted values of
-`cmedv` for the existing `rm`; these values will naturally line **on**
-the straight-line depicting the model. We will examine this `augment`-ed
-data more in the @sec-diagnostics.
+*standard errors* and *p.values* for these estimated parameters. And we
+see the fitted values of `cmedv` for the existing `rm`; these values
+will naturally lie **on** the straight-line depicting the model. We will
+examine this `augment`-ed data more in the @sec-diagnostics.
+
+Let us now try to make predictions with some new data:
 
 ```{r}
 #| label: predictions with new data
-new <- data.frame(rm = seq(3, 10)) # must be named "rm"
+new <- tibble(rm = seq(3, 10)) # must be named "rm"
 new %>% mutate(predictions =
                  stats::predict(
                    object = housing_lm,
@@ -702,7 +799,7 @@ F_stat
 
 ```
 
-The F_crit value can also be seen in a plot[^3]:
+The F_crit value can also be seen in a plot[^4]:
 
 ```{r}
 mosaic::pdist(dist = "f",
@@ -738,7 +835,8 @@ the optimum slope: for a linear model $y \sim mx + c$
 
 $$
 slope = \frac{\Sigma[(y - y_{mean})*(x - x_{mean})]}{\Sigma(x - x_{mean})^2}
-$$
+$$ ::: callout-tip Note that the slope is equal to the ratio of
+:::
 
 and
 
@@ -757,8 +855,7 @@ intercept
 ```
 
 So, there we are! All of this is done for us by one simple formula,
-`lm()`!
-:::
+`lm()`! :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
 
@@ -937,13 +1034,28 @@ flowchart TD
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-[^1]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
+[^1]: The model is linear in the **parameters** $\beta_i$, e.g.
+We can have this:
+    $$
+    y_i \sim \beta_1*x_i + \beta_0\\
+    $$ or
+    $$
+    y_1 \sim exp(\beta_1)*x_i + \beta_0
+    $$ but not:
+    $$
+    y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\
+    $$ or 
+    $$
+    y_i \sim \beta_1 *x^{\beta_2} + \beta_0
+    $$
+
+[^2]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
     *Introduction to Statistical Learning, Springer, 2021. Chapter 3.
     Linear Regression*. [Available
     Online](https://www.statlearning.com/)
 
-[^2]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
     Statistical Modelling*
 
-[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+[^4]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
     Statistical Modelling*

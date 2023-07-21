@@ -299,6 +299,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="#sec-tutorials" id="toc-sec-tutorials" class="nav-link active" data-scroll-target="#sec-tutorials"><i class="fa-solid fa-folder-open" aria-label="folder-open"></i> Slides and Tutorials</a></li>
   <li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
   <li><a href="#iconify-openmoji-japanese-symbol-for-beginner-introduction" id="toc-iconify-openmoji-japanese-symbol-for-beginner-introduction" class="nav-link" data-scroll-target="#iconify-openmoji-japanese-symbol-for-beginner-introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
+  <li><a href="#the-linear-regression-model" id="toc-the-linear-regression-model" class="nav-link" data-scroll-target="#the-linear-regression-model">The Linear ( Regression ) Model</a></li>
+  <li><a href="#linear-models-as-hypothesis-tests" id="toc-linear-models-as-hypothesis-tests" class="nav-link" data-scroll-target="#linear-models-as-hypothesis-tests">Linear Models as Hypothesis Tests</a></li>
+  <li><a href="#assumptions-in-linear-models" id="toc-assumptions-in-linear-models" class="nav-link" data-scroll-target="#assumptions-in-linear-models">Assumptions in Linear Models</a></li>
   <li><a href="#iconify-flat-color-icons-workflow-workflow-read-the-data" id="toc-iconify-flat-color-icons-workflow-workflow-read-the-data" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-read-the-data"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</a></li>
   <li><a href="#iconify-flat-color-icons-workflow-workflow-eda" id="toc-iconify-flat-color-icons-workflow-workflow-eda" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-eda"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: EDA</a></li>
   <li><a href="#iconify-flat-color-icons-workflow-workflow-model-building" id="toc-iconify-flat-color-icons-workflow-workflow-model-building" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-model-building"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Model Building</a></li>
@@ -346,7 +349,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 24, 2023</p>
+      <p class="date-modified">July 20, 2023</p>
     </div>
   </div>
     
@@ -363,10 +366,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="fa-solid fa-folder-open" aria-label="folder-open"></i> Slides and Tutorials</h2>
 <table class="table">
 <colgroup>
-<col style="width: 28%">
-<col style="width: 28%">
+<col style="width: 26%">
+<col style="width: 26%">
 <col style="width: 23%">
-<col style="width: 19%">
+<col style="width: 23%">
 </colgroup>
 <tbody><tr class="odd">
 <td>
@@ -424,6 +427,73 @@ Research Question
 <p>How do we predict the price of a house in Boston, based on other parameters Quantitative parameters such as area, location, rooms, and crime-rate in the neighbourhood?</p>
 </div>
 </div>
+</section><section id="the-linear-regression-model" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="the-linear-regression-model">The Linear ( Regression ) Model</h2>
+<p>The premise here is that many common statistical tests are special cases of the linear model.</p>
+<div class="page-columns page-full"><p>A linear model estimates the relationship between one <em>continuous</em> or <em>ordinal</em> variable (dependent variable or “response”) and one or more other variables (explanatory variable or “predictors”). It is assumed that the relationship is linear:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;The model is linear in the <strong>parameters</strong> <span class="math inline">\(\beta_i\)</span>, e.g. We can have this: <span class="math display">\[
+y_i \sim \beta_1*x_i + \beta_0\\
+\]</span> or <span class="math display">\[
+y_1 \sim exp(\beta_1)*x_i + \beta_0
+\]</span> but not: <span class="math display">\[
+y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\
+\]</span> or <span class="math display">\[
+y_i \sim \beta_1 *x^{\beta_2} + \beta_0
+\]</span></p></li></div></div>
+<p><span class="math display">\[
+y = \beta_0 + \beta_1 *x
+\]</span> <span class="math inline">\(\beta_0\)</span> is the <em>intercept</em> and <span class="math inline">\(\beta_1\)</span> is the slope of the linear fit, that <strong>predicts</strong> the value of y based the value of x. Each prediction leaves a small “residual” error between the actual and predicted values. <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are calculated based on minimizing the <em>sum of square</em>s of these residuals, and hence this method is called “ordinary least squares” regression.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full"><p><img src="../../../../../materials/images/OLS.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption margin-caption">Least Squares</figcaption></figure>
+</div>
+<p>The net <em>area</em> of all the shaded squares is minimized in the calculation of <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>. It is also possible that there is more than one explanatory variable: this is <strong>multiple regression.</strong></p>
+<p><span class="math display">\[
+y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
+\]</span></p>
+<p>where each of the <span class="math inline">\(\beta_i\)</span> are slopes defining the relationship between y and <span class="math inline">\(x_i\)</span>. Together, the RHS of that equation defines an n-dimensional <em>hyperplane</em>.</p>
+<p>As per Lindoloev, many statistical tests, going from one-sample <code>t-tests</code> to <code>two-way ANOVA</code>, are special cases of this system. Also see <a href="https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables">Jeffrey Walker “A linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables”</a></p>
+</section><section id="linear-models-as-hypothesis-tests" class="level2"><h2 class="anchored" data-anchor-id="linear-models-as-hypothesis-tests">Linear Models as Hypothesis Tests</h2>
+<p>Using linear models is based on the idea of <strong>Testing of Hypotheses</strong>. The Hypothesis Testing method typically defines a NULL Hypothesis where the statements read as “<strong>there is no relationship</strong>” between the variables at hand, explanatory and responses. The Alternative Hypothesis typically states that there <em>is</em> a relationship between the variables.</p>
+<p>Accordingly, in fitting a linear model, we follow the process as follows: With <span class="math inline">\(y = \beta_0 + \beta_1 *x\)</span><br></p>
+<ol type="1">
+<li>Make the following hypotheses: <span class="math display">\[
+NULL\ Hypothesis\ H_0 =&gt; x\ and\ y\ are\ unrelated.\ (\beta_1 = 0)
+\]</span> <span class="math display">\[
+Alternate\ Hypothesis\ H_1 =&gt; x\ and\ y\ are\ linearly\ related\ (\beta_1 \ne 0)
+\]</span>
+</li>
+<li>We “assume” that <span class="math inline">\(H_0\)</span> is true.</li>
+<li>We calculate <span class="math inline">\(\beta_1\)</span>.</li>
+<li>We then find probability <strong>p</strong> that [<span class="math inline">\(\beta_1 = Estimated\ Value\)</span>] <strong>when the NULL Hypothesis</strong> is <strong>assumed</strong> TRUE. This is the <strong>p-value</strong>. If that probability is <strong>p&gt;=0.05</strong>, we say we “cannot reject” <span class="math inline">\(H_0\)</span> and there is unlikely to be significant linear relationship.<br>
+</li>
+<li>However, if <strong>p&lt;= 0.05</strong> can we reject the NULL hypothesis, and say that there could be a significant linear relationship,because <span class="math inline">\(\beta_1 = Estimated\ Value\)</span> by mere chance under <span class="math inline">\(H_0\)</span> is very small.</li>
+</ol></section><section id="assumptions-in-linear-models" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="assumptions-in-linear-models">Assumptions in Linear Models</h2>
+<p>We can write the assumptions in Linear Regression Models as an acronym, <strong>LINE</strong>:<br>
+1. <strong>L</strong>: <span class="math inline">\(\color{blue}{linear}\)</span> relationship<br>
+2. <strong>I</strong>: Errors are <strong>independent</strong> (across observations)<br>
+3. <strong>N</strong>: y is <span class="math inline">\(\color{red}{normally}\)</span> distributed at each “level” of x.<br>
+4. <strong>E</strong>: equal variance at all levels of x. No <em>heteroscedasticity</em>.<br></p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full"><p><img src="../../../../../materials/images/ols_assumptions.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption margin-caption">OLS Assumptions</figcaption></figure>
+</div>
+<p>Hence a very concise way of expressing the Linear Model is:</p>
+<p><span class="math display">\[
+y \sim N(x_i^T * \beta, ~~\sigma^2)
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled" style="background: beige">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+General Linear Models
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The target variable <span class="math inline">\(y\)</span> is modelled as a <em>normally</em> distributed variable <strong>whose mean depends upon a linear combination of predictor variables</strong> <span class="math inline">\(x\)</span>, and whose variance is <span class="math inline">\(\sigma^2\)</span>.</p>
+</div>
+</div>
+<p>Let us now read in the data and check for these assumptions as part of our Workflow.</p>
 </section><section id="iconify-flat-color-icons-workflow-workflow-read-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-read-the-data">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</h2>
 <div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-3_84b780989aaa11a15169730c4aa04941">
@@ -479,8 +549,8 @@ quantitative variables:
 <p>The original data are 506 observations on 14 variables, <code>medv</code> being the target variable:</p>
 <table class="table">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 80%">
+<col style="width: 20%">
+<col style="width: 79%">
 </colgroup>
 <tbody>
 <tr class="odd">
@@ -594,18 +664,20 @@ quantitative variables:
 <span>  <span class="co"># Target variable and Access to Charles River</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cmedv</span>,<span class="va">chas</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot 4"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-screen-inset-shaded quarto-layout-panel" data-hash="LinReg_cache/html/pairs plots 1_362d59e79345ee582f626f7251e14511">
+<div class="cell column-body quarto-layout-panel" data-hash="LinReg_cache/html/pairs plots 1_5e9575e3b40051b2d091658e011f6f4d">
 <div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 25.0%;justify-content: center;">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="LinReg_files/figure-html/pairs plots 1-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 25.0%;justify-content: center;">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="LinReg_files/figure-html/pairs plots 1-2.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 25.0%;justify-content: center;">
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="LinReg_files/figure-html/pairs plots 1-3.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 25.0%;justify-content: center;">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="LinReg_files/figure-html/pairs plots 1-4.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
@@ -698,7 +770,7 @@ Correlation Scores and Uncertainty
 <p><img src="LinReg_files/figure-html/corrtest plots-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
-<p>We can clearly see that <code>rm</code> and <code>lstat</code> have strong correlations with <code>cmedv</code> and should make good choices for setting up a minimal linear regression model. (<code>medv</code> is the older errored version of <code>cmedv</code>)</p>
+<p>We can clearly see that <code>rm</code> and <code>lstat</code> have strong correlations with <code>cmedv</code> and should make good choices for setting up a minimal linear regression model. (<code>medv</code> is the older errorred version of <code>cmedv</code>)</p>
 </div>
 </div>
 </div>
@@ -712,19 +784,19 @@ Simple Regression vs Multiple Regression
 </div>
 </div>
 <div class="callout-body-container callout-body page-columns page-full">
-<p>If there are many predictor variables, we would typically want to use more of them to make our model and predictions. There are three ways<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> to include more predictors:</p>
+<p>If there are many predictor variables, we would typically want to use more of them to make our model and predictions. There are three ways<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> to include more predictors:</p>
 <ul>
 <li>
-<strong>Backward Selection</strong>: We would typically start with a <strong>maximal model</strong><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> and progressively simplify the model by knocking off predictors that have the least impact on model accuracy.</li>
+<strong>Backward Selection</strong>: We would typically start with a <strong>maximal model</strong><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> and progressively simplify the model by knocking off predictors that have the least impact on model accuracy.</li>
 <li>
 <strong>Forward Selection</strong>: Start with no predictors and systematically add them one by one to increase the quality of the model</li>
 <li>
 <strong>Mixed Selection</strong>: Wherein we start with no predictors and add them to gain improvement, or remove them at as their <em>significance</em> changes based on other predictors that have been added.</li>
 </ul>
-<div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Michael Crawley, <em>The R Book, Third Edition 2023. Chapter 9. Statistical Modelling</em></p></li></div><p>We will do the first two in the other tutorials (see <a href="#sec-tutorials">Section&nbsp;1</a> above); Mixed Selection we will leave for a more advanced course. But for now we will first use just one predictor <code>rm</code>(Avg. no. of Rooms) to model housing prices.</p>
+<div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;Michael Crawley, <em>The R Book, Third Edition 2023. Chapter 9. Statistical Modelling</em></p></li></div><p>We will do the first two in the other tutorials (see <a href="#sec-tutorials">Section&nbsp;1</a> above); Mixed Selection we will leave for a more advanced course. But for now we will first use just one predictor <code>rm</code>(Avg. no. of Rooms) to model housing prices.</p>
 </div>
 </div>
-<div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, <em>Introduction to Statistical Learning, Springer, 2021. Chapter 3. Linear Regression</em>. <a href="https://www.statlearning.com/">Available Online</a></p></li></div></section><section id="iconify-flat-color-icons-workflow-workflow-model-building" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-model-building">
+<div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, <em>Introduction to Statistical Learning, Springer, 2021. Chapter 3. Linear Regression</em>. <a href="https://www.statlearning.com/">Available Online</a></p></li></div></section><section id="iconify-flat-color-icons-workflow-workflow-model-building" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-model-building">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Model Building</h2>
 <p>We will first execute the <code>lm</code> test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset page-columns page-full">
@@ -858,9 +930,10 @@ F-statistic: 474.3 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>For any new value of <code>rm</code>, we go up to the red line and read off the predicted median price. That is how the model is used.</p>
-<p>In practice, we use the <code>broom</code> package functions (<code>tidy</code>, <code>glance</code> and <code>augment</code>) to obtain a clear view of the model parameters and predictions of <code>cmedv</code> for all <em>existing</em> values of <code>rm</code>. To predict <code>cmedv</code> with <em>new</em> values of <code>rm</code>, we use <code>predict</code>. We see estimates for the intercept and slope (<code>rm</code>) for the linear model, along with the <em>standard errors</em> and <em>p.values</em>. And we see the fitted values of <code>cmedv</code> for the existing <code>rm</code>; these values will naturally line <strong>on</strong> the straight-line depicting the model. We will examine this <code>augment</code>-ed data more in the <a href="#sec-diagnostics">Section&nbsp;7</a>.</p>
-<div class="cell" data-hash="LinReg_cache/html/predictions with new data_dfd8a3eec167d81250044209c7f656db">
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>rm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="co"># must be named "rm"</span></span>
+<p>In practice, we use the <code>broom</code> package functions (<code>tidy</code>, <code>glance</code> and <code>augment</code>) to obtain a clear view of the model parameters and predictions of <code>cmedv</code> for all <em>existing</em> values of <code>rm</code>. To predict <code>cmedv</code> with <em>new</em> values of <code>rm</code>, we use <code>predict</code>. We see estimates for the intercept and slope (<code>rm</code>) for the linear model, along with the <em>standard errors</em> and <em>p.values</em> for these estimated parameters. And we see the fitted values of <code>cmedv</code> for the existing <code>rm</code>; these values will naturally lie <strong>on</strong> the straight-line depicting the model. We will examine this <code>augment</code>-ed data more in the <a href="#sec-diagnostics">Section&nbsp;10</a>.</p>
+<p>Let us now try to make predictions with some new data:</p>
+<div class="cell" data-hash="LinReg_cache/html/predictions with new data_5ded3d3d661a101ac87092146a0a7d59">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>rm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="co"># must be named "rm"</span></span>
 <span><span class="va">new</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>predictions <span class="op">=</span></span>
 <span>                 <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span></span>
 <span>                   object <span class="op">=</span> <span class="va">housing_lm</span>,</span>
@@ -1005,7 +1078,7 @@ F_{stat} = \frac{SSR / df_{SSR}}{SSE / df_{SSE}}
 <pre><code>[1] 474.3349</code></pre>
 </div>
 </div>
-<div class="page-columns page-full"><p>The F_crit value can also be seen in a plot<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;Michael Crawley, <em>The R Book, Third Edition 2023. Chapter 9. Statistical Modelling</em></p></li></div></div>
+<div class="page-columns page-full"><p>The F_crit value can also be seen in a plot<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>:</p><div class="no-row-height column-margin column-container"><li id="fn4"><p><sup>4</sup>&nbsp;Michael Crawley, <em>The R Book, Third Edition 2023. Chapter 9. Statistical Modelling</em></p></li></div></div>
 <div class="cell" data-hash="LinReg_cache/html/unnamed-chunk-19_58bcebe35e05b5cec9c2cda55784af01">
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/pdist.html">pdist</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="st">"f"</span>,</span>
 <span>              q <span class="op">=</span> <span class="va">F_crit</span>, </span>
@@ -1035,7 +1108,10 @@ R.squared = \frac{SSR}{SST} = \frac{SSY-SSE}{SST}
 <p>The value of Slope and Intercept are computed using a maximum likelihood derivation and the knowledge that the means square error is a minimum at the optimum slope: for a linear model <span class="math inline">\(y \sim mx + c\)</span></p>
 <p><span class="math display">\[
 slope = \frac{\Sigma[(y - y_{mean})*(x - x_{mean})]}{\Sigma(x - x_{mean})^2}
-\]</span></p>
+\]</span> ::: callout-tip Note that the slope is equal to the ratio of</p>
+</div>
+</div>
+</div>
 <p>and</p>
 <p><span class="math display">\[
 Intercept = y_{mean} - slope * x_{mean}
@@ -1052,10 +1128,7 @@ Intercept = y_{mean} - slope * x_{mean}
 <pre><code>[1] -34.65924</code></pre>
 </div>
 </div>
-<p>So, there we are! All of this is done for us by one simple formula, <code><a href="https://rdrr.io/r/stats/lm.html">lm()</a></code>!</p>
-</div>
-</div>
-</div>
+<p>So, there we are! All of this is done for us by one simple formula, <code><a href="https://rdrr.io/r/stats/lm.html">lm()</a></code>! :::</p>
 </section><section id="sec-diagnostics" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="sec-diagnostics">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Model Checking and Diagnostics</h2>
 <p>We will follow much of the treatment on Linear Model diagnostics, given <a href="http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#homogeneity-of-variance">here on the STHDA website</a>.</p>
