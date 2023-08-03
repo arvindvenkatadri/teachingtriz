@@ -6,7 +6,7 @@ date: 21/June/2022
 date-modified: "`r Sys.Date()`"
 abstract-title: "Abstract"
 abstract: "Visualizing and Manipulating Network data in R"
-code-tools: true
+
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -44,8 +44,62 @@ library(visNetwork)
 # For "Network" Datasets
 library(igraphdata)
 
-set_graph_style(family = "Arial") # Plot theme for all graphs
+# Fonts
+library(ggtext) # Claus Wilke's package
+library(showtext)
 
+# For repeatble layouts
+set.seed(12345)
+
+```
+
+
+```{r}
+#| label: loading_fonts
+#| cache: true
+## Loading Google fonts (https://fonts.google.com/)
+font_add_google(name = "Fira Code", family = "fira")
+font_add_google(name = "Roboto Condensed", family = "roboto")
+font_add_google(name = "Poppins", family = "poppins")
+font_add_google("Gochi Hand", "gochi")
+font_add_google("Schoolbell", "bell")
+
+## Automatically use showtext to render text
+showtext_auto()
+
+```
+
+
+```{r}
+#| label: set_the_theme
+my_theme <- theme_graph(base_family = "roboto", base_size = 10) +
+  theme(text = element_text(family = "roboto"),
+    plot.title = element_text(
+      family = "roboto",
+      face = "bold",
+      size = 20
+    ),
+    plot.subtitle = element_text(
+      family = "fira",
+      face = "bold",
+      size = 16
+    ),
+    legend.title = element_text(
+      family = "poppins",
+      face = "bold",
+      size = 10
+    ),
+    legend.text = element_text(family = "poppins", size = 8),
+    legend.margin = margin(
+      t = 2,
+      r = 2,
+      b = 2,
+      l = 2,
+      unit = "pt"
+    )
+  )
+
+ggplot2::theme_set(my_theme)
 
 ```
 
@@ -61,7 +115,7 @@ All Quarto document files combine code, text, web-images, and figures
 developed using code. Everything is text; code chunks are enclosed in
 **fences** (\`\`\`)
 
-## Goals
+## {{< iconify game-icons stairs-goal >}} Goals
 
 At the end of this Lab session, we should:
 
@@ -75,7 +129,7 @@ At the end of this Lab session, we should:
     domains (e.g. biology/ecology, ideas/influence, technology,
     transportation, to name a few)
 
-## Pedagogical Note
+## {{< iconify game-icons journey >}} Pedagogical Note
 
 The method followed will be based on
 [PRIMM](https://blogs.kcl.ac.uk/cser/2017/09/01/primm-a-structured-approach-to-teaching-programming/):
@@ -90,7 +144,7 @@ The method followed will be based on
     for and achieved.
 -   **MAKE** : take an idea/concept of your own, and graph it.
 
-## Graph Metaphors
+## {{< iconify cib graphql >}} Graph Metaphors
 
 Network graphs are characterized by two key terms: **nodes** and
 **edges**
@@ -116,7 +170,7 @@ In R, we create network representations using node and edge information.
     ( Type? Class? Family? Country? Subject? Race? )
 
 |     |            |                                                          |
-|-----|------------|----------------------------------------------------------|
+|------------|------------|------------------------------------------------|
 | ID  | Node Name  | Attribute? Qualities?Categories? Family? Country?Planet? |
 | 1   | Ned        | Nursery School Teacher                                   |
 | 2   | Jaguar Paw | Main Character, Apocalypto                               |
@@ -161,27 +215,27 @@ In R, we create network representations using node and edge information.
     direction would change the structure of the network. **Undirected
     edges** are simply links between nodes where order does not matter.
 
-Examples:
+::: callout-tip
+## Examples
 
-```         
- - The World Wide Web is an example of a directed network because
- hyperlinks connect one Web page to another, but not necessarily 
- the other way around.
+-   The World Wide Web is an example of a directed network because
+    hyperlinks connect one Web page to another, but not necessarily the
+    other way around.
 
- - Co-authorship networks represent examples of un-directed networks,
-where nodes are authors and they are connected by an edge if they
-have written a publication together
+-   Co-authorship networks represent examples of un-directed networks,
+    where nodes are authors and they are connected by an edge if they
+    have written a publication together
 
- - When people send e-mail to each other, the distinction between the
-sender (source) and the recipient (target) is clearly meaningful,
-therefore the network is directed.
-```
+-   When people send e-mail to each other, the distinction between the
+    sender (source) and the recipient (target) is clearly meaningful,
+    therefore the network is directed.
+:::
 
 -   `Connected` and `Disconnected` graphs: If there is *some* path from
     *any node* to *any other node*, the Networks is said to be
     Connected. Else, Disconnected.
 
-## Predict/Run/Infer -1
+## Predict/Run/Infer-1
 
 ### Using `tidygraph` and `ggraph`
 
@@ -189,8 +243,8 @@ therefore the network is directed.
 Data setup and manipulation is done in tidygraph and graph visualization
 with ggraph.
 
--   `tidygraph` Data -\> "Network Object" in R.
--   `ggraph` Network Object -\> Plots using a chosen layout/algo.
+-   `tidygraph` Data -> "Network Object" in R.
+-   `ggraph` Network Object -> Plots using a chosen layout/algo.
 
 Both leverage the power of **`igraph`**, which is the **Big Daddy** of
 all network packages. We will be using the Grey's Anatomy dataset in our
@@ -207,7 +261,7 @@ Download these two datasets into your current project-\> data folder.
 ```{r}
 #| label:  1.Read-greys-anatomy-data
 #| message: false
-#| column: body-outset
+#| column: body-outset-right
 #| layout-nrow: 2
 
 grey_nodes <- read_csv("data/grey_nodes.csv")
@@ -221,11 +275,8 @@ grey_edges
 ::: callout-note
 ## Questions and Inferences #1
 
-Look at the console output thumbnail. What does for example
-`name = col_character` mean? What attributes (i.e. extra information)
-are seen for Nodes and Edges? Understand the data in both nodes and
-edges as shown in the second and third thumbnails. Write some comments
-and inferences here.
+Look at the output thumbnails. What attributes (i.e. extra information)
+are seen for Nodes and Edges?
 :::
 
 ### Step 2.Create a network object using tidygraph:
@@ -262,7 +313,7 @@ imported properly and to decide upon going on to a more elaborate
 plotting.
 
 ```{r}
-#| label:  3a.Auto-graph-greys-anatomy
+#| label:  3a.Auto-graph-grey-anatomy
 autograph(ga)
 
 ```
@@ -343,13 +394,13 @@ changes. Colour? Fill? Width? Size? Stroke? Labs? Of course!
 
 ggraph(graph = ga,  layout = "kk") + 
   geom_edge_link(width = 2) + 
-  geom_node_point(shape = 21, size = 8, 
-                  fill = "blue", 
-                  color = "green", 
+  geom_node_point(shape = 21, size = 4, 
+                  fill = "moccasin", 
+                  color = "firebrick", 
                   stroke = 2) +
   labs(title = "Whoo Hoo! My next silly Grey's Anatomy graph in R!",
        subtitle = "Why did I ever get in this course...",
-       caption = "Bro, they are doing cool things in the other classes...") 
+       caption = "Bro, they are doing cool things in the other classes...")
 
 ```
 
@@ -400,10 +451,9 @@ ggraph(graph = ga, layout = "fr") +
   
   geom_node_point(aes(color = race), size = 6) + # change variable here
 
-
   labs(title = "Whoo Hoo! Yet another Grey's Anatomy graph in R!") +
   
-  set_graph_style() # Why is the previously set graph style not work here???
+  scale_edge_width(range = c(0.2,2))
 
 
 ```
@@ -426,8 +476,8 @@ ggraph(ga, layout = "linear") +
   geom_edge_arc(aes(width = weight), alpha = 0.8) +
   scale_edge_width(range = c(0.2, 2)) +
   geom_node_point(size = 2, colour = "red") +
-  labs(edge_width = "Weight") +
-  theme_graph()
+  labs(edge_width = "Weight",title = "Grey's Anatomy", subtitle = "Arc Layout") 
+
 
 ```
 
@@ -441,14 +491,16 @@ difference in the relationships between people here? Why?
 ```{r}
 #| label:  Coord-Diagram-circular
 # Coord diagram, circular
-ggraph(ga, layout = "linear", circular = TRUE) + 
+ggraph(ga, layout = "linear", circular = TRUE) + # Note the layout!
   geom_edge_arc(aes(width = weight), alpha = 0.8) + 
   scale_edge_width(range = c(0.2, 2)) +
+  
   geom_node_point(size = 4,colour = "red") + 
   geom_node_text(aes(label = name),
-                 repel = TRUE, size = 3,
+                 repel = TRUE, size = 3,check_overlap = TRUE, 
                  max.overlaps = 15) +
-  labs(edge_width = "Weight") 
+  labs(edge_width = "Weight")  +
+  theme(aspect.ratio = 1)
 
 ```
 
@@ -466,9 +518,10 @@ that not all layouts are possible for all datasets!!
 
 ```{r}
 #| label: Hierarchical Layouts
-#| column: body-outset
+#| fig-show: hold
+#| column: body-outset-right
 
-set_graph_style()
+# set_graph_style()
 
 # This dataset contains the graph that describes the class 
 # hierarchy for the Flare visualization library.
@@ -477,7 +530,14 @@ head(flare$vertices)
 head(flare$edges)
 
 # flare class hierarchy
-graph = tbl_graph(edges = flare$edges, nodes = flare$vertices)
+graph <-  tbl_graph(edges = flare$edges, nodes = flare$vertices)
+
+```
+
+```{r}
+#| layout-ncol: 2
+#| fig-show: hold
+#| column: body-outset-right
 
 # dendrogram
 ggraph(graph, layout = "dendrogram") + 
@@ -515,8 +575,10 @@ ggraph(graph, layout = "partition", circular = TRUE) +
 ```
 
 ::: callout-note
-Questions and Inferences #9 How do graphs look "metaphorically"
-different? Do they reveal different aspects of the group? How?
+## Questions and Inferences #9 
+
+How do graphs look "metaphorically" different? Do they reveal different
+aspects of the group? How?
 :::
 
 ## Faceting
@@ -526,10 +588,11 @@ qualitative attribute on nodes or edges.
 
 ```{r}
 #| label:  faceting
-#| column: page
+#| column: body-outset-right
+#| layout-ncol: 3
 
 # setting theme_graph 
-set_graph_style()
+# set_graph_style()
 
 
 # facet edges by type
@@ -559,8 +622,10 @@ ggraph(ga,layout = "linear", circular = TRUE) +
 ```
 
 ::: callout-note
-Questions and Inferences #10 Does splitting up the main graph into
-sub-networks give you more insight? Describe some of these.
+## Questions and Inferences #10 
+
+Does splitting up the main graph into sub-networks give you more
+insight? Describe some of these.
 :::
 
 ## Network analysis with tidygraph
@@ -574,7 +639,7 @@ function to activate either node or edge data frames. Use `dplyr`
 **verbs** (`filter, arrange, mutate`) to achieve your computation in the
 proper way.
 
-### Network Centrality
+### Network Centrality: Go-To and Go-Through People!
 
 Centrality is a an "ill-defined" metric of **node and edge importance**
 in a network. It is therefore calculated in many ways. Type
@@ -605,47 +670,33 @@ Packages `tidygraph` and `ggraph` can be pipe-lined to perform analysis
 and visualization tasks in one go.
 
 ```{r Using-Centrality}
-# setting theme_graph 
-set_graph_style()
 
-ga %>% 
-  activate(nodes) %>% 
-  
-  # Who has the most connections?
-  mutate(degree = centrality_degree()) %>% 
-  
-  activate(edges) %>% 
-  # Who is the go-through person?
-  mutate(betweenness = centrality_edge_betweenness()) %>%
-  
-  # Now to continue with plotting
-  ggraph(layout = "nicely") +
-  geom_edge_link(aes(alpha = betweenness)) +
-  geom_node_point(aes(size = degree, colour = degree)) + 
-  
-  # discrete colour legend
-  scale_color_gradient(guide = "legend")
-
-
-# or even less typing
   ggraph(ga,layout = "nicely") +
+    geom_edge_link(aes(alpha = centrality_edge_betweenness())) + 
     
-  geom_edge_link(aes(alpha = centrality_edge_betweenness())) +
+    geom_node_point(aes(colour = centrality_degree(), 
+                        size = centrality_degree())) +
     
-  geom_node_point(aes(colour = centrality_degree(), 
-                      size = centrality_degree())) + 
+    geom_node_text(aes(label = name), repel = TRUE, size = 2.5) +
     
-  scale_color_gradient(guide = "legend",
-                       low = "blue",
-                       high = "red") 
+    scale_size(name = "Degree", range = c(0.5, 5)) + 
+    
+    scale_color_gradient(name = "Degree", # SAME NAME!!
+                         low = "blue", high = "red", 
+                         aesthetics = c("colour", "fill"), 
+                         guide = guide_legend(reverse = FALSE)) + 
+    
+    scale_edge_alpha(name = "Betweenness", range = c(0.05, 1))
 
 ```
 
 ::: callout-note
-Questions and Inferences #11 How do the Centrality Measures show up in
-the graph? Would you "agree" with the way we have done it? Try to modify
-the aesthetics by copy-pasting this chunk below and see how you can make
-an alternative representation.
+## Questions and Inferences #11 
+
+How do the Centrality Measures show up in the graph? Would you "agree"
+with the way we have done it? Try to modify the aesthetics by
+copy-pasting this chunk below and see how you can make an alternative
+representation.
 :::
 
 ### Analysis and Visualizing Network Communities
@@ -655,7 +706,7 @@ Who is close to whom? Which are the groups you can see?
 ```{r}
 #| label: communities in networks
 # setting theme_graph 
-set_graph_style()
+# set_graph_style()
 
 
 # visualize communities of nodes
@@ -663,7 +714,7 @@ ga %>%
   activate(nodes) %>%
   mutate(community = as.factor(group_louvain())) %>% 
   ggraph(layout = "graphopt") + 
-  geom_edge_link() + 
+  geom_edge_link0() + 
   geom_node_point(aes(color = community), size = 5) 
 
 
@@ -690,6 +741,8 @@ column in the node list.
 
 ```{r}
 #| label:  greys-anatomy-data-for-visnetwork
+#| layout-ncol: 2
+
 library(visNetwork)
 
 # Prepare the data for plotting by visNetwork
@@ -741,7 +794,7 @@ grey_nodes_vis %>%
   
   #visLegend() %>%
   #Add the fontawesome icons!!
-  addFontAwesome() %>% 
+  addFontAwesome(version = "4.7.0") %>% 
   
   # Add Interaction Controls
   visInteraction(navigationButtons = TRUE,
@@ -751,7 +804,7 @@ grey_nodes_vis %>%
                  zoomView = TRUE)
 ```
 
-There is another family of icons available in visNetwork, called
+There is another family of icons available in `visNetwork`, called
 [`ionicons`](https://unpkg.com/ionicons@5.5.2/dist/cheatsheet.html).
 Let's see how they look:
 
@@ -823,6 +876,7 @@ starwars_edges <- read_csv("data/star-wars-network-edges.csv")
 
 ```{r}
 #| label:  visNetwork-starwars-2
+#| layout-ncol: 2
 
 # We need to rename starwars nodes dataframe and edge dataframe columns for visNetwork
 starwars_nodes_vis <- 
@@ -859,7 +913,7 @@ visNetwork(nodes = starwars_nodes_vis,
            edges = starwars_edges_vis) %>% 
   visNodes(font = list(size = 30), shape = "icon", 
            icon = list(code = "f1e3", size = 75)) %>% 
-  addFontAwesome() %>% 
+  addFontAwesome(version = "4.7.0") %>% 
   visEdges(color = "red")
 
 ```
@@ -923,7 +977,9 @@ b)  The Famous Zachary Karate Club dataset
 
 -   Start with pulling this data into your Rmarkdown:
 
-    data("karate",package= "igraphdata") karate
+    `data("karate",package= "igraphdata")`
+
+    `karate`
 
 -   Try `?karate` in the console
 
@@ -960,8 +1016,6 @@ d)  Any other graph dataset from `igraphdata` (type `?igraphdata` in
 
 ### Make-2: Literary Network with TV Show / Book / Story / Play
 
-This is in groups. Groups of 4. To be announced
-
 You need to create a Network Graph for your favourite **Book, play, TV
 serial or Show**. (E.g. Friends, BBT, or LB or HIMYM, B99, TGP, JTV...or
 Hamlet, Little Women , Pride and Prejudice, or LoTR)
@@ -974,7 +1028,6 @@ Step 2. **Make your data** using the instructions.
 
 -   In the nodes excel, use `id` and `names` as your columns. Any other
     details in other columns to the right.
-
 -   In your `edges` excel, use `from` and `to` are your first columns.
     Entries in these columns can be `names` or `id`s but be consistent
     and don't mix.

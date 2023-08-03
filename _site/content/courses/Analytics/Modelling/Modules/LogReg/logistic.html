@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2023-04-13">
-<title>The Foundation Series - Modelling Logistic Regression</title>
+<title>The Foundation Series - Modelling with Logistic Regression</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -91,15 +91,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<meta property="og:title" content="The Foundation Series - Modelling Logistic Regression">
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<meta property="og:title" content="The Foundation Series - Modelling with Logistic Regression">
+<meta property="og:description" content="">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Modelling/Modules/LogReg/preview.png">
 <meta property="og:site-name" content="The Foundation Series">
-<meta name="twitter:title" content="The Foundation Series - Modelling Logistic Regression">
+<meta name="twitter:title" content="The Foundation Series - Modelling with Logistic Regression">
+<meta name="twitter:description" content="">
 <meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Modelling/Modules/LogReg/preview.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
-<body class="nav-sidebar docked nav-fixed">
+<body class="nav-sidebar docked nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
@@ -144,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Modelling Logistic Regression</li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Modelling with Logistic Regression</li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -290,12 +292,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
 <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#generalized-linear-model" id="toc-generalized-linear-model" class="nav-link" data-scroll-target="#generalized-linear-model">Generalized Linear Model</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">Modelling Logistic Regression</h1>
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Modelling with Logistic Regression</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Logistic Regression</div>
     <div class="quarto-category">Qualitative Variable</div>
@@ -324,7 +327,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">July 20, 2023</p>
+      <p class="date-modified">July 26, 2023</p>
     </div>
   </div>
     
@@ -338,21 +341,104 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/infer">infer</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="logistic_cache/html/unnamed-chunk-2_4bc64786a8ffc562d0b90ee8bbc2aeda">
-<style type="text/css">
-
-/*https://stackoverflow.com/questions/73546631/how-to-format-tabset-font-in-quarto
-*/
-
-/*
-.panel-tabset .nav-item {
-   font-size: 20px;
-   font-style: italic
-    }
-*/
-</style>
+<section id="introduction" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>We saw with the <strong>general linear model</strong> that it models the <strong>mean</strong> of a target variable as a linear weighted sum of the predictor variables.</p>
+<p>A general linear model can be stated as:</p>
+<p><span class="math display">\[
+\begin{align*}
+y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
+Where\\
+p = number~ of ~ predictors~ x_p\\
+y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
+\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ prediction
+\end{align*}
+\]</span></p>
+<div class="page-columns page-full"><p>This model is considered to be <strong>general</strong> because of the dependence on potentially more than one explanatory variable, v.s. the <strong>simple</strong> linear model:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(y_i = \beta_0 + \beta_1x_i + \epsilon_i\)</span>. The general linear model gives us model “shapes” that start from a simple straight line to a <em>p-dimensional hyperplane</em>.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf</p></li></div></div>
+<p>The model is <strong>linear in the parameters</strong> <span class="math inline">\(\beta_i\)</span>, e.g.&nbsp;this is OK:</p>
+<p><span class="math display">\[
+\color{blue}
+{
+\begin{align*}
+y_i = \beta_0 + \beta_1x_1 + \beta_2x_1^2 + \epsilon_i\\
+y_1 = \beta_0 + \gamma_1\delta_1x_1 + exp(\beta_2)x_2+ \epsilon_i\\
+\end{align*}
+}
+\]</span></p>
+<p>but not, for example, this:</p>
+<p><span class="math display">\[
+\color{red}
+{\begin{align*}
+y_i = \beta_0 + \beta_1x^{\beta_2} +\epsilon_i\\
+y_i = \beta_0 + exp(\beta_1x_1) + \epsilon_i
+\end{align*}
+}
+\]</span></p>
+<p>Although a very useful framework, there are some situations where general linear models are not appropriate:</p>
+<ul>
+<li>the range of Y is restricted (e.g.&nbsp;binary, count)</li>
+<li>the variance of Y depends on the mean</li>
+</ul>
+<p><strong>Generalized linear models</strong> extend the general linear model framework to address both of these issues.</p>
+</section><section id="generalized-linear-model" class="level2"><h2 class="anchored" data-anchor-id="generalized-linear-model">Generalized Linear Model</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A generalized linear model is made up of a linear predictor:</p>
+<p><span class="math display">\[
+\eta_i = \beta_0 + \beta_1x_{1i} + ... + \beta_px_{pi}
+\]</span></p>
+<p>and two functions:</p>
+<ul>
+<li>
+<p>a link function that describes how the mean, <span class="math inline">\(E(Y_i) = \mu_i\)</span>, depends on the linear predictor:<br></p>
+<p><span class="math display">\[
+g(\mu_i) = \eta_i
+\]</span></p>
+</li>
+<li>
+<p>a variance function that describes how the variance, <span class="math inline">\(var(Y_i)\)</span> depends on the mean:<br></p>
+<p><span class="math display">\[
+var(Y_i) = \Phi*V(\mu_i)
+\]</span></p>
+</li>
+</ul>
+<p>where the dispersion parameter <span class="math inline">\(\Phi\)</span> is a constant.</p>
+</div>
+</div>
+<p>For example we can obtain our general linear model with the following choice:</p>
+<p><span class="math display">\[
+\begin{align}
+g(\mu_i) = \mu_i\\
+\Phi = 1
+\end{align}
+\]</span></p>
+<p>If now we assume that the <em>target</em> variable <span class="math inline">\(Y_i\)</span> is a <strong>binomial</strong>, i.e.&nbsp;a two-valued variable:<br></p>
+<p><span class="math display">\[
+\begin{align}
+Y_i = binom(n_i,p_i)\\
+and\\
+mean(Y_i) = n_ip_i\\
+var(Y_i) = n_ip_i(1-p_i)
+\end{align}
+\]</span></p>
+<p>Now, we wish to model the <strong>proportions</strong> <span class="math inline">\(Y_i/n_i\)</span>, as our <strong>target</strong>. Then we can state that:<br></p>
+<p><span class="math display">\[
+\begin{align}
+mean(Y_i/n_i) = mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
+var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
+\end{align}
+\]</span> Inspecting the above, we can write for the <strong>target variable</strong>: <span class="math display">\[
+\sigma_i^2 = \frac{\mu_i(1-\mu_i)}{n_i}
+\]</span> and since the link function needs to map <span class="math inline">\({[-\infty, \infty]}\)</span> to <span class="math inline">\({[0,1]}\)</span>, we use the <code>logit</code> function: <span class="math display">\[
+g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
+\]</span></p>
 </section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
 <ol type="1">
 <li><p><a href="https://yury-zablotski.netlify.app/post/how-logistic-regression-works/" class="uri">https://yury-zablotski.netlify.app/post/how-logistic-regression-works/</a></p></li>

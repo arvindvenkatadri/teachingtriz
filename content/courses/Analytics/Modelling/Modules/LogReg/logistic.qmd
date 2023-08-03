@@ -1,5 +1,5 @@
 ---
-title: "Modelling Logistic Regression"
+title: "Modelling with Logistic Regression"
 author: "Arvind Venkatadri"
 date: 13/Apr/2023
 date-modified: "`r Sys.Date()`"
@@ -24,20 +24,124 @@ library(infer)
 
 ```
 
-```{css, echo=FALSE}
-
-/*https://stackoverflow.com/questions/73546631/how-to-format-tabset-font-in-quarto
-*/
-
-/*
-.panel-tabset .nav-item {
-   font-size: 20px;
-   font-style: italic
-    }
-*/
-```
-
 ## Introduction
+
+We saw with the **general linear model** that it models the **mean** of
+a target variable as a linear weighted sum of the predictor variables.
+
+A general linear model can be stated as: 
+
+$$
+\begin{align*}
+y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
+Where\\
+p = number~ of ~ predictors~ x_p\\
+y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
+\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ prediction
+\end{align*}
+$$
+
+This model is considered to be **general** because of the dependence on
+potentially more than one explanatory variable, v.s. the **simple**
+linear model:[^1] $y_i = \beta_0 + \beta_1x_i + \epsilon_i$. The general
+linear model gives us model "shapes" that start from a simple straight
+line to a *p-dimensional hyperplane*.
+
+The model is **linear in the parameters** $\beta_i$, e.g. this is OK:
+
+$$
+\color{blue}
+{
+\begin{align*}
+y_i = \beta_0 + \beta_1x_1 + \beta_2x_1^2 + \epsilon_i\\
+y_1 = \beta_0 + \gamma_1\delta_1x_1 + exp(\beta_2)x_2+ \epsilon_i\\
+\end{align*}
+}
+$$
+
+but not, for example, this:
+
+$$
+\color{red}
+{\begin{align*}
+y_i = \beta_0 + \beta_1x^{\beta_2} +\epsilon_i\\
+y_i = \beta_0 + exp(\beta_1x_1) + \epsilon_i
+\end{align*}
+}
+$$ 
+
+Although a very useful framework, there are some situations where
+general linear models are not appropriate:
+
+-   the range of Y is restricted (e.g. binary, count)
+-   the variance of Y depends on the mean
+
+**Generalized linear models** extend the general linear model framework
+to address both of these issues.
+
+## Generalized Linear Model
+
+::: callout-important
+A generalized linear model is made up of a linear predictor:
+
+$$
+\eta_i = \beta_0 + \beta_1x_{1i} + ... + \beta_px_{pi}
+$$ 
+
+and two functions:
+
+-   a link function that describes how the mean, $E(Y_i) = \mu_i$,
+    depends on the linear predictor:\
+    
+    $$
+    g(\mu_i) = \eta_i
+    $$
+    
+-   a variance function that describes how the variance, $var(Y_i)$
+    depends on the mean:\
+    
+    $$
+    var(Y_i) = \Phi*V(\mu_i)
+    $$
+
+where the dispersion parameter $\Phi$ is a constant. 
+:::
+
+For example we can obtain our general linear model with the following choice: 
+
+$$
+\begin{align}
+g(\mu_i) = \mu_i\\
+\Phi = 1
+\end{align}
+$$ 
+
+If now we assume that the *target* variable $Y_i$ is a **binomial**,
+i.e. a two-valued variable:\
+
+$$
+\begin{align}
+Y_i = binom(n_i,p_i)\\
+and\\
+mean(Y_i) = n_ip_i\\
+var(Y_i) = n_ip_i(1-p_i)
+\end{align}
+$$
+
+Now, we wish to model the **proportions** $Y_i/n_i$, as our **target**.
+Then we can state that:\
+
+$$
+\begin{align}
+mean(Y_i/n_i) = mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
+var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
+\end{align}
+$$ Inspecting the above, we can write for the **target variable**: $$
+\sigma_i^2 = \frac{\mu_i(1-\mu_i)}{n_i}
+$$ and since the link function needs to map ${[-\infty, \infty]}$ to
+${[0,1]}$, we use the `logit` function: $$
+g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
+$$
 
 ## References
 
@@ -49,4 +153,6 @@ library(infer)
 
 4.  <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
 
-5. 
+5.  
+
+[^1]: https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf
