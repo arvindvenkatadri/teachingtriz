@@ -48,7 +48,7 @@ library(igraphdata)
 library(ggtext) # Claus Wilke's package
 library(showtext)
 
-# For repeatble layouts
+# For repeatable layouts
 set.seed(12345)
 
 ```
@@ -58,48 +58,17 @@ set.seed(12345)
 #| label: loading_fonts
 #| cache: true
 ## Loading Google fonts (https://fonts.google.com/)
-font_add_google(name = "Fira Code", family = "fira")
-font_add_google(name = "Roboto Condensed", family = "roboto")
+font_add_google(name = "Fira Sans Extra Condensed", family = "fira")
+font_add_google(name = "Roboto Condensed", family = "roboto_condensed")
 font_add_google(name = "Poppins", family = "poppins")
 font_add_google("Gochi Hand", "gochi")
 font_add_google("Schoolbell", "bell")
+font_add_google("Merriweather Sans", "merri")
 
-## Automatically use showtext to render text
-showtext_auto()
+showtext_opts(dpi = 300, regular.wt = 300, bold.wt = 800)
+showtext_auto(enable = TRUE)
 
-```
-
-
-```{r}
-#| label: set_the_theme
-my_theme <- theme_graph(base_family = "roboto", base_size = 10) +
-  theme(text = element_text(family = "roboto"),
-    plot.title = element_text(
-      family = "roboto",
-      face = "bold",
-      size = 20
-    ),
-    plot.subtitle = element_text(
-      family = "fira",
-      face = "bold",
-      size = 16
-    ),
-    legend.title = element_text(
-      family = "poppins",
-      face = "bold",
-      size = 10
-    ),
-    legend.text = element_text(family = "poppins", size = 8),
-    legend.margin = margin(
-      t = 2,
-      r = 2,
-      b = 2,
-      l = 2,
-      unit = "pt"
-    )
-  )
-
-ggplot2::theme_set(my_theme)
+ggraph::set_graph_style(family = "merri")
 
 ```
 
@@ -339,7 +308,7 @@ Two kinds of `geom`: one set for nodes, and another for edges
     are `circle / arc_bar / tile / voronoi`. Remember the `geom`s that
     we have seen before in Grammar of Graphics!
 
--   `geom_edge_link(aes(.....))`: Draws edges as "links". Alternatives
+-   `geom_edge_link0(aes(.....))`: Draws edges as "links". Alternatives
     are
     `arc / bend / elbow / hive / loop / parallel / diagonal / point / span /tile`.
 
@@ -358,22 +327,16 @@ Two kinds of `geom`: one set for nodes, and another for edges
 
 ggraph(graph = ga,  layout = "kk") +
   #
-  
-  geom_edge_link(width = 2, color = "pink") +
+  geom_edge_link0(width = 2, color = "pink") +
   #
+  geom_node_point(shape = 21, size = 8,
+                  fill = "blue",
+                  color = "green",
+                  stroke = 2) +
   
-  geom_node_point(
-    shape = 21,
-    size = 8,
-    fill = "blue",
-    color = "green",
-    stroke = 2
-  ) +
-  
-  labs(title = "Whoo Hoo! My first silly Grey's Anatomy graph in R!",
+  labs(title = "Whoo Hoo! My silly Grey's Anatomy graph in R!",
        subtitle = "Why did I ever get in this course...",
-       caption = "Bro, they are doing **cool** things in the other classes...") 
-
+       caption = "Bro, they are doing cool things in the other classes...")
 
 ```
 
@@ -393,7 +356,7 @@ changes. Colour? Fill? Width? Size? Stroke? Labs? Of course!
 # Use fixed values for colours or sizes...etc. 
 
 ggraph(graph = ga,  layout = "kk") + 
-  geom_edge_link(width = 2) + 
+  geom_edge_link0(width = 2) + 
   geom_node_point(shape = 21, size = 4, 
                   fill = "moccasin", 
                   color = "firebrick", 
@@ -451,7 +414,9 @@ ggraph(graph = ga, layout = "fr") +
   
   geom_node_point(aes(color = race), size = 6) + # change variable here
 
-  labs(title = "Whoo Hoo! Yet another Grey's Anatomy graph in R!") +
+  labs(title = "Whoo Hoo! Yet another Grey's Anatomy graph in R!",
+       subtitle = "Colouring Nodes by Attribute",
+       caption = "Grey's Anatomy") +
   
   scale_edge_width(range = c(0.2,2))
 
@@ -473,10 +438,11 @@ work with either of the two?
 # Arc diagram
 
 ggraph(ga, layout = "linear") +
-  geom_edge_arc(aes(width = weight), alpha = 0.8) +
+  geom_edge_arc0(aes(width = weight), alpha = 0.8) +
   scale_edge_width(range = c(0.2, 2)) +
   geom_node_point(size = 2, colour = "red") +
-  labs(edge_width = "Weight",title = "Grey's Anatomy", subtitle = "Arc Layout") 
+  labs(edge_width = "Weight",title = "Grey's Anatomy", subtitle = "Arc Layout")
+
 
 
 ```
@@ -492,13 +458,13 @@ difference in the relationships between people here? Why?
 #| label:  Coord-Diagram-circular
 # Coord diagram, circular
 ggraph(ga, layout = "linear", circular = TRUE) + # Note the layout!
-  geom_edge_arc(aes(width = weight), alpha = 0.8) + 
+  geom_edge_arc0(aes(width = weight), alpha = 0.8) + 
   scale_edge_width(range = c(0.2, 2)) +
   
   geom_node_point(size = 4,colour = "red") + 
   geom_node_text(aes(label = name),
                  repel = TRUE, size = 3,check_overlap = TRUE, 
-                 max.overlaps = 15) +
+                 max.overlaps = 25) +
   labs(edge_width = "Weight")  +
   theme(aspect.ratio = 1)
 
@@ -538,6 +504,7 @@ graph <-  tbl_graph(edges = flare$edges, nodes = flare$vertices)
 #| layout-ncol: 2
 #| fig-show: hold
 #| column: body-outset-right
+#| warning: false
 
 # dendrogram
 ggraph(graph, layout = "dendrogram") + 
@@ -546,21 +513,24 @@ ggraph(graph, layout = "dendrogram") +
 
 # circular dendrogram
 ggraph(graph, layout = "dendrogram", circular = TRUE) + 
-  geom_edge_diagonal() + 
+  geom_edge_diagonal0() + 
   geom_node_point(aes(filter = leaf)) + 
   coord_fixed()+ 
   labs(title = "Circular Dendrogram")
+
 
 # rectangular tree map
 ggraph(graph, layout = "treemap", weight = size) + 
   geom_node_tile(aes(fill = depth), size = 0.25) + 
   labs(title = "Rectangular Tree Map")
 
+
 # circular tree map
 ggraph(graph, layout = "circlepack", weight = size) + 
   geom_node_circle(aes(fill = depth), size = 0.25, n = 50) + 
   coord_fixed() + 
   labs(title = "Circular Tree Map")
+
 
 # icicle
 ggraph(graph, layout = "partition") + 
@@ -589,15 +559,11 @@ qualitative attribute on nodes or edges.
 ```{r}
 #| label:  faceting
 #| column: body-outset-right
-#| layout-ncol: 3
-
-# setting theme_graph 
-# set_graph_style()
-
+#| layout-ncol: 2
 
 # facet edges by type
 ggraph(ga,layout = "linear", circular = TRUE) + 
-  geom_edge_link(aes(color = type)) + 
+  geom_edge_link0(aes(color = type)) + 
   geom_node_point() +
   facet_edges(~ type) +
   th_foreground(border = TRUE) +
@@ -605,19 +571,20 @@ ggraph(ga,layout = "linear", circular = TRUE) +
 
 # facet nodes by sex
 ggraph(ga,layout = "linear", circular = TRUE) + 
-  geom_edge_link() + 
+  geom_edge_link0() + 
   geom_node_point() +
   facet_nodes(~race) +
   th_foreground(border = TRUE) +
   theme(aspect.ratio = 1)
 
+
 # facet both nodes and edges
 ggraph(ga,layout = "linear", circular = TRUE) + 
-  geom_edge_link(aes(color = type)) + 
+  geom_edge_link0(aes(color = type)) + 
   geom_node_point() +
   facet_graph(type ~ race) + 
   th_foreground(border = TRUE) +
-  theme(aspect.ratio = 1, legend.position = "top")
+  theme(aspect.ratio = 1, legend.position = "right")
 
 ```
 
@@ -672,7 +639,7 @@ and visualization tasks in one go.
 ```{r Using-Centrality}
 
   ggraph(ga,layout = "nicely") +
-    geom_edge_link(aes(alpha = centrality_edge_betweenness())) + 
+    geom_edge_link0(aes(alpha = centrality_edge_betweenness())) + 
     
     geom_node_point(aes(colour = centrality_degree(), 
                         size = centrality_degree())) +
@@ -686,7 +653,8 @@ and visualization tasks in one go.
                          aesthetics = c("colour", "fill"), 
                          guide = guide_legend(reverse = FALSE)) + 
     
-    scale_edge_alpha(name = "Betweenness", range = c(0.05, 1))
+    scale_edge_alpha(name = "Betweenness", range = c(0.05, 1)) +
+  labs(title = "Grey's Anatomy", subtitle = "Nodes Scaled by Degree\n Edges shaded by Betweenness")
 
 ```
 
@@ -705,8 +673,6 @@ Who is close to whom? Which are the groups you can see?
 
 ```{r}
 #| label: communities in networks
-# setting theme_graph 
-# set_graph_style()
 
 
 # visualize communities of nodes
@@ -715,7 +681,8 @@ ga %>%
   mutate(community = as.factor(group_louvain())) %>% 
   ggraph(layout = "graphopt") + 
   geom_edge_link0() + 
-  geom_node_point(aes(color = community), size = 5) 
+  geom_node_point(aes(color = community), size = 5) +
+  labs(title = "Grey's Anatomy", subtitle = "Nodes Coloured by Community Detection Algorithm (Louvain)")
 
 
 ```
@@ -907,18 +874,6 @@ starwars_edges_vis
 Ok, let's make things move and shake!!
 
 ```{r}
-#| label:  visNetwork-starwars-futbol
-
-visNetwork(nodes = starwars_nodes_vis,
-           edges = starwars_edges_vis) %>% 
-  visNodes(font = list(size = 30), shape = "icon", 
-           icon = list(code = "f1e3", size = 75)) %>% 
-  addFontAwesome(version = "4.7.0") %>% 
-  visEdges(color = "red")
-
-```
-
-```{r}
 #| label:  visNetwork-starwars
 
 visNetwork(nodes = starwars_nodes_vis,
@@ -927,6 +882,21 @@ visNetwork(nodes = starwars_nodes_vis,
   visEdges(color = "red")
 
 ```
+
+
+```{r}
+#| label:  visNetwork-starwars-futbol-interaction
+
+visNetwork(nodes = starwars_nodes_vis,
+           edges = starwars_edges_vis) %>% 
+  visNodes(font = list(size = 30), shape = "icon", 
+           icon = list(code = "f1e3", size = 75)) %>% 
+  visEdges(color = list(color = "red", hover = "green", highlight = "black")) %>% 
+  visInteraction(hover = TRUE) %>% 
+  addFontAwesome(version = "4.7.0")
+
+```
+
 
 ## Your Assignments:
 
