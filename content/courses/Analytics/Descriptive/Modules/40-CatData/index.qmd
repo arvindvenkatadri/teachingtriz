@@ -19,9 +19,12 @@ categories:
 - Correspondence Analysis
 ---
 
+## {{< iconify noto-v1 package >}} Setting up R Packages {#sec-setting-up-r-packages}
+
 ```{r}
 #| label: setup
 #| include: true
+#| message: false
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(mosaic) # Our trusted friend
@@ -29,8 +32,13 @@ library(GGally)
 library(skimr)
 library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
+library(ggmosaic) # Mosaic Plots
+library(resampledata) # More datasets
+
 library(sjPlot) # Likert Scale Plots
-library(ggpubr) # Colours, Themes and geometries in ggplot
+library(sjlabelled) # Creating Labelled Data for Likert Plots
+
+library(ggpubr) # Colours, Themes and new geometries in ggplot
 library(ca) # Correspondence Analysis, for use some day
 
 
@@ -39,9 +47,12 @@ library(kableExtra) # html styled tables
 library(gt) # Making Cool Tables
 library(patchwork) # To arrange plots on a grid and other things
 
+## Plot Theme
+theme_set(new = theme_classic())
+
 ```
 
-# Introduction
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 To recall, a categorical **variable** is one for which the possible
 measured or assigned values consist of a discrete set of categories,
@@ -69,7 +80,7 @@ variables) such as Gender from those with more than two categories
 
 {{< video https://www.youtube.com/embed/7NhNeADL8fA >}}
 
-# Categorical Data
+## {{< iconify mdi category-plus-outline >}} Categorical Data
 
 From the `{vcd package}` vignette:
 
@@ -85,31 +96,31 @@ From the `{vcd package}` vignette:
 Let us first see examples of each.
 
 ::: panel-tabset
-## Case Form
 
-Containing *individual observations* with one or more **categorical**
-factors, used as classifying variables. The total number of observations
-is `nrow(X)`, and the number of variables is `ncol(X)`.
-
-```{r}
-#| label: Arthritis-Dataset
-Arthritis
-class(Arthritis)
-
-```
+### Case Form
 
 From Michael Friendly [Discrete Data Analysis and
 Visualization](http://ddar.datavis.ca/pages/home) :
 
 > In many circumstances, data is recorded on each individual or
 > experimental unit. Data in this form is called case data, or data in
-> case form.
+> case form. Containing *individual observations* with one or more
+> **categorical** factors, used as classifying variables. The total
+> number of observations is `nrow(X)`, and the number of variables is
+> `ncol(X)`.
 
-```{r, case-form-data, echo=FALSE}
+```{r}
+#| label: case-form-data
+#| column: body-outset-right
+#| layout-ncol: 2
 
-head(Arthritis) %>% 
-  kbl(caption = "Arthritis Treatments and Effects (first 6 entries)",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F,)
+class(Arthritis)
+
+# Tibble as HTML for presentation
+Arthritis %>%  
+  head(10) %>% 
+  kbl(caption = "Arthritis Treatments and Effects<br> First 10 Observations",centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F)
 
 ```
 
@@ -126,23 +137,29 @@ One of the three factors `Improved` is an **ordered factor**.
 
 Each row in the `Arthritis` dataset is a separate case or observation.
 
-## Frequency Data
+### Frequency Data Form
 
-Data in frequency form has already been tabulated, by counting over the
-(combinations of ) categories of the table variables. When the data are
-in **case form**, we can always trace any observation back to its
-individual identifier or data record, since each row is a unique
-observation or *case*; the reverse is rarely possible.
+Data in frequency form has already been tabulated and *aggregated* by
+**counting** over the (combinations of ) categories of the table
+variables. When the data are in **case form**, we can always trace any
+observation back to its individual identifier or data record, since each
+row is a unique observation or *case*; the reverse, with the **Frequency
+Form** is rarely possible.
 
 Frequency Data is usually a data frame, with columns of categorical
 variables and at least one column containing `frequency` or `count`
 information.
 
 ```{r}
+#| layout-ncol: 3
+#| column: body-outset-right
 str(GSS)
-GSS %>% 
+GSS 
+
+# Tibble as HTML for presentation
+GSS %>%
   kbl(caption = "General Social Survey",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F,)
+  kable_classic_2(html_font = "Cambria", full_width = F)
 
 ```
 
@@ -152,13 +169,14 @@ Respondents in the GSS survey were classified by `sex` and `party`
 identification. As can be seen, there is a **count** for every
 combination of the two *categorical* variables, `sex` and `party`.
 
-## Table form
+### Table form
 
-> Table Form Data can be a `matrix`, `array` or `table object`, whose
-> elements are the frequencies in an **n-way table**. The variable names
-> (factors) and their levels are given by `dimnames(X)`.
+Table Form Data can be a `matrix`, `array` or `table object`, whose
+elements are the frequencies in an **n-way table**. The variable names
+(factors) and their levels are given by `dimnames(X)`.
 
-```{r Table-Form}
+```{r}
+#| label:  Table-Form
 
 HairEyeColor
 class(HairEyeColor)
@@ -180,12 +198,14 @@ sapply(dimnames(HairEyeColor), length)
 
 ```
 
-A good way to think of tabular data is to think of a Rubik's Cube.
+A good way to think of **tabular data** is to think of a Rubik's Cube.
 
 ![Rubik's Cube model for Multi-Table
-Data](cube.jpg){alt="Rubik's Cube model for Multi-Table Data"
-fig-alt="Rubik's Cube model for Multi-Table Data" fig-align="center"
-width="352"}
+Data](cube.jpg){fig-alt="Rubik's Cube model for Multi-Table Data"
+fig-align="center" width="352"}
+
+::: callout-tip
+#### Rubik's Cube and Categorical Data Tables
 
 Each of the edges is an *Ordinal Variable*, each segment represents a
 *level* in the variable. So each face of the Cube represents *two*
@@ -194,6 +214,8 @@ ordinal variables. Any segment is at the intersection of two
 as a *count*. This array of counts on a face is a 2D or **2-Way Table**.
 ( More on this later )
 
+:::
+
 Since we can only print 2D tables, we hold one face in front and the
 image we see is a 2-Way Table. Turning the Cube by 90 degrees gives us
 another face with 2 variables, with one variable in common with the
@@ -201,28 +223,38 @@ previous face. If we consider two faces together, we get two 2-way
 tables, effectively allowing us to contemplate 3 categorical variables.
 
 Multiple 2-Way tables can be **flattened** into a single long table that
-contains all counts for all combinations of categorical variables.
+contains all counts for all combinations of categorical variables. This
+can be visualized as "opening up" and laying flat the Rubik's cube, as
+with a cardboard model of it.
 
 ```{r}
 #| label: flattened-table
 ftable(HairEyeColor)
+
 ```
 
-We may need to convert the (multiple) tables into a data frame:
+Finally, we may need to convert the (multiple) tables into a data frame
+or tibble:
 
 ```{r}
 #| label: tables-to-data-frame
+#| layout-ncol: 2
 ## Convert the two tables into a data frame
 HairEyeColor %>% 
-  as_tibble() %>% # Convert
-  head() %>% # Take first few rows to show
-  kbl(caption = "Hair Eye and Color (First 6 Entries)") %>% 
+  as_tibble() 
+
+# Tibble as HTML for presentation
+HairEyeColor %>% 
+  as_tibble() %>%  # Convert
+  kbl(caption = "Hair Eye and Color") %>% 
   kable_classic_2(html_font = "Cambria", full_width = F)
 
 ```
+
 :::
 
-# Creating Contingency Tables
+
+## {{< iconify grommet-icons table-add >}} Creating Contingency Tables {#sec-creating-contingency-tables}
 
 Most plots for Categorical Data ( as we shall see ) require that the
 data be converted into a ***Contingency Table*** ; even Statistical
@@ -233,8 +265,8 @@ full-fledged Contingency Table.
 From [Wolfram
 Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 
-> A contingency table, sometimes called a two-way frequency table, is a
-> tabular mechanism with at least two rows and two columns used in
+> A contingency table, sometimes called a **two-way frequency table**,
+> is a tabular mechanism with at least two rows and two columns used in
 > statistics to present categorical data in terms of frequency counts.
 > More precisely, an $r \times c$ contingency table shows the observed
 > frequency of two variables the observed frequencies of which are
@@ -243,45 +275,55 @@ Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 
 In this section we understand how to make Contingency Tables from each
 of the three forms. We will use `vcd`, `mosaic` and the `tidyverse`
-packages for our purposes.
+packages for our purposes. Then we will see how it can be visualized.
 
 ::: panel-tabset
-## Using base R
+### Using base R
 
 ```{r}
-#| label: base-R-one-way
+#| label: base-R-one-way-two-way
+#| layout-ncol: 2
 
-#One Way Table ( one variable )
+# One Way Table ( one variable )
 table(Arthritis$Treatment) # Contingency Table
 
-# We can add (row) margins to this table
+# 1-way Contingency Table
 table(Arthritis$Treatment) %>% addmargins() # Contingency Table with margins
 
+# 2-Way Contingency Tables
+
+# Choosing Treatment and Improved
+table(Arthritis$Treatment, Arthritis$Improved) %>% addmargins() 
+
+# Choosing Treatment and Sex
+table(Arthritis$Sex, Arthritis$Improved) %>% addmargins()
+
 ```
 
-```{r}
-#| label: base-R-two-way
-# Two-Way Table ( two variables )
-# table(Arthritis$Treatment, Arthritis$Improved) %>% prop.table() 
-table(Arthritis$Treatment, Arthritis$Improved) %>% addmargins() # Contingency Table with margins
-
-```
-
-We can use **table()** ( and also **xtabs()** ) to generate
-multi-dimensional tables too (More than 2D ) These will be printed out
+We can use `table()` ( and also `xtabs()` ) to generate
+multi-dimensional tables too (More than 2-way) These will be printed out
 as a series of 2D tables, one for each value of the "third" parameter.
 We can then *flatten* this set of tables using **ftable()** and add
 margins to convert into a Contingency Table:
 
 ```{r}
 #| label: r-base-three-way-table
+#| layout-ncol: 3
+#| column: body-outset-right
 mytable <- table(Arthritis$Treatment, Arthritis$Sex, Arthritis$Improved)
 mytable
+
+
+# Now flatten 
+ftable(mytable) 
 ftable(mytable) %>% addmargins()
 
 ```
 
-## Using the `vcd` package
+A bit strange that the column labels disappear in the ftable when
+margins are added...
+
+### Using the `vcd` package
 
 The `vcd` ( Visualize Categorical Data ) package by Michael Friendly has
 a convenient function to create Contingency Tables: `structable()`; this
@@ -299,63 +341,96 @@ The arguments of `structable` are:
 
 ```{r}
 #| label: vcd-data-frame-to-contingency-table
+#| results: hold
+#| layout-ncol: 2
+
+# Three Way!!
 arth_vcd <- vcd::structable(data = Arthritis, Treatment ~ Improved + Sex)
 arth_vcd
 class(arth_vcd)
 
+```
+
+```{r}
+#| layout-ncol: 2
+#| results: hold
 # With Margins
 arth_vcd %>% as.matrix() %>% addmargins()
+
+# We can convert this to a tibble, unlike the `table` earlier!
+arth_vcd %>% as.matrix() %>% addmargins() %>% as_tibble()
 
 ```
 
 ```{r}
-#| label: vcd-mutlitable-to-contingency-table
+#| label: vcd-multitable-to-contingency-table
+#| layout-ncol: 2
+#| column: body-outset-right
 # HairEyeColor is in multiple table form
 # structable flattens these into one, as for a mosaic chart
+
 HairEyeColor
 vcd::structable(HairEyeColor)
 
 ```
 
 `UCBAdmissions` is already in Frequency Form i.e. a Contingency Table.
+But it is a **set** of (two-way) Contingency Tables:
 
 ```{r}
+#| layout-ncol: 3
+#| column: body-outset-right
 UCBAdmissions
 vcd::structable(UCBAdmissions)
+
+structable(UCBAdmissions) %>% as.matrix() %>% addmargins()
 
 ```
 
 Note that `structable` does not permit the adding of margins directly;
 it needs to be converted to a matrix for `addmargins()` to do its work.
 
-## Using the `mosaic` package
+### Using the `mosaic` package
 
 I think this is the **simplest and most elegant way** of obtaining
 Contingency Tables:
 
 ```{r}
+#| label: using-mosaic
+#| layout-ncol: 3
 # One Way Table
 mosaicCore::tally( ~ substance, data = HELPrct, margins = TRUE)
 
 
+# Two-Way Tables
 # Two ways of producing the same result
-
 tally( sex ~ substance, data = HELPrct, margins = TRUE)
 tally(~ sex | substance, data = HELPrct, margins = TRUE)
 
 ```
 
-## Using the `tidyverse`
+So far these packages give Contingency Tables that are easy to see for
+humans; some of these structures are also capable being passed directly
+to commands such as `stats::chisq.test()` or `janitor::chisq.test()`.
+
+Often we need Contingency Tables that are in `tibble` form and we need
+to perform some data processing using `dplyr` to get there:
+
+### Using the `tidyverse`
 
 Doing this with the `tidyverse` set of packages may seem
 counter-intuitively long-winded, but the workflow is easily
-understandable:
+understandable.
 
 First we develop the counts:
 
 ```{r}
 #| label: tidyverse-for-Contingency-Tables
+#| layout-ncol: 3
+#| column: page-inset-right
 #| message: false
+diamonds %>% count(cut)
+diamonds %>% count(clarity)
 
 diamonds %>% 
   group_by(cut, clarity) %>% 
@@ -363,12 +438,13 @@ diamonds %>%
 
 ```
 
-We need to have the levels of `cut` as rows and the levels of `clarity`
-as columns. This means that we need to pivot this from "long" to wide"
-to obtain a Contingency Table:
+We need to have the individual levels of `cut` as rows and the
+individual levels of `clarity` as columns. This means that we need to
+pivot this from "long" to wide" to obtain a Contingency Table:
 
 ```{r}
 #| message: false
+#| label: pivoting-long-to-wide
 diamonds %>% 
   group_by(cut, clarity) %>% 
   dplyr::summarise( count = n()) %>% 
@@ -380,20 +456,22 @@ diamonds %>%
   # Now add the row and column totals using the `janitor` package
   janitor::adorn_totals(where = c("row", "col")) %>%
   
-  # Recover to tibble since janitor gives a "tabyl" format ( which can be useful )
+  # Recover to tibble since janitor gives a "tabyl" format ( which can be useful too !)
   as_tibble()
 
 ```
 :::
 
-Now that we have Contingency Tables, we can plot these:
 
-## What sort of Plots can we make for Categorical Data?
 
-We have already seen bar plots, which allow us to plot counts of
-categorical data. However, if there are a large number of categorical
-variables or if the categorical variables have many levels, the bar plot
-is not adequate.
+## {{< iconify carbon chart-3d >}} Plots for Categorical Data
+
+Now that we have Contingency Tables, we can plot these. We have already
+seen **bar plots**, which allow us to plot counts of categorical data.
+These can be used for say 2 or 3 Categorical variables, with not too
+many *levels*. However, for more complex data, if there are a large
+number of categorical variables, or if the categorical variables have
+many levels, the bar plot is not adequate.
 
 From Michael Friendly:
 
@@ -402,8 +480,8 @@ From Michael Friendly:
 > scatterplot, for example, widely used to show the relation between
 > quantitative response and predictors, when applied to discrete
 > variables, gives a display of the category combinations, with all
-> identical values overplotted, and no representation of their
-> frequency.
+> identical values overplotted, and **no representation of their
+> frequency**. (AV: Scatter plots do not do counting internally!)
 
 > Instead, frequencies of categorical variables are often best
 > represented graphically using **areas** rather than as **position
@@ -414,10 +492,12 @@ $$\pmb{area \sim frequency}$$
 > allows creating novel graphical displays of frequency data for special
 > circumstances.
 
-Let us not look at some sample plots that embody this "area-frequency\*
+Let us not look at some sample plots that embody this *area-frequency*
 principle.
 
-### Mosaic Plots
+
+
+### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Mosaic Plots
 
 A mosaic plot is basically an area-proportional visualization of
 (typically observed) frequencies, consisting of tiles (corresponding to
@@ -425,25 +505,116 @@ the cells) created by vertically and horizontally splitting a rectangle
 recursively. Thus, the area of each tile is proportional to the
 corresponding cell entry given the dimensions of previous splits.
 
+::: panel-tabset
+
+#### Using `vcd`
+
 The `vcd::mosaic()` function needs the data in *contingency table* form.
 We will use our `vcd::structable()` function to construct one:
 
 ```{r}
 #| label:  mosaic-plot-using-vcd
-#| results: hold
+#| layout-ncol: 2
+
 art <- vcd::structable(~ Treatment + Improved, data = Arthritis)
 art
-vcd::mosaic(art, gp = shading_max)
+vcd::mosaic(art, gp = shading_max, main = "Arthritis Treatment Dataset")
 
-### Or
-### vcd::mosaic(structable(~ Treatment + Improved, data = Arthritis), gp = shading_max, split_vertical = TRUE)
 
 ```
 
-### Balloon Plots
+
+
+```{r}
+
+data("GSS2002", package = "resampledata")
+
+gss2002 <- GSS2002 %>% 
+  # select two categorical variables from the dataset
+  dplyr::select(Education, DeathPenalty) %>% 
+  drop_na(Education, DeathPenalty)
+
+gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
+gss_table %>% addmargins()
+
+vcd::mosaic(gss_table, gp = shading_hsv)
+
+```
+
+#### Using `ggmosaic`
+
+This is perhaps the simplest way, but does use a different package and
+also does *not* use the formula notation: there is no `gf_mosaic`
+command yet!
+
+```{r mosaic-plot,warning=FALSE}
+#library(ggmosaic)
+
+ggplot(data = gss2002) +
+  geom_mosaic(aes(x = product(DeathPenalty, Education), 
+                  fill = DeathPenalty))
+
+```
+
+#### Using `ggformula`
+
+This needs quite some work, to convert the Contingency Table into a
+mosaic plot; perhaps not the most intuitive of methods either. This code
+has been developed using this [Stackoverflow
+post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2).
+
+```{r warning=FALSE,message=FALSE}
+# Reference
+# https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
+
+gss_summary <- gss2002 %>% 
+  dplyr::group_by(Education, DeathPenalty) %>%
+  dplyr::summarise(count = n()) %>% # This is good for a chisq test
+  
+  # Data is still grouped by `Education`
+  # Add two more columns to facilitate mosaic Plot
+  # These two columns are quite unusual...
+  mutate(edu_count = sum(count), 
+         edu_prop = count / sum(count)) %>%
+  ungroup()
+gss_summary
+
+# This works but is not very intuitive...
+gf_col(edu_prop ~ Education, data = gss_summary,
+       width = ~ edu_count, # Not typically used in a column chart
+       fill = ~ DeathPenalty,
+       stat = "identity", 
+       position = "fill", 
+       color = "black") %>% 
+  
+  gf_text(edu_prop ~ Education, 
+          label = ~ scales::percent(edu_prop),
+          position = position_stack(vjust = 0.5)) %>% 
+  
+  gf_facet_grid(~ Education, 
+                scales = "free_x", 
+                space = "free_x") %>% 
+  
+  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
+  gf_theme(theme_void())
+  
+
+```
+:::
+
+
+
+## {{< iconify fluent-mdl2 balloons >}} Balloon Plots
+
+There is another visualization of Categorical Data, called a Balloon
+Plot. We will use the `housetasks` dataset from the package `ggpubr`.
+This data is already in Contingency Table form (without the margin
+totals)!
 
 ```{r}
 #| label: balloon-plot-using-ggpubr
+#| layout-ncol: 2
+#| column: page-inset-right
 
 housetasks <- read.delim(
   system.file("demo-data/housetasks.txt", 
@@ -453,21 +624,38 @@ housetasks <- read.delim(
 head(housetasks, 4)
 
 ggpubr::ggballoonplot(housetasks, fill = "value") +
-  scale_fill_viridis_c(option = "C")
-
+  scale_fill_viridis_c(option = "C") +
+  labs(title = "A Balloon Plot for Categorical Data")
 
 ```
+
+And repeat with the familiar `HairEyeColor` dataset:
 
 ```{r}
-df <- as.data.frame(HairEyeColor)
-ggballoonplot(df, x = "Hair", y = "Eye", size = "Freq",
-              fill = "Freq", facet.by = "Sex",
+#| label: Ballon-Plots-2
+#| layout-ncol: 3
+#| column: page-inset-right
+df <- as_tibble(HairEyeColor)
+df
+ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
+              fill = "n",
               ggtheme = theme_bw()) +
-  scale_fill_viridis_c(option = "C")
+  scale_fill_viridis_c(option = "C") + 
+  labs(title = "Balloon Plot")
+
+# Balloon Plot with facetting
+ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
+              fill = "n", facet.by = "Sex",
+              ggtheme = theme_bw()) +
+  scale_fill_viridis_c(option = "C") + 
+  labs(title = "Balloon Plot with Facetting")
 
 ```
 
-### Plots for Likert Data
+Note the somewhat different syntax with `ggballoonplot`: the variable
+names are enclosed in quotes.
+
+### {{< iconify fluent likert-16-regular >}} Plots for Likert Data
 
 In many business situations, we perform surveys to get [Likert
 Scale](https://www.simplypsychology.org/likert-scale.html) data, where
@@ -479,18 +667,32 @@ follows:
 ```{r}
 data(efc)
 head(efc, 20)
+
 ```
 
 `efc` is a German data set from a European study on family care of older
 people. Following a common protocol, data were collected from national
 samples of approximately 1,000 family carers (i.e. caregivers) per
 country and clustered into comparable subgroups to facilitate
-cross-national analysis. One of the *research questions* in [**this
-EUROFAM study**](https://doi.org/10.1093/geront/48.6.752) was:
+cross-national analysis. The *research questions* in [**this EUROFAM
+study**](https://doi.org/10.1093/geront/48.6.752) were:
 
-> What are the main difficulties carers experience accessing the
-> services used? What prevents carers from accessing unused supports
-> that they need? What causes them to stop using still-needed services?
+> 1.  To what extent do family carers of older people use support
+>     services or receive financial allowances across Europe? What kind
+>     of supports and allowances do they mainly use?
+>
+> 2.  What are the main difficulties carers experience accessing the
+>     services used? What prevents carers from accessing unused supports
+>     that they need? What causes them to stop using still-needed
+>     services?
+>
+> 3.  In order to improve support provision, what can be understood
+>     about the service characteristics considered crucial by carers,
+>     and how far are these needs met? and,
+>
+> 4.  Which channels or actors can provide the greatest help in
+>     underpinning future policy efforts to improve access to
+>     services/supports?
 
 We will select the variables from the `efc` data set that related to
 *coping* (on part of care-givers) and plot their responses after
@@ -513,24 +715,88 @@ efc %>% select(dplyr::contains("cop")) %>%
 
 ```
 
+#### {{< iconify fluent-emoji label >}} Labelled Data
+
+Note how the y-axis has been populated with **labels**: this is an
+example of a *labelled dataset*, where not only do the variables have
+*names* i.e. column names, but also have longish text labels that add
+information to the data variables. A simple example is a survey dataset,
+where the column names can be the Likert
+scale(`Like/Dislike/Strongly Dislike` OR `never/sometimes/often/always`)
+and the labels are the survey questions themselves. Let us manually
+create one such dataset, since this is a common-enough situation[^1]. We
+will use the R package `expss` to label our data.[^2].
+
+::: callout-note
+## Variable Labels and Value Labels
+
+**Variable label** is human readable description of the variable. R
+supports rather long variable names and these names can contain even
+spaces and punctuation but short variables names make coding easier.
+Variable label can give a nice, long description of variable. With this
+description it is easier to remember what those variable names refer to.\
+**Value labels** are similar to variable labels, but value labels are
+descriptions of the values a variable can take. Labeling values means we
+don't have to remember if 1=Extremely poor and 7=Excellent or
+vice-versa. We can easily get dataset description and variables summary
+with info function.
+:::
+
+```{r}
+#| label: Creating_labelled_data
+#| layout-ncol: 2
+
+#library(sjlabelled)
+likert_labels = c("never", "sometimes","often","always") # numerically 1:4
+variable_labels <- c("Do you practice Analytics?",
+                            "Do you code in R?",
+                            "Have you published your R Code?",
+                            "Do you use Quarto as your Workflow in R?",
+                            "Will you use R at Work?")
+my_survey_data <- 
+  # Create toy survey data
+  # 200 responses to 5 questions
+  # responses on Likert Scale
+  # 1:4 = "never", "sometimes","often","always")
+  # 
+  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200),
+         q2 = mosaic::sample(1:4, replace = TRUE, size = 200),
+         q3 = mosaic::sample(1:4, replace = TRUE, size = 200),
+         q4 = mosaic::sample(1:4, replace = TRUE, size = 200),
+         q5 = mosaic::sample(1:4, replace = TRUE, size = 200)) %>%
+  
+  # Set VARIABLE labels
+  sjlabelled::set_label(x = .,
+                        label = variable_labels) %>%
+  
+  # Now set VALUE labels
+  sjlabelled::set_labels(x = ., labels = likert_labels)
+
+str(my_survey_data)
+
+plot_likert(my_survey_data, title = "Summary of Analytics Questionnaire")
+
+```
+
 So there we are with Categorical data ! There are a few other plots with
 this type of data, which are useful in very specialized circumstances.
 One example of this is the `agreement plot` which captures the agreement
 between two (sets) of evaluators, on ratings given on a shared ordinal
 scale to a set of items. An example from the field of medical diagnosis
-is the opinions of two specialists on a common set of patients.
+is the opinions of two specialists on a common set of patients. However,
+that is for a more advanced course!
 
-## Conclusion
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 How are these bar plots different from histograms? Why don't "regular"
-plots simply work for Categorical data? Discuss!
+scatter plots simply work for Categorical data? Discuss!
 
 ## Your Turn
 
 1.  Take some of the categorical datasets from the `vcd` and `vcdExtra`
     packages and recreate the plots from this module.
 
-## References
+## {{< iconify ooui references-ltr >}} References
 
 1.  Chapter 4,
     <https://openintro-ims.netlify.app/explore-categorical.html> from
@@ -552,3 +818,9 @@ plots simply work for Categorical data? Discuss!
 
 6.  [Visualizing Categorical Data in
     R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)
+
+[^1]: Piping Hot Data: Leveraging Labelled Data in R,
+    https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
+
+[^2]: Label Support in
+    R:<https://cran.r-project.org/web/packages/expss/vignettes/labels-support.html>
