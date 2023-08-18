@@ -41,20 +41,26 @@ library(nomnoml)
 
 ```{r}
 #| label: plot theme
-# Let us set a plot theme for Data visualisation
+# Let us set a plot theme for Data visualization
+sysfonts::font_add_google(name = "Merriweather Sans", family = "Merri")
+showtext::showtext_auto(enable = TRUE)
 
 my_theme <- function(){  # Creating a function
-  theme_classic() +  # Using pre-defined theme as base
-  theme(axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
-        axis.text.y = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size = 14, face = "bold"),  # Customizing axis title
-        panel.grid = element_blank(),  # Taking off the default grid
+  theme_light() +  # Using pre-defined theme as base
+  theme(text = element_text(family = "Merri"),
+        plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(size = 8, face = "bold"),  # Customizing axes text      
+        axis.text.y = element_text(size = 8, face = "bold"),
+        axis.title = element_text(size = 12, face = "bold"),  # Customizing axis title
+        #panel.grid = element_blank(),  # Taking off the default grid
         plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
         legend.text = element_text(size = 12, face = "italic"),  # Customizing legend text
         legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
         legend.position = "right",  # Customizing legend position
-        plot.caption = element_text(size = 12))  # Customizing plot caption
+        plot.caption = element_text(size = 10))  # Customizing plot caption
 }                                                                         
+
 
 ```
 
@@ -245,24 +251,25 @@ with the target variable `cmedv` and do a pairs-plots with them:
 #| layout-nrow: 2
 housing %>% 
   # Target variable and Rooms / Age / Distance to City Centres / Radial Highway Access 
-  select(cmedv, rm, age, dis) %>% 
-  GGally::ggpairs(title = "Plot 1")
+  select(cmedv, rm, age, dis) %>%
+  GGally::ggpairs(title = "Plot 1", 
+                  lower = list(continuous = wrap("smooth", alpha = 0.2))) + my_theme()
 
 housing %>% 
 # Target variable and Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
   select(cmedv, rad, zn, indus, tax) %>% 
-  GGally::ggpairs(title = "Plot 2")
+  GGally::ggpairs(title = "Plot 2", lower = list(continuous = wrap("smooth", alpha = 0.2))) + my_theme()
 
 housing %>% 
   # Target variable and Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
   select(cmedv, crim, nox, rad, b, lstat) %>% 
-  GGally::ggpairs(title = "Plot 3")
+  GGally::ggpairs(title = "Plot 3", lower = list(continuous = wrap("smooth", alpha = 0.2))) + my_theme()
 
 
 housing %>% 
   # Target variable and Access to Charles River
   select(cmedv,chas) %>% 
-  GGally::ggpairs(title = "Plot 4")
+  GGally::ggpairs(title = "Plot 4", lower = list(continuous = wrap("smooth", alpha = 0.2))) + my_theme()
 
 
 ```
@@ -356,23 +363,24 @@ all_corrs <- housing %>%
 all_corrs
 
 all_corrs %>% 
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
+  gf_hline(yintercept = 0, color = "grey", linewidth = 2, title = "Correlations: Target Variable vs All Predictors", subtitle = "Boston Housing Dataset") %>% 
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
-              colour = ~ -log10(p.value),
+              colour = ~ estimate,
               width = 0.5,
               linewidth = ~ -log10(p.value),
               caption = "Significance = -log10(p.value)") %>% 
+  
+  # Plot points(smallest geom) last!
+  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
   gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
-  gf_theme(theme_minimal()) %>% 
-  gf_refine(scale_colour_gradient("Significance", 
-                                  low = "grey", high = "red"),
+  gf_theme(my_theme()) %>% 
+  gf_refine(scale_colour_distiller("Correlation", type = "div", palette = "RdBu"),
             scale_linewidth_continuous("Significance",range = c(0.25, 3)))
 ```
 
 We can clearly see that `rm` and `lstat` have strong correlations with
 `cmedv` and should make good choices for setting up a minimal linear
-regression model. (`medv` is the older errorred version of `cmedv`)
+regression model. (`medv` is the older errored version of `cmedv`)
 :::
 
 ::: callout-note
@@ -476,12 +484,12 @@ gf_point(
   
   gf_abline(slope = slope,
             intercept = intercept,
-            colour = "red")  %>%
+            colour = "lightcoral")  %>%
   
   gf_segment(
     0 + 29 ~ 7 + 7,
     linetype = "dashed",
-    color = "blue",
+    color = "dodgerblue",
     arrow = arrow(
       angle = 30,
       length = unit(0.25, "inches"),
@@ -500,7 +508,7 @@ gf_point(
       ends = "first",
       type = "closed"
     ),
-    color = "blue",
+    color = "dodgerblue",
     data = housing_lm_augment
   ) %>%
   
@@ -596,7 +604,7 @@ lm_sample <- lm_sample %>%
       gf_line(
         pred ~ rm,
         data = line ,
-        color = "blue",
+        color = "dodgerblue",
         linewidth = 2
       ) %>%
       gf_refine(
@@ -611,6 +619,8 @@ lm_sample <- lm_sample %>%
 
 
 ```
+
+
 
 ```{r}
 #| echo: false
@@ -639,7 +649,7 @@ p1 <- gf_point(cmedv ~ rm,
   gf_hline(yintercept =  ~ mean_cmedv_sample,
            color = "dodgerblue") %>% 
   gf_segment(data = housing_sample, 
-             color = "green",
+             color = "springgreen3",
              mean_cmedv_sample + cmedv ~ rm + rm,
   title = "Price vs Average no. of Rooms",
   subtitle = "NULL Hypothesis",
@@ -651,7 +661,7 @@ p2 <- gf_point(cmedv ~ rm,
          data = housing_sample) %>% 
   gf_abline(intercept = intercept, slope = slope) %>% 
   gf_segment(.fitted + cmedv ~ rm + rm, 
-             color = "red",
+             color = "orangered1",
   title = "Price vs Average no. of Rooms",
   subtitle = "Alternative Hypothesis",
   ylab = "cmedv (Median Price)",
@@ -662,7 +672,7 @@ p2 <- gf_point(cmedv ~ rm,
 
   gf_theme(theme = my_theme)
 
-p1 + p2 + patchwork::plot_annotation(tag_levels = c("A", "B"),)
+patchwork::wrap_plots(p1, p2) + patchwork::plot_annotation(tag_levels = c("A", "B"),tag_prefix = "Fig.")
 
 ```
 
@@ -696,15 +706,21 @@ function of varying slope, we get
 ```{r}
 #| label: slopes vs SSE
 #| echo: false
-tibble(b = slope + seq(-5,5),
+sim_model <- tibble(b = slope + seq(-5,5),
                   a = intercept,
                   dat = list(tibble(cmedv = housing_sample$cmedv, 
                                rm = housing_sample$rm))) %>% 
   mutate(r_squared= pmap_dbl(
     .l = list(a,b,dat),
-    .f = \(a,b, dat) sum((dat$cmedv - (b*dat$rm + a))^2))) %>% 
+    .f = \(a,b, dat) sum((dat$cmedv - (b*dat$rm + a))^2))) 
+min_r_squared <- sim_model %>% select(r_squared) %>% min()
+min_slope <- sim_model %>% filter(r_squared == min_r_squared) %>% select(b) %>% as.numeric()
+sim_model %>% 
   gf_point(r_squared ~ b,data = .) %>% 
   gf_line(ylab = "SSE", xlab = "slope",title = "Error vs Slope") %>% 
+  gf_hline(yintercept = min_r_squared, color = "red") %>%
+  gf_segment(min_r_squared + 0 ~ min_slope + min_slope, colour = "red", arrow = arrow(ends = "last", length = unit(1, "mm"))) %>%
+  # gf_lims(y = c(-500, 20000)) %>%
   gf_theme(my_theme)
 
 ```
@@ -928,7 +944,7 @@ variation in their range
 #| 
 housing_lm_augment %>% 
   gf_point(.resid ~ .fitted, title = "Residuals vs Fitted") %>%
-  gf_smooth() %>% 
+  gf_smooth(method = "loess") %>% 
   gf_theme(my_theme)
 
 housing_lm_augment %>% 
@@ -939,13 +955,13 @@ housing_lm_augment %>%
 housing_lm_augment %>% 
   gf_point(sqrt(.std.resid) ~ .fitted, 
            title = "Scale-Location Plot") %>%
-    gf_smooth() %>% 
+    gf_smooth(method = "loess") %>% 
   gf_theme(my_theme)
 
 housing_lm_augment %>% 
   gf_point(.std.resid ~ .hat, 
            title = "Residuals vs Leverage") %>%
-    gf_smooth() %>% 
+    gf_smooth(method = "loess") %>% 
   gf_theme(my_theme)
 ```
 
@@ -956,6 +972,17 @@ continue to use `ggformula`.
 ```{r}
 #| eval: false
 plot(housing_lm)
+
+```
+:::
+
+::: column-margin
+One of the [ggplot extension packages](https://exts.ggplot2.tidyverse.org/gallery/) named `lindia` also has a crisp command to plot these diagnostic graphs.
+
+```{r}
+#| eval: false
+library(lindia)
+gg_diagnose(housing_lm)
 
 ```
 :::

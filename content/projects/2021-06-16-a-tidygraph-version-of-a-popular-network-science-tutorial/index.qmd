@@ -8,7 +8,7 @@ categories: [R; Networks]
 tags: [tidygraph; ggraph;]
 subtitle: ''
 summary: 'A reworking of a Network Science tutorial by Prof. Katherine Ognyanova, using tidygraph'
-draft: true
+draft: false
 ---
 
 ## Introduction
@@ -100,6 +100,7 @@ E(net)
 V(net)
 E(net)$type
 V(net)$media
+
 ```
 
 ```{r}
@@ -181,6 +182,7 @@ net <-
 
 # Let's and reduce the arrow size and remove the labels:
 plot(net, edge.arrow.size = .4, vertex.label = NA)
+
 ```
 
 ```{r}
@@ -199,8 +201,8 @@ tbl_graph(nodes, links, directed = TRUE) %>%
       length = unit(3, "mm")
     )
   ) +
-  geom_node_point(size = 6, shape = 21, fill = "orange") +
-  geom_node_text(aes(label = id))
+  geom_node_point(size = 8, shape = 21, fill = "orange") +
+  geom_node_text(aes(label = id), size = 3)
 
 # Removing loops from the graph:
 # From the docs:
@@ -224,6 +226,7 @@ tbl_graph(nodes, links, directed = TRUE) %>%
   geom_node_point(size = 6, shape = 21, fill = "orange")
 
 ```
+
 
 ## -------\~\~ DATASET 2: matrix --------
 
@@ -257,6 +260,7 @@ net2 <- igraph::graph_from_incidence_matrix(links2)
 table(V(net2)$type)
 # Basic igraph plot
 plot(net2,vertex.label = NA)
+
 ```
 
 ```{r}
@@ -280,6 +284,7 @@ graph %>%
 # Examine the resulting object:
 class(net2)
 net2
+
 ```
 
 Note: The remaining attributes for the nodes ( in data frame `nodes2`)
@@ -290,9 +295,9 @@ are not (yet) a part of the graph, either with igraph or with tidygraph.
 ## ------\~\~ Plot parameters in igraph --------
 
 Check out the node options (starting with 'vertex.') and the edge
-options (starting with 'edge.').
+options (starting with 'edge.').[Type ?igraph.plotting in your console]{.aside}
 
-```{r}
+```{r, eval=FALSE}
 ?igraph.plotting
 ```
 
@@ -325,7 +330,7 @@ graph %>% ggraph(., layout = "graphopt") +
     size = 8,
     color = "black"
   ) +
-  geom_node_text(aes(label = id))
+  geom_node_text(aes(label = id), size  = 3)
 ```
 
 -   Set node color to orange and the border color to hex 555555
@@ -368,6 +373,7 @@ graph %>%
 
 ```
 
+
 The second way to set attributes is to **add them** to the igraph
 object.
 
@@ -402,6 +408,7 @@ E(net)$edge.color <- "gray80"
 # We can even set the network layout:
 graph_attr(net, "layout") <- layout_with_lgl
 plot(net)
+
 ```
 
 ```{r}
@@ -471,6 +478,7 @@ ggraph(net, layout = "gem") +
                  end_cap = circle(0.5,"cm"), 
                  start_cap = circle(0.5, "cm")) +
     geom_node_text(aes(label = media))
+
 ```
 
 Let's color the edges of the graph based on their source node color.
@@ -573,16 +581,16 @@ graph %>% ggraph(., layout = "circle") +
   geom_node_point(color = "orange", size = 2) +
   theme_graph() +
   theme(aspect.ratio = 1)
+
 ```
 
 `l` is simply a matrix of x,y coordinates (N x 2) for the N nodes in the
 graph. You can generate your own:
 
 ```{r}
-l
 l <- cbind(1:vcount(net.bg), c(1, vcount(net.bg):2))
+l
 plot(net.bg, layout = l)
-
 # Using tidygraph
 # graph <- play_barabasi_albert(n = 100, power = 1.2)
 graph %>% ggraph(., layout = l) +
@@ -633,6 +641,7 @@ plot(net.bg, layout = l)
 graph %>% ggraph(., layout = layout_on_sphere(.)) + 
   geom_edge_link0(colour = "grey") + 
   geom_node_point(colour = "orange")
+
 ```
 
 -   The Fruchterman-Reingold force-directed algorithm: Nice but slow,
@@ -647,6 +656,7 @@ plot(net.bg, layout = l)
 graph %>% ggraph(., layout = layout_with_fr(.)) + 
   geom_edge_link0(colour = "grey") + 
   geom_node_point(colour = "orange")
+
 ```
 
 You will also notice that the F-R layout is not deterministic -
@@ -699,6 +709,7 @@ plot(net.bg, layout = l)
 graph %>% ggraph(., layout = layout_with_kk(.)) + 
   geom_edge_link0(colour = "grey") + 
   geom_node_point(colour = "orange", size = 4)
+
 ```
 
 The **MDS (multidimensional scaling)** algorithm tries to place nodes
@@ -715,6 +726,7 @@ plot(net.bg, layout = layout_with_mds)
 graph %>% ggraph(., layout = layout_with_mds(.)) + 
   geom_edge_link0(colour = "grey") + 
   geom_node_point(colour = "orange", size = 4)
+
 ```
 
 The LGL algorithm is for large connected graphs. Here you can specify a
@@ -728,15 +740,13 @@ plot(net.bg, layout = layout_with_lgl)
 graph %>% ggraph(., layout = layout_with_lgl(.)) + 
   geom_edge_link0(colour = "grey") + 
   geom_node_point(colour = "orange", size = 4)
+
 ```
 
 By default, igraph uses a layout called `layout_nicely` which selects an
 appropriate layout algorithm based on the properties of the graph. Check
-out all available layouts in igraph:
+out all available layouts in igraph:[ Type ?igraph::layout_ in your console]{.aside}
 
-```{r}
-?igraph::layout_
-```
 
 ```{r}
 layouts <- grep("^layout_", ls("package:igraph"), value = TRUE)[-1]
@@ -750,6 +760,7 @@ for (layout in layouts) {
   print(layout)
   l <- do.call(layout, list(net))
   plot(net, edge.arrow.mode = 0, layout = l, main = layout) }
+
 ```
 
 # -------\~\~ Highlighting aspects of the network --------
@@ -842,6 +853,7 @@ igraph knows how to plot:
 
 ```{r}
 plot(clp, net)
+
 ```
 
 To plot communities using the `tidygraph` approach, I have taken help
@@ -871,7 +883,7 @@ ggraph(graph, layout = layout_go) +
  #
   ggforce::geom_mark_hull(aes(x = layout_go[, 1],
                      y = layout_go[, 2],
-                     color = community)) +
+                     color = community, fill = community), alpha = 0.1) +
   
   geom_edge_link(
     aes(width = weight),
@@ -1186,6 +1198,7 @@ plot(
   edge.width = 2,
   layout = coords
 )
+
 ```
 
 ```{r}
@@ -1225,6 +1238,7 @@ graph %>%
   ggtitle(label = "Highlighting WSJ Neighbours and Links") +
   guides(shape = "none", fill = "none" #, colour = "none"
   )
+
 ```
 
 ## Highlight Neighbours
@@ -1242,6 +1256,7 @@ neigh.nodes <- neighbors(net, V(net)[media == "Wall Street Journal"], mode = "ou
 # Set colors to plot the neighbors:
 vcol[neigh.nodes] <- "#ff9d00"
 plot(net, vertex.color = vcol)
+
 ```
 
 ```{r}
@@ -1284,6 +1299,7 @@ graph %>%
   ggtitle(label = "Highlighting WSJ Neighbours and Links") +
   guides(shape = "none", fill = "none" #, colour = "none"
   )
+
 ```
 
 Another way to draw attention to a group of nodes: (This is generally
@@ -1295,6 +1311,7 @@ plot(net, mark.groups = c(1,4,5,8), mark.col = "#C5E5E7", mark.border = NA)
 # Mark multiple groups:
 plot(net, mark.groups = list(c(1,4,5,8), c(15:17)),
           mark.col = c("#C5E5E7","#ECD89A"), mark.border = NA)
+
 ```
 
 ## -------\~\~ Interactive plotting with 'tkplot' --------
@@ -1307,6 +1324,7 @@ tkid <- tkplot(net) #tkid is the id of the tkplot
 
 l <- tkplot.getcoords(tkid) # grab the coordinates from tkplot
 plot(net, layout = l)
+
 ```
 
 ## -------\~\~ Other ways to represent a network --------
@@ -1325,6 +1343,7 @@ palf <- colorRampPalette(c("gold", "dark orange"))
 # The Rowv & Colv parameters turn dendrograms on and off
 heatmap(netm[,17:1], Rowv  =  NA, Colv  =  NA, col  =  palf(20),
         scale = "none", margins = c(10,10) )
+
 ```
 
 -   Degree distribution
@@ -1342,7 +1361,7 @@ graph %>%
   as_tibble() %>% 
   ggplot(aes(x = degree, y = stat(count))) +
   # geom_histogram(aes(y = cumsum(..count..)), binwidth = 1) + 
-  stat_bin(aes(y = cumsum(..count..)),
+  stat_bin(aes(y = cumsum(after_stat(count))),
                 binwidth = 1,# Ta-Da !!
                 geom ="point",color ="orange", size = 5)
 
@@ -1431,6 +1450,7 @@ as_tbl_graph(x = links2, directed = TRUE) %>%
   ) +
   
   scale_size_manual(values = c(10, 4), guide = "none") 
+
 ```
 
 -   Using text as nodes:
@@ -1490,7 +1510,9 @@ img.3 <- readPNG("./images/puppy.png")
 rasterImage(img.3,  xleft = -1.7, xright = 0, ybottom = -1.2, ytop = 0)
 # The numbers after the image are coordinates for the plot.
 # The limits of your plotting area are given in par()$usr
+
 ```
+
 
 ```{r}
 # Using ~~tidygraph~~ visNetwork
@@ -1510,6 +1532,8 @@ as_tbl_graph(x = links2, directed = TRUE) %>%
   visGroups(groupname = "TRUE",shape = "icon", 
             icon = list(code = "f007", size = 75)) %>% 
   addFontAwesome()
+
+
 ```
 
 We can also generate and plot **bipartite projections** for the
