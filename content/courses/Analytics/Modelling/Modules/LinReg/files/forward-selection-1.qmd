@@ -116,26 +116,28 @@ We should examine scatter plots and Correlations of `Salary` against these varia
 #| warning: false
 #| column: screen-inset-shaded
 #| layout-nrow: 2
+
+theme_set(theme_bw())
 Hitters %>% 
   select(Salary, AtBat, Hits, HmRun) %>% 
-  GGally::ggpairs(title = "Plot 1")
+  GGally::ggpairs(title = "Plot 1", lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 Hitters %>% 
   select(Salary, Runs, RBI, Walks,Years) %>% 
-  GGally::ggpairs(title = "Plot 2")
+  GGally::ggpairs(title = "Plot 2", lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 Hitters %>% 
   select(Salary, CRBI, CAtBat, CHits, CHmRun, CRuns, CWalks) %>% 
-  GGally::ggpairs(title = "Plot 3")
+  GGally::ggpairs(title = "Plot 3", lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 
 Hitters %>% 
   select(Salary, PutOuts,Assists,Errors) %>% 
-  GGally::ggpairs(title = "Plot 4")
+  GGally::ggpairs(title = "Plot 4", lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 Hitters %>% 
   select(Salary, League,Division,NewLeague) %>% 
-  GGally::ggpairs(title = "Plot 5")
+  GGally::ggpairs(title = "Plot 5", lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 ```
 
@@ -176,20 +178,28 @@ all_corrs <-
 
 all_corrs
 
-all_corrs %>% 
-  gf_hline(yintercept = 0, linewidth = 2, color = "grey") %>% 
-  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
-              color = ~ -log10(p.value),
-              linewidth =  ~ -log10(p.value),
-              width = 0.5) %>% 
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
-  gf_labs(x = NULL, y = "Correlation with Salary") %>% 
-  gf_theme(theme = my_theme()) %>% 
-  gf_refine(scale_color_gradient("significance",
-                                 low = "blue", high = "red"),
-            scale_linewidth_continuous("Significance", 
-                                       range = c(0.25,3)),
-            theme(axis.text.x = element_text(angle = 30, hjust = 1)))
+all_corrs %>%
+  gf_hline(yintercept = 0,
+           linewidth = 2,
+           color = "grey") %>%
+  gf_errorbar(
+    conf.high + conf.low ~ reorder(predictor, estimate),
+    color = ~ -log10(p.value),
+    linewidth =  ~ -log10(p.value),
+    width = 0.5,
+    caption = "Significance = -log10(p.value)"
+  ) %>%
+  gf_point(estimate ~ reorder(predictor, estimate)) %>%
+  gf_labs(x = NULL, y = "Correlation with Salary") %>%
+  gf_theme(theme = my_theme()) %>%
+  gf_refine(
+    scale_colour_distiller("Correlation", type = "div",
+                           palette = "RdBu"),
+    scale_linewidth_continuous("Significance", range = c(0.25, 3))
+  ) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
+            theme(axis.text.x = element_text(angle = 30, hjust = 1))) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)))
 
 ```
 
@@ -205,7 +215,6 @@ model, until we are "satisfied" with the quality of the model ( using
 `rsquared` and other means).
 
 Let us now do this.
-
 
 
 
@@ -516,9 +525,9 @@ lm_round2_aug %>%
 ## {{< iconify octicon feed-discussion-16 >}} Discussion
 
 It is interesting that the second variable to be added was `Hits` which
-has a lower correlation of $0.439$ with `Salary` compared to some other
-Quant predictors such as `Chits`( $0.525$ ). This is because `CRBI` is
-hugely correlated with all of these predictors, so `CRDI` effectively
+has a lower correlation of $r = 0.439$ with `Salary` compared to some other
+Quant predictors such as `Chits`( $r = 0.525$ ). This is because `CRBI` is
+hugely correlated with all of these predictors, so `CRBI` effectively
 acts as a proxy for all of these. See Plot 3.
 
 We see that adding `Hits` to the model gives us an improved `r.squared`
