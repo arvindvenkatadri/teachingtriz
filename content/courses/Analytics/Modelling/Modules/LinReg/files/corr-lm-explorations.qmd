@@ -12,6 +12,9 @@ editor: visual
 library(tidyverse)
 library(mosaic)
 library(broom)
+library(ggformula)
+ggplot2::theme_set(new = theme_classic())
+
 ```
 
 ## Intro
@@ -59,4 +62,27 @@ lm_unif_aug <- lm(yu ~ x, data = data) %>%
   augment()
 lm_unif_aug %>% gf_point(.resid ~ .fitted)
 lm_unif_aug %>% gf_qq(~ .resid, distribution = stats::qnorm) %>% gf_qqline()
+```
+
+
+### Negative Binom Errors
+
+```{r}
+#| warning: false
+lm_nbinom_aug <- lm(yb ~ x, data = data) %>% 
+  augment()
+lm_nbinom_aug %>% gf_point(.resid ~ .fitted)
+lm_nbinom_aug %>% gf_qq(~ .resid, distribution = stats::qnorm) %>% gf_qqline()
+
+```
+
+### Gamma Errors
+
+```{r}
+#| warning: false
+lm_gamm_aug <- lm(yg ~ x, data = data) %>% 
+  augment()
+lm_gamm_aug %>% gf_point(.resid ~ .fitted)
+lm_gamm_aug %>% gf_qq(~ .resid, distribution = stats::qnorm) %>% gf_qqline()
+
 ```

@@ -408,7 +408,7 @@ between levels of the Qual variable. More on this shortly.
 
 ### ANOVA Manually Demonstrated[^3](Apologies to Spinoza)
 
-Let us hand-calculate the numbers so we know what the test is doing.
+Now that we understand what `aov()` is doing, let us hand-calculate the numbers for our `frogs` dataset and check:
 
 Here is the SST:
 
@@ -650,10 +650,7 @@ The `F_crit` value can also be seen in a plot[^4],[^5]:
 
 ```{r}
 #| layout-ncol: 3
-#| column: screen-inset-right
-mosaic::xpf(q = F_crit, 
-            df1 = df_SSA, df2 = df_SSE,
-            log.p = FALSE,lower.tail = TRUE)
+#| column: body-outset-right
 
 gf_dist(dist = "f",
         params = list(df1 = df_SSA, df2=df_SSE),
@@ -666,6 +663,10 @@ gf_dist(dist = "f",
   gf_text( 0.25 ~ 360, label = "F_stat", colour = "dodgerblue") %>% 
   gf_text( 0.25 ~ 20, label = "F_crit", colour = "red") %>% 
   gf_theme(theme_frogs()) 
+
+mosaic::xpf(q = F_crit, 
+            df1 = df_SSA, df2 = df_SSE,
+            log.p = FALSE,lower.tail = TRUE)
 
 ```
 
@@ -691,8 +692,7 @@ We can check these using checks and graphs.
 
 The `shapiro.wilk` test tests if a vector of numeric data is normally
 distributed and rejects the hypothesis of normality when the
-[p-value](https://variation.com/wp-content/distribution_analyzer_help/hs132.htm)
-is less than or equal to 0.05. 
+[p-value](https://variation.com/wp-content/distribution_analyzer_help/hs132.htm) is less than or equal to 0.05. 
 
 ```{r}
 #| label: Check for Normality
@@ -748,7 +748,8 @@ We can also check the residuals post-model:
 #| column: screen-inset-right
 frogs_anova$residuals %>% 
   as_tibble() %>% 
-  gf_histogram(~ value,data = .) %>% 
+  gf_dhistogram(~ value,data = .) %>% 
+  gf_fitdistr() %>%
   gf_theme(theme = theme_frogs())
 
 frogs_anova$residuals %>%
@@ -829,7 +830,7 @@ below the desired confidence level of $0.05$.
 
 ::: callout-note
 ### Standard Errors
-Observe that the `std.error` for the intercept is $0.257$ while that for `TempFac18` and `TempFac25` is $ 0.257 \times \sqrt2 = 0.363$ since the latter are **differences** in means, while the former is a **single mean**. 
+Observe that the `std.error` for the intercept is $0.257$ while that for `TempFac18` and `TempFac25` is $0.257 \times \sqrt2 = 0.363$ since the latter are **differences** in means, while the former is a **single mean**. The Variance of a difference is the sum of the individual variances, which are equal here. 
 :::
 
 We can easily plot bar-chart with error bars for the effect size:
@@ -886,6 +887,7 @@ frogs_long %>%
   gf_theme(theme_frogs())
 
 ```
+In both graphs, note the difference in the error-bar heights. 
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA using Permutation Tests
 

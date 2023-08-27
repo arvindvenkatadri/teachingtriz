@@ -6,6 +6,7 @@ date-modified: "`r Sys.Date()`"
 subtitle: "Performing Iterations in R"
 summary: "Performing Iterations in R"
 order: 120
+image: Alice-and-Cat.jpg
 categories:
   - Iteration
   - purrr package
@@ -22,7 +23,7 @@ library(ggformula)
 
 ```
 
-![](Alice-and-Cat.jpg){fig-align="center" width="248"}
+![Learning to purrr](Alice-and-Cat.jpg){fig-align="center" width="248"}
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} Introduction
 
@@ -33,10 +34,11 @@ structure that holds all the data, and use the `map-*` series functions
 from the `purrr` package to perform all the repeated operations in one
 shot.
 
-This requires getting used to. We need to understand:\
-- the data structure\
-- the iteration mechanism using `map` functions\
-- the form of the results\
+This requires getting used to. We need to understand:
+
+-   the data structure
+-   the iteration mechanism using `map` functions
+-   the form of the results\
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Multiple Models for Life Expectancy with `gapminder`
 
@@ -85,7 +87,7 @@ non-linear behaviour.
 ### Constructing a Linear Model
 
 Let us take $1950$ as a baseline year for *all countries*. Then we model
-`lifeExp` uing `year1950` across all countries together:
+`lifeExp` using `year1950` across all countries together:
 
 ```{r}
 gapminder <- gapminder %>% mutate(year1950 = year - 1950) # baseline year
@@ -102,7 +104,8 @@ model %>% broom::glance() # Statistics of the Model
 
 Since the slope `r model$coefficients[2]` is positive, life expectancy
 has been increasing over the years, across *all countries*. (But
-`r.squared` `r summary(model)$r.squared` is low).
+`r.squared` `r summary(model)$r.squared` is low, so this model does not
+explain much).
 
 How do we do this for *each country*? We need to use the
 `split-apply-combine` method to achieve this. The combination of
@@ -115,8 +118,8 @@ However, this first-attempt code for a per-country linear model does not
 work:
 
 ```{r}
-#| eval: false
 #| echo: fenced
+#| eval: false
 gapminder %>% 
   group_by(country) %>% 
   summarise(linmod = lm(lifeExp ~ year1950, data = .))
@@ -125,15 +128,18 @@ gapminder %>%
 
 This is because the `linmod` variable is a **list** variable and *cannot
 be accommodated in a simple column*, which is what `summarize` will try
-to create.
+to create. So we need to be able to create "list" columns in a data
+frame...how do we do that? Before we contemplate that, let us understand
+the capabilities of the `purrr` package in R.
 
-Counter-intuitively, we **do** need to be able to create "list" columns
-in a data frame! The `purrr` package contains a new class of functions,
-that can take vectors/tibbles/lists as input, and perform an identical
-function over each component of these, and generate
-vectors/tibbles/lists as output. These are the `map_*` functions that
-are part of the `purrr` package. The `*` in the `map_*` function defines
-what kind of **output** (vector/tibble/list) the function generates.
+### The `purrr` package
+
+The `purrr` package contains a new class of functions, that can take
+*vectors/tibbles/lists* as input, and perform an identical function over
+each component of these, and generate *vectors/tibbles/lists* as output.
+These are the `map_*` functions that are part of the `purrr` package.
+The `*` in the `map_*` function defines what kind of **output**
+(vector/tibble/list) the function generates.
 
 Let us look at a few short examples.
 
@@ -155,28 +161,40 @@ map_typeOfResult(.x = what_to_iterate_with,
 Two examples:
 
 ```{r}
-# Example 1
+# Example 1: Input: vector, Output: vector
 diamonds %>% 
   select(where(is.numeric)) %>% 
+  
   # We need dbl-type numbers in output **vector**
 map_dbl(.x = ., 
         .f = mean)
 
+# Example 2: Input: vector, Output: tibble
 diamonds %>% 
   select(where(is.numeric)) %>% 
+  
   # We need dbl-type numbers in output **vector**
 map_df(.x = ., 
        .f = mean)
 
 ```
 
+::: callout-note
+Note `map_dbl` outputs a (numeric) *vector*, and `map_df` outputs a
+`tibble`.
+
+In each of the above examples, each **vector** in the `diamonds` dataset
+was passed to the respective *map\_*\* function as the parameter`.x`.
+:::
+
 Sometimes the function `.f` may need some additional parameters to be
-specified, and these may not come from the `.x`:
+specified, and these may not come from the input `.x`:
 
 ```{r}
 # Example 3, with additional parameters to .f
 palmerpenguins::penguins %>% 
   select(where(is.numeric)) %>% 
+  
   map_dbl(.x = ., 
           .f = \(x) mean(x, na.rm = TRUE))
                          
@@ -187,6 +205,7 @@ palmerpenguins::penguins %>%
 # Example 4: if we want a tibble output
 palmerpenguins::penguins %>% 
   select(where(is.numeric)) %>% 
+  
   map_df(.x = ., 
          .f = \(x) mean(x, na.rm = TRUE))
 
@@ -205,88 +224,112 @@ palmerpenguins::penguins %>%
   
   # `map` gives a list output
   map(.x = .,
-      .f = \(x) gf_histogram(~x, bins = 30) %>%
-        gf_refine(theme_classic())
-      )
+      .f = \(x) gf_histogram(~x, bins = 30) %>% 
+        gf_theme(theme_classic())
+  )
 
 ```
 
-Note: we need to do just a bit of extra pre-work to get the variable
-names on the x-axis of the histograms.
+[Note: we need to do just a bit of extra pre-work to get the variable
+names on the x-axis of the histograms. There is a possibility to
+**store** all the plots in a separate column]{.aside}
 
-So in summary, we need to create a tibble with column(s) that are the
-inputs to the `map` function. We then provide `map` with a function that
-it will apply to each of these columns. The function can take additional
-parameters too. Finally, depending upon the kind of output the function
-generates, we need to choose the `map` function.
+OK, so we can get *vectors/tibbles/lists* as output using *vectors* as
+inputs. Why would it be desirable to provide *tibble/list* as an input
+to a `map_*` function?
 
 ### {{< iconify grommet-icons iteration >}} Using `purrr` to create multiple models
 
 Now that we have some handle on purrr's `map` functions, we can see how
 to develop a linear regression model for **every** country in the
-`gapminder` dataset.
+`gapminder` dataset. It should be clear from the command for a linear
+model:
 
-Here is the process:
+```{r}
+#| echo: fenced
+#| eval: false
+model <- lm(target ~ predictor(s), 
+            data  = tibble_containing_target_and_predictors_columns)
 
--   Group the data by `country`\
--   Create a `nested` column of data for each country (i.e `nest` the
-    columns other than `country` into a **list column**). This `list`
-    column is the first argument `.x` for`map_*`.\
--   Use `map` to create an `lm` object for each country (in another list
+```
+
+that we need to specify three things: `target`, `predictors`, and the
+`data` tibble for the development of a linear model. To do this for each
+`country` in `gapminder`, here is the process:
+
+1.  Group the `gapminder` data by `country` (and `continent`)
+2.  Create a column containing unique per-country `data` for each
+    country. This column would hence contain a `tibble` in each cell.
+    This is a `list` column!
+3.  Use `map` which would take `country` and the `data` columns created
+    above to create an `lm` object for each country (in another list
     column)
--   Use `map` again with `broom::tidy` as the function to give us clean
+4.  Use `map` again with `broom::tidy` as the function to give us clean
     columns for the model per country.
--   Use that multi-model tibble to plot graphs for each country
--   Etc.
+5.  Use that multi-model tibble to plot graphs for each country.
 
 Let us do this now!
 
 ```{r}
-  gapminder_models <- gapminder %>% 
+
+gapminder_models <- gapminder %>% 
   group_by(continent, country) %>% 
-  nest(.key = "data_list") %>% # Name the column as "list"
   
+  # Create a per-country tibble in a new column called "data_list"
+  nest(.key = "data_list") 
+gapminder_models
+
+gapminder_models <- gapminder_models %>%
   # We use mutate + map to add a list column containing linear models
   mutate(model = map(.x = data_list, 
                      
-          # One column to iterate over
-          # The list column contains data frames
-          # So we access individual columns 
+          # One column .x to iterate over
+          # The .x list column contains data frames
+          # So we access individual columns for target and predictors 
           # within these individual data frames
                      .f = \(.x) lm(lifeExp ~ year1950, data = .x)
           )) %>% 
+  
   # Use mutate + map again to expose the columns of the models
   # Use broom:: tidy, broom::glance:: and broom::augment for separate columns
   mutate(model_params = map(.x = model, 
-                      .f = \(x) broom::tidy(x, 
+                      .f = \(.x) broom::tidy(.x, 
                                              conf.int = TRUE, 
                                              conf.lvel = 0.95)),
          model_metrics = map(.x = model,
-                      .f = \(x) broom::glance(x)),
+                      .f = \(.x) broom::glance(.x)),
+         
          model_augment = map(.x  = model, 
-                             .f = \(x) broom::augment(x))
+                             .f = \(.x) broom::augment(.x))
          ) 
 gapminder_models
 
+```
+
+We can now take this tibble with multiple models and use `broom` to
+`tidy`, to `glance` at, and to `augment` the models:
+
+```{r}
+#| label: multiple_models_tidied
 params <- gapminder_models %>% 
   select(continent, country,model_params, model_metrics) %>% 
   ungroup() %>% 
   # Now unpack the linear model parameters into columns
   unnest(cols = model_params)
+params
 
 metrics <- gapminder_models %>% 
   select(continent, country, model_metrics) %>% 
   ungroup() %>% 
   # Now unpack the linear model parameters into columns
   unnest(cols = model_metrics)
+metrics
 
 augments <- gapminder_models %>% 
   select(continent, country, model_augment) %>% 
   ungroup() %>% 
   # Now unpack the linear model parameters into columns
   unnest(cols = model_augment)
-params
-metrics
 augments
 
 ```
@@ -297,15 +340,32 @@ We can now plot these models and their uncertainty (i.e Confidence
 Intervals). We can select a few of the countries and plot:
 
 ```{r}
-params %>% 
+#| layout-ncol: 2
+params_filtered <- params %>% 
   filter(country %in% c("India", "United States", "Brazil", "China"), 
          term == "year1950") %>% 
-  gf_errorbar(conf.high + conf.low ~ country, 
-              color = ~ -log10(p.value),
+  select(country, estimate, conf.low, conf.high,p.value) %>%
+  arrange(estimate)
+params_filtered
+
+params_filtered %>%
+  gf_errorbar(conf.high + conf.low ~ reorder(country, estimate),
               linewidth = ~ -log10(p.value), width = 0.3,
-              ylab = "Effect Size", title = "Effect of years on Life Expectancy") %>% 
+              ylab = "Effect Size", 
+              xlab = "Country",
+              title = "Effect of years on Life Expectancy",
+              caption = "Significance = - log10(p.value)") %>% 
+  
+  gf_point(estimate ~ reorder(country,estimate), 
+           colour = "black", size = 4) %>%
+  
   gf_theme(theme_classic()) %>% 
-  gf_refine(scale_color_viridis_c("significance"), scale_linewidth_continuous("significance", range = c(0.2,3)))
+  
+  gf_refine(coord_flip(),
+            scale_linewidth_continuous("Significance", 
+                                       range = c(0.2, 3))) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
+            theme(axis.text.x = element_text(angle = 30, hjust = 1)))
 
 ```
 
@@ -316,37 +376,57 @@ this:
 
 ```{r}
 #| message: false
-#| layout-ncol: 2
+#| layout-ncol: 3
 #| column: page-right
 
-params %>% 
+params_combo <- params %>% 
   select(continent, country, term , estimate) %>% 
   filter(term == "year1950") %>% 
-  left_join(metrics %>% select(continent, country, r.squared)) %>% 
+  left_join(metrics %>% select(continent, country, r.squared)) 
+params_combo
+
+params_combo %>% 
+  gf_point(reorder(country, r.squared) ~ r.squared, 
+           color = "grey90") %>%
+  gf_point(reorder(country, r.squared) ~ r.squared, 
+           data = params_combo %>% filter(continent == "Africa"),
+           shape = 21,
+    fill = "salmon",
+    ylab = "Country",
+    title = "African Countries are Hard to Model") %>% 
   
-  gf_point(reorder(country, r.squared) ~ r.squared, color = ~ continent,
-           ylab = "Country",
-           title = "African Countries are hard to Model") %>% 
-      gf_theme(theme_minimal()) %>% 
-  gf_refine(theme(axis.text.y = element_text(size = 5)))
+  gf_label(60 ~ 0.25,
+           label = "African Countries",
+           fill = "salmon",
+           color = "black",
+           inherit = FALSE) %>%
+    
+  gf_theme(theme_classic()) %>% 
+  gf_refine(theme(axis.text.y = element_text(size = 3, face = "bold")))
 
 
-params %>% 
-  select(continent, country, term , estimate) %>% 
-  filter(term == "year1950") %>% 
-  left_join(metrics %>% select(continent, country, r.squared)) %>% 
-  
-  gf_point(estimate ~ r.squared, color = ~ continent,
-           ylab = "Slope Estimate for Linear Model",
-           title = "African Countries are hard to Model") %>% 
+params_combo %>%
+  gf_point(estimate ~ r.squared, color = "grey90") %>% 
+  gf_point(estimate ~ r.squared,
+           data = params_combo %>% filter(continent == "Africa"),
+           shape = 21,
+    fill = "salmon",
+    ylab = "Slope Estimate for Linear Model",
+    title = "African Countries are Hard to Model",
+    show.legend = FALSE) %>%
+  gf_label(0.3 ~ 0.25,
+           label = "African Countries",
+           fill = "salmon",
+           color = "black",
+           inherit = FALSE) %>%
   gf_theme(theme_minimal())
 
 ```
 
-As can be seen, there are many models with low values of `r.squared` and
-these are sadly all about countries in Africa. The linear model fares
-badly for these countries, since there are other factors (not just
-`year`) that affects `lifeExp` in these countries.
+As can be seen, there are many models with [`low values of r.squared`]{style="color:salmon;"} and these are sadly
+all about [countries in Africa]{style="color: salmon;"}. The linear
+model fares badly for these countries, since there are other factors
+(not just `year`) that affects `lifeExp` in these countries.
 
 We can look at the model metrics and see for which (African) countries
 the model fares the worst. We will reverse sort on `r.squared` and
@@ -367,31 +447,43 @@ beginning (1950) and at what rate they have improved in `lifeExp`:
 
 ```{r}
 #| message: false
-params %>% 
-  select(continent, country, term , estimate) %>% 
-  pivot_wider(id_cols = c(continent, country),
-              names_from = term, 
-              values_from = estimate) %>% 
-  left_join(metrics %>% select(continent, country, r.squared)) %>% 
+params %>%
+  select(continent, country, term , estimate) %>%
+  pivot_wider(
+    id_cols = c(continent, country),
+    names_from = term,
+    values_from = estimate
+  ) %>%
+  left_join(metrics %>% select(continent, country, r.squared)) %>%
   
-  gf_point( year1950 ~ `(Intercept)`, color = ~ continent, 
-            size = ~ r.squared,
-            xlab = "Baseline at 1950",
-            ylab = "Rate of Improvement", 
-            title = "Asian Countries Show Improvement in Life Expectancy",
-            subtitle = "African Countries still struggling",
-            caption = "Data from Gapminder") %>% 
+  gf_point(
+    year1950 ~ `(Intercept)`,
+    color = ~ continent,
+    size = ~ r.squared,
+    xlab = "Baseline at 1950",
+    ylab = "Rate of Improvement",
+    title = "Asian Countries Show Improvement in Life Expectancy",
+    subtitle = "African Countries still struggling",
+    caption = "Data from Gapminder"
+  ) %>%
+  gf_refine(scale_size(range = c(0.1, 4)),
+            scale_color_manual(
+              values =
+                c(
+                  "Africa" = "salmon",
+                  "Asia" = "limegreen",
+                  "Americas" = "grey90",
+                  "Europe" = "grey90",
+                  "Oceania" = "grey90"
+                )
+            )) %>%
+  gf_refine(guides(size = guide_legend(reverse = TRUE))) %>%
   gf_theme(theme_classic())
 
 ```
 
-Many Asian countries (green dots) were low in `lifeExp` in 1950 and have
-shown good rates of improvement; `r.squared` is also decent. Sadly
-African countries (red dots) had low `lifeExp` in 1950 and have not
-shown good rates of improvement. **Note** however that (some of) the
-African countries do not have good `r.squared`(small red dots), so the
-model is clearly inadequate to explain `lifeExp` purely as a function of
-`year1950`. Other things are clearly happening there...
+Many [Asian countries]{style="color:limegreen;"} were low in `lifeExp` in 1950 and have shown good rates of improvement; `r.squared` is also decent. Sadly
+[African countries]{style="color:salmon;"} had *low* `lifeExp` in 1950 and have not shown good rates of improvement. 
 
 ## {{< iconify mdi new-box >}} Recent developments in `dplyr`
 
@@ -437,10 +529,11 @@ throughout! This seems like a simple and elegant method.
 ::: callout-tip
 ### Using `dplyr::group_modify`
 
-Note: `group_modify` is new **experimental** function in `dplyr` (June 2023), as are `group_map`, `list_cbind` and `list_rbind`. `group_modify` **requires**
-that the operation in `.f`generates a tibble, **not a list**, and we can
-retain the grouping variable easily too. We can remove the groups with
-`ungroup`.
+Note: `group_modify` is new **experimental** function in `dplyr` (June
+2023), as are `group_map`, `list_cbind` and `list_rbind`. `group_modify`
+**requires** that the operation in `.f`generates a tibble, **not a
+list**, and we can retain the grouping variable easily too. We can
+remove the groups with `ungroup`.
 
 `group_modify()` looks very clear and crisp, in my opinion. And very
 learner-friendly!

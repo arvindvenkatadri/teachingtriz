@@ -326,57 +326,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">August 12, 2023</p>
+      <p class="date-modified">August 25, 2023</p>
     </div>
   </div>
     
   </div>
   
 
-</header><div class="cell" data-hash="logistic_cache/html/setup_2edc8e28e327527a40e4bf8d4eccc919">
+</header><div class="cell" data-hash="logistic_cache/html/setup_36a7acdb40dde9f25d1cddad4d7cede4">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>echo <span class="op">=</span> <span class="cn">TRUE</span>,warning <span class="op">=</span> <span class="cn">FALSE</span>,message <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/infer">infer</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.refsmmat.com/regressinator/">regressinator</a></span><span class="op">)</span> <span class="co"># pedagogic tool for GLMs</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.refsmmat.com/regressinator/">regressinator</a></span><span class="op">)</span> <span class="co"># pedagogic tool for GLMs</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">GLMsData</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>We saw with the <strong>general linear model</strong> that it models the <strong>mean</strong> of a target variable as a linear weighted sum of the predictor variables.</p>
 <p>A general linear model can be stated as:</p>
 <p><span class="math display">\[
-\begin{align*}
 y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
-Where\\
+where\\
 p = number~ of ~ predictors~ x_p\\
 y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
-\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ prediction
-\end{align*}
+\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
 \]</span></p>
 <p>This model is considered to be <strong>general</strong> because of the dependence on potentially more than one explanatory variable, v.s. the <strong>simple</strong> linear model:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(y_i = \beta_0 + \beta_1x_i + \epsilon_i\)</span>. The general linear model gives us model “shapes” that start from a simple straight line to a <em>p-dimensional hyperplane</em>.</p>
 <p>The model is <strong>linear in the parameters</strong> <span class="math inline">\(\beta_i\)</span>, e.g.&nbsp;this is OK:</p>
 <p><span class="math display">\[
 \color{blue}
 {
-\begin{align*}
 y_i = \beta_0 + \beta_1x_1 + \beta_2x_1^2 + \epsilon_i\\
 y_1 = \beta_0 + \gamma_1\delta_1x_1 + exp(\beta_2)x_2+ \epsilon_i\\
-\end{align*}
 }
 \]</span></p>
 <p>but not, for example, this:</p>
 <p><span class="math display">\[
 \color{red}
-{\begin{align*}
+{
 y_i = \beta_0 + \beta_1x^{\beta_2} +\epsilon_i\\
 y_i = \beta_0 + exp(\beta_1x_1) + \epsilon_i
-\end{align*}
 }
 \]</span></p>
 <p>Although a very useful framework, there are some situations where general linear models are not appropriate:</p>
 <ul>
 <li>the range of Y is restricted (e.g.&nbsp;binary, count)</li>
-<li>the variance of Y depends on the mean</li>
+<li>the variance of Y depends on the mean(Taylor’s Law)<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>
+</li>
 </ul>
 <p><strong>Generalized linear models</strong> extend the general linear model framework to address both of these issues.</p>
 </section><section id="generalized-linear-model" class="level2"><h2 class="anchored" data-anchor-id="generalized-linear-model">Generalized Linear Model</h2>
@@ -412,7 +409,7 @@ var(Y_i) = \Phi*V(\mu_i)
 <p>where the dispersion parameter <span class="math inline">\(\Phi\)</span> is a constant.</p>
 </div>
 </div>
-<p>For example we can obtain our general linear model with the following choice:</p>
+<p>For example we can obtain our <em>general linear model</em> with the following choice:</p>
 <p><span class="math display">\[
 \begin{align}
 g(\mu_i) = \mu_i\\
@@ -452,6 +449,7 @@ g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
 </section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 <ol>
 <li id="fn1"><p>https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>https://en.wikipedia.org/wiki/Taylor%27s_law<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

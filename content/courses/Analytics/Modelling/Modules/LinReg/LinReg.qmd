@@ -28,6 +28,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 #| message: false
 #| warning: false
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
+#options(scipen = 1, digits = 3) #set digits to three decimal places
 library(tidyverse)
 library(ggformula)
 library(mosaic)
@@ -200,7 +201,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:-----------------|:-----------------------------------------------------|
+|:------------------|:----------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -311,6 +312,7 @@ and the p-value and confidence levels are also computed internally.
 Let us plot (again) scatter plots of Quant Variables that have strong
 correlation with `cmedv`:
 
+
 ```{r}
 #| layout-ncol: 2 
 #| column: screen-inset-shaded
@@ -365,27 +367,39 @@ all_corrs <- housing %>%
 
 all_corrs
 
-all_corrs %>% 
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2, title = "Correlations: Target Variable vs All Predictors", subtitle = "Boston Housing Dataset") %>% 
-  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
-              colour = ~ estimate,
-              width = 0.5,
-              linewidth = ~ -log10(p.value),
-              caption = "Significance = -log10(p.value)") %>% 
+all_corrs %>%
+  gf_hline(
+    yintercept = 0,
+    color = "grey",
+    linewidth = 2,
+    title = "Correlations: Target Variable vs All Predictors",
+    subtitle = "Boston Housing Dataset"
+  ) %>%
+  gf_errorbar(
+    conf.high + conf.low ~ reorder(predictor, estimate),
+    colour = ~ estimate,
+    width = 0.5,
+    linewidth = ~ -log10(p.value),
+    caption = "Significance = -log10(p.value)"
+  ) %>%
   
   # Plot points(smallest geom) last!
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
-  gf_labs(x = NULL, y = "Correlation with cmedv") %>% 
+  gf_point(estimate ~ reorder(predictor, estimate)) %>%
+  gf_labs(x = "Predictors", y = "Correlation with cmedv") %>%
+  
   gf_theme(my_theme()) %>%
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
-  gf_refine(scale_colour_distiller("Correlation", type = "div", palette = "RdBu"), scale_linewidth_continuous("Significance",range = c(0.25, 3))) %>% 
-  gf_refine(guides(linewidth = guide_legend(reverse=TRUE)))
+  gf_refine(
+    scale_colour_distiller("Correlation", type = "div", palette = "RdBu"),
+    scale_linewidth_continuous("Significance", range = c(0.25, 3))
+  ) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)))
 
 ```
 
 We can clearly see that `rm` and `lstat` have strong correlations with
 `cmedv` and should make good choices for setting up a minimal linear
-regression model. (`medv` is the older errored version of `cmedv`)
+regression model. (`medv` is the older errorred version of `cmedv`)
 :::
 
 ::: callout-note
@@ -529,8 +543,8 @@ gf_point(
 
 ```
 
-For any new value of `rm`, we go up to the red line and read off the
-predicted median price. That is how the model is used.
+For any new value of `rm`, we go up to the vertical blue line and read
+off the predicted median price. That is how the model is used (by hand).
 
 In practice, we use the `broom` package functions (`tidy`, `glance` and
 `augment`) to obtain a clear view of the model parameters and
@@ -540,7 +554,7 @@ for the intercept and slope (`rm`) for the linear model, along with the
 *standard errors* and *p.values* for these estimated parameters. And we
 see the fitted values of `cmedv` for the existing `rm`; these values
 will naturally lie **on** the straight-line depicting the model. We will
-examine this `augment`-ed data more in the @sec-diagnostics.
+examine this `augment`-ed data more in @sec-diagnostics.
 
 Let us now try to make predictions with some new data:
 
@@ -726,11 +740,13 @@ sim_model <- tibble(b = slope + seq(-5,5),
 min_r_squared <- sim_model %>% select(r_squared) %>% min()
 min_slope <- sim_model %>% filter(r_squared == min_r_squared) %>% select(b) %>% as.numeric()
 sim_model %>% 
-  gf_point(r_squared ~ b,data = .) %>% 
+  gf_point(r_squared ~ b,data = ., size = 2) %>% 
   gf_line(ylab = "SSE", xlab = "slope",title = "Error vs Slope") %>% 
   gf_hline(yintercept = min_r_squared, color = "red") %>%
   gf_segment(min_r_squared + 0 ~ min_slope + min_slope, colour = "red", arrow = arrow(ends = "last", length = unit(1, "mm")))  %>% 
-  gf_theme(my_theme())
+  gf_theme(my_theme()) %>%
+  gf_refine(coord_cartesian(expand = FALSE), 
+            expand_limits(y = c(0, 20000), x = c(3.5, 15)))
 
 ```
 
@@ -953,31 +969,41 @@ against the independent/feature variable and see if there is a gross
 variation in their range
 
 ```{r}
-#| label: Check for Constant Variance
-#| layout-nrow: 2
+#| label: Looking at Residuals
+#| layout-ncol: 2
+
 housing_lm_augment %>% 
   gf_point(.resid ~ .fitted, title = "Residuals vs Fitted") %>%
   gf_smooth(method = "loess") %>% 
   gf_theme(my_theme())
 
 housing_lm_augment %>% 
-  gf_qq(~ .std.resid, title = "Q-Q Residuals") %>% 
+  gf_hline(yintercept = 0, colour = "grey", linewidth = 2) %>%
+  gf_point(.resid ~ cmedv, title = "Residuals vs Target Variable") %>% 
+  gf_theme(my_theme())
+
+housing_lm_augment %>% 
+  gf_dhistogram(~ .resid, title = "Histogram of Residuals") %>% 
+  gf_fitdistr()%>% 
+  gf_theme(my_theme())
+
+housing_lm_augment %>% 
+  gf_qq(~ .resid, title = "Q-Q Residuals") %>% 
   gf_qqline() %>% 
   gf_theme(my_theme())
 
-housing_lm_augment %>% 
-  gf_point(sqrt(.std.resid) ~ .fitted, 
-           title = "Scale-Location Plot") %>%
-    gf_smooth(method = "loess") %>% 
-  gf_theme(my_theme())
-
-housing_lm_augment %>% 
-  gf_point(.std.resid ~ .hat, 
-           title = "Residuals vs Leverage") %>%
-    gf_smooth(method = "loess") %>% 
-  gf_theme(my_theme())
-
 ```
+
+The Q-Q plot of residuals also has significant deviations from the
+normal quartiles. The residuals are not quite "like the night sky", i.e.
+random enough. These point to the need for a richer model, with more
+predictors. The "trend line" of residuals vs predictors show a U-shaped
+pattern, indicating significant nonlinearity: there is a curved
+relationship in the graph. The solution can be a **nonlinear
+transformation** of the predictor variables, such as $\sqrt(X)$,
+$log(X)$, or even $X^2$. For instance, we might try a model for `cmedv`
+using $rm^2$ instead of just `rm` as we have done. This will **still**
+be a linear model!
 
 ::: callout-tip
 Base R has a crisp command to plot these diagnostic graphs. But we will
@@ -1003,17 +1029,6 @@ gg_diagnose(housing_lm)
 ```
 :::
 
-The residuals are not quite "like the night sky", i.e. random enough.
-The Q-Q plot of residuals also has significant deviations from the
-normal quartiles. These point to the need for a richer model, with more
-predictors. The "trend line" of residuals vs predictors show a U-shaped
-pattern, indicating significant nonlinearity: there is a curved
-relationship in the graph. The solution can be a **nonlinear
-transformation** of the predictor variables, such as $\sqrt(X)$,
-$log(X)$, or even $X^2$. For instance, we might try a model for `cmedv`
-using $rm^2$ instead of just `rm` as we have done. This will **still**
-be a linear model!
-
 ::: column-margin
 The `r-squared` for a model `lm(cmedv ~ rm^2)` shows some improvement:
 
@@ -1033,12 +1048,14 @@ Quantitative target variable, using Linear Regression. As stated
 earlier, we may have wish to use more than one predictor variables, to
 build more sophisticated models with improved prediction capability. And
 there is more than one way of selecting these predictor variables, which
-we will examine in the Tutorials in @sec-tutorials. 
+we will examine in the Tutorials in @sec-tutorials.
 
-Secondly, sometimes it may be necessary to mathematically transform the variables in the dataset to enable the construction of better models, something that was not needed here. 
+Secondly, sometimes it may be necessary to mathematically transform the
+variables in the dataset to enable the construction of better models,
+something that was not needed here.
 
-We may also encounter cases where the predictor variables seem to
-work together; one predictor may influence "how well" another predictor
+We may also encounter cases where the predictor variables seem to work
+together; one predictor may influence "how well" another predictor
 works, something called an *interaction effect* or a *synergy effect*.
 We might then have to modify our formula to include *interaction terms*
 that look like $predictor1 \times predictor2$.

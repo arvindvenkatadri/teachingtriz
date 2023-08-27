@@ -101,7 +101,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/R4Artists/Modules/130-purrr/Alice-and-Cat.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
-<body class="nav-sidebar docked nav-fixed">
+<body class="nav-sidebar docked nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
@@ -298,6 +298,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
 <li><a href="#iconify-icon-park-outline-overall-reduction-icon-park-outline-chart-histogram-eda-plots" id="toc-iconify-icon-park-outline-overall-reduction-icon-park-outline-chart-histogram-eda-plots" class="nav-link" data-scroll-target="#iconify-icon-park-outline-overall-reduction-icon-park-outline-chart-histogram-eda-plots"><iconify-icon inline="" icon="icon-park-outline:overall-reduction"></iconify-icon> EDA Plots</a></li>
   <li><a href="#constructing-a-linear-model" id="toc-constructing-a-linear-model" class="nav-link" data-scroll-target="#constructing-a-linear-model">Constructing a Linear Model</a></li>
+  <li><a href="#the-purrr-package" id="toc-the-purrr-package" class="nav-link" data-scroll-target="#the-purrr-package">The <code>purrr</code> package</a></li>
   <li><a href="#using-map_-functions-from-purrr" id="toc-using-map_-functions-from-purrr" class="nav-link" data-scroll-target="#using-map_-functions-from-purrr">Using <code>map_*</code> functions from <code>purrr</code></a></li>
   <li><a href="#iconify-grommet-icons-iteration-using-purrr-to-create-multiple-models" id="toc-iconify-grommet-icons-iteration-using-purrr-to-create-multiple-models" class="nav-link" data-scroll-target="#iconify-grommet-icons-iteration-using-purrr-to-create-multiple-models"><iconify-icon inline="" icon="grommet-icons:iteration"></iconify-icon> Using <code>purrr</code> to create multiple models</a></li>
   <li><a href="#iconify-ant-design-dot-chart-outlined-iconify-ant-design-bar-chart-outlined-model-visualization" id="toc-iconify-ant-design-dot-chart-outlined-iconify-ant-design-bar-chart-outlined-model-visualization" class="nav-link" data-scroll-target="#iconify-ant-design-dot-chart-outlined-iconify-ant-design-bar-chart-outlined-model-visualization"><iconify-icon inline="" icon="ant-design:dot-chart-outlined"></iconify-icon><iconify-icon inline="" icon="ant-design:bar-chart-outlined"></iconify-icon> Model Visualization</a></li>
@@ -339,7 +340,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 17, 2023</p>
+      <p class="date-modified">August 27, 2023</p>
     </div>
   </div>
     
@@ -356,16 +357,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure"><p><img src="Alice-and-Cat.jpg" class="img-fluid figure-img" width="248"></p>
-</figure>
+<figcaption class="figure-caption">Learning to purrr</figcaption></figure>
 </div>
 </section><section id="iconify-fxemoji-japanesesymbolforbeginner-introduction" class="level2"><h2 class="anchored" data-anchor-id="iconify-fxemoji-japanesesymbolforbeginner-introduction">
 <iconify-icon inline="" icon="fxemoji:japanesesymbolforbeginner"></iconify-icon> Introduction</h2>
 <p>Often we want to perform the same operation on several different sets of data. Rather than repeat the operation for each instance of data, it is faster, more intuitive, and less error-prone if we create a data structure that holds all the data, and use the <code>map-*</code> series functions from the <code>purrr</code> package to perform all the repeated operations in one shot.</p>
-<p>This requires getting used to. We need to understand:<br>
-- the data structure<br>
-- the iteration mechanism using <code>map</code> functions<br>
-- the form of the results<br></p>
-</section><section id="iconify-pajamas-issue-type-test-case-case-study-1-multiple-models-for-life-expectancy-with-gapminder" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-pajamas-issue-type-test-case-case-study-1-multiple-models-for-life-expectancy-with-gapminder">
+<p>This requires getting used to. We need to understand:</p>
+<ul>
+<li>the data structure</li>
+<li>the iteration mechanism using <code>map</code> functions</li>
+<li>the form of the results<br>
+</li>
+</ul></section><section id="iconify-pajamas-issue-type-test-case-case-study-1-multiple-models-for-life-expectancy-with-gapminder" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-pajamas-issue-type-test-case-case-study-1-multiple-models-for-life-expectancy-with-gapminder">
 <iconify-icon inline="" icon="pajamas:issue-type-test-case"></iconify-icon> Case Study #1: Multiple Models for Life Expectancy with <code>gapminder</code>
 </h2>
 <p>We will start with a complete case study and then work backwards to understand the various pieces of code that make it up.</p>
@@ -562,7 +565,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>By and large we see positive slopes, but some countries do show non-linear behaviour.</p>
 </section><section id="constructing-a-linear-model" class="level3"><h3 class="anchored" data-anchor-id="constructing-a-linear-model">Constructing a Linear Model</h3>
-<p>Let us take <span class="math inline">\(1950\)</span> as a baseline year for <em>all countries</em>. Then we model <code>lifeExp</code> uing <code>year1950</code> across all countries together:</p>
+<p>Let us take <span class="math inline">\(1950\)</span> as a baseline year for <em>all countries</em>. Then we model <code>lifeExp</code> using <code>year1950</code> across all countries together:</p>
 <div class="cell" data-hash="purrr_cache/html/unnamed-chunk-4_e5ca17db67e86a63c0657fdbeb776e22">
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gapminder</span> <span class="op">&lt;-</span> <span class="va">gapminder</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>year1950 <span class="op">=</span> <span class="va">year</span> <span class="op">-</span> <span class="fl">1950</span><span class="op">)</span> <span class="co"># baseline year</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">lifeExp</span> <span class="op">~</span> <span class="va">year1950</span>, data <span class="op">=</span> <span class="va">gapminder</span><span class="op">)</span></span>
@@ -612,10 +615,10 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
-<p>Since the slope 0.3259038 is positive, life expectancy has been increasing over the years, across <em>all countries</em>. (But <code>r.squared</code> 0.1897571 is low).</p>
+<p>Since the slope 0.3259038 is positive, life expectancy has been increasing over the years, across <em>all countries</em>. (But <code>r.squared</code> 0.1897571 is low, so this model does not explain much).</p>
 <p>How do we do this for <em>each country</em>? We need to use the <code>split-apply-combine</code> method to achieve this. The combination of <code>group_by</code> and <code>summarise</code> is a example of the <code>split &gt; apply &gt; combine</code> method. For example, we could (split) the data by country, calculate the linear model each group (apply), and (combine) the results in a data frame.</p>
 <p>However, this first-attempt code for a per-country linear model does not work:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-6_30edaa3128e05876cc5877740ef9ba07">
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-6_d04511a557d13d4c2afada5d9c45adc1">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>gapminder <span class="sc">%&gt;%</span> </span>
@@ -623,10 +626,11 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">linmod =</span> <span class="fu">lm</span>(lifeExp <span class="sc">~</span> year1950, <span class="at">data =</span> .))</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This is because the <code>linmod</code> variable is a <strong>list</strong> variable and <em>cannot be accommodated in a simple column</em>, which is what <code>summarize</code> will try to create.</p>
-<p>Counter-intuitively, we <strong>do</strong> need to be able to create “list” columns in a data frame! The <code>purrr</code> package contains a new class of functions, that can take vectors/tibbles/lists as input, and perform an identical function over each component of these, and generate vectors/tibbles/lists as output. These are the <code>map_*</code> functions that are part of the <code>purrr</code> package. The <code>*</code> in the <code>map_*</code> function defines what kind of <strong>output</strong> (vector/tibble/list) the function generates.</p>
+<p>This is because the <code>linmod</code> variable is a <strong>list</strong> variable and <em>cannot be accommodated in a simple column</em>, which is what <code>summarize</code> will try to create. So we need to be able to create “list” columns in a data frame…how do we do that? Before we contemplate that, let us understand the capabilities of the <code>purrr</code> package in R.</p>
+</section><section id="the-purrr-package" class="level3"><h3 class="anchored" data-anchor-id="the-purrr-package">The <code>purrr</code> package</h3>
+<p>The <code>purrr</code> package contains a new class of functions, that can take <em>vectors/tibbles/lists</em> as input, and perform an identical function over each component of these, and generate <em>vectors/tibbles/lists</em> as output. These are the <code>map_*</code> functions that are part of the <code>purrr</code> package. The <code>*</code> in the <code>map_*</code> function defines what kind of <strong>output</strong> (vector/tibble/list) the function generates.</p>
 <p>Let us look at a few short examples.</p>
-</section><section id="using-map_-functions-from-purrr" class="level3"><h3 class="anchored" data-anchor-id="using-map_-functions-from-purrr">Using <code>map_*</code> functions from <code>purrr</code>
+</section><section id="using-map_-functions-from-purrr" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="using-map_-functions-from-purrr">Using <code>map_*</code> functions from <code>purrr</code>
 </h3>
 <p>The basic structure of the <code>map_*</code> functions is:</p>
 <div class="cell" data-hash="purrr_cache/html/unnamed-chunk-7_3d92187d521fe8fc4be4e56932ef4d46">
@@ -640,10 +644,11 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Two examples:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-8_de7d610080c16a584e7180378789fe78">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Example 1</span></span>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-8_2367e54c108d6152551c2b1f37cc12f9">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Example 1: Input: vector, Output: vector</span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
 <span>  <span class="co"># We need dbl-type numbers in output **vector**</span></span>
 <span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_dbl</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">.</span>, </span>
 <span>        .f <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -653,8 +658,10 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
            z 
    3.5387338 </code></pre>
 </div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Example 2: Input: vector, Output: tibble</span></span>
+<span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
 <span>  <span class="co"># We need dbl-type numbers in output **vector**</span></span>
 <span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html">map_df</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">.</span>, </span>
 <span>       .f <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -667,11 +674,26 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
-<p>Sometimes the function <code>.f</code> may need some additional parameters to be specified, and these may not come from the <code>.x</code>:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-9_c1c1bcb41af8cfef1c960ee8b32ca870">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note <code>map_dbl</code> outputs a (numeric) <em>vector</em>, and <code>map_df</code> outputs a <code>tibble</code>.</p>
+<p>In each of the above examples, each <strong>vector</strong> in the <code>diamonds</code> dataset was passed to the respective <em>map_</em>* function as the parameter<code>.x</code>.</p>
+</div>
+</div>
+<p>Sometimes the function <code>.f</code> may need some additional parameters to be specified, and these may not come from the input <code>.x</code>:</p>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-9_7320e900a6b3598e669d626587a3e040">
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Example 3, with additional parameters to .f</span></span>
 <span><span class="fu">palmerpenguins</span><span class="fu">::</span><span class="va"><a href="https://allisonhorst.github.io/palmerpenguins/reference/penguins.html">penguins</a></span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_dbl</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">.</span>, </span>
 <span>          .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -687,6 +709,7 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 <span><span class="co"># Example 4: if we want a tibble output</span></span>
 <span><span class="fu">palmerpenguins</span><span class="fu">::</span><span class="va"><a href="https://allisonhorst.github.io/palmerpenguins/reference/penguins.html">penguins</a></span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html">map_df</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">.</span>, </span>
 <span>         .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -706,10 +729,10 @@ F-statistic: 398.6 on 1 and 1702 DF,  p-value: &lt; 2.2e-16</code></pre>
 <span>  </span>
 <span>  <span class="co"># `map` gives a list output</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">.</span>,</span>
-<span>      .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span><span class="op">~</span><span class="va">x</span>, bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span>      <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="purrr_cache/html/unnamed-chunk-10_4628a6f3f8cf33779b380b095382cc29">
+<span>      .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span><span class="op">~</span><span class="va">x</span>, bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-hash="purrr_cache/html/unnamed-chunk-10_16a3fdfafdd398d2c5aabe4e3548f0a6">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <pre><code>$bill_length_mm</code></pre>
@@ -747,47 +770,64 @@ $body_mass_g</code></pre>
 </div>
 </div>
 </div>
-<p>Note: we need to do just a bit of extra pre-work to get the variable names on the x-axis of the histograms.</p>
-<p>So in summary, we need to create a tibble with column(s) that are the inputs to the <code>map</code> function. We then provide <code>map</code> with a function that it will apply to each of these columns. The function can take additional parameters too. Finally, depending upon the kind of output the function generates, we need to choose the <code>map</code> function.</p>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="">Note: we need to do just a bit of extra pre-work to get the variable names on the x-axis of the histograms. There is a possibility to <strong>store</strong> all the plots in a separate column</span></div></div>
+<p>OK, so we can get <em>vectors/tibbles/lists</em> as output using <em>vectors</em> as inputs. Why would it be desirable to provide <em>tibble/list</em> as an input to a <code>map_*</code> function?</p>
 </section><section id="iconify-grommet-icons-iteration-using-purrr-to-create-multiple-models" class="level3"><h3 class="anchored" data-anchor-id="iconify-grommet-icons-iteration-using-purrr-to-create-multiple-models">
 <iconify-icon inline="" icon="grommet-icons:iteration"></iconify-icon> Using <code>purrr</code> to create multiple models</h3>
-<p>Now that we have some handle on purrr’s <code>map</code> functions, we can see how to develop a linear regression model for <strong>every</strong> country in the <code>gapminder</code> dataset.</p>
-<p>Here is the process:</p>
-<ul>
-<li>Group the data by <code>country</code><br>
-</li>
-<li>Create a <code>nested</code> column of data for each country (i.e <code>nest</code> the columns other than <code>country</code> into a <strong>list column</strong>). This <code>list</code> column is the first argument <code>.x</code> for<code>map_*</code>.<br>
-</li>
-<li>Use <code>map</code> to create an <code>lm</code> object for each country (in another list column)</li>
+<p>Now that we have some handle on purrr’s <code>map</code> functions, we can see how to develop a linear regression model for <strong>every</strong> country in the <code>gapminder</code> dataset. It should be clear from the command for a linear model:</p>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-11_5dfadaa1083bc42eb73aaa8b8f33381a">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(target <span class="sc">~</span> <span class="fu">predictor</span>(s), </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">data  =</span> tibble_containing_target_and_predictors_columns)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>that we need to specify three things: <code>target</code>, <code>predictors</code>, and the <code>data</code> tibble for the development of a linear model. To do this for each <code>country</code> in <code>gapminder</code>, here is the process:</p>
+<ol type="1">
+<li>Group the <code>gapminder</code> data by <code>country</code> (and <code>continent</code>)</li>
+<li>Create a column containing unique per-country <code>data</code> for each country. This column would hence contain a <code>tibble</code> in each cell. This is a <code>list</code> column!</li>
+<li>Use <code>map</code> which would take <code>country</code> and the <code>data</code> columns created above to create an <code>lm</code> object for each country (in another list column)</li>
 <li>Use <code>map</code> again with <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy</a></code> as the function to give us clean columns for the model per country.</li>
-<li>Use that multi-model tibble to plot graphs for each country</li>
-<li>Etc.</li>
-</ul>
+<li>Use that multi-model tibble to plot graphs for each country.</li>
+</ol>
 <p>Let us do this now!</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-11_4a0cf947fb3cf06b7cadcda25c4bf021">
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span>  <span class="va">gapminder_models</span> <span class="op">&lt;-</span> <span class="va">gapminder</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-12_5ca87400cbec71ce13fc687e7d2738b8">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gapminder_models</span> <span class="op">&lt;-</span> <span class="va">gapminder</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html">nest</a></span><span class="op">(</span>.key <span class="op">=</span> <span class="st">"data_list"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># Name the column as "list"</span></span>
 <span>  </span>
+<span>  <span class="co"># Create a per-country tibble in a new column called "data_list"</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html">nest</a></span><span class="op">(</span>.key <span class="op">=</span> <span class="st">"data_list"</span><span class="op">)</span> </span>
+<span><span class="va">gapminder_models</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["country"],"name":[1],"type":["fct"],"align":["left"]},{"label":["continent"],"name":[2],"type":["fct"],"align":["left"]},{"label":["data_list"],"name":[3],"type":["list"],"align":["right"]}],"data":[{"1":"Afghanistan","2":"Asia","3":"<tibble[,5]>"},{"1":"Albania","2":"Europe","3":"<tibble[,5]>"},{"1":"Algeria","2":"Africa","3":"<tibble[,5]>"},{"1":"Angola","2":"Africa","3":"<tibble[,5]>"},{"1":"Argentina","2":"Americas","3":"<tibble[,5]>"},{"1":"Australia","2":"Oceania","3":"<tibble[,5]>"},{"1":"Austria","2":"Europe","3":"<tibble[,5]>"},{"1":"Bahrain","2":"Asia","3":"<tibble[,5]>"},{"1":"Bangladesh","2":"Asia","3":"<tibble[,5]>"},{"1":"Belgium","2":"Europe","3":"<tibble[,5]>"},{"1":"Benin","2":"Africa","3":"<tibble[,5]>"},{"1":"Bolivia","2":"Americas","3":"<tibble[,5]>"},{"1":"Bosnia and Herzegovina","2":"Europe","3":"<tibble[,5]>"},{"1":"Botswana","2":"Africa","3":"<tibble[,5]>"},{"1":"Brazil","2":"Americas","3":"<tibble[,5]>"},{"1":"Bulgaria","2":"Europe","3":"<tibble[,5]>"},{"1":"Burkina Faso","2":"Africa","3":"<tibble[,5]>"},{"1":"Burundi","2":"Africa","3":"<tibble[,5]>"},{"1":"Cambodia","2":"Asia","3":"<tibble[,5]>"},{"1":"Cameroon","2":"Africa","3":"<tibble[,5]>"},{"1":"Canada","2":"Americas","3":"<tibble[,5]>"},{"1":"Central African Republic","2":"Africa","3":"<tibble[,5]>"},{"1":"Chad","2":"Africa","3":"<tibble[,5]>"},{"1":"Chile","2":"Americas","3":"<tibble[,5]>"},{"1":"China","2":"Asia","3":"<tibble[,5]>"},{"1":"Colombia","2":"Americas","3":"<tibble[,5]>"},{"1":"Comoros","2":"Africa","3":"<tibble[,5]>"},{"1":"Congo, Dem. Rep.","2":"Africa","3":"<tibble[,5]>"},{"1":"Congo, Rep.","2":"Africa","3":"<tibble[,5]>"},{"1":"Costa Rica","2":"Americas","3":"<tibble[,5]>"},{"1":"Cote d'Ivoire","2":"Africa","3":"<tibble[,5]>"},{"1":"Croatia","2":"Europe","3":"<tibble[,5]>"},{"1":"Cuba","2":"Americas","3":"<tibble[,5]>"},{"1":"Czech Republic","2":"Europe","3":"<tibble[,5]>"},{"1":"Denmark","2":"Europe","3":"<tibble[,5]>"},{"1":"Djibouti","2":"Africa","3":"<tibble[,5]>"},{"1":"Dominican Republic","2":"Americas","3":"<tibble[,5]>"},{"1":"Ecuador","2":"Americas","3":"<tibble[,5]>"},{"1":"Egypt","2":"Africa","3":"<tibble[,5]>"},{"1":"El Salvador","2":"Americas","3":"<tibble[,5]>"},{"1":"Equatorial Guinea","2":"Africa","3":"<tibble[,5]>"},{"1":"Eritrea","2":"Africa","3":"<tibble[,5]>"},{"1":"Ethiopia","2":"Africa","3":"<tibble[,5]>"},{"1":"Finland","2":"Europe","3":"<tibble[,5]>"},{"1":"France","2":"Europe","3":"<tibble[,5]>"},{"1":"Gabon","2":"Africa","3":"<tibble[,5]>"},{"1":"Gambia","2":"Africa","3":"<tibble[,5]>"},{"1":"Germany","2":"Europe","3":"<tibble[,5]>"},{"1":"Ghana","2":"Africa","3":"<tibble[,5]>"},{"1":"Greece","2":"Europe","3":"<tibble[,5]>"},{"1":"Guatemala","2":"Americas","3":"<tibble[,5]>"},{"1":"Guinea","2":"Africa","3":"<tibble[,5]>"},{"1":"Guinea-Bissau","2":"Africa","3":"<tibble[,5]>"},{"1":"Haiti","2":"Americas","3":"<tibble[,5]>"},{"1":"Honduras","2":"Americas","3":"<tibble[,5]>"},{"1":"Hong Kong, China","2":"Asia","3":"<tibble[,5]>"},{"1":"Hungary","2":"Europe","3":"<tibble[,5]>"},{"1":"Iceland","2":"Europe","3":"<tibble[,5]>"},{"1":"India","2":"Asia","3":"<tibble[,5]>"},{"1":"Indonesia","2":"Asia","3":"<tibble[,5]>"},{"1":"Iran","2":"Asia","3":"<tibble[,5]>"},{"1":"Iraq","2":"Asia","3":"<tibble[,5]>"},{"1":"Ireland","2":"Europe","3":"<tibble[,5]>"},{"1":"Israel","2":"Asia","3":"<tibble[,5]>"},{"1":"Italy","2":"Europe","3":"<tibble[,5]>"},{"1":"Jamaica","2":"Americas","3":"<tibble[,5]>"},{"1":"Japan","2":"Asia","3":"<tibble[,5]>"},{"1":"Jordan","2":"Asia","3":"<tibble[,5]>"},{"1":"Kenya","2":"Africa","3":"<tibble[,5]>"},{"1":"Korea, Dem. Rep.","2":"Asia","3":"<tibble[,5]>"},{"1":"Korea, Rep.","2":"Asia","3":"<tibble[,5]>"},{"1":"Kuwait","2":"Asia","3":"<tibble[,5]>"},{"1":"Lebanon","2":"Asia","3":"<tibble[,5]>"},{"1":"Lesotho","2":"Africa","3":"<tibble[,5]>"},{"1":"Liberia","2":"Africa","3":"<tibble[,5]>"},{"1":"Libya","2":"Africa","3":"<tibble[,5]>"},{"1":"Madagascar","2":"Africa","3":"<tibble[,5]>"},{"1":"Malawi","2":"Africa","3":"<tibble[,5]>"},{"1":"Malaysia","2":"Asia","3":"<tibble[,5]>"},{"1":"Mali","2":"Africa","3":"<tibble[,5]>"},{"1":"Mauritania","2":"Africa","3":"<tibble[,5]>"},{"1":"Mauritius","2":"Africa","3":"<tibble[,5]>"},{"1":"Mexico","2":"Americas","3":"<tibble[,5]>"},{"1":"Mongolia","2":"Asia","3":"<tibble[,5]>"},{"1":"Montenegro","2":"Europe","3":"<tibble[,5]>"},{"1":"Morocco","2":"Africa","3":"<tibble[,5]>"},{"1":"Mozambique","2":"Africa","3":"<tibble[,5]>"},{"1":"Myanmar","2":"Asia","3":"<tibble[,5]>"},{"1":"Namibia","2":"Africa","3":"<tibble[,5]>"},{"1":"Nepal","2":"Asia","3":"<tibble[,5]>"},{"1":"Netherlands","2":"Europe","3":"<tibble[,5]>"},{"1":"New Zealand","2":"Oceania","3":"<tibble[,5]>"},{"1":"Nicaragua","2":"Americas","3":"<tibble[,5]>"},{"1":"Niger","2":"Africa","3":"<tibble[,5]>"},{"1":"Nigeria","2":"Africa","3":"<tibble[,5]>"},{"1":"Norway","2":"Europe","3":"<tibble[,5]>"},{"1":"Oman","2":"Asia","3":"<tibble[,5]>"},{"1":"Pakistan","2":"Asia","3":"<tibble[,5]>"},{"1":"Panama","2":"Americas","3":"<tibble[,5]>"},{"1":"Paraguay","2":"Americas","3":"<tibble[,5]>"},{"1":"Peru","2":"Americas","3":"<tibble[,5]>"},{"1":"Philippines","2":"Asia","3":"<tibble[,5]>"},{"1":"Poland","2":"Europe","3":"<tibble[,5]>"},{"1":"Portugal","2":"Europe","3":"<tibble[,5]>"},{"1":"Puerto Rico","2":"Americas","3":"<tibble[,5]>"},{"1":"Reunion","2":"Africa","3":"<tibble[,5]>"},{"1":"Romania","2":"Europe","3":"<tibble[,5]>"},{"1":"Rwanda","2":"Africa","3":"<tibble[,5]>"},{"1":"Sao Tome and Principe","2":"Africa","3":"<tibble[,5]>"},{"1":"Saudi Arabia","2":"Asia","3":"<tibble[,5]>"},{"1":"Senegal","2":"Africa","3":"<tibble[,5]>"},{"1":"Serbia","2":"Europe","3":"<tibble[,5]>"},{"1":"Sierra Leone","2":"Africa","3":"<tibble[,5]>"},{"1":"Singapore","2":"Asia","3":"<tibble[,5]>"},{"1":"Slovak Republic","2":"Europe","3":"<tibble[,5]>"},{"1":"Slovenia","2":"Europe","3":"<tibble[,5]>"},{"1":"Somalia","2":"Africa","3":"<tibble[,5]>"},{"1":"South Africa","2":"Africa","3":"<tibble[,5]>"},{"1":"Spain","2":"Europe","3":"<tibble[,5]>"},{"1":"Sri Lanka","2":"Asia","3":"<tibble[,5]>"},{"1":"Sudan","2":"Africa","3":"<tibble[,5]>"},{"1":"Swaziland","2":"Africa","3":"<tibble[,5]>"},{"1":"Sweden","2":"Europe","3":"<tibble[,5]>"},{"1":"Switzerland","2":"Europe","3":"<tibble[,5]>"},{"1":"Syria","2":"Asia","3":"<tibble[,5]>"},{"1":"Taiwan","2":"Asia","3":"<tibble[,5]>"},{"1":"Tanzania","2":"Africa","3":"<tibble[,5]>"},{"1":"Thailand","2":"Asia","3":"<tibble[,5]>"},{"1":"Togo","2":"Africa","3":"<tibble[,5]>"},{"1":"Trinidad and Tobago","2":"Americas","3":"<tibble[,5]>"},{"1":"Tunisia","2":"Africa","3":"<tibble[,5]>"},{"1":"Turkey","2":"Europe","3":"<tibble[,5]>"},{"1":"Uganda","2":"Africa","3":"<tibble[,5]>"},{"1":"United Kingdom","2":"Europe","3":"<tibble[,5]>"},{"1":"United States","2":"Americas","3":"<tibble[,5]>"},{"1":"Uruguay","2":"Americas","3":"<tibble[,5]>"},{"1":"Venezuela","2":"Americas","3":"<tibble[,5]>"},{"1":"Vietnam","2":"Asia","3":"<tibble[,5]>"},{"1":"West Bank and Gaza","2":"Asia","3":"<tibble[,5]>"},{"1":"Yemen, Rep.","2":"Asia","3":"<tibble[,5]>"},{"1":"Zambia","2":"Africa","3":"<tibble[,5]>"},{"1":"Zimbabwe","2":"Africa","3":"<tibble[,5]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gapminder_models</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="co"># We use mutate + map to add a list column containing linear models</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">data_list</span>, </span>
 <span>                     </span>
-<span>          <span class="co"># One column to iterate over</span></span>
-<span>          <span class="co"># The list column contains data frames</span></span>
-<span>          <span class="co"># So we access individual columns </span></span>
+<span>          <span class="co"># One column .x to iterate over</span></span>
+<span>          <span class="co"># The .x list column contains data frames</span></span>
+<span>          <span class="co"># So we access individual columns for target and predictors </span></span>
 <span>          <span class="co"># within these individual data frames</span></span>
 <span>                     .f <span class="op">=</span> \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">lifeExp</span> <span class="op">~</span> <span class="va">year1950</span>, data <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
 <span>          <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
 <span>  <span class="co"># Use mutate + map again to expose the columns of the models</span></span>
 <span>  <span class="co"># Use broom:: tidy, broom::glance:: and broom::augment for separate columns</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>model_params <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">model</span>, </span>
-<span>                      .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="va">x</span>, </span>
+<span>                      .f <span class="op">=</span> \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="va">.x</span>, </span>
 <span>                                             conf.int <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                                             conf.lvel <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>         model_metrics <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">model</span>,</span>
-<span>                      .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                      .f <span class="op">=</span> \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html">glance</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>         </span>
 <span>         model_augment <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span>.x  <span class="op">=</span> <span class="va">model</span>, </span>
-<span>                             .f <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/augment.html">augment</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>                             .f <span class="op">=</span> \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/augment.html">augment</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
 <span>         <span class="op">)</span> </span>
 <span><span class="va">gapminder_models</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -798,23 +838,14 @@ $body_mass_g</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+</div>
+<p>We can now take this tibble with multiple models and use <code>broom</code> to <code>tidy</code>, to <code>glance</code> at, and to <code>augment</code> the models:</p>
+<div class="cell" data-hash="purrr_cache/html/multiple_models_tidied_a84aeb0835e6ccdb6f1644a574d95b7a">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>,<span class="va">model_params</span>, <span class="va">model_metrics</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># Now unpack the linear model parameters into columns</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">model_params</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">model_metrics</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="co"># Now unpack the linear model parameters into columns</span></span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">model_metrics</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">augments</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">model_augment</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="co"># Now unpack the linear model parameters into columns</span></span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">model_augment</span><span class="op">)</span></span>
 <span><span class="va">params</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
@@ -824,7 +855,12 @@ $body_mass_g</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">metrics</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">model_metrics</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="co"># Now unpack the linear model parameters into columns</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">model_metrics</span><span class="op">)</span></span>
+<span><span class="va">metrics</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -833,7 +869,12 @@ $body_mass_g</code></pre>
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">augments</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">augments</span> <span class="op">&lt;-</span> <span class="va">gapminder_models</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">model_augment</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="co"># Now unpack the linear model parameters into columns</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">model_augment</span><span class="op">)</span></span>
+<span><span class="va">augments</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -846,56 +887,110 @@ $body_mass_g</code></pre>
 </section><section id="iconify-ant-design-dot-chart-outlined-iconify-ant-design-bar-chart-outlined-model-visualization" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="iconify-ant-design-dot-chart-outlined-iconify-ant-design-bar-chart-outlined-model-visualization">
 <iconify-icon inline="" icon="ant-design:dot-chart-outlined"></iconify-icon><iconify-icon inline="" icon="ant-design:bar-chart-outlined"></iconify-icon> Model Visualization</h3>
 <p>We can now plot these models and their uncertainty (i.e Confidence Intervals). We can select a few of the countries and plot:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-12_9e7418764c37cafcb0e003faf30b4aee">
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params_filtered</span> <span class="op">&lt;-</span> <span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">country</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"India"</span>, <span class="st">"United States"</span>, <span class="st">"Brazil"</span>, <span class="st">"China"</span><span class="op">)</span>, </span>
 <span>         <span class="va">term</span> <span class="op">==</span> <span class="st">"year1950"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_errorbar.html">gf_errorbar</a></span><span class="op">(</span><span class="va">conf.high</span> <span class="op">+</span> <span class="va">conf.low</span> <span class="op">~</span> <span class="va">country</span>, </span>
-<span>              color <span class="op">=</span> <span class="op">~</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">p.value</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">estimate</span>, <span class="va">conf.low</span>, <span class="va">conf.high</span>,<span class="va">p.value</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">estimate</span><span class="op">)</span></span>
+<span><span class="va">params_filtered</span></span>
+<span><span class="va">params_filtered</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_errorbar.html">gf_errorbar</a></span><span class="op">(</span><span class="va">conf.high</span> <span class="op">+</span> <span class="va">conf.low</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">estimate</span><span class="op">)</span>,</span>
 <span>              linewidth <span class="op">=</span> <span class="op">~</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">p.value</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>              ylab <span class="op">=</span> <span class="st">"Effect Size"</span>, title <span class="op">=</span> <span class="st">"Effect of years on Life Expectancy"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>              ylab <span class="op">=</span> <span class="st">"Effect Size"</span>, </span>
+<span>              xlab <span class="op">=</span> <span class="st">"Country"</span>,</span>
+<span>              title <span class="op">=</span> <span class="st">"Effect of years on Life Expectancy"</span>,</span>
+<span>              caption <span class="op">=</span> <span class="st">"Significance = - log10(p.value)"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">estimate</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">country</span>,<span class="va">estimate</span><span class="op">)</span>, </span>
+<span>           colour <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span><span class="op">(</span><span class="st">"significance"</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_linewidth.html">scale_linewidth_continuous</a></span><span class="op">(</span><span class="st">"significance"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="purrr_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="2100"></p>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_linewidth.html">scale_linewidth_continuous</a></span><span class="op">(</span><span class="st">"Significance"</span>, </span>
+<span>                                       range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">30</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-hash="purrr_cache/html/unnamed-chunk-14_9ccf1c337cd5e37d24ce87c24bbb5498">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["country"],"name":[1],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"United States","2":"0.1841692","3":"0.1686619","4":"0.1996766","5":"1.369788e-10"},{"1":"Brazil","2":"0.3900895","3":"0.3779322","4":"0.4022468","5":"6.990433e-15"},{"1":"India","2":"0.5053210","3":"0.4410424","4":"0.5695996","5":"7.812981e-09"},{"1":"China","2":"0.5307149","3":"0.3869831","4":"0.6744466","5":"9.206217e-06"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="purrr_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="2100"></p>
+</div>
+</div>
 </div>
 </div>
 <p>But we can do better: visualize <strong>all</strong> models at once. What we will do is to plot the <code>r.squared</code> on the x-axis and the model term <code>year1950</code> on the y-axis. We will need to combine <code>params</code> and <code>metrics</code> to do this:</p>
 <div class="page-columns page-full">
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params_combo</span> <span class="op">&lt;-</span> <span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">term</span> , <span class="va">estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">term</span> <span class="op">==</span> <span class="st">"year1950"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="va">params_combo</span></span>
+<span><span class="va">params_combo</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span> <span class="op">~</span> <span class="va">r.squared</span>, </span>
+<span>           color <span class="op">=</span> <span class="st">"grey90"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span> <span class="op">~</span> <span class="va">r.squared</span>, </span>
+<span>           data <span class="op">=</span> <span class="va">params_combo</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">continent</span> <span class="op">==</span> <span class="st">"Africa"</span><span class="op">)</span>,</span>
+<span>           shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>    fill <span class="op">=</span> <span class="st">"salmon"</span>,</span>
+<span>    ylab <span class="op">=</span> <span class="st">"Country"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"African Countries are Hard to Model"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span> <span class="op">~</span> <span class="va">r.squared</span>, color <span class="op">=</span> <span class="op">~</span> <span class="va">continent</span>,</span>
-<span>           ylab <span class="op">=</span> <span class="st">"Country"</span>,</span>
-<span>           title <span class="op">=</span> <span class="st">"African Countries are hard to Model"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">term</span> , <span class="va">estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">term</span> <span class="op">==</span> <span class="st">"year1950"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">estimate</span> <span class="op">~</span> <span class="va">r.squared</span>, color <span class="op">=</span> <span class="op">~</span> <span class="va">continent</span>,</span>
-<span>           ylab <span class="op">=</span> <span class="st">"Slope Estimate for Linear Model"</span>,</span>
-<span>           title <span class="op">=</span> <span class="st">"African Countries are hard to Model"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_text.html">gf_label</a></span><span class="op">(</span><span class="fl">60</span> <span class="op">~</span> <span class="fl">0.25</span>,</span>
+<span>           label <span class="op">=</span> <span class="st">"African Countries"</span>,</span>
+<span>           fill <span class="op">=</span> <span class="st">"salmon"</span>,</span>
+<span>           color <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>           inherit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span>, face <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">params_combo</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">estimate</span> <span class="op">~</span> <span class="va">r.squared</span>, color <span class="op">=</span> <span class="st">"grey90"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">estimate</span> <span class="op">~</span> <span class="va">r.squared</span>,</span>
+<span>           data <span class="op">=</span> <span class="va">params_combo</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">continent</span> <span class="op">==</span> <span class="st">"Africa"</span><span class="op">)</span>,</span>
+<span>           shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>    fill <span class="op">=</span> <span class="st">"salmon"</span>,</span>
+<span>    ylab <span class="op">=</span> <span class="st">"Slope Estimate for Linear Model"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"African Countries are Hard to Model"</span>,</span>
+<span>    show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_text.html">gf_label</a></span><span class="op">(</span><span class="fl">0.3</span> <span class="op">~</span> <span class="fl">0.25</span>,</span>
+<span>           label <span class="op">=</span> <span class="st">"African Countries"</span>,</span>
+<span>           fill <span class="op">=</span> <span class="st">"salmon"</span>,</span>
+<span>           color <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>           inherit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-page-right quarto-layout-panel" data-hash="purrr_cache/html/unnamed-chunk-13_ac153d3686920a853779cb635453213a">
+<div class="cell column-page-right quarto-layout-panel" data-hash="purrr_cache/html/unnamed-chunk-15_f909d1fe76e36cdc552e57b10079b80b">
 <div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="purrr_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="2100"></p>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["continent"],"name":[1],"type":["fct"],"align":["left"]},{"label":["country"],"name":[2],"type":["fct"],"align":["left"]},{"label":["term"],"name":[3],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["r.squared"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"Asia","2":"Afghanistan","3":"year1950","4":"0.27532867","5":"0.94771226"},{"1":"Europe","2":"Albania","3":"year1950","4":"0.33468322","5":"0.91057777"},{"1":"Africa","2":"Algeria","3":"year1950","4":"0.56927972","5":"0.98511721"},{"1":"Africa","2":"Angola","3":"year1950","4":"0.20933986","5":"0.88781463"},{"1":"Americas","2":"Argentina","3":"year1950","4":"0.23170839","5":"0.99556810"},{"1":"Oceania","2":"Australia","3":"year1950","4":"0.22772378","5":"0.97964774"},{"1":"Europe","2":"Austria","3":"year1950","4":"0.24199231","5":"0.99213401"},{"1":"Asia","2":"Bahrain","3":"year1950","4":"0.46750769","5":"0.96673981"},{"1":"Asia","2":"Bangladesh","3":"year1950","4":"0.49813077","5":"0.98936087"},{"1":"Europe","2":"Belgium","3":"year1950","4":"0.20908462","5":"0.99454056"},{"1":"Africa","2":"Benin","3":"year1950","4":"0.33423287","5":"0.96660199"},{"1":"Americas","2":"Bolivia","3":"year1950","4":"0.49993217","5":"0.98454156"},{"1":"Europe","2":"Bosnia and Herzegovina","3":"year1950","4":"0.34975524","5":"0.89569829"},{"1":"Africa","2":"Botswana","3":"year1950","4":"0.06066853","5":"0.03402340"},{"1":"Americas","2":"Brazil","3":"year1950","4":"0.39008951","5":"0.99804741"},{"1":"Europe","2":"Bulgaria","3":"year1950","4":"0.14568881","5":"0.54654217"},{"1":"Africa","2":"Burkina Faso","3":"year1950","4":"0.36397483","5":"0.91871050"},{"1":"Africa","2":"Burundi","3":"year1950","4":"0.15413427","5":"0.76599597"},{"1":"Asia","2":"Cambodia","3":"year1950","4":"0.39590280","5":"0.63869222"},{"1":"Africa","2":"Cameroon","3":"year1950","4":"0.25014685","5":"0.68017839"},{"1":"Americas","2":"Canada","3":"year1950","4":"0.21886923","5":"0.99638552"},{"1":"Africa","2":"Central African Republic","3":"year1950","4":"0.18390559","5":"0.49324448"},{"1":"Africa","2":"Chad","3":"year1950","4":"0.25324406","5":"0.87237550"},{"1":"Americas","2":"Chile","3":"year1950","4":"0.47684406","5":"0.98279710"},{"1":"Asia","2":"China","3":"year1950","4":"0.53071485","5":"0.87127734"},{"1":"Americas","2":"Colombia","3":"year1950","4":"0.38075035","5":"0.96787344"},{"1":"Africa","2":"Comoros","3":"year1950","4":"0.45039091","5":"0.99685076"},{"1":"Africa","2":"Congo, Dem. Rep.","3":"year1950","4":"0.09391538","5":"0.34820278"},{"1":"Africa","2":"Congo, Rep.","3":"year1950","4":"0.19509580","5":"0.51966079"},{"1":"Americas","2":"Costa Rica","3":"year1950","4":"0.40278951","5":"0.96174767"},{"1":"Africa","2":"Cote d'Ivoire","3":"year1950","4":"0.13055664","5":"0.28337240"},{"1":"Europe","2":"Croatia","3":"year1950","4":"0.22545944","5":"0.93243047"},{"1":"Americas","2":"Cuba","3":"year1950","4":"0.32115035","5":"0.92406716"},{"1":"Europe","2":"Czech Republic","3":"year1950","4":"0.14481538","5":"0.91668191"},{"1":"Europe","2":"Denmark","3":"year1950","4":"0.12133007","5":"0.97066797"},{"1":"Africa","2":"Djibouti","3":"year1950","4":"0.36740350","5":"0.97437134"},{"1":"Americas","2":"Dominican Republic","3":"year1950","4":"0.47115245","5":"0.97060781"},{"1":"Americas","2":"Ecuador","3":"year1950","4":"0.50005315","5":"0.99456626"},{"1":"Africa","2":"Egypt","3":"year1950","4":"0.55545455","5":"0.99030424"},{"1":"Americas","2":"El Salvador","3":"year1950","4":"0.47714126","5":"0.95567201"},{"1":"Africa","2":"Equatorial Guinea","3":"year1950","4":"0.31017063","5":"0.99686864"},{"1":"Africa","2":"Eritrea","3":"year1950","4":"0.37469021","5":"0.95727334"},{"1":"Africa","2":"Ethiopia","3":"year1950","4":"0.30718531","5":"0.96850263"},{"1":"Europe","2":"Finland","3":"year1950","4":"0.23792517","5":"0.99383835"},{"1":"Europe","2":"France","3":"year1950","4":"0.23850140","5":"0.99762458"},{"1":"Africa","2":"Gabon","3":"year1950","4":"0.44673287","5":"0.81276621"},{"1":"Africa","2":"Gambia","3":"year1950","4":"0.58182587","5":"0.98923562"},{"1":"Europe","2":"Germany","3":"year1950","4":"0.21368322","5":"0.98950568"},{"1":"Africa","2":"Ghana","3":"year1950","4":"0.32174266","5":"0.98409873"},{"1":"Europe","2":"Greece","3":"year1950","4":"0.24239860","5":"0.97196085"},{"1":"Americas","2":"Guatemala","3":"year1950","4":"0.53127343","5":"0.99666377"},{"1":"Africa","2":"Guinea","3":"year1950","4":"0.42483077","5":"0.97831518"},{"1":"Africa","2":"Guinea-Bissau","3":"year1950","4":"0.27175315","5":"0.98455829"},{"1":"Americas","2":"Haiti","3":"year1950","4":"0.39705804","5":"0.98761338"},{"1":"Americas","2":"Honduras","3":"year1950","4":"0.54285175","5":"0.97730026"},{"1":"Asia","2":"Hong Kong, China","3":"year1950","4":"0.36597063","5":"0.97230183"},{"1":"Europe","2":"Hungary","3":"year1950","4":"0.12364895","5":"0.79501875"},{"1":"Europe","2":"Iceland","3":"year1950","4":"0.16537552","5":"0.97032657"},{"1":"Asia","2":"India","3":"year1950","4":"0.50532098","5":"0.96843652"},{"1":"Asia","2":"Indonesia","3":"year1950","4":"0.63464126","5":"0.99711418"},{"1":"Asia","2":"Iran","3":"year1950","4":"0.49663986","5":"0.99501535"},{"1":"Asia","2":"Iraq","3":"year1950","4":"0.23521049","5":"0.54578420"},{"1":"Europe","2":"Ireland","3":"year1950","4":"0.19911958","5":"0.98414574"},{"1":"Asia","2":"Israel","3":"year1950","4":"0.26710629","5":"0.99478290"},{"1":"Europe","2":"Italy","3":"year1950","4":"0.26971049","5":"0.99336612"},{"1":"Americas","2":"Jamaica","3":"year1950","4":"0.22139441","5":"0.80565904"},{"1":"Asia","2":"Japan","3":"year1950","4":"0.35290420","5":"0.95959563"},{"1":"Asia","2":"Jordan","3":"year1950","4":"0.57172937","5":"0.96975008"},{"1":"Africa","2":"Kenya","3":"year1950","4":"0.20650769","5":"0.44255729"},{"1":"Asia","2":"Korea, Dem. Rep.","3":"year1950","4":"0.31642657","5":"0.70306306"},{"1":"Asia","2":"Korea, Rep.","3":"year1950","4":"0.55540000","5":"0.98765101"},{"1":"Asia","2":"Kuwait","3":"year1950","4":"0.41683636","5":"0.95235423"},{"1":"Asia","2":"Lebanon","3":"year1950","4":"0.26102937","5":"0.94172582"},{"1":"Africa","2":"Lesotho","3":"year1950","4":"0.09556573","5":"0.08485635"},{"1":"Africa","2":"Liberia","3":"year1950","4":"0.09599371","5":"0.51175640"},{"1":"Africa","2":"Libya","3":"year1950","4":"0.62553566","5":"0.98333149"},{"1":"Africa","2":"Madagascar","3":"year1950","4":"0.40372797","5":"0.99465364"},{"1":"Africa","2":"Malawi","3":"year1950","4":"0.23422587","5":"0.83995446"},{"1":"Asia","2":"Malaysia","3":"year1950","4":"0.46452238","5":"0.94650639"},{"1":"Africa","2":"Mali","3":"year1950","4":"0.37680979","5":"0.99545140"},{"1":"Africa","2":"Mauritania","3":"year1950","4":"0.44641748","5":"0.99767430"},{"1":"Africa","2":"Mauritius","3":"year1950","4":"0.34845385","5":"0.93478457"},{"1":"Americas","2":"Mexico","3":"year1950","4":"0.45103497","5":"0.98520444"},{"1":"Asia","2":"Mongolia","3":"year1950","4":"0.43868811","5":"0.98731309"},{"1":"Europe","2":"Montenegro","3":"year1950","4":"0.29300140","5":"0.80186521"},{"1":"Africa","2":"Morocco","3":"year1950","4":"0.54247273","5":"0.99458312"},{"1":"Africa","2":"Mozambique","3":"year1950","4":"0.22448531","5":"0.77427932"},{"1":"Asia","2":"Myanmar","3":"year1950","4":"0.43309510","5":"0.87937750"},{"1":"Africa","2":"Namibia","3":"year1950","4":"0.23116364","5":"0.43702163"},{"1":"Asia","2":"Nepal","3":"year1950","4":"0.52926154","5":"0.99154171"},{"1":"Europe","2":"Netherlands","3":"year1950","4":"0.13668671","5":"0.98221566"},{"1":"Oceania","2":"New Zealand","3":"year1950","4":"0.19282098","5":"0.95358464"},{"1":"Americas","2":"Nicaragua","3":"year1950","4":"0.55651958","5":"0.99677615"},{"1":"Africa","2":"Niger","3":"year1950","4":"0.34210909","5":"0.89768664"},{"1":"Africa","2":"Nigeria","3":"year1950","4":"0.20806573","5":"0.87010508"},{"1":"Europe","2":"Norway","3":"year1950","4":"0.13194126","5":"0.96290057"},{"1":"Asia","2":"Oman","3":"year1950","4":"0.77217902","5":"0.97479461"},{"1":"Asia","2":"Pakistan","3":"year1950","4":"0.40579231","5":"0.99724965"},{"1":"Americas","2":"Panama","3":"year1950","4":"0.35420909","5":"0.95119516"},{"1":"Americas","2":"Paraguay","3":"year1950","4":"0.15735455","5":"0.98298650"},{"1":"Americas","2":"Peru","3":"year1950","4":"0.52769790","5":"0.98847401"},{"1":"Asia","2":"Philippines","3":"year1950","4":"0.42046923","5":"0.99142260"},{"1":"Europe","2":"Poland","3":"year1950","4":"0.19621888","5":"0.83966315"},{"1":"Europe","2":"Portugal","3":"year1950","4":"0.33720140","5":"0.96903508"},{"1":"Americas","2":"Puerto Rico","3":"year1950","4":"0.21057483","5":"0.90781912"},{"1":"Africa","2":"Reunion","3":"year1950","4":"0.45988042","5":"0.96607180"},{"1":"Europe","2":"Romania","3":"year1950","4":"0.15740140","5":"0.80556666"},{"1":"Africa","2":"Rwanda","3":"year1950","4":"-0.04583147","5":"0.01715964"},{"1":"Africa","2":"Sao Tome and Principe","3":"year1950","4":"0.34068252","5":"0.95525936"},{"1":"Asia","2":"Saudi Arabia","3":"year1950","4":"0.64962308","5":"0.97208439"},{"1":"Africa","2":"Senegal","3":"year1950","4":"0.50470000","5":"0.99054417"},{"1":"Europe","2":"Serbia","3":"year1950","4":"0.25515105","5":"0.87880538"},{"1":"Africa","2":"Sierra Leone","3":"year1950","4":"0.21403497","5":"0.96015054"},{"1":"Asia","2":"Singapore","3":"year1950","4":"0.34088601","5":"0.98794751"},{"1":"Europe","2":"Slovak Republic","3":"year1950","4":"0.13404406","5":"0.79174822"},{"1":"Europe","2":"Slovenia","3":"year1950","4":"0.20052378","5":"0.96604327"},{"1":"Africa","2":"Somalia","3":"year1950","4":"0.22957343","5":"0.84442863"},{"1":"Africa","2":"South Africa","3":"year1950","4":"0.16915944","5":"0.31246865"},{"1":"Europe","2":"Spain","3":"year1950","4":"0.28093077","5":"0.96489456"},{"1":"Asia","2":"Sri Lanka","3":"year1950","4":"0.24489441","5":"0.94771469"},{"1":"Africa","2":"Sudan","3":"year1950","4":"0.38277483","5":"0.99214243"},{"1":"Africa","2":"Swaziland","3":"year1950","4":"0.09507483","5":"0.06821087"},{"1":"Europe","2":"Sweden","3":"year1950","4":"0.16625455","5":"0.99548216"},{"1":"Europe","2":"Switzerland","3":"year1950","4":"0.22223147","5":"0.99739086"},{"1":"Asia","2":"Syria","3":"year1950","4":"0.55435944","5":"0.98416512"},{"1":"Asia","2":"Taiwan","3":"year1950","4":"0.32724476","5":"0.95707113"},{"1":"Africa","2":"Tanzania","3":"year1950","4":"0.17468811","5":"0.76421876"},{"1":"Asia","2":"Thailand","3":"year1950","4":"0.34704825","5":"0.96738440"},{"1":"Africa","2":"Togo","3":"year1950","4":"0.38259231","5":"0.90580373"},{"1":"Americas","2":"Trinidad and Tobago","3":"year1950","4":"0.17366154","5":"0.79800744"},{"1":"Africa","2":"Tunisia","3":"year1950","4":"0.58784336","5":"0.98070422"},{"1":"Europe","2":"Turkey","3":"year1950","4":"0.49723986","5":"0.98533264"},{"1":"Africa","2":"Uganda","3":"year1950","4":"0.12158601","5":"0.34215382"},{"1":"Europe","2":"United Kingdom","3":"year1950","4":"0.18596573","5":"0.98443596"},{"1":"Americas","2":"United States","3":"year1950","4":"0.18416923","5":"0.98592016"},{"1":"Americas","2":"Uruguay","3":"year1950","4":"0.18327203","5":"0.97683072"},{"1":"Americas","2":"Venezuela","3":"year1950","4":"0.32972168","5":"0.94652607"},{"1":"Asia","2":"Vietnam","3":"year1950","4":"0.67161538","5":"0.98941189"},{"1":"Asia","2":"West Bank and Gaza","3":"year1950","4":"0.60110070","5":"0.97048087"},{"1":"Asia","2":"Yemen, Rep.","3":"year1950","4":"0.60545944","5":"0.98117240"},{"1":"Africa","2":"Zambia","3":"year1950","4":"-0.06042517","5":"0.05983644"},{"1":"Africa","2":"Zimbabwe","3":"year1950","4":"-0.09302098","5":"0.05623196"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="purrr_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="2100"></p>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<p><img src="purrr_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="2100"></p>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<p><img src="purrr_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
 </div>
-<p>As can be seen, there are many models with low values of <code>r.squared</code> and these are sadly all about countries in Africa. The linear model fares badly for these countries, since there are other factors (not just <code>year</code>) that affects <code>lifeExp</code> in these countries.</p>
+<p>As can be seen, there are many models with <span style="color:salmon;"><code>low values of r.squared</code></span> and these are sadly all about <span style="color: salmon;">countries in Africa</span>. The linear model fares badly for these countries, since there are other factors (not just <code>year</code>) that affects <code>lifeExp</code> in these countries.</p>
 <p>We can look at the model metrics and see for which (African) countries the model fares the worst. We will reverse sort on <code>r.squared</code> and choose the 5 worst models:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-14_d10da6680f12662735a767666ba4f926">
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice_min</a></span><span class="op">(</span>order_by <span class="op">=</span> <span class="va">r.squared</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-16_7b70498c86967030d0f1ec1c2b1b2a62">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice_min</a></span><span class="op">(</span>order_by <span class="op">=</span> <span class="va">r.squared</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -907,34 +1002,51 @@ $body_mass_g</code></pre>
 </div>
 <p>There are of course reasons for this: genocide in Rwanda, and hyper-inflation in Zimbabwe, and of course the HIV-AIDS pandemic. These reasons are not captured in the original <code>gapminder</code> data!</p>
 <p>One last plot! We can plot the model <code>intercept</code> on the x-axis and the slope <code>year</code> term on the y-axis to see where countries were in the beginning (1950) and at what rate they have improved in <code>lifeExp</code>:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-15_1c43c7188cd261b3b5c84b2f0ec3f1fb">
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">term</span> , <span class="va">estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span><span class="op">)</span>,</span>
-<span>              names_from <span class="op">=</span> <span class="va">term</span>, </span>
-<span>              values_from <span class="op">=</span> <span class="va">estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-17_110d14096d8d88ed3e1bd843c00340c6">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">params</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">term</span> , <span class="va">estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span></span>
+<span>    id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span><span class="op">)</span>,</span>
+<span>    names_from <span class="op">=</span> <span class="va">term</span>,</span>
+<span>    values_from <span class="op">=</span> <span class="va">estimate</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">metrics</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span>, <span class="va">r.squared</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span> <span class="va">year1950</span> <span class="op">~</span> <span class="va">`(Intercept)`</span>, color <span class="op">=</span> <span class="op">~</span> <span class="va">continent</span>, </span>
-<span>            size <span class="op">=</span> <span class="op">~</span> <span class="va">r.squared</span>,</span>
-<span>            xlab <span class="op">=</span> <span class="st">"Baseline at 1950"</span>,</span>
-<span>            ylab <span class="op">=</span> <span class="st">"Rate of Improvement"</span>, </span>
-<span>            title <span class="op">=</span> <span class="st">"Asian Countries Show Improvement in Life Expectancy"</span>,</span>
-<span>            subtitle <span class="op">=</span> <span class="st">"African Countries still struggling"</span>,</span>
-<span>            caption <span class="op">=</span> <span class="st">"Data from Gapminder"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span></span>
+<span>    <span class="va">year1950</span> <span class="op">~</span> <span class="va">`(Intercept)`</span>,</span>
+<span>    color <span class="op">=</span> <span class="op">~</span> <span class="va">continent</span>,</span>
+<span>    size <span class="op">=</span> <span class="op">~</span> <span class="va">r.squared</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">"Baseline at 1950"</span>,</span>
+<span>    ylab <span class="op">=</span> <span class="st">"Rate of Improvement"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Asian Countries Show Improvement in Life Expectancy"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"African Countries still struggling"</span>,</span>
+<span>    caption <span class="op">=</span> <span class="st">"Data from Gapminder"</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html">scale_size</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span></span>
+<span>              values <span class="op">=</span></span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>                  <span class="st">"Africa"</span> <span class="op">=</span> <span class="st">"salmon"</span>,</span>
+<span>                  <span class="st">"Asia"</span> <span class="op">=</span> <span class="st">"limegreen"</span>,</span>
+<span>                  <span class="st">"Americas"</span> <span class="op">=</span> <span class="st">"grey90"</span>,</span>
+<span>                  <span class="st">"Europe"</span> <span class="op">=</span> <span class="st">"grey90"</span>,</span>
+<span>                  <span class="st">"Oceania"</span> <span class="op">=</span> <span class="st">"grey90"</span></span>
+<span>                <span class="op">)</span></span>
+<span>            <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="purrr_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="2100"></p>
+<p><img src="purrr_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
-<p>Many Asian countries (green dots) were low in <code>lifeExp</code> in 1950 and have shown good rates of improvement; <code>r.squared</code> is also decent. Sadly African countries (red dots) had low <code>lifeExp</code> in 1950 and have not shown good rates of improvement. <strong>Note</strong> however that (some of) the African countries do not have good <code>r.squared</code>(small red dots), so the model is clearly inadequate to explain <code>lifeExp</code> purely as a function of <code>year1950</code>. Other things are clearly happening there…</p>
+<p>Many <span style="color:limegreen;">Asian countries</span> were low in <code>lifeExp</code> in 1950 and have shown good rates of improvement; <code>r.squared</code> is also decent. Sadly <span style="color:salmon;">African countries</span> had <em>low</em> <code>lifeExp</code> in 1950 and have not shown good rates of improvement.</p>
 </section></section><section id="iconify-mdi-new-box-recent-developments-in-dplyr" class="level2"><h2 class="anchored" data-anchor-id="iconify-mdi-new-box-recent-developments-in-dplyr">
 <iconify-icon inline="" icon="mdi:new-box"></iconify-icon> Recent developments in <code>dplyr</code>
 </h2>
 <p>In recent times, the familiar <code>dplyr</code> package also has <strong>experimental</strong> functions that are syntactically easier and offer pretty much <code>purrr</code>-like capability, and without introducing the complexity of the list columns or list output.</p>
 <p>Look the code below and decipher how it works:</p>
-<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-16_b1da6d8c60a48570105383ca637307d1">
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Using group_modify</span></span>
+<div class="cell" data-hash="purrr_cache/html/unnamed-chunk-18_fd4ccce67d77b316abf49484e0fd305c">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Using group_modify</span></span>
 <span><span class="va">gapminder_model_dplyr</span> <span class="op">&lt;-</span> <span class="va">gapminder</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">continent</span>, <span class="va">country</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  </span>

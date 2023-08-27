@@ -31,17 +31,35 @@ library(infer)
 #| label: plot theme
 # Let us set a plot theme for Data visualisation
 
+# my_theme <- function(){  # Creating a function
+#   theme_classic() +  # Using pre-defined theme as base
+#   theme(axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
+#         axis.text.y = element_text(size = 12, face = "bold"),
+#         axis.title = element_text(size = 14, face = "bold"),  # Customizing axis title
+#         panel.grid = element_blank(),  # Taking off the default grid
+#         plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+#         legend.text = element_text(size = 12, face = "italic"),  # Customizing legend text
+#         legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
+#         legend.position = "right",  # Customizing legend position
+#         plot.caption = element_text(size = 12))  # Customizing plot caption
+# }   
+
 my_theme <- function(){  # Creating a function
   theme_classic() +  # Using pre-defined theme as base
-  theme(axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
-        axis.text.y = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size = 14, face = "bold"),  # Customizing axis title
+  theme(plot.title = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size = 10, face = "bold"),  
+        # Customizing axes text      
+        axis.text.y = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size = 12, face = "bold"),  
+        # Customizing axis title
         panel.grid = element_blank(),  # Taking off the default grid
         plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
-        legend.text = element_text(size = 12, face = "italic"),  # Customizing legend text
-        legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
+        legend.text = element_text(size = 8, face = "italic"),  
+        # Customizing legend text
+        legend.title = element_text(size = 10, face = "bold"),  
+        # Customizing legend title
         legend.position = "right",  # Customizing legend position
-        plot.caption = element_text(size = 12))  # Customizing plot caption
+        plot.caption = element_text(size = 8))  # Customizing plot caption
 }   
 
 ```
@@ -126,19 +144,26 @@ all_corrs <- housing %>%
 
 all_corrs
 
-all_corrs %>% 
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
-  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate), 
-              colour = ~ -log10(p.value),
-              width = 0.5,
-              linewidth = ~ -log10(p.value),
-              caption = "Significance = -log10(p.value)") %>% 
-  gf_point(estimate ~ reorder(predictor, estimate)) %>% 
-  gf_labs(x = NULL, y = "Correlation with Median House Price") %>% 
-  gf_theme(theme_minimal()) %>% 
-  gf_refine(scale_colour_gradient("Significance", 
-                                  low = "grey", high = "red"),
-            scale_linewidth_continuous("Significance",range = c(0.25, 3)))
+all_corrs %>%
+  gf_hline(yintercept = 0,
+           color = "grey",
+           linewidth = 2) %>%
+  gf_errorbar(
+    conf.high + conf.low ~ reorder(predictor, estimate),
+    colour = ~ estimate,
+    width = 0.5,
+    linewidth = ~ -log10(p.value),
+    caption = "Significance = -log10(p.value)"
+  ) %>%
+  gf_point(estimate ~ reorder(predictor, estimate)) %>%
+  gf_labs(x = "Predictors", y = "Correlation with Median House Price") %>%
+  gf_theme(my_theme()) %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
+  gf_refine(
+    scale_colour_distiller("Correlation", type = "div", palette = "RdBu"),
+    scale_linewidth_continuous("Significance", range = c(0.25, 3))
+  ) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)))
 
 ```
 
@@ -178,7 +203,7 @@ model and removing them in decreasing order of their p-value.
 We will also use some powerful features from the `purrr` package (also
 part of the `tidyverse`), to create **all** these models all at once.
 Then we will be able to plot their `R.squared` values together and
-decide where we wish to trade off Explainability vs Complexity for our
+decide where we wish to trade off *Explainability vs Complexity* for our
 model.
 
 ```{r}
@@ -199,6 +224,7 @@ housing_maximal_tidy <-
   
 # And horrors! Sort variables by p.value
   arrange(p.value)
+
 housing_maximal_tidy
 
 ```
@@ -253,7 +279,7 @@ housing_model_set <- housing_model_set %>%
 housing_model_set
 
 # Tidy up the models using broom to expose their metrics
-housing_model_set %>% 
+housing_models_tidy <- housing_model_set %>% 
   mutate(tidy_models =
            map(
              .x = models,
@@ -264,20 +290,38 @@ housing_model_set %>%
 
   # Remove unwanted columns, keep model and predictor count
   select(keep_vars, tidy_models) %>%
-  unnest(tidy_models) %>%
+  unnest(tidy_models)
+
+housing_models_tidy %>%
+  gf_line(
+    r.squared ~ keep_vars,
+    ylab = "R.Squared",
+    xlab = "No. params in the Linear Model",
+    title = "Model Explainability vs Complexity",
+    subtitle = "Model r.squared vs No. of Predictors",
+    data = .
+  ) %>%
   
   # Plot r.squared vs predictor count
-  gf_point(r.squared ~ keep_vars, size = 3.5) %>%
-  gf_line(ylab = "R.Squared",
-          xlab = "No. params in the Linear Model") %>%
-  gf_hline(yintercept = 0.7, linetype = "dashed") %>% 
+  gf_point(r.squared ~ keep_vars,
+           size = 3.5, color = "grey") %>%
+  
+  # Show off the selected best model
+  gf_point(
+    r.squared ~ keep_vars,
+    size = 3.5,
+    color = "red",
+    data = housing_models_tidy %>% filter(keep_vars == 4)
+  ) %>%
+  
+  gf_hline(yintercept = 0.7, linetype = "dashed") %>%
   gf_theme(my_theme())
 
 
 ```
 :::
 
-At the loss of some 4% in the `r.squared`, we can drop our model
+At the loss of some 5% in the `r.squared`, we can drop our model
 complexity from 15 predictors to say 4! Our final model will then be:
 
 ```{r}
@@ -300,6 +344,7 @@ housing_model_final <-
   # Remove unwanted columns, keep model and predictor count
   select(keep_vars, models, tidy_models) %>%
   unnest(tidy_models)
+
 housing_model_final
   
   
@@ -392,10 +437,9 @@ necessary.
 We have used a multiple-regression workflow that takes all predictor
 variables into account in a linear model, and then systematically
 simplified that model such that the performance was just adequate.
-However, the models we chose were all linear and without interaction
-terms. When the diagnostic plots were examined, we did see some
-shortcomings in the model. This could be overcome with a more complex
-model.
+
+The models we chose were all linear of course, but without *interaction
+terms* : each predictor was used only for its **main effect**. When the diagnostic plots were examined, we did see some shortcomings in the model. This could be overcome with a more complex model. These might include selected interactions, transformations of target($cmedv^2$, or $sqrt(cmedv)$) and some selected predictors.
 
 ## {{< iconify ooui references-rtl >}} References
 
