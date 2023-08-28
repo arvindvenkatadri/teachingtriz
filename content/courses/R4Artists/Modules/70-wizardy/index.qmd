@@ -70,7 +70,9 @@ knitr::opts_chunk$set(
 # from the vignette for the showtext package
   fig.showtext = TRUE,
   fig.retina = 1,
-  fig.path = "06a-figs/"
+  fig.path = "figs/",
+  fig.height = 4,
+  fig.width = 5
 )
 
 ```
@@ -78,9 +80,7 @@ knitr::opts_chunk$set(
 ## Using Google Fonts
 
 We will want to add a few new fonts to our graphs. The best way
-(currently) is to use the `showtext` package ( which we loaded above) to
-bring into our work fonts from Google. To view and select the fonts you
-might want to work with, spend some time looking over:
+(currently) is to use the `showtext` package (which we loaded above) to bring into our work fonts from Google. To view and select the fonts you might want to work with, spend some time looking over:
 
 1.  [Google Webfonts Helper
     App](https://google-webfonts-helper.herokuapp.com/fonts)
@@ -102,20 +102,16 @@ font_add_google("Anton", "anton")
 font_add_google("Tangerine", "tangerine")
 
  # set the google fonts as default
-showtext::showtext_auto()
+showtext::showtext_auto(enable = TRUE)
 
 ```
 
-We will work with a **familiar** dataset, so that we can concentrate on
-the chart aesthetics, without having to spend time getting used to the
-data: the `penguins` dataset again, from the `palmerpenguins` package.
+We will work with a **familiar** dataset, so that we can concentrate on the chart aesthetics, without having to spend time getting used to the data: the `penguins` dataset again, from the `palmerpenguins` package.
 
 ::: callout-tip
-## ggformula and ggplot worlds
+## `ggformula` and `ggplot` worlds
 
-It seems we can mix \`ggformula\` code with \`ggtext\` code, using the
-\`+\` sign!! What joy !!! Need to find out if this works for other
-\`ggplot\` extensions as well !!!
+It seems we can mix \`ggformula\` code with \`ggtext\` code, using the \`+\` sign!! What joy !!! Need to find out if this works for other \`ggplot\` extensions as well !!!
 :::
 
 ## Data
@@ -152,7 +148,7 @@ gf
 ## simple plot: data + mappings + geometry
 ## no colour or fill yet
 gg <- ggplot(penguins, aes(x = bill_length_mm,
-                     y = bill_depth_mm)) +
+                           y = bill_depth_mm)) +
   geom_point(alpha = .6, size = 3.5)
 gg
 
@@ -164,15 +160,16 @@ gg
 Let us set some ggplot theme aspects now!! Here is a handy picture
 showing (most of) the theme-able aspects of a ggplot plot.
 
-![Rosana Ferrero (\@RosanaFerrero) on Twitter Sept 11,
-2022](images/ggplot_theme_elements.jfif){fig-alt="Ggplot theme elements"
+![Rosana Ferrero (\@RosanaFerrero) on Twitter Sept 11, 2022](images/ggplot_theme_elements.jfif){fig-alt="Ggplot theme elements"
 fig-align="center"}
 
 For more info, type `?theme` in your console.
 
 ```{r}
 ## change global theme settings (for all following plots)
-theme_set(theme_minimal(base_size = 12, base_family = "open"))
+theme_set(theme_classic(base_size = 12, 
+                        base_family = "open"
+                        ))
 
 ## modify plot elements globally (for all following plots)
 theme_update(
@@ -188,8 +185,7 @@ theme_update(
 
 ```
 
-Since we know what the basic plot looks like, let's add titles, labels
-and colours. We will also set limits and scales.
+Since we know what the basic plot looks like, let's add titles, labels and colours. We will also set limits and scales.
 
 ::: panel-tabset
 ### Using `ggformula`
@@ -211,7 +207,8 @@ gf1 <- penguins %>%
   
   ## custom colors from the scico package
   ## using the paletteer super package
-  paletteer:: scale_color_paletteer_c(`"scico::bamako"`, direction = -1),
+  paletteer:: scale_color_paletteer_c(`"scico::bamako"`, 
+                                      direction = -1),
   
   ## custom labels
   labs(
@@ -233,9 +230,9 @@ gf1
 
 ```{r}
 gg1 <- penguins %>% 
-  ggplot(aes(y = bill_depth_mm, x = bill_length_mm), alpha = .6, 
-         size = 3.5) +
-  geom_point(aes(colour = body_mass_g)) + 
+  ggplot(aes(y = bill_depth_mm, x = bill_length_mm), 
+         alpha = .6) +
+  geom_point(aes(colour = body_mass_g), size = 3.5) + 
 
   
   ## custom axes scaling
@@ -261,43 +258,36 @@ gg1
 ```
 :::
 
-# Using `{ggtext}`
+## Using `{ggtext}`
 
 From [Claus Wilke's website](https://wilkelab.org/ggtext/) →
 www.wilkelab.org/ggtext
 
-> The `ggtext` package provides simple Markdown and HTML rendering for
-> ggplot2. Under the hood, the package uses the `gridtext` package for
-> the actual rendering, and consequently it is limited to the feature
-> set provided by `gridtext`.\
-> Support is provided for Markdown both in theme elements (plot titles,
-> subtitles, captions, axis labels, legends, etc.) and in geoms (similar
-> to `geom_text()`). In both cases, there are two alternatives, one for
-> creating simple text labels and one for creating text boxes with word
-> wrapping.
+> The `ggtext` package provides simple Markdown and HTML rendering for ggplot2. Under the hood, the package uses the `gridtext` package for the actual rendering, and consequently it is limited to the feature set provided by `gridtext`.\
+> Support is provided for Markdown both in theme elements (plot titles, subtitles, captions, axis labels, legends, etc.) and in geoms (similar to `geom_text()`). In both cases, there are two alternatives, one for creating simple text labels and one for creating text boxes with word wrapping.
 
 ::: callout-caution
-## Working with `ggtext`
+### Working with `ggtext`
 
-NOTE: on some machines, the `ggtext` package may not work as expected.
-In this case, please do as follows, using your Console:
+NOTE: on some machines, the `ggtext` package may not work as expected. In this case, please do as follows, using your Console:
 
 -   remove gridtext: `remove.packages(gridtext)`.
--   Install development version of `gridtext`:
+-   Install *development version* of `gridtext`:
+    `install.packages(remotes)`
     `remotes::install_github("wilkelab/gridtext")`
 :::
 
-## Using `element_markdown()`
+
+
+### Using `element_markdown()`
+
+We can use our familiar markdown syntax right inside the titles and captions of the plot. `element_markdown()` is a theme-ing command made available by the `ggtext` package.
+
+`element_markdown()` → formatted text elements, e.g. titles, caption, axis text, striptext.
 
 ::: panel-tabset
+
 ### Using `ggformula`
-
-We can use our familiar markdown syntax right inside the titles and
-captions of the plot. `element_markdown()` is a theme-ing command made
-available by the `ggtext` package.
-
-`element_markdown()` → formatted text elements, e.g. titles, caption,
-axis text, striptext
 
 ```{r}
 
@@ -372,7 +362,7 @@ gg2
 ```
 :::
 
-## `element_markdown()` in combination with HTML
+### `element_markdown()` in combination with HTML
 
 This allows us to change fonts in titles, labels, and captions.
 
@@ -403,7 +393,7 @@ gf2 %>%
 ## use HTML syntax to change text color
 gg2 +
   labs(title = 'Bill Dimensions of Brush-Tailed Penguins <i style="color:#28A87D;">Pygoscelis</i>') +
-  theme(plot.margin = margin(t = 25))
+  theme(plot.margin = margin(t = 15))
 
 
 ## use HTML syntax to change font and text size
@@ -414,10 +404,9 @@ gg2 +
 ```
 :::
 
-## Adding images to ggplot
+### Adding images to ggplot
 
-Save an image from the web in the same folder as your RMarkdown. Use
-html tags to include it, say as part of your plot title, as shown below.
+Save an image from the web in the same folder as your RMarkdown. Use html tags to include it, say as part of your plot title, as shown below.
 
 ::: panel-tabset
 ### Using `ggformula`
@@ -425,29 +414,29 @@ html tags to include it, say as part of your plot title, as shown below.
 ```{r}
 ## use HTML syntax to add images to text elements
 gf2 %>% 
-  gf_labs(title = 'Bill Dimensions of Brush-Tailed Penguins &nbsp;&nbsp;&nbsp; <img src="../images/culmen_depth.png"‚ width="480"/>') 
+  gf_labs(title = 'Bill Dimensions of Brush-Tailed Penguins &nbsp;&nbsp;&nbsp; <img src="images/culmen_depth.png"‚ width="480"/>') 
 
 ```
+
+
 
 ### Using `ggplot`
 
 ```{r}
 ## use HTML syntax to add images to text elements
 gg2 + 
-  labs(title = 'Bill Dimensions of Brush-Tailed Penguins &nbsp;&nbsp;&nbsp; <img src="../images/culmen_depth.png"‚ width="480"/>')
+  labs(title = 'Bill Dimensions of Brush-Tailed Penguins &nbsp;&nbsp;&nbsp; <img src="images/culmen_depth.png"‚ width="480"/>')
     
 ```
 :::
 
-## Annotations with `geom_richtext()` and `geom_textbox()`
+### Annotations with `geom_richtext()` and `geom_textbox()`
 
-Further ggplot annotations can be achieved using `geom_richtext()` and
-`geom_textbox()`. `geom_richtext()` also allows formatted text labels
-with 360° rotation. One needs to pass a dataframe to `geom_richtext()`
-giving the location, colour, rotation etc of the label annotation.
+Further ggplot annotations can be achieved using `geom_richtext()` and `geom_textbox()`. `geom_richtext()` also allows formatted text labels with 360° rotation. One needs to pass a dataframe to `geom_richtext()` giving the location, colour, rotation etc of the label annotation.
 
 ::: panel-tabset
-### Using `ggformula`
+
+### Design the labels
 
 ```{r}
 #| code-annotation: below
@@ -464,6 +453,27 @@ labels <- tibble(
               "<b style='font-family:anton;font-size:24pt;'>Chinstrap</b><br><i style='color:darkgrey;'>P. antarctica</i>", 
               "<b style='font-family:anton;font-size:24pt;'>Gentoo</b><br><i style='color:darkgrey;'>P. papua</i>"))
 labels
+
+
+```
+
+### Using `ggformula`
+
+```{r}
+#| code-annotation: below
+# Create a label tibble
+# Three rich text labels, 
+# so three sets of locations x and y, and angle of rotation
+# labels <- tibble(
+#       x = c(34, 56, 54), 
+#       y = c(20, 18.5, 14.5),
+#       angle = c(12, 20, 335),
+#       species = c("Adelie", "Chinstrap", "Gentoo"),
+#       
+#       lab = c("<b style='font-family:anton;font-size:24pt;'>Adélie</b><br><i style='color:darkgrey;'>P. adéliae</i>", 
+#               "<b style='font-family:anton;font-size:24pt;'>Chinstrap</b><br><i style='color:darkgrey;'>P. antarctica</i>", 
+#               "<b style='font-family:anton;font-size:24pt;'>Gentoo</b><br><i style='color:darkgrey;'>P. papua</i>"))
+# labels
 
 gf_rich <- penguins %>% 
   gf_point(bill_depth_mm ~ bill_length_mm, 
@@ -485,7 +495,8 @@ gf_rich <- penguins %>%
   scale_x_continuous(breaks = 3:6 * 10, limits = c(30, 60)) +
   scale_y_continuous(breaks = seq(12.5, 22.5, by = 2.5), 
                      limits = c(12.5, 22.5)) +
-  scale_colour_paletteer_d(palette = `"rcartocolor::Bold"`, guide = "none") +
+  scale_colour_paletteer_d(palette = `"rcartocolor::Bold"`, 
+                           guide = "none") +
   
   labs(
     title = 'Bill Dimensions of Brush-Tailed Penguins (*Pygoscelis*)',
@@ -510,8 +521,10 @@ gf_rich
 
 ```
 
-1.  Note the plus sign usage here!!We are combining the ggformula and
-    ggplot syntax, and it works!
+
+::: callout-important
+Note the plus sign usage here!!We are combining the ggformula and ggplot syntax, and it works!
+:::
 
 ### Using `ggplot`
 
@@ -558,7 +571,8 @@ gg_rich
 ```
 :::
 
-## Formatted Text boxes on plots
+
+### Formatted Text boxes on plots
 
 `element_textbox()` and `element_textbox_simple()` → formatted text
 boxes with word wrapping.
@@ -587,7 +601,8 @@ gf_box <- penguins %>%
   scale_x_continuous(breaks = 3:6 * 10, limits = c(30, 60)) +
   scale_y_continuous(breaks = seq(12.5, 22.5, by = 2.5), 
                      limits = c(12.5, 22.5)) +
-  scale_colour_paletteer_d(palette = `"rcartocolor::Bold"`, guide = "none") +
+  scale_colour_paletteer_d(palette = `"rcartocolor::Bold"`, 
+                           guide = "none") +
   
   
 # Now for the Plot Titles and Labels, as before  
@@ -636,7 +651,6 @@ gf_box
 
 ```
 
-1.  Note again the use of the plus sign with `ggformula`. This works!
 
 ### Using `ggplot`
 
@@ -708,7 +722,7 @@ gg_box
 ```
 :::
 
-## Using `geom_texbox()` for formatted text boxes with word wrapping
+### Using `geom_texbox()` for formatted text boxes with word wrapping
 
 ::: panel-tabset
 ### Using `ggformula`
@@ -760,23 +774,15 @@ gg_box +
 ```
 :::
 
-## Using `{ggforce}`
+### Using `{ggforce}`
 
 From [Thomas Lin Pedersen's website](www.ggforce.data-imaginist.com) →
 www.ggforce.data-imaginist.com
 
-> `ggforce` is a package aimed at providing missing functionality to
-> `ggplot2` through the extension system introduced with `ggplot2`
-> v2.0.0. Broadly speaking `ggplot2` has been aimed primarily at
-> explorative data visualization in order to investigate the data at
-> hand, and less at providing utilities for composing custom plots a la
-> `D3.js`. `ggforce` is mainly an attempt to address these "shortcoming"
-> (design choices might be a better description). The goal is to provide
-> a repository of geoms, stats, etc. that are as well documented and
-> implemented as the official ones found in `ggplot2`.
+> `ggforce` is a package aimed at providing missing functionality to `ggplot2` through the extension system introduced with `ggplot2` v2.0.0. 
+Broadly speaking `ggplot2` has been aimed primarily at explorative data visualization in order to investigate the data at hand, and less at providing utilities for composing custom plots a la `D3.js`. `ggforce` is mainly an attempt to address these "shortcoming" (design choices might be a better description). The goal is to provide a repository of geoms, stats, etc. that are as well documented and implemented as the official ones found in `ggplot2`.
 
-We will start with the basic plot, with the `ggtext` related work done
-up to now:
+We will start with the basic plot, with the `ggtext` related work done up to now:
 
 ```{r}
 ## use ggtext rendering for the following plots
@@ -878,19 +884,22 @@ gg3 +
 ## ellipsoids for specific subset
 gg3 +
   ggforce::geom_mark_ellipse(
-    aes(fill = species, label = species, filter = species == 'Gentoo'), 
+    aes(fill = species, label = species, 
+        filter = species == 'Gentoo'), 
     alpha = 0, show.legend = FALSE
   ) +
  geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5)
 
 ```
 
+
 ```{r}
 
 ## circles
 gg3 +
   ggforce::geom_mark_circle(
-    aes(fill = species, label = species, filter = species == 'Gentoo'), 
+    aes(fill = species, label = species, 
+        filter = species == 'Gentoo'), 
     alpha = 0, show.legend = FALSE
   ) +
   geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5)
@@ -904,7 +913,8 @@ gg3 +
 ## rectangles
 gg3 +
   ggforce::geom_mark_rect(
-    aes(fill = species, label = species, filter = species == 'Gentoo'), 
+    aes(fill = species, label = species, 
+        filter = species == 'Gentoo'), 
     alpha = 0, show.legend = FALSE
   ) +
   geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5) 
@@ -916,7 +926,8 @@ library(concaveman)
 ## hull
 gg3 +
   ggforce::geom_mark_hull(
-    aes(fill = species, label = species, filter = species == 'Gentoo'), 
+    aes(fill = species, label = species, 
+        filter = species == 'Gentoo'), 
     alpha = 0, show.legend = FALSE
   ) +
   geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5)
@@ -925,49 +936,51 @@ gg3 +
 ```
 :::
 
-## ggplot tricks
+### ggplot tricks
 
 ```{r}
-gg0 <- 
+gg0 <-
   ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
-    ggforce::geom_mark_ellipse(
-    aes(fill = species, 
-        label = species), 
-    alpha = .15, 
-    show.legend = FALSE
-  ) +
-    geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5) + 
-    scale_x_continuous(breaks = seq(25, 65, by = 5), limits = c(25, 65)) +
-    scale_y_continuous(breaks = seq(12, 24, by = 2), limits = c(12, 24)) +
-    scico::scale_color_scico(palette = "bamako", direction = -1) +
-    labs(
-      title = "Bill Dimensions of Brush-Tailed Penguins (*Pygoscelis*)",
-      subtitle = 'A scatter plot of bill depth versus bill length.',
-      caption = "Data: Gorman, Williams & Fraser (2014) *PLoS ONE*",
-      x = "Bill Length (mm)", 
-      y = "Bill Depth (mm)",
-      color = "Body mass (g)"
-    )
+  ggforce::geom_mark_ellipse(aes(fill = species,
+                                 label = species),
+                             alpha = .15,
+                             show.legend = FALSE) +
+  geom_point(aes(color = body_mass_g), alpha = .6, size = 3.5) +
+  
+  scale_x_continuous(breaks = seq(25, 65, by = 5), 
+                     limits = c(25, 65)) +
+  scale_y_continuous(breaks = seq(12, 24, by = 2), 
+                     limits = c(12, 24)) +
+  
+  scico::scale_color_scico(palette = "bamako", direction = -1) +
+  labs(
+    title = "Bill Dimensions of Brush-Tailed Penguins (*Pygoscelis*)",
+    subtitle = 'A scatter plot of bill depth versus bill length.',
+    caption = "Data: Gorman, Williams & Fraser (2014) *PLoS ONE*",
+    x = "Bill Length (mm)",
+    y = "Bill Depth (mm)",
+    color = "Body mass (g)"
+  )
 gg0
 
 ```
 
-### Left-Aligned Title
+#### Left-Aligned Title
 
 ```{r}
 (gg1 <- gg0 + theme(plot.title.position = "plot"))
 
 ```
 
-### Right-Aligned Caption
+#### Right-Aligned Caption
 
 ```{r}
-gg1b <- gg1 +  theme(plot.caption.position = "panel")
+gg1b <- gg1 +  theme(plot.caption.position = "plot")
 gg1b
 
 ```
 
-### Legend Design
+#### Legend Design
 
 ```{r}
 gg1b + theme(legend.position = "top")
@@ -988,7 +1001,7 @@ gg1b +
 ```{r}
 #| cache: true
 ## read PNG file from web
-png <- magick::image_read("../images/culmen_depth.png")
+png <- magick::image_read("images/culmen_depth.png")
 ## turn image into `rasterGrob`
 img <- grid::rasterGrob(png, interpolate = TRUE)
 
@@ -999,13 +1012,9 @@ gg5
 
 ```
 
-## Using `{patchwork}`
+### Using `{patchwork}`
 
-> The goal of `patchwork` is to make it ridiculously simple to combine
-> separate ggplots into the same graphic. As such it tries to solve the
-> same problem as `gridExtra::grid.arrange()` and `cowplot::plot_grid`
-> but using an API that incites exploration and iteration, and scales to
-> arbitrily complex layouts.
+> The goal of `patchwork` is to make it ridiculously simple to combine separate ggplots into the same graphic. As such it tries to solve the same problem as `gridExtra::grid.arrange()` and `cowplot::plot_grid` but using an API that incites exploration and iteration, and scales to arbitrily complex layouts.
 
 → <https://patchwork.data-imaginist.com/>
 
@@ -1028,7 +1037,7 @@ gg6 <- ggplot(penguins_stats, aes(y = bill_ratio, x = species, fill = species, c
     caption = "Data: Gorman, Williams & Fraser (2014) *PLoS ONE* &bull; Illustration: Allison Horst"
   ) +
   theme(
-    panel.grid.major.x = element_line(size = .35),
+    panel.grid.major.x = element_line(linewidth = .35),
     panel.grid.major.y = element_blank(),
     axis.text.y = element_text(size = 13),
     axis.ticks.length = unit(0, "lines"),
@@ -1041,10 +1050,7 @@ gg6 <- ggplot(penguins_stats, aes(y = bill_ratio, x = species, fill = species, c
 
 Now to combine both plots into one using simple operators:
 
-> For the special case of putting plots besides each other or on top of
-> each other patchwork provides 2 shortcut operators. `|` will place
-> plots next to each other while `/` will place them on top of each
-> other.
+> For the special case of putting plots besides each other or on top of each other patchwork provides 2 shortcut operators. `|` will place plots next to each other while `/` will place them on top of each other.
 
 First we stack up the graphs side by side:
 
@@ -1061,8 +1067,6 @@ We can place them in one column:
 gg5 / (gg6 + labs(title = "Bill Ratios of Brush-Tailed Penguins",
                   subtitle = "Violin Plots of Bill Ration versus species")) +
   plot_layout(heights = c(0.4, 0.4))
-
-
 
 ```
 
