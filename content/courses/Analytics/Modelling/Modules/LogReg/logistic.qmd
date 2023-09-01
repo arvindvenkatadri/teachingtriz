@@ -4,6 +4,9 @@ author: "Arvind Venkatadri"
 date: 13/Apr/2023
 date-modified: "`r Sys.Date()`"
 order: 20
+format:
+  html:
+    html-math-method: katex
 image: preview.png
 image-alt: ""
 categories: 
@@ -33,38 +36,40 @@ a target variable as a linear weighted sum of the predictor variables.
 A general linear model can be stated as: 
 
 $$
-y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
+\begin{cases}
+& y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
 where\\
-p = number~ of ~ predictors~ x_p\\
-y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
-\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
+& p = number~ of ~ predictors~ x_p\\
+& y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
+& \epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
+\end{cases}
 $$
 
 This model is considered to be **general** because of the dependence on
 potentially more than one explanatory variable, v.s. the **simple**
-linear model:[^1] $y_i = \beta_0 + \beta_1x_i + \epsilon_i$. The general
-linear model gives us model "shapes" that start from a simple straight
-line to a *p-dimensional hyperplane*.
+linear model:[^1] $y_i = \beta_0 + \beta_1x_i + \epsilon_i$. The general linear model gives us model "shapes" that start from a simple straight line to a *p-dimensional hyperplane*.
 
-The model is **linear in the parameters** $\beta_i$, e.g. this is OK:
+The model is **linear in the parameters** $\beta_i$, e.g. these are OK:
 
 $$
-\color{blue}
-{
-y_i = \beta_0 + \beta_1x_1 + \beta_2x_1^2 + \epsilon_i\\
-y_1 = \beta_0 + \gamma_1\delta_1x_1 + exp(\beta_2)x_2+ \epsilon_i\\
+\color{blue}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
+ & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
+\end{cases}
 }
 $$
 
-but not, for example, this:
+but not, for example, these:
 
 $$
-\color{red}
-{
-y_i = \beta_0 + \beta_1x^{\beta_2} +\epsilon_i\\
-y_i = \beta_0 + exp(\beta_1x_1) + \epsilon_i
+\color{red}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
+ & y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
+\end{cases}
 }
-$$ 
+$$
 
 Although a very useful framework, there are some situations where
 general linear models are not appropriate:
@@ -107,8 +112,8 @@ For example we can obtain our *general linear model* with the following choice:
 
 $$
 \begin{align}
-g(\mu_i) = \mu_i\\
-\Phi = 1
+& g(\mu_i) = \mu_i\\
+& Phi = 1
 \end{align}
 $$ 
 
@@ -117,10 +122,9 @@ i.e. a two-valued variable:\
 
 $$
 \begin{align}
-Y_i = binom(n_i,p_i)\\
-and\\
-mean(Y_i) = n_ip_i\\
-var(Y_i) = n_ip_i(1-p_i)
+ & Y_i = binom(n_i,p_i)\\
+ & mean(Y_i) = n_ip_i\\
+ & var(Y_i) = n_ip_i(1-p_i)
 \end{align}
 $$
 
@@ -132,10 +136,18 @@ $$
 mean(Y_i/n_i) = mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
 var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
 \end{align}
-$$ Inspecting the above, we can write for the **target variable**: $$
+$$ 
+
+Inspecting the above, we can write for the **target variable**: 
+
+$$
 \sigma_i^2 = \frac{\mu_i(1-\mu_i)}{n_i}
-$$ and since the link function needs to map ${[-\infty, \infty]}$ to
-${[0,1]}$, we use the `logit` function: $$
+$$ 
+
+and since the link function needs to map ${[-\infty, \infty]}$ to
+${[0,1]}$, we use the `logit` function: 
+
+$$
 g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
 $$
 

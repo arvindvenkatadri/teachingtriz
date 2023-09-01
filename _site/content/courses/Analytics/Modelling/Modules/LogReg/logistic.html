@@ -90,7 +90,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script><script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script><script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 <meta property="og:title" content="The Foundation Series - Modelling with Logistic Regression">
 <meta property="og:description" content="">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Modelling/Modules/LogReg/preview.png">
@@ -326,7 +339,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">August 25, 2023</p>
+      <p class="date-modified">September 1, 2023</p>
     </div>
   </div>
     
@@ -345,30 +358,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>We saw with the <strong>general linear model</strong> that it models the <strong>mean</strong> of a target variable as a linear weighted sum of the predictor variables.</p>
 <p>A general linear model can be stated as:</p>
-<p><span class="math display">\[
-y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
+<p><span class="math display">
+\begin{cases}
+&amp; y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
 where\\
-p = number~ of ~ predictors~ x_p\\
-y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
-\epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
-\]</span></p>
-<p>This model is considered to be <strong>general</strong> because of the dependence on potentially more than one explanatory variable, v.s. the <strong>simple</strong> linear model:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(y_i = \beta_0 + \beta_1x_i + \epsilon_i\)</span>. The general linear model gives us model “shapes” that start from a simple straight line to a <em>p-dimensional hyperplane</em>.</p>
-<p>The model is <strong>linear in the parameters</strong> <span class="math inline">\(\beta_i\)</span>, e.g.&nbsp;this is OK:</p>
-<p><span class="math display">\[
-\color{blue}
-{
-y_i = \beta_0 + \beta_1x_1 + \beta_2x_1^2 + \epsilon_i\\
-y_1 = \beta_0 + \gamma_1\delta_1x_1 + exp(\beta_2)x_2+ \epsilon_i\\
+&amp; p = number~ of ~ predictors~ x_p\\
+&amp; y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
+&amp; \epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
+\end{cases}
+</span></p>
+<p>This model is considered to be <strong>general</strong> because of the dependence on potentially more than one explanatory variable, v.s. the <strong>simple</strong> linear model:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">y_i = \beta_0 + \beta_1x_i + \epsilon_i</span>. The general linear model gives us model “shapes” that start from a simple straight line to a <em>p-dimensional hyperplane</em>.</p>
+<p>The model is <strong>linear in the parameters</strong> <span class="math inline">\beta_i</span>, e.g.&nbsp;these are OK:</p>
+<p><span class="math display">
+\color{blue}{
+\begin{cases}
+&amp; y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
+&amp; y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
+\end{cases}
 }
-\]</span></p>
-<p>but not, for example, this:</p>
-<p><span class="math display">\[
-\color{red}
-{
-y_i = \beta_0 + \beta_1x^{\beta_2} +\epsilon_i\\
-y_i = \beta_0 + exp(\beta_1x_1) + \epsilon_i
+</span></p>
+<p>but not, for example, these:</p>
+<p><span class="math display">
+\color{red}{
+\begin{cases}
+&amp; y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
+&amp; y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
+\end{cases}
 }
-\]</span></p>
+</span></p>
 <p>Although a very useful framework, there are some situations where general linear models are not appropriate:</p>
 <ul>
 <li>the range of Y is restricted (e.g.&nbsp;binary, count)</li>
@@ -388,54 +405,57 @@ Important
 </div>
 <div class="callout-body-container callout-body">
 <p>A generalized linear model is made up of a linear predictor:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \eta_i = \beta_0 + \beta_1x_{1i} + ... + \beta_px_{pi}
-\]</span></p>
+</span></p>
 <p>and two functions:</p>
 <ul>
 <li>
-<p>a link function that describes how the mean, <span class="math inline">\(E(Y_i) = \mu_i\)</span>, depends on the linear predictor:<br></p>
-<p><span class="math display">\[
+<p>a link function that describes how the mean, <span class="math inline">E(Y_i) = \mu_i</span>, depends on the linear predictor:<br></p>
+<p><span class="math display">
 g(\mu_i) = \eta_i
-\]</span></p>
+</span></p>
 </li>
 <li>
-<p>a variance function that describes how the variance, <span class="math inline">\(var(Y_i)\)</span> depends on the mean:<br></p>
-<p><span class="math display">\[
+<p>a variance function that describes how the variance, <span class="math inline">var(Y_i)</span> depends on the mean:<br></p>
+<p><span class="math display">
 var(Y_i) = \Phi*V(\mu_i)
-\]</span></p>
+</span></p>
 </li>
 </ul>
-<p>where the dispersion parameter <span class="math inline">\(\Phi\)</span> is a constant.</p>
+<p>where the dispersion parameter <span class="math inline">\Phi</span> is a constant.</p>
 </div>
 </div>
 <p>For example we can obtain our <em>general linear model</em> with the following choice:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \begin{align}
-g(\mu_i) = \mu_i\\
-\Phi = 1
+&amp; g(\mu_i) = \mu_i\\
+&amp; Phi = 1
 \end{align}
-\]</span></p>
-<p>If now we assume that the <em>target</em> variable <span class="math inline">\(Y_i\)</span> is a <strong>binomial</strong>, i.e.&nbsp;a two-valued variable:<br></p>
-<p><span class="math display">\[
+</span></p>
+<p>If now we assume that the <em>target</em> variable <span class="math inline">Y_i</span> is a <strong>binomial</strong>, i.e.&nbsp;a two-valued variable:<br></p>
+<p><span class="math display">
 \begin{align}
-Y_i = binom(n_i,p_i)\\
-and\\
-mean(Y_i) = n_ip_i\\
-var(Y_i) = n_ip_i(1-p_i)
+&amp; Y_i = binom(n_i,p_i)\\
+&amp; mean(Y_i) = n_ip_i\\
+&amp; var(Y_i) = n_ip_i(1-p_i)
 \end{align}
-\]</span></p>
-<p>Now, we wish to model the <strong>proportions</strong> <span class="math inline">\(Y_i/n_i\)</span>, as our <strong>target</strong>. Then we can state that:<br></p>
-<p><span class="math display">\[
+</span></p>
+<p>Now, we wish to model the <strong>proportions</strong> <span class="math inline">Y_i/n_i</span>, as our <strong>target</strong>. Then we can state that:<br></p>
+<p><span class="math display">
 \begin{align}
 mean(Y_i/n_i) = mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
 var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
 \end{align}
-\]</span> Inspecting the above, we can write for the <strong>target variable</strong>: <span class="math display">\[
+</span></p>
+<p>Inspecting the above, we can write for the <strong>target variable</strong>:</p>
+<p><span class="math display">
 \sigma_i^2 = \frac{\mu_i(1-\mu_i)}{n_i}
-\]</span> and since the link function needs to map <span class="math inline">\({[-\infty, \infty]}\)</span> to <span class="math inline">\({[0,1]}\)</span>, we use the <code>logit</code> function: <span class="math display">\[
+</span></p>
+<p>and since the link function needs to map <span class="math inline">{[-\infty, \infty]}</span> to <span class="math inline">{[0,1]}</span>, we use the <code>logit</code> function:</p>
+<p><span class="math display">
 g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
-\]</span></p>
+</span></p>
 </section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
 <ol type="1">
 <li><p><a href="https://yury-zablotski.netlify.app/post/how-logistic-regression-works/" class="uri">https://yury-zablotski.netlify.app/post/how-logistic-regression-works/</a></p></li>

@@ -8,6 +8,7 @@ date: 28/Mar/2023
 date-modified: "`r Sys.Date()`"
 order: 130
 image: preview.jpg
+bibliography: references.bib
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -16,7 +17,7 @@ image: preview.jpg
 #| label: setup
 #| message: true
 #| warning: false
-knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE, tidy = TRUE)
 library(tidyverse) # Tidy data processing 
 library(ggformula) # Formula based plots
 library(mosaic) # Data inspection and Statistical Inference 
@@ -45,19 +46,28 @@ Let us set a plot theme:
 sysfonts::font_add_google(name = "Merriweather Sans", family = "Merri")
 showtext::showtext_auto(enable = TRUE)
 
-theme_frogs <- function(){  # Creating a function
+theme_frogs <- function() {
+  # Creating a function
   theme_classic() +  # Using pre-defined theme as base
-  theme(text = element_text(family = "Merri"), 
-        axis.text.x = element_text(size = 12, face = "bold"),  # Customizing axes text      
-        axis.text.y = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size = 14, face = "bold"),  # Customizing axis title
-        panel.grid = element_blank(),  # Taking off the default grid
-        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
-        legend.text = element_text(size = 12, face = "italic"),  # Customizing legend text
-        legend.title = element_text(size = 12, face = "bold"),  # Customizing legend title
-        legend.position = "right",  # Customizing legend position
-        plot.caption = element_text(size = 12))  # Customizing plot caption
-}                                                                              
+    theme(
+      text = element_text(family = "Merri"),
+      axis.text.x = element_text(size = 12, face = "bold"),
+      # Customizing axes text
+      axis.text.y = element_text(size = 12, face = "bold"),
+      axis.title = element_text(size = 14, face = "bold"),
+      # Customizing axis title
+      panel.grid = element_blank(),
+      # Taking off the default grid
+      plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+      legend.text = element_text(size = 12, face = "italic"),
+      # Customizing legend text
+      legend.title = element_text(size = 12, face = "bold"),
+      # Customizing legend title
+      legend.position = "right",
+      # Customizing legend position
+      plot.caption = element_text(size = 12)
+    )  # Customizing plot caption
+}
 ggplot2::theme_set(new = theme_frogs())
 
 # See this:
@@ -139,29 +149,38 @@ Temperatures are also in a column that we should convert into a
 
 ```{r}
 #| layout-ncol: 2
-frogs_long <- frogs_orig %>% 
-  pivot_longer(., cols = starts_with("Temperature"),
-               cols_vary = "fastest", # new in pivot_longer
-               names_to = "Temp",
-               values_to = "Time") %>% 
-  drop_na() %>% 
+frogs_long <- frogs_orig %>%
+  pivot_longer(
+    .,
+    cols = starts_with("Temperature"),
+    cols_vary = "fastest",
+    # new in pivot_longer
+    names_to = "Temp",
+    values_to = "Time"
+  ) %>%
+  drop_na() %>%
   
   # knock off the unnecessary "Temperature" word everywhere
   # Just keep the digits thereafter
-  separate_wider_regex(cols = Temp,
-                       patterns = c("Temperature", 
-                                     TempFac = "\\d+"), 
-                       cols_remove = TRUE) %>% 
+  separate_wider_regex(
+    cols = Temp,
+    patterns = c("Temperature",
+                 TempFac = "\\d+"),
+    cols_remove = TRUE
+  ) %>%
   
   # Convert Temp into TempFac, a 3-level factor
-  mutate(TempFac = factor(x = TempFac,
-                          levels = c(13,18,25), 
-                          labels = c("13", "18", "25"))) %>% 
+  mutate(TempFac = factor(
+    x = TempFac,
+    levels = c(13, 18, 25),
+    labels = c("13", "18", "25")
+  )) %>%
   rename("Id" = `Frogspawn sample id`)
 
 frogs_long
 
 frogs_long %>% count(TempFac)
+
 
 ```
 
@@ -176,24 +195,26 @@ Let us plot some histograms and boxplots of Hatching Time:
 #| results: hold
 #| layout-ncol: 2
 #| column: screen-inset-right
-gf_histogram(data = frogs_long, 
-             ~ Time, 
+gf_histogram(data = frogs_long,
+             ~ Time,
              fill = ~ TempFac,
-             stat = "count") %>% 
-  gf_vline(xintercept = ~ mean(Time)) %>% 
-  gf_labs(x = "Hatching Time", y = "Count") %>% 
-  gf_text(7 ~ (mean(Time) + 2), label = "Overall Mean", 
-          family = "Merri", fontface = "bold") %>%
+             stat = "count") %>%
+  gf_vline(xintercept = ~ mean(Time)) %>%
+  gf_labs(x = "Hatching Time", y = "Count") %>%
+  gf_text(7 ~ (mean(Time) + 2),
+          label = "Overall Mean",
+          family = "Merri",
+          fontface = "bold") %>%
   gf_theme(guides(fill = guide_legend(title = "Temperature level (°C)"))) %>%
   gf_theme(theme = theme_frogs())
 
 
-gf_boxplot(data = frogs_long, 
-             Time ~ TempFac, 
-             fill = ~ TempFac) %>% 
-  gf_vline(xintercept = ~ mean(Time)) %>% 
-  gf_labs(x = "Temperature", y = "Hatching Time") %>% 
-  gf_theme(theme = theme_frogs()) %>% 
+gf_boxplot(data = frogs_long,
+           Time ~ TempFac,
+           fill = ~ TempFac) %>%
+  gf_vline(xintercept = ~ mean(Time)) %>%
+  gf_labs(x = "Temperature", y = "Hatching Time") %>%
+  gf_theme(theme = theme_frogs()) %>%
   gf_theme(guides(fill = guide_legend(title = "Temperature level (°C)")))
 
 ```
@@ -208,11 +229,18 @@ x-axis* offered by the `ggprism` package:
 ```{r}
 #| label: using ggprism
 library(ggprism)
-gf_jitter(frogs_long, Time ~ TempFac, color = ~ TempFac, xlab = "Temperature as Factor", ylab = "Hatching Time", caption = "Using `ggprism` package") %>% 
-    gf_theme(theme_prism(base_family = "Merri")) %>% 
-    gf_refine(theme(legend.position = "none"),
-              scale_x_discrete(guide = "prism_bracket"))
- 
+gf_jitter(
+  frogs_long,
+  Time ~ TempFac,
+  color = ~ TempFac,
+  xlab = "Temperature as Factor",
+  ylab = "Hatching Time",
+  caption = "Using `ggprism` package"
+) %>%
+  gf_theme(theme_prism(base_family = "Merri")) %>%
+  gf_refine(theme(legend.position = "none"),
+            scale_x_discrete(guide = "prism_bracket"))
+
 ```
 
 Let's go ahead with our ANOVA test.
@@ -272,47 +300,72 @@ Qual level.
 #| warning: false
 library(ggtext)
 set.seed(42) # for replication
-data = tibble(index = 1:40,
-              qual = c(rep(x = "A", 20),rep(x = "B", 20)),
-              quant = c(rnorm(n = 20, mean = 0, sd = 2), 
-                        rnorm(n = 20, mean = 10, sd = 2)))
+data = tibble(
+  index = 1:40,
+  qual = c(rep(x = "A", 20), rep(x = "B", 20)),
+  quant = c(rnorm(
+    n = 20, mean = 0, sd = 2
+  ),
+  rnorm(
+    n = 20, mean = 10, sd = 2
+  ))
+)
 data
 overall_mean <- data %>%
-             summarise(overall_mean = mean(quant))
+  summarise(overall_mean = mean(quant))
 #overall_mean
 
 grouped_means <- data %>%
-  group_by(qual) %>% 
-             summarise(grouped_means = mean(quant))
+  group_by(qual) %>%
+  summarise(grouped_means = mean(quant))
 #grouped_means
 
-p1 <- gf_segment(data = data, 
-             color = "black",
-             overall_mean$overall_mean + quant ~ index + index) %>% gf_point(quant ~ index, 
+p1 <- gf_segment(
+  data = data,
+  color = "black",
+  overall_mean$overall_mean + quant ~ index + index
+) %>% gf_point(quant ~ index,
                color = ~ qual,
-         data = data, title = "Fig. A") %>% 
+               data = data,
+               title = "Fig. A") %>%
   gf_hline(yintercept =  ~ overall_mean,
-             data = overall_mean) %>% 
-  gf_text(4.25 ~ 30, label = expression(paste(mu, "_tot")), inherit = F,family = "Merri") %>%
+           data = overall_mean) %>%
+  gf_text(
+    4.25 ~ 30,
+    label = expression(paste(mu, "_tot")),
+    inherit = F,
+    family = "Merri"
+  ) %>%
   gf_theme(theme = theme_frogs())
 
-p2 <- gf_point(quant ~ index, 
-         group = ~ qual, 
-         colour = ~ qual, 
-         data = data, title = "Fig. B") %>% 
-  gf_hline(yintercept = ~ mean, 
-           colour = ~ qual,
-           data = data %>% 
-             group_by(qual) %>% 
-             summarise(mean = mean(quant))) %>% 
+p2 <- gf_point(
+  quant ~ index,
+  group = ~ qual,
+  colour = ~ qual,
+  data = data,
+  title = "Fig. B"
+) %>%
+  gf_hline(
+    yintercept = ~ mean,
+    colour = ~ qual,
+    data = data %>%
+      group_by(qual) %>%
+      summarise(mean = mean(quant))
+  ) %>%
   gf_segment(data = data %>% filter(qual == "A"),
-             grouped_means$grouped_means[1] + quant ~ index + index
-             ) %>% 
+             grouped_means$grouped_means[1] + quant ~ index + index) %>%
   gf_segment(data = data %>% filter(qual == "B"),
-             grouped_means$grouped_means[2] + quant ~ index + index
-             ) %>% 
-    gf_text(10.0 ~ 10, label = expression(paste(mu, "_B")), inherit = F,family = "Merri") %>%
-    gf_text(1 ~ 38, label = expression(paste(mu, "_A")), inherit = F, family = "Merri") %>%
+             grouped_means$grouped_means[2] + quant ~ index + index) %>%
+  gf_text(
+    10.0 ~ 10,
+    label = expression(paste(mu, "_B")),
+    inherit = F,
+    family = "Merri"
+  ) %>%
+  gf_text(1 ~ 38,
+          label = expression(paste(mu, "_A")),
+          inherit = F,
+          family = "Merri") %>%
   gf_theme(theme = theme_frogs())
 
 cowplot::plot_grid(p1, p2, labels = c("SST", "SSE"))
@@ -408,7 +461,8 @@ between levels of the Qual variable. More on this shortly.
 
 ### ANOVA Manually Demonstrated[^3](Apologies to Spinoza)
 
-Now that we understand what `aov()` is doing, let us hand-calculate the numbers for our `frogs` dataset and check:
+Now that we understand what `aov()` is doing, let us hand-calculate the
+numbers for our `frogs` dataset and check:
 
 Here is the SST:
 
@@ -573,16 +627,16 @@ We can still calculate these in R, for the sake of method and clarity:
 #| label: Degrees of Freedom
 
 # Error Sum of Squares SSE
-df_SSE <- frogs_long %>% 
+df_SSE <- frogs_long %>%
   
   # Takes into account "unbalanced" situations
-  group_by(TempFac) %>% 
-  summarise(per_group_df_SSE = n() - 1) %>% 
+  group_by(TempFac) %>%
+  summarise(per_group_df_SSE = n() - 1) %>%
   summarise(df_SSE = sum(per_group_df_SSE)) %>% as.numeric()
 
 
 ## Overall Sum of Squares SST
-df_SST <- frogs_long %>% 
+df_SST <- frogs_long %>%
   summarise(df_SST = n() - 1) %>% as.integer()
 
 
@@ -692,7 +746,8 @@ We can check these using checks and graphs.
 
 The `shapiro.wilk` test tests if a vector of numeric data is normally
 distributed and rejects the hypothesis of normality when the
-[p-value](https://variation.com/wp-content/distribution_analyzer_help/hs132.htm) is less than or equal to 0.05. 
+[p-value](https://variation.com/wp-content/distribution_analyzer_help/hs132.htm)
+is less than or equal to 0.05. 
 
 ```{r}
 #| label: Check for Normality
@@ -830,7 +885,12 @@ below the desired confidence level of $0.05$.
 
 ::: callout-note
 ### Standard Errors
-Observe that the `std.error` for the intercept is $0.257$ while that for `TempFac18` and `TempFac25` is $0.257 \times \sqrt2 = 0.363$ since the latter are **differences** in means, while the former is a **single mean**. The Variance of a difference is the sum of the individual variances, which are equal here. 
+
+Observe that the `std.error` for the intercept is $0.257$ while that for
+`TempFac18` and `TempFac25` is $0.257 \times \sqrt2 = 0.363$ since the
+latter are **differences** in means, while the former is a **single
+mean**. The Variance of a difference is the sum of the individual
+variances, which are equal here.
 :::
 
 We can easily plot bar-chart with error bars for the effect size:
@@ -887,7 +947,40 @@ frogs_long %>%
   gf_theme(theme_frogs())
 
 ```
-In both graphs, note the difference in the error-bar heights. 
+
+In both graphs, note the difference in the error-bar heights.
+
+### Using other packages
+
+::: panel-tabset
+### Using `ggstatsplot`
+
+There is a very neat package called `ggstatsplot`[^6] that allows us to
+plot very comprehensive statistical graphs. Let us quickly do this:
+
+```{r}
+library(ggstatsplot)
+frogs_long |> ggstatsplot::ggbetweenstats(
+  x = TempFac, y = Time,
+  title = "ANOVA : Frogs Spawn Time vs Temperature Setting"
+)
+
+```
+
+### Using `supernova`
+
+We can also obtain crisp-looking anova tables from the new `supernova`
+package [^7], which is based on the methods discussed in Judd et al.
+@sec--references.
+
+```{r}
+#| layout-ncol: 2
+library(supernova)
+supernova::supernova(frogs_anova)
+supernova::pairwise(frogs_anova)
+
+```
+:::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA using Permutation Tests
 
@@ -897,10 +990,10 @@ see that except at one level of `TempFac`, the times are are not
 normally distributed. Hence we opt for a Permutation Test to check for
 significance of effect.
 
-As remarked in Ernst[^6], the non-parametric permutation test can be
+As remarked in Ernst[^8], the non-parametric permutation test can be
 both *exact* and also **intuitively easier** for students to grasp.
 Permutations are easily executed in R, using packages such as
-`mosaic`[^7].
+`mosaic`[^9].
 
 We proceed with a Permutation Test for `TempFac`. We shuffle the levels
 (13, 18, 25) randomly between the Times and repeat the ANOVA test each
@@ -1015,7 +1108,7 @@ carried out using the standard formula `aov` when assumptions on
 distributions, variances, and independence are met. Permutation ANOVA
 tests can be carried out when these assumptions do not quite hold.
 
-## {{< iconify ooui references-rtl >}} References
+## {{< iconify ooui references-rtl >}} References {#sec--references}
 
 1.  The ANOVA tutorial at [Our Coding
     Club](https://ourcodingclub.github.io/tutorials/anova/).
@@ -1026,6 +1119,9 @@ tests can be carried out when these assumptions do not quite hold.
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 5.  ANOVA in R - Stats and R <https://statsandr.com/blog/anova-in-r/>
+6.  Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
+    "Introduction to Data Analysis." In, 1--9. Routledge.
+    https://doi.org/10.4324/9781315744131-1.
 
 [^1]: The ANOVA tutorial at [Our Coding
     Club](https://ourcodingclub.github.io/tutorials/anova/).
@@ -1040,13 +1136,17 @@ tests can be carried out when these assumptions do not quite hold.
     77--102.
     https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
 
-[^5]: \[`mosaic::xpf()` gives both a graph and the probabilities\]
+[^5]: `mosaic::xpf()` gives both a graph and the probabilities.
 
-[^6]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
+[^6]: ggplot2 Based Plots with Statistical Details • ggstatsplot <https://indrajeetpatil.github.io/ggstatsplot/>
+
+[^7]: <https://github.com/UCLATALL/supernova>
+
+[^8]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact
     Inference." Statistical Science 19 (4): 676--85.
     doi:10.1214/088342304000000396.
 
-[^7]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
+[^9]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping
     Students to 'Think with Data' Using R." The R Journal, 9(1),
     77--102.
     https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
