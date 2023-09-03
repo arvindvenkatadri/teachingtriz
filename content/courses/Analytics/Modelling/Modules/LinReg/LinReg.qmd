@@ -108,7 +108,7 @@ fit, that **predicts** the value of y based the value of x. Each
 prediction leaves a small "residual" error between the actual and
 predicted values. $\beta_0$ and $\beta_1$ are calculated based on
 minimizing the *sum of square*s of these residuals, and hence this
-method is called "ordinary least squares" regression.
+method is called "ordinary least squares" (**OLS**) regression.
 
 ![Least Squares](../../../../../materials/images/OLS.png){height="360"}
 
@@ -138,7 +138,7 @@ variables at hand, explanatory and responses. The Alternative Hypothesis
 typically states that there *is* a relationship between the variables.
 
 Accordingly, in fitting a linear model, we follow the process as
-follows: With $y = \beta_0 + \beta_1 *x$\
+follows: With $y = \beta_0 + \beta_1 *x$
 
 1.  Make the following hypotheses: $$
     NULL\ Hypothesis\ H_0 => x\ and\ y\ are\ unrelated.\ (\beta_1 = 0)
@@ -147,15 +147,15 @@ follows: With $y = \beta_0 + \beta_1 *x$\
     $$
 2.  We "assume" that $H_0$ is true.
 3.  We calculate $\beta_1$.
-4.  We then find probability **p** that \[$\beta_1 = Estimated\ Value$\]
+4.  We then find probability **p** that $\beta_1 = Estimated\ Value$
     **when the NULL Hypothesis** is **assumed** TRUE. This is the
     **p-value**. If that probability is **p\>=0.05**, we say we "cannot
     reject" $H_0$ and there is unlikely to be significant linear
-    relationship.\
+    relationship.
 5.  However, if **p\<= 0.05** can we reject the NULL hypothesis, and say
-    that there could be a significant linear relationship,because
-    $\beta_1 = Estimated\ Value$ by mere chance under $H_0$ is very
-    small.
+    that there could be a significant linear relationship, because the
+    probability **p** that $\beta_1 = Estimated\ Value$ by mere chance
+    under $H_0$ is very small.
 
 ## {{< iconify icon-park-outline thinking-problem >}} Assumptions in Linear Models
 
@@ -201,7 +201,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:------------------|:----------------------------------------------------|
+|:------------|:---------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -240,7 +240,7 @@ will first do this with `GGally`, and then with the `tidyverse` itself.
 Both give us a very unique view into the correlations that exist within
 this dataset.
 
-::: {.panel-tabset style="color: black;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke;" }
 ### Correlations with GGally
 
 Let us select a few sets of Quantitative and Qualitative features, along
@@ -251,30 +251,28 @@ with the target variable `cmedv` and do a pairs-plots with them:
 #| message: false
 #| warning: false
 #| layout-nrow: 2
-#| column: screen-inset-shaded
 
 theme_set(theme_bw())
-housing %>% 
-  # Target variable and Rooms / Age / Distance to City Centres / Radial Highway Access 
+housing %>%
+  # Target variable cmedv
+  # Predictors Rooms / Age / Distance to City Centres / Radial Highway Access
   select(cmedv, rm, age, dis) %>%
-  GGally::ggpairs(title = "Plot 1", 
+  GGally::ggpairs(title = "Plot 1",
                   lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
-housing %>% 
-# Target variable and Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
-  select(cmedv, rad, zn, indus, tax) %>% 
-  GGally::ggpairs(title = "Plot 2", lower = list(continuous = wrap("smooth", alpha = 0.2)))
+housing %>%
+  # Target variable cmedv
+  # Predictors: Access to Radial Highways, / Resid. Land Proportion / proportion of non-retail business acres / full-value property-tax rate per USD 10,000
+  select(cmedv, rad, zn, indus, tax) %>%
+  GGally::ggpairs(title = "Plot 2", 
+                  lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
-housing %>% 
-  # Target variable and Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
-  select(cmedv, crim, nox, rad, b, lstat) %>% 
-  GGally::ggpairs(title = "Plot 3", lower = list(continuous = wrap("smooth", alpha = 0.2)))
-
-
-housing %>% 
-  # Target variable and Access to Charles River
-  select(cmedv,chas) %>% 
-  GGally::ggpairs(title = "Plot 4", lower = list(continuous = wrap("smooth", alpha = 0.2)))
+housing %>%
+  # Target variable cmedv
+  # Predictors Crime Rate / Nitrous Oxide / Black Population / Lower Status Population
+  select(cmedv, crim, nox, rad, b, lstat) %>%
+  GGally::ggpairs(title = "Plot 3", 
+                  lower = list(continuous = wrap("smooth", alpha = 0.2)))
 
 
 ```
@@ -293,62 +291,100 @@ as expected, has a strong (negative) correlation with `cmedv`;
 `rad`(index of accessibility to radial highways), `nox`(nitrous oxide)
 and `crim`(crime rate) also have fairly large correlations with `cmedv`.
 
-Let us also check the Qualitative variables: Access to the Charles river
-(`chas`) does seem to affect the prices somewhat.
-
 ::: callout-important
 ## Correlation Scores and Uncertainty
 
 Recall that `cor.test` reports a correlation score and the `p-value` for
 the same. There is also a `confidence interval` reported for the
 correlation score, an interval within which we are 95% sure that the
-true correlation value is to be found. Note that GGally too reports the
-significance of the correlation scores using stars, `***` or `**`. This
-indicates the p-value in the scores obtained by GGally; Presumably,
-there is an internal `cor.test` that is run for each pair of variables
-and the p-value and confidence levels are also computed internally.
+true correlation value is to be found. Note that `GGally` too reports
+the significance of the correlation scores using stars, `***` or `**`.
+This indicates the p-value in the scores obtained by `GGally`;
+Presumably, there is an internal `cor.test` that is run for each pair of
+variables and the p-value and confidence levels are also computed
+internally.
 :::
 
 Let us plot (again) scatter plots of Quant Variables that have strong
 correlation with `cmedv`:
 
-
 ```{r}
-#| layout-ncol: 2 
-#| column: screen-inset-shaded
-gf_point(data = housing, 
-             cmedv ~ age, 
-         title = "Price vs Proportion of houses older than 1940",
-         ylab = "Median Price",
-         xlab = "Proportion of older-than-1940 buildings") %>%
+#| layout-ncol: 2
+gf_point(
+  data = housing,
+  cmedv ~ age,
+  title = "Price vs Proportion of houses older than 1940",
+  ylab = "Median Price",
+  xlab = "Proportion of older-than-1940 buildings"
+) %>%
   gf_theme(my_theme())
 
-gf_point(data = housing,
-         cmedv ~ rm, 
-         title = "Price vs Average no. of Rooms",
-         ylab = "(cmedv) Median Price",
-         xlab = "(rm) Avg. No. of Rooms"
-         ) %>%
+gf_point(
+  data = housing,
+  cmedv ~ lstat,
+  title = "Price vs Proportion of lower classes in the neighbourhood",
+  ylab = "Median Price",
+  xlab = "proportion of lower classes in the neighbourhood"
+) %>%
+  gf_theme(my_theme())
+
+gf_point(
+  data = housing,
+  cmedv ~ rm,
+  title = "Price vs Average no. of Rooms",
+  ylab = "(cmedv) Median Price",
+  xlab = "(rm) Avg. No. of Rooms"
+) %>%
   gf_theme(my_theme())
 
 
 ```
 
-We have managed to get a decent idea which *predictor variables* might
-be useful in modelling `cmedv`.
+So, `rm` does have a positive effect on `cmedv`, and `age` may have a
+(mild?) negative effect on `cmedv`; `lstat` seems to have a pronouced
+negative effet on `cmedv`. We have now managed to get a decent idea
+which *Quant predictor variables* might be useful in modelling `cmedv`:
+`rm`, `lstat` for starters, then perhaps`age`.
 
-### Correlations using `cor.test` and `purrr`
+Let us also check the *Qualitative predictor variables*: Access to the
+Charles river (`chas`) does seem to affect the prices somewhat.
 
-This is somewhat advanced material: We will use `purrr` to develop all
-correlations with respect to our target variable in one shot and also
-plot these correlation test scores in an error-bar plot. This has the
-advantage of being able to depict all correlations in one plot. (We will
-use this approach again here when we trim our linear models down from
-the *maximal* one to a workable one of lesser complexity.). Let us do
-this.
+```{r}
+#| label: Charles River
+theme_set(theme_bw())
+housing %>%
+  # Target variable cmedv
+  # Predictor Access to Charles River
+  select(cmedv, chas) %>%
+  GGally::ggpairs(title = "Plot 4", 
+                  lower = list(continuous = wrap("smooth", 
+                                                 alpha = 0.2)))
+
+```
+
+Look at the bar plot above. While not too many properties can be near
+the Charles River (for obvious reasons) the box plots do seem to show
+some dependency of `cmedv` on `chas`.
+
+::: callout-note
+Qualitative predictors for a Quantitative target can be included in the
+model using what is called *dummy variables*, where each *level* of the
+Qualitative variable is given a **one-hot** kind of encoding. See for
+example <https://www.statology.org/dummy-variables-regression/>
+:::
+
+### Correlations using cor.test and purrr
+
+This is somewhat advanced material: We will use the `purrr` package to
+develop all correlations with respect to our target variable in one shot
+and also plot these correlation test scores in an error-bar plot. This
+has the advantage of being able to depict all correlations in one plot.
+(We will use this approach again here when we trim our linear models
+down from the *maximal* one to a workable one of lesser complexity.).
+Let us do this.
 
 We develop a *list object* containing all correlation test results with
-respect to `cmedv`, tidy these up using `broom::tidy` and then plot
+respect to `cmedv`, tidy these up using `broom::tidy`, and then plot
 these:
 
 ```{r}
@@ -360,9 +396,10 @@ all_corrs <- housing %>%
   select(-cmedv, -medv) %>%  
 
   purrr::map(.x = ., # All numeric variables selected in the previous step
-             .f = \(x) cor.test(x, housing$cmedv)) %>% # Apply the cor.test with `cmedv`
+             .f = \(.x) cor.test(.x, housing$cmedv)) %>% # Apply the cor.test with `cmedv`
   
   # Tidy up the cor.test outputs into neat columns
+  # Need ".id" column to keep track of predictor variable name
   map_dfr(broom::tidy, .id = "predictor") 
 
 all_corrs
@@ -388,11 +425,17 @@ all_corrs %>%
   gf_labs(x = "Predictors", y = "Correlation with cmedv") %>%
   
   gf_theme(my_theme()) %>%
+  
+  # tilt the x-axis labels for readability
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
+  
+  # Colour and linewidth scales + legends
   gf_refine(
     scale_colour_distiller("Correlation", type = "div", palette = "RdBu"),
-    scale_linewidth_continuous("Significance", range = c(0.25, 3))
-  ) %>%
+    scale_linewidth_continuous("Significance", range = c(0.25, 3), 
+                               
+  # guide_legend(reverse = TRUE): Fat Lines mean higher significance
+    )) %>%
   gf_refine(guides(linewidth = guide_legend(reverse = TRUE)))
 
 ```
@@ -430,7 +473,7 @@ We will first execute the `lm` test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
 hand-calculate entire analysis for clear understanding.
 
-::: panel-tabset
+::: {.panel-tabset .nav-pills style="background: whitesmoke;" }
 ### {{< iconify mingcute code-fill >}} Model Code
 
 R offers a very simple command `lm` to execute an Linear Model: Note the
@@ -451,14 +494,20 @@ $$
 \widehat{cmedv} \sim -34.65924 + 9.09967* rm
 $$ {#eq-rm-model}
 
-The effect of `rm` on predicting `cmedv` is significant, a (slope) value
-of $9.09967$ at p-value of $<2.2e-16$. The F-statistic for the Linear
-Model is given by $474.3$, which is very high. (We will use the
-F-statistic again when we do Multiple Regression.) The `R-squared` value
-is 48% which means that `rm` is able to explain about half of the trend
-in `cmedv`; there is substantial variation in `cmedv` that is left to
-explain, an indication that we should perhaps use a richer model, with
-more predictors. We will explore this in the Tutorials. @sec-tutorials
+::: callout-important
+-   The **effect size** of `rm` on predicting `cmedv` a (slope) value of
+    $9.09967$ which is significant at p-value of $<2.2e-16$; for every
+    one room increase in `rm`, we have a \$ USD 90997\$ increase in
+    median price `cmedv`.
+-   The **F-statistic** for the Linear Model is given by $474.3$, which
+    is very high. (We will use the F-statistic again when we do Multiple
+    Regression.)
+-   The `R-squared` value is 48% which means that `rm` is able to
+    explain about half of the trend in `cmedv`; there is substantial
+    variation in `cmedv` that is left to explain, an indication that we
+    should perhaps use a richer model, with more predictors. We will
+    explore this in the Tutorials. @sec-tutorials
+:::
 
 We can plot the scatter plot of these two variables with the model also
 over-plotted.
@@ -504,10 +553,10 @@ gf_point(
   
   gf_abline(slope = slope,
             intercept = intercept,
-            colour = "lightcoral")  %>%
+            colour = "lightcoral", linewidth = 2)  %>%
   
   gf_segment(
-    0 + 29 ~ 7 + 7,
+    0 + 29 ~ 7 + 7, # manually calculated
     linetype = "dashed",
     color = "dodgerblue",
     arrow = arrow(
@@ -520,7 +569,7 @@ gf_point(
   ) %>%
   
   gf_segment(
-    29 + 29 ~ 2.5 + 7,
+    29 + 29 ~ 2.5 + 7, # manually calculated
     linetype = "dashed",
     arrow = arrow(
       angle = 30,
@@ -544,19 +593,21 @@ gf_point(
 ```
 
 For any new value of `rm`, we go up to the vertical blue line and read
-off the predicted median price. That is how the model is used (by hand).
+off the predicted median price by following the horizontal blue line.
+That is how the model is used (by hand).
 
 In practice, we use the `broom` package functions (`tidy`, `glance` and
 `augment`) to obtain a clear view of the model parameters and
-predictions of `cmedv` for all *existing* values of `rm`. To predict
-`cmedv` with *new* values of `rm`, we use `predict`. We see estimates
-for the intercept and slope (`rm`) for the linear model, along with the
-*standard errors* and *p.values* for these estimated parameters. And we
-see the fitted values of `cmedv` for the existing `rm`; these values
-will naturally lie **on** the straight-line depicting the model. We will
-examine this `augment`-ed data more in @sec-diagnostics.
+predictions of `cmedv` for all *existing* values of `rm`. We see
+estimates for the intercept and slope (`rm`) for the linear model, along
+with the *standard errors* and *p.values* for these estimated
+parameters. And we see the fitted values of `cmedv` for the existing
+`rm`; these values will naturally lie **on** the straight-line depicting
+the model. We will examine this `augment`-ed data more in
+@sec-diagnostics.
 
-Let us now try to make predictions with some new data:
+To predict `cmedv` with *new* values of `rm`, we use `predict`. Let us
+now try to make predictions with some new data:
 
 ```{r}
 #| label: predictions with new data
@@ -660,10 +711,11 @@ we decide?
 ```{r}
 #| echo: false
 #| layout-ncol: 2
-gf_point(cmedv ~ rm,
-         data = housing_sample) %>%
+#| warning: false
+#| 
+housing_sample %>% 
   gf_hline(yintercept =  ~ mean_cmedv_sample,
-           color = "dodgerblue") %>%
+           color = "dodgerblue", linewidth = 2) %>%
   gf_segment(
     data = housing_sample,
     color = "springgreen3",
@@ -673,6 +725,7 @@ gf_point(cmedv ~ rm,
     ylab = "cmedv (Median Price)",
     xlab = "rm (Avg. No. of Rooms)"
   ) %>%
+  gf_point(cmedv ~ rm) %>%
   gf_text(
     mean_cmedv_sample - 2 ~ 7.5,
     label = expression(paste(mu, "_tot")),
@@ -681,9 +734,7 @@ gf_point(cmedv ~ rm,
   ) %>%
   gf_theme(my_theme())
 
-gf_point(cmedv ~ rm,
-         data = housing_sample) %>%
-  gf_abline(intercept = intercept, slope = slope) %>%
+housing_sample  %>%
   gf_segment(
     .fitted + cmedv ~ rm + rm,
     color = "orangered1",
@@ -694,7 +745,8 @@ gf_point(cmedv ~ rm,
   ) %>%
   gf_abline(slope = slope,
             intercept = intercept,
-            colour = "dodgerblue") %>%
+            colour = "dodgerblue", linewidth = 2) %>%
+  gf_point(cmedv ~ rm) %>%
   gf_theme(my_theme())
 
 
@@ -808,11 +860,13 @@ in SSR and SSE.
 Let us calculate these Degrees of Freedom. If we have $n=$
 `r dim(housing)[[1]]` observations of data, then:
 
--   $SST$ clearly has degree of freedom $n-1$, since it uses all
-    observations but loses one degree to calculate the global mean.
--   $SSE$ was computed using the slope and intercept, so it has $(n-2)$
-    as degrees of freedom.
--   And therefore $SSR$ has just $1$ degree of freedom.
+-   $SST$ clearly has degree of freedom
+    $n-1 = `r dim(housing)[[1]] -1`$, since it uses all observations but
+    loses one degree to calculate the global mean.
+-   $SSE$ was computed using the slope and intercept, so it has
+    $(n-2) = `r dim(housing)[[1]] -2`$ as degrees of freedom.
+-   And therefore $SSR$ being their difference has just $1$ degree of
+    freedom.
 
 Now we are ready to compute the F-statistic:
 
@@ -858,7 +912,7 @@ sums of squares:
 
 $$
 R.squared = \frac{SSR}{SST} = \frac{SSY-SSE}{SST}
-$$
+$$ {#eq-rsquared}
 
 ```{r}
 r_squared <- (SST - SSE)/SST
@@ -901,6 +955,41 @@ intercept
 
 So, there we are! All of this is done for us by one simple formula,
 `lm()`!
+
+### {{< iconify iconoir stats-report >}} Using Other Packages {#sec--using-other-packages}
+
+There is a very neat package called `ggstatsplot`[^5] that allows us to
+plot very comprehensive statistical graphs. Let us quickly do this:
+
+```{r}
+#| message: false
+library(ggstatsplot)
+housing_lm %>%
+  ggstatsplot::ggcoefstats(title = "Linear Model for Boston Housing")
+
+
+```
+
+This chart shows the estimates for the `intercept` and `rm` along with
+their error bars, the `t-statistic`, degrees of freedom, and the
+`p-value`.
+
+We can also obtain crisp-looking model tables from the new `supernova`
+package [^6], which is based on the methods discussed in Judd et al.
+
+```{r}
+#| layout-ncol: 2
+library(supernova)
+supernova::supernova(housing_lm)
+
+```
+
+This table is very neat in that it gives the `Sums of Squares` for both
+the NULL and the current model, for comparison. The `PRE` entry is the
+*Proportional Reduction in Error*, a measure that is identical with
+`r.squared`, which shows how much the model reduces the error compared
+to the NULL model(48%). The PRE idea is nicely discussed in Judd et al.
+@sec-references
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
@@ -1082,7 +1171,7 @@ flowchart TD
     
 ```
 
-## {{< iconify ooui references-rtl >}} References
+## {{< iconify ooui references-rtl >}} References {#sec-references}
 
 1.  The Boston Housing Dataset, corrected version. StatLib \@ CMU,
     [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)
@@ -1106,8 +1195,18 @@ flowchart TD
     Elberg A, Crowley J (2022). *GGally: Extension to 'ggplot2'*.
     <https://ggobi.github.io/ggally/>,
     <https://github.com/ggobi/ggally>.
-    
-8. <http://r-statistics.co/Assumptions-of-Linear-Regression.html>
+
+8.  <http://r-statistics.co/Assumptions-of-Linear-Regression.html>
+
+9.  Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
+    "Introduction to Data Analysis." In, 1--9. Routledge.
+    <https://doi.org/10.4324/9781315744131-1>. Also see
+    <http://www.dataanalysisbook.com/index.html>
+
+10. Patil, I. (2021). Visualizations with statistical details: The
+    'ggstatsplot' approach. Journal of Open Source Software, 6(61),
+    3167,
+    [https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}
 
 [^1]: The model is linear in the **parameters** $\beta_i$, e.g. We can
     have this: $$
@@ -1130,3 +1229,7 @@ flowchart TD
 
 [^4]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
     Statistical Modelling*
+
+[^5]: <https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html>
+
+[^6]: <https://github.com/UCLATALL/supernova>
