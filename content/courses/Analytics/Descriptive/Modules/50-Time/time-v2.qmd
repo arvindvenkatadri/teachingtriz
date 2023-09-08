@@ -72,16 +72,10 @@ and create graphs and measures using those objects. Then we examine
 `time`variable. We will finally look at obtaining the components of the
 time series and try our hand at modelling and forecasting.
 
-## {{< iconify game-icons time-synchronization >}} Time Series Data Formats
+## {{< iconify game-icons time-synchronization >}} {{< iconify flat-color-icons line-chart >}} Time Series Formats, Conversion, and Plotting
 
 There are multiple formats for time series data. The ones that we are
 likely to encounter most are:
-
--   [The **tibble** format]{.underline}: the simplest and most familiar
-    data format is of course the standard tibble/data frame, with or
-    without an explicit `time` column/variable to indicate that the
-    other variables vary with time. The standard tibble object is used
-    by many packages, e.g. `timetk` & `modeltime`
 
 -   [The **ts** format]{.underline}: We may simply have a single series
     of measurements that are made over time, stored as a **numerical
@@ -91,24 +85,23 @@ likely to encounter most are:
     packages `forecast` and is also supported by newer packages such as
     `tsbox`.
 
+-   [The **tibble** format]{.underline}: the simplest and most familiar
+    data format is of course the standard tibble/data frame, with or
+    without an explicit `time` column/variable to indicate that the
+    other variables vary with time. The standard tibble object is used
+    by many packages, e.g. `timetk` & `modeltime`
+
 -   [The modern **tsibble** format]{.underline}: this is a new modern
     format for time series analysis. The special `tsibble` object ("time
     series tibble") is used by `fable`, `feasts` and others from the
     [`tidyverts`](https://tidyverts.org/) set of packages.
 
 There are many other `time-oriented` data formats too...[probably too
-many](https://xkcd.com/927),
+many](https://xkcd.com/927), such a `tibbletime` and `TimeSeries` objects. For now the best way to deal with these, should you encounter them, is to convert them (Using [tsbox](https://docs.ropensci.org/tsbox/)) to a `tibble` or a `tsibble` and work with these.
 
 ![Standards](https://imgs.xkcd.com/comics/standards.png){fig-align="center"}
 
-such a `tibbletime` and `TimeSeries` objects. For now the best way to
-deal with these, should you encounter them, is to convert them (Using
-[tsbox](https://docs.ropensci.org/tsbox/)) to a `tibble` or a `tsibble`
-and work with these.
-
-## {{< iconify flat-color-icons line-chart >}} Time Series Formats, Conversion, and Plotting
-
-In this first example, we will use simple `ts` data first, and then do
+To start, we will use simple `ts` data first, and then do
 another with `tibble` format that we can plot *as is*. We will then do
 more after conversion to `tsibble` format, and then a third example with
 a ground-up `tsibble` dataset.
@@ -250,8 +243,8 @@ numerical columns. There are no Qualitative variables (yet!).
 
 #### Plotting `tibble` time series
 
-::: panel-tabset
-##### Using `ggformula`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+##### Using ggformula
 
 We will now plot this using `ggformula`. Using the separate
 `year/month/week` and `day_of_week / day_of_month` columns, we can plot
@@ -298,6 +291,7 @@ births_2000_2014_monthly <- births_2000_2014 %>%
 # Using base::factor()
 # Could use forcats::as_factor() also
   mutate(month = base::factor(month, labels = month.abb)) %>%
+# `month.abb` is a built-in dataset containing names of months.
   group_by(year, month) %>% 
   summarise(mean_monthly_births = mean(births, na.rm = TRUE))
 births_2000_2014_monthly
@@ -314,7 +308,6 @@ births_2000_2014_monthly %>%
 
 ```
 
-Note that `month.abb` is a built-in dataset containing names of months.
 
 ::: callout-note
 These are graphs *for the same month each year*: we have a January graph
@@ -417,10 +410,9 @@ Plotting this directly, after selecting the relevant variables, so that
 they will be auto-detected:
 
 ```{r}
-#| layout-ncol: 2
+#| layout-nrow: 2
 #| message: true
 #| results: hold
-#| column: body-outset-right
 births_timeseries %>% 
   select(date, births) %>% 
   tsbox::ts_plot()
@@ -432,7 +424,7 @@ births_timeseries %>%
 ```
 
 Quite messy, as before. We need use the summarised data, as before. We
-will do this in the next section. We will do this shortly.
+will do this in the next section. 
 :::
 
 ### {{< iconify icon-park database-time >}} `tsibble` data
@@ -519,8 +511,11 @@ Using tibbles, `timetk` provides functions such as `summarize_by_time`, `filter_
 Let us first see how many observations there are for each combo of
 `keys:`
 
+
+
 ```{r}
-#| layout-ncol: 3
+#| layout: [[10, 45,45]]
+#| column: page-inset-right
 
 PBS %>% 
   count()
@@ -536,6 +531,7 @@ PBS %>%
   dplyr::count()
 
 ```
+
 
 We have 336 combinations of **Qualitative** variables, each combo
 containing 204 observations (except some! Take a look!): so let us
@@ -599,8 +595,6 @@ created each time:
 
 ```{r}
 #| column: body-outset-right
-#| results: hold
-#| echo: false
 
 # Original Data
 PBS
@@ -608,18 +602,10 @@ PBS
 
 # Cost Summary by Month, which is the original data
 # Only grouping happens here
+# New Variabl Name to make grouping visible
 PBS %>% 
   tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>% 
-  tsibble::index_by() %>% 
-  dplyr::summarise(across(.cols = c(Cost, Scripts),
-                          .fn = mean,
-                          .names = "mean_{.col}"))
-
-
-# Cost Summary by Year
-PBS %>% 
-  tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>% 
-  index_by(year(Month)) %>% 
+  tsibble::index_by(Month_Group = Month) %>% 
   dplyr::summarise(across(.cols = c(Cost, Scripts),
                           .fn = mean,
                           .names = "mean_{.col}"))
@@ -628,7 +614,16 @@ PBS %>%
 # Cost Summary by Quarter
 PBS %>% 
   tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>% 
-  tsibble::index_by(yearquarter(Month)) %>% 
+  tsibble::index_by(Year_Quarter = yearquarter(Month)) %>% # And the change here!
+  dplyr::summarise(across(.cols = c(Cost, Scripts),
+                          .fn = mean,
+                          .names = "mean_{.col}"))
+
+
+# Cost Summary by Year
+PBS %>% 
+  tsibble::group_by_key(ATC1, ATC2, Concession, Type) %>% 
+  index_by(Year_Group = year(Month)) %>% # Note this change!!!
   dplyr::summarise(across(.cols = c(Cost, Scripts),
                           .fn = mean,
                           .names = "mean_{.col}"))
@@ -653,8 +648,8 @@ births_tsibble
 
 This is DAILY data of course. Let us say we want to *group by month and plot mean monthly births* as before, but now using `tsibble` and the `index` variable:
 
-::: panel-tabset
-### `tsibble` vs `timetk`: Basic Plot
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### tsibble vs timetk: Basic Plot
 
 ```{r}
 #| label: tsibble-with-time-variable-processing
@@ -678,7 +673,7 @@ births_tsibble %>%
 
 ```
 
-### `tsibble` vs `timetk`: Grouped Plot 1
+### tsibble vs timetk: Grouped Plot 1
 
 ```{r}
 #| label: Per month Aggregation
@@ -712,7 +707,7 @@ births_timeseries %>%
 
 Apart from the bump during in 2006-2007, there are also **seasonal trends** that repeat each year, which we glimpsed earlier.
 
-### `tsibble` vs `timetk`: Grouped Plot 2
+### tsibble vs timetk: Grouped Plot 2
 
 ```{r}
 #| label: Per Year Aggregation
@@ -739,6 +734,8 @@ births_timeseries %>%
                            .y_lab = "Mean Yearly Births")
 
 ```
+
+
 ::: {.content-hidden}
 ### Errors
 
@@ -911,17 +908,27 @@ number of births (low, fine, high) and use that to create a heatmap:
 
 ```{r}
 
+
 library(ggformula)
 
-births_2000_2014 %>%  
-  mutate(birthrate = case_when(births >=10000 ~ "high", 
-                               births <= 8000 ~ "low", 
-                               TRUE ~ "fine")) %>% 
+births_2000_2014 %>%
+  mutate(birthrate = case_when(births >= 10000 ~ "high",
+                               births <= 8000 ~ "low",
+                               TRUE ~ "fine")) %>%
   
-  gf_tile(data = ., year ~ month, fill = ~ birthrate, color = "black") %>%
+  gf_tile(
+    data = .,
+    year ~ month,
+    fill = ~ birthrate,
+    color = "black"
+  ) %>%
   
-  gf_theme(scale_x_time(breaks = 1:12, 
-                        labels = c("Jan", "Feb", "Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))) %>% 
+  gf_theme(scale_x_time(
+    breaks = 1:12,
+    labels = c("Jan","Feb","Mar","Apr",
+               "May","Jun","Jul","Aug",
+               "Sep","Oct","Nov","Dec")
+  )) %>%
   
   gf_theme(theme_classic())
 
@@ -965,19 +972,6 @@ In the Tutorial @sec--slides-and-tutorials, we will explore
 4.  [The start-at-zero
     rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)
 
-5.  [Keeping one's appetite after touring the sausage
-    factory](http://junkcharts.typepad.com/numbersruleyourworld/2011/02/keeping-ones-appetite-after-touring-the-sausage-factory.html)
-
-6.  [How Common is Your Birthday? This Visualization Might Surprise
-    You](http://thedailyviz.com/2016/09/17/how-common-is-your-birthday-dailyviz/)
-
-7.  [The Fallen of World War II](http://www.fallen.io/ww2/)
-
-8.  [Visualizing Statistical Mix Effects and Simpson's
-    Paradox](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42901.pdf)
-
-9.  [How To Fix a Toilet (And Other Things We Couldn't Do Without
-    Search)](http://how-to-fix-a-toilet.com/)
 
 ------------------------------------------------------------------------
 

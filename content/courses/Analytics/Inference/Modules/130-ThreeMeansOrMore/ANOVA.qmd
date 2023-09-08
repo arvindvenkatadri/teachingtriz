@@ -952,6 +952,8 @@ supernova::supernova(frogs_anova)
 supernova::pairwise(frogs_anova)
 
 ```
+The `supernova` table clearly shows the reduction the Sum of Squares as we go from a NULL (empty) model to a full ANOVA model.
+
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA using Permutation Tests
@@ -1007,8 +1009,9 @@ null_dist_mosaic %>% drop_na() %>%
                xlab = "Simulated F values (using Permutation)",
                ylab = "Count") %>% 
   gf_vline(xintercept = observed_mosaic) %>%
-  gf_text(750 ~ observed_mosaic - 300, label = "Observed F") %>%
+  gf_text(750 ~ observed_mosaic - 325, label = "Observed F") %>%
   gf_refine(scale_x_continuous(trans = "log10"),
+            annotation_logticks(),
             scale_fill_discrete(name = "Simulated F > Observed F ?")) %>%
   gf_theme(my_theme())
 
@@ -1061,8 +1064,10 @@ head(null_dist_infer)
 null_dist_infer %>% 
   visualise(method = "simulation") +
   shade_p_value(obs_stat = observed_infer$stat, direction = "right") + 
-  scale_x_continuous(trans = "log10")
-
+  scale_x_continuous(trans = "log10", expand = c(0,0)) +
+  coord_cartesian(xlim = c(0.2,500), clip = "off") + 
+  annotation_logticks(outside = FALSE) + 
+  theme_classic()
 ```
 
 As seen, the `infer` based permutation test also shows that the

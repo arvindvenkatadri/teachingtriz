@@ -198,14 +198,14 @@ all_corrs %>%
     scale_linewidth_continuous("Significance", range = c(0.25, 3))
   ) %>%
   gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
-            theme(axis.text.x = element_text(angle = 30, hjust = 1))) %>%
-  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)))
+            theme(axis.text.x = element_text(hjust = 1))) %>%
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
+            coord_flip())
 
 ```
 
 There are a good many predictors which have statistically significant
-correlations with `Salary`, such as `CRuns` , `CHmRun`. The fatter the
-bar, the higher is the significance of the correlation.
+correlations with `Salary`, such as `CRuns` , `CHmRun`. The darker the colour, the higher is the correlation score; the fatter the bar, the higher is the significance of the correlation.
 
 We now start with setting up simple Linear Regressions with **no**
 predictors, only an intercept. We then fit separate Linear Models using
@@ -240,7 +240,7 @@ lm_min %>% broom::glance()
 
 
 OK, so the intercept is highly significant, the `t-statistic` is also
-high, but the intercept contributes *nothing* to the `r.squared`!!
+high, but the intercept contributes *nothing* to the `r.squared`!! It is of no use at all!
 
 
 
@@ -316,7 +316,7 @@ Hitters_model_set %>%
            size = 3.5, 
            color = "black",
            ylab = "R.Squared",
-           xlab = "Params in the Linear Model") %>%
+           xlab = "Params in the Linear Model", data = .) %>%
   gf_theme(my_theme()) %>% 
   gf_refine(theme(axis.text.x = element_text(angle = 30,
                                              hjust = 1)))
@@ -482,7 +482,7 @@ new predictor `Hits` is added!!
 
 Let us quickly see how this model might look. We know that with simple
 regression, we obtain a straight line as our model. Here, with two (or
-more) predictors, we should obtain a ....(hyper)plane!
+more) predictors, we should obtain a ....(hyper)plane! Play with the interactive plot below!
 
 ```{r,}
 #| echo: false
@@ -540,13 +540,80 @@ the model complexity (no. of predictors ) and the resulting gain in
 `r.squared` does not seem worth it.
 
 ::: callout-note
-### Iteration Method
+### Automatic Iteration Method
 
 We ought to convert the above code into an R `function` and run it that
-way for a specific number of rounds to see how things pan out. That is
-in the next version of this Tutorial! 😇
+way for a specific number of rounds to see how things pan out. ~~That is
+in the next version of this Tutorial!~~ It appears that there is, what else, an R Package, called `reghelper` that allows us to do this! 😇
+The `reghelper::build_model()` function can be used to:\
+
+- Start with only an intercept\
+- Sequentially add each of the other predictor variables into the model "blocks"\
+- Blocks will be added in the order they are passed to the function, and variables from previous blocks will be included with each subsequent block, so they do not need to be repeated.\
+
+Type `help(rehelper)` in your Console.
+
+
+```{r}
+#| layout-ncol: 2
+#| column: page-inset-right
+library(reghelper)
+
+big_model <- build_model(
+  dv = Salary, 
+  # Start with only an intercept lm(Salary ~ 1, data = .)
+  
+  # Sequentially add each of the other predictor variables
+  # Pass through variable names (or interaction terms) to add for each block. 
+  # To add one term to a block, just pass it through directly; 
+  # to add multiple terms at a time to a block, pass it through in a vector or list. 
+  # Interaction Terms can be specified using the vector/list
+  # Blocks will be added in the order they are passed to the function
+  # Variables from previous blocks will be included with each subsequent block,  so they do not need to be repeated.
+  
+  1, AtBat, Hits, HmRun, Runs, RBI, Walks, Years, CAtBat, CHits, 
+  CHmRun, CRuns, CRBI, CWalks, PutOuts, Assists, Errors,
+  
+  data = Hitters, 
+  model = 'lm')
+
+```
+
+This multiple model is a `list` object with 4 items. Type `summary(big_model)` in your Console.
+
+We can clean it up a wee bit:
+
+```{r}
+#| label: clean-helper-summary
+#| column: page-inset-right
+
+# big_model has 4 parts: formulas, residuals, coefficients, overall
+
+overall_clean <- summary(big_model)$overall %>% as_tibble() %>% janitor::clean_names()
+
+formulas_clean <- summary(big_model)$formulas %>% 
+  as.character() %>% as_tibble() %>% 
+  rename("model_formula" = value)
+
+all_models <- cbind(formulas_clean, overall_clean) %>% 
+  dplyr::select(1,2,8)
+all_models %>% 
+  gt::gt()
+
+```
+
+
+So we have a list of all models with **main effects** only. We could play with the `build_model` function to develop interaction models too!
+Slightly weird that the NULL model of `Salary~1` does not show an `r.squared` value with `build_model`...??
 :::
 
 ## {{< iconify ooui references-rtl >}} References
 
 1.  <https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/>
+
+
+## {{< iconify lucide package-check >}} R Package Citations
+
+1.Hughes J, Beiner D (2023). *reghelper: Helper Functions for Regression Analysis*. R package version 1.1.2, <https://CRAN.R-project.org/package=reghelper>.
+
+

@@ -154,6 +154,7 @@ GGally::ggpairs(
   theme_bw()
 
 ```
+
 We note that children's `height` is correlated with that of `father` and `mother`. The correlations are both positive, and that with `father` seems to be the larger of the two. ( Look at the slopes of the lines and the values of the correlation scores. )
 
 ::: callout-note
@@ -520,16 +521,19 @@ NHANES %>% count(Race3)
 NHANES %>% count(Education)
 NHANES %>% count(MaritalStatus)
 ```
+
 There is a good mix of factors and counts.
 
 Now we articulate our Research Questions:
 
 ::: callout-note
-### Research Question
+### Research Questions
 
 1.  Does `Testosterone` have a relationship with parameters such as
     `BMI`, `Weight`, `Height`, `PhysActiveDays` `CompHrsDay` and `Age`?
+    
 2.  Does `HHIncomeMid` have a relationship with these same parameters? And with `Gender`?
+
 3. Are there any other pairwise correlations that we should note? (This is especially useful in choosing independent variables for multiple regression)
 :::
 
@@ -566,7 +570,7 @@ We see that `HHIncomeMid` is Quantitative, discrete valued variable, since it is
 
 `HHIncomeMid` also seems to be relatively unaffected by `Weight`; And is only mildly correlated with `Height` and `BMI`, as seen both by the correlation score magnitudes and the slopes of the trend lines. 
 
-There is a difference in the median income by `Gender`, but we will defer that test for later, when we do Statistical Inference. 
+There is a difference in the median income by `Gender`, but we will defer that kind of test for later, when we do Statistical Inference. 
 
 Unsurprisingly, `BMI` and `Weight` have a strong relationship, as do `Height` and `Weight`; the latter is of course non-linear, since the `Height` levels off at a point. 
 
@@ -614,12 +618,15 @@ HHIncome_corrs
 
 HHIncome_corrs %>% 
   
+  # Reference line at zero correlation score
+  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
+  
   # arrange the predictors in order of their correlation scores
   # with the target variable (`height`)
   # Add errorbars to show uncertainty ranges / confidence intervals
   # Use errorbar width and linewidth fo emphasis
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
-              color = ~ -log10(p.value + 0.001),
+              color = ~ estimate,
               width = 0.2,
               linewidth = ~ -log10(p.value + 0.001)) %>% 
   
@@ -627,23 +634,22 @@ HHIncome_corrs %>%
   gf_point(estimate ~ reorder(predictor, estimate), 
            color = "black") %>% 
   
-  # Reference line at zero correlation score
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
-  
   # Themes,Titles, and Scales
   gf_labs(x = NULL, y = "Correlations with HouseHold Median Income", 
           caption = "Significance = - log10(p.value)") %>% 
+  gf_theme(theme_classic()) %>%
+
   
-  gf_refine(
-    # Scale for colour
-    scale_colour_gradient("significance",low = "purple", 
-                                 high = "red"),
+  # Scale for colour
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
+            scale_colour_distiller("Correlation", type = "div", 
+                                    palette = "RdBu"),
             
-    # Scale for dumbbells!!
-    scale_linewidth_continuous("significance",
-                                       range = c(0.5,4))) %>% 
-  gf_theme(theme_classic()) %>% 
-  gf_refine(theme(axis.text.x = element_text(angle = 60, size = 6, hjust = 1)))
+  # Scale for dumbbells!!
+  scale_linewidth_continuous("Significance", range = c(0.05,2)),
+  
+  theme(axis.text.y = element_text(size = 6, hjust = 1)),
+  coord_flip()) 
 
 ```
 
@@ -675,9 +681,9 @@ HHIncome_corrs_select %>%
   # Add errorbars to show uncertainty ranges / confidence intervals
   # Use errorbar width and linewidth fo emphasis
   gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
-              color = ~ -log10(p.value + 0.001),
+              color = ~ estimate,
               width = 0.2,
-              linewidth = ~ -log10(p.value + 0.001)) %>% 
+              linewidth = ~ -log10(p.value + 0.000001)) %>% 
   
   # All correlation estimates as points
   gf_point(estimate ~ reorder(predictor, estimate), 
@@ -688,22 +694,25 @@ HHIncome_corrs_select %>%
   
   # Themes,Titles, and Scales
   gf_labs(x = NULL, y = "Correlations with HouseHold Median Income", 
-          caption = "Significance = - log10(p.value)") %>% 
+          caption = "Significance = - log10(p.value + 0.000001)") %>% 
   
-  gf_refine(
-    # Scale for colour
-    scale_colour_gradient("significance",low = "purple", 
-                                 high = "red"),
+  gf_theme(theme_classic()) %>%
+
+  
+  # Scale for colour
+  gf_refine(guides(linewidth = guide_legend(reverse = TRUE)),
+            scale_colour_distiller("Correlation", type = "div", 
+                                    palette = "RdBu"),
             
-    # Scale for dumbbells!!
-    scale_linewidth_continuous("significance",
-                                       range = c(0.5,4))) %>% 
-  gf_theme(theme_classic()) %>% 
-  gf_refine(theme(axis.text.x = element_text(angle = 60, size = 10, hjust = 1)))
+  # Scale for dumbbells!!
+  scale_linewidth_continuous("Significance", range = c(0.05,2)),
+  
+  theme(axis.text.y = element_text(size = 8, hjust = 1)),
+  coord_flip()) 
 
 ```
 
-So we might say taller people make more money? And fatter people make slightly less money?
+So we might say taller people make more money? And fatter people make slightly less money? Well, the **magnitude** of the correlations (aka *effect size*) are low so we would not imagine this to be a hypothesis that we can defend. 
 
 Let us look at the `Testosterone` variable: trying all variables shows some paucity of observations ( due to missing data), so we will stick with our chosen variables:
 
@@ -711,53 +720,64 @@ Let us look at the `Testosterone` variable: trying all variables shows some pauc
 ```{r}
 #| label: testosterone errorbars
 
-Testosterone_corrs <- NHANES %>% 
-  select(Height, Weight, BMI) %>% 
+
+Testosterone_corrs <- NHANES %>%
+  select(Height, Weight, BMI) %>%
   
   # leave off height to get all the remaining ones
-  #select(- Testosterone) %>%  
+  #select(- Testosterone) %>%
   
   # perform a cor.test for all variables against height
   purrr::map(.x = .,
              .f = \(x) cor.test(x, NHANES$Testosterone)) %>%
   
   # tidy up the cor.test outputs into a tidy data frame
-  map_dfr(broom::tidy, .id = "predictor") 
+  map_dfr(broom::tidy, .id = "predictor")
 
 Testosterone_corrs
 
-Testosterone_corrs %>% 
+Testosterone_corrs %>%
+  
+  # Reference line at zero correlation score
+  gf_hline(yintercept = 0,
+           color = "grey",
+           linewidth = 2) %>%
   
   # arrange the predictors in order of their correlation scores
   # with the target variable (`height`)
   # Add errorbars to show uncertainty ranges / confidence intervals
   # Use errorbar width and linewidth fo emphasis
-  gf_errorbar(conf.high + conf.low ~ reorder(predictor, estimate),
-              color = ~ -log10(p.value + 0.001),
-              width = 0.2,
-              linewidth = ~ -log10(p.value + 0.001)) %>% 
+  gf_errorbar(
+    conf.high + conf.low ~ reorder(predictor, estimate),
+    color = ~ estimate,
+    width = 0.2,
+    linewidth = ~ -log10(p.value + 0.000001)
+  ) %>%
   
   # All correlation estimates as points
-  gf_point(estimate ~ reorder(predictor, estimate), 
-           color = "black") %>% 
+  gf_point(estimate ~ reorder(predictor, estimate),
+           color = "black") %>%
   
-  # Reference line at zero correlation score
-  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
   
   # Themes,Titles, and Scales
   gf_labs(x = NULL, y = "Correlations with Testosterone Levels",
-          caption = "Significance = - log10(p.value)") %>% 
+          caption = "Significance = - log10(p.value + 0.000001)") %>%
   
+  gf_theme(theme_classic()) %>%
+  
+  
+  # Scale for colour
   gf_refine(
-    # Scale for colour
-    scale_colour_gradient("significance",low = "purple", 
-                                 high = "red"),
-            
+    guides(linewidth = guide_legend(reverse = TRUE)),
+    scale_colour_distiller("Correlation", type = "div",
+                           palette = "RdBu"),
+    
     # Scale for dumbbells!!
-    scale_linewidth_continuous("significance",
-                                       range = c(0.5,4))) %>% 
-  gf_theme(theme_classic()) %>% 
-  gf_refine(theme(axis.text.x = element_text(angle = 60, size = 10, hjust = 1)))
+    scale_linewidth_continuous("Significance", range = c(0.05, 2)),
+    
+    theme(axis.text.y = element_text(size = 8, hjust = 1)),
+    coord_flip()
+  ) 
 
 ```
 
@@ -772,7 +792,7 @@ We have a decent Correlations related *workflow* in R:
 -   Develop Correlogram `corrplot::corrplot`
 -   Check everything with a `cor_test`
 -   Use `purrr` + `cor.test` to plot correlations and confidence
-    intervals for multiple Quant variables
+    intervals for multiple Quant predictor variables against the target variable
 -   Plot scatter plots using `gf_point`.
 -   Add extra lines using `gf_abline()` to compare hypotheses that you
     may have.

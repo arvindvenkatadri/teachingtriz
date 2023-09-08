@@ -69,19 +69,31 @@ This dataset has been created by Alison Hill(@apreshill on Twitter).
 Download the dataset, save it into your **data** folder and then import
 it into R:
 
-<a href="../../../../materials/data/tidy/artworks-cleaned.csv">
-<i class="fa-solid fa-database"></i> artworks-cleaned.csv</a>
+{{< downloadthis ../../../materials/data/tidy/artworks-cleaned.csv dname="moma" label="Download the MOMA data" icon="database-fill-down" type="info" >}}
 
-```{r, echo=FALSE}
-moma <- read_csv("../../../materials/data/tidy/artworks-cleaned.csv",show_col_types = FALSE)
+```{r}
+#| include: false
+moma <- read_csv("../../../materials/data/tidy/artworks-cleaned.csv")
+
+```
+
+```{r}
+#| echo: fenced[-1]
+#| eval: false
+
+moma <- read_csv("data/artworks-cleaned.csv",
+                 show_col_types = FALSE)
+```
+
+```{r}
 inspect(moma)
 
 ```
 
-## Getting to Know your data: Make up some Questions
+## {{< iconify icon-park-outline file-question >}} Getting to Know your data: Make up some Questions
 
 ::: callout-note
-## Challenge #1
+## Questions and still more Questions
 
 Try to answer all of these questions using `dplyr`. Answers are below
 but try them on your own first!
@@ -109,6 +121,7 @@ If you want more:
     acquired? When was that painting created? Which artist? What title?
 :::
 
+::: callout-note
 ## How many paintings? How many Variables?
 
 -   How many rows/observations are in `moma`?
@@ -126,7 +139,9 @@ moma
 glimpse(moma)
 
 ```
+:::
 
+::: callout-note
 ## What is the first painting acquired?
 
 -   What is the first painting acquired by MoMA (since they started
@@ -145,7 +160,9 @@ moma %>%
   select(artist, title, year_acquired) %>% 
   arrange(year_acquired)
 ```
+:::
 
+::: callout-note
 ## What is the oldest painting in the MoMA collection?
 
 -   What is the oldest painting in the MoMA collection historically
@@ -171,12 +188,15 @@ oldest <- moma %>%
   arrange(year_created) %>% 
   slice(1)
 oldest
+
 ```
 
 To do inline comments, I could say that the oldest painting is
 `r oldest %>% pull(title)`, painted by `r oldest %>% pull(artist)` in
 `r oldest %>% pull(year_created)`.
+:::
 
+::: callout-note
 ## How many artists?
 
 -   How many distinct artists are there?
@@ -203,7 +223,9 @@ num_artists
 
 Then I can refer to this number in inline comments like: there are
 `r num_artists` total.
+:::
 
+::: callout-note
 ## Which artist has the most paintings?
 
 -   Which artist has the most paintings ever owned by `moma`?
@@ -236,7 +258,9 @@ moma %>%
   count(artist, sort = TRUE) %>% 
   count()
 ```
+:::
 
+::: callout-note
 ## How many paintings by male vs female artists?
 
 ```{r}
@@ -254,9 +278,9 @@ moma %>%
 ```
 
 This output is not super helpful as we already know that
-`r pablo %>% pull(artist)` has `r pablo %>% pull(n)` paintings in the
-MoMA collection. But how can we find out which female artist has the
-most paintings? We have a few options. Let's first add a `filter` for
+`pablo %>% pull(artist)` has `pablo %>% pull(n)` paintings in the MoMA
+collection. But how can we find out which female artist has the most
+paintings? We have a few options. Let's first add a `filter` for
 females.
 
 ```{r}
@@ -291,10 +315,12 @@ sherrie <- moma %>%
 sherrie
 ```
 
-Now we can see that `r sherrie %>% pull(artist)` has
-`r sherrie %>% pull(n)` paintings. This is a pretty far cry from the
-`r pablo %>% pull(n)` paintings by `r pablo %>% pull(artist)`.
+Now we can see that `sherrie %>% pull(artist)` has `sherrie %>% pull(n)`
+paintings. This is a pretty far cry from the `pablo %>% pull(n)`
+paintings by `pablo %>% pull(artist)`.
+:::
 
+::: callout-note
 ## How many artists of each gender are there?
 
 This is a harder question to answer than you think! This is because the
@@ -321,14 +347,18 @@ each row is a unique artist. By counting by `artist_gender` in the last
 line, we are grouping by levels of that variable (so Female/Male/`NA`)
 and `nn` is the number of unique artists for each gender category
 recorded.
+:::
 
+::: callout-note
 ## When were the most paintings in the collection acquired?
 
 ```{r}
 moma %>% 
   count(year_acquired, sort = TRUE)
 ```
+:::
 
+::: callout-note
 ## When were the most paintings in the collection created?
 
 Which variable should we `count`?
@@ -337,7 +367,9 @@ Which variable should we `count`?
 moma %>% 
   count(year_created, sort = TRUE)
 ```
+:::
 
+::: callout-note
 ## What about the first painting by a solo female artist?
 
 ::: callout-tip
@@ -372,9 +404,18 @@ moma %>%
   arrange(year_acquired)
 
 ```
+:::
 
+::: callout-note
 ## How many paintings acquired by year, and by gender of artist, over time?
 
 ```{r}
 moma %>% group_by(year_created, artist_gender) %>% count()
 ```
+:::
+
+The process of creating Questions and obtaining Answers with code is not
+as *linear* as it may seem. Some Questions may lead to no particular
+insight and may need to be modified. Some Questions may spark new ones!
+It is important to write down the Questions and save the results as and
+when needed.
