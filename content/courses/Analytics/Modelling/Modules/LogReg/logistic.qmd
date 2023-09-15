@@ -13,12 +13,14 @@ categories:
   - Logistic Regression
   - Qualitative Variable
   - Probability
+  - Odds
+  - Log Transformation
 ---
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
 #| label: setup
-#| message: true
-#| warning: false
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE)
 library(tidyverse)
 library(ggformula)
@@ -26,96 +28,415 @@ library(mosaic)
 library(infer)
 library(regressinator) # pedagogic tool for GLMs
 library(GLMsData)
+library(prettyglm)
+
 ```
 
-## Introduction
+```{r}
+#| label: plot theme
+# Let us set a plot theme for Data visualization
+
+my_theme <- function(){  # Creating a function
+  theme_classic() +  # Using pre-defined theme as base
+  theme(plot.title = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size = 10, face = "bold"),  
+        # Customizing axes text      
+        axis.text.y = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size = 12, face = "bold"),  
+        # Customizing axis title
+        panel.grid = element_blank(),  # Taking off the default grid
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+        legend.text = element_text(size = 8, face = "italic"),  
+        # Customizing legend text
+        legend.title = element_text(size = 10, face = "bold"),  
+        # Customizing legend title
+        legend.position = "right",  # Customizing legend position
+        plot.caption = element_text(size = 8))  # Customizing plot caption
+}   
+
+```
+
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
+
+Sometimes the dependent variable is an either/or categorization. For
+example, the variable we want to predict might be `won` or `lost` the
+contest, `has an ailment` or `not`, `voted` or `not` in the last
+election, or `graduated` from college or `not`. There might even be more
+than two categories such as voted for Congress, BJP, or Independent; or
+never smoker, former smoker, or current smoker.
 
 We saw with the **general linear model** that it models the **mean** of
-a target variable as a linear weighted sum of the predictor variables.
-
-A general linear model can be stated as: 
+a target *Quantitative* variable as a linear weighted sum of the
+predictor variables:
 
 $$
-\begin{cases}
-& y_i = \beta_0 + \beta_1 * x_{1i} + \beta_2*x_{2i}...+ \beta_p*x_{pi} + \epsilon_i\\
-where\\
-& p = number~ of ~ predictors~ x_p\\
-& y_i, ~ i = 1, . . . , n~ is ~ the ~ response ~ variable\\
-& \epsilon_i = an~ error~ term, for~ the ~ i^{th} ~ predictions
-\end{cases}
-$$
+y \sim N(x_i^T * \beta, ~~\sigma^2)
+$$ 
 
 This model is considered to be **general** because of the dependence on
 potentially more than one explanatory variable, v.s. the **simple**
-linear model:[^1] $y_i = \beta_0 + \beta_1x_i + \epsilon_i$. The general linear model gives us model "shapes" that start from a simple straight line to a *p-dimensional hyperplane*.
-
-The model is **linear in the parameters** $\beta_i$, e.g. these are OK:
-
-$$
-\color{blue}{
-\begin{cases}
- & y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
- & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
-\end{cases}
-}
-$$
-
-but not, for example, these:
-
-$$
-\color{red}{
-\begin{cases}
- & y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
- & y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
-\end{cases}
-}
-$$
+linear model:[^1] $y = \beta_0 + \beta_1*x_1 + \epsilon$. The general
+linear model gives us model "shapes" that start from a simple straight
+line to a *p-dimensional hyperplane*. 
 
 Although a very useful framework, there are some situations where
 general linear models are not appropriate:
 
 -   the range of Y is restricted (e.g. binary, count)
--   the variance of Y depends on the mean(Taylor's Law)[^2]
+-   the variance of Y depends on the mean (Taylor's Law)[^2]
 
-**Generalized linear models** extend the general linear model framework
-to address both of these issues.
+How do we use the familiar *linear model* framework when the target/dependent variable is *Categorical*?
 
-## Generalized Linear Model
+### Linear Models for Categorical Targets?
+
+Recall that we spoke of `dummy **predictor** variables` for our linear
+models and how we would **dummy code** them using numerical values, such
+as 0 and 1, or +1 and -1. Could we try the same way for a **target**
+categorical variable?
+
+$$
+Y_i = \beta_0 + \beta_1*Xi + \epsilon_i\\ \nonumber
+where\\
+\begin{align}
+Y_i &= 0 ~ if ~ "No"\\ \nonumber
+    &= 1 ~ if ~"Yes"  \nonumber
+\end{align}
+$$
+
+Sadly this seems to not work for categorical dependent variables using a
+simple linear model as before. Consider the Credit Card `Default` data
+from the package `ISLR`.
+
+```{r}
+#| echo: false
+data(Default, package = "ISLR")
+glimpse(Default)
+
+```
+
+We see `balance` and `income` are quantitative predictors; `student` is
+a qualitative predictor, and `default` is a qualitative target variable.
+If we naively use a linear model equation as
+`model = lm(default ~ balance, data = Default)` and plot it, then...
+
+```{r}
+#| label: fig-naive-linear-model
+#| fig-cap: "Naive Linear Model"
+#| echo: false
+#| warning: false
+
+
+lm_mod <- lm(default ~ balance, data = Default)
+Default %>%
+  gf_point(default ~ balance, colour = ~ default, alpha = 0.2,
+           title = "Student Credit Card Default data") %>%
+  gf_abline(intercept = lm_mod$coefficients[1],
+            slope = lm_mod$coefficients[2]) %>% 
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
+  gf_theme(theme_classic())
+
+```
+
+...it is pretty much clear from @fig-naive-linear-model that something is
+very odd. (no pun intended! See below!) If the only possible values for
+`default` are $No = 0$ and $Yes = 1$, how could we interpret predicted
+value of, say, $Y_i = 0.25$ or $Y_i = 1.55$, or perhaps $Y_i = -0.22$? Anything other than Yes/No is hard to interpret!
+
+### {{< iconify ic baseline-report-problem >}} {{< iconify ant-design solution-outlined >}} Problems...and Solutions
+
+Where do we go from here?
+
+Let us state what we might desire of our model:
+
+1.  **Model Equation**: Despite this setback, we would still like
+    our model to be as close as possible to the familiar linear model
+    equation.\
+2.  **Predictors and Weights**: We have quantitative **predictors** so
+    we still want to use a linear-weighted sum for the RHS (i.e
+    predictor side) of the model equation.
+
+And for the LHS (i.e the target side)?
+
+3.  **Probability**: What can we try? Even though we are interested in
+    binary outcomes, we might try to use **probability of the outcome** as our target. However, this still leaves us with a range of \[0,1\] for the target variable, as before. How about **odds of the outcome**, instead of trying to predict the outcomes directly (Yes or No), or their probabilities \[0,1\]?
+
+::: callout-note
+## Odds
+
+Odds of an event with probability `p` of occurrence is defined as
+$Odds = p/(1-p)$. As can be seen, the odds are the *ratio* of two probabilities, that of the event and its complement.
+In the `Default` dataset just considered, the odds of default and the odds of non-default can be calculated as:
+
+```{r}
+#| echo: false
+Default %>% group_by(default) %>% count()
+
+```
+
+$$
+\begin{align}
+OddsDefault &=p(noDefault)/(1-p(noDefault))\\ \nonumber
+            &= 0.9667/(1-0.9667)\\ \nonumber
+            &= 29.0303\\
+\end{align}
+$$
+
+and `OddsNoDefault` = $1/29.0303 = 0.03444709$.
+
+Now, *odds* cover the entire real number line, i.e. [$-\infty$, $\infty$] !
+Clearly, when the probability `p` of an event is $0$, the odds are $-\infty$...and when it nears $1$, the odds tend to $\infty$. So we have
+**transformed** a simple probability that lies between $[0,1]$ to odds
+lying between $[-\infty, \infty]$. That's a great step towards making a linear model possible; we have "removed" the limits on our linear model's
+prediction range by using `Odds` as our target variable.
+:::
+
+4.  **Error Distributions with Odds targets**: Odds are a necessarily
+    nonlinear function of probability; the slope of `Odds ~ probability`
+    depends upon the probability itself. So a percentage change in the
+    Odds would lead to different amounts of change in the probabilities,
+    depending on the value of the probability.
+
+```{r}
+#| echo: false
+#| layout-ncol: 2
+#| label: fig-odds-plot
+#| fig-cap: "Odds Plot"
+#| fig-subcap: 
+#| - Odds
+#| - Log Odds
+
+library(ggtext)
+gf_fun(p / (1 - p) ~ p, xlim = c(0.01, 0.9)) %>%
+  gf_segment(
+    1 + 1 ~ 0 + 1 / (1 + 1),
+    linetype = "dashed",
+    linewidth = 0.2,
+    xlab = "Probability p",
+    ylab = "Odds",
+    title = "Odds vs Probability"
+  ) %>%
+  gf_segment(1 + 0 ~ 1 / (1 + 1) + 1 / (1 + 1),
+             linetype = "dashed",
+             linewidth = 0.2)  %>%
+  gf_segment(1.2 + 1.2 ~ 0 + 1.2 / (1.2 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(1.2 + 0 ~ 1.2 / (1.2 + 1) + 1.2 / (1.2 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  
+  gf_segment(7.5 + 7.5 ~ 0 + 7.5 / (7.5 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(7.5 + 0 ~ 7.5 / (7.5 + 1) + 7.5 / (7.5 + 1),
+             linetype = "dashed",
+             linewidth = 0.2)  %>%
+  gf_segment(7.65 + 7.65 ~ 0 + 7.65 / (7.65 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(7.65 + 0 ~ 7.65 / (7.65 + 1) + 7.65 / (7.65 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_theme(theme_classic()) %>%
+  gf_refine(coord_cartesian(expand = FALSE))
+
+gf_fun(p / (1 - p) ~ p, xlim = c(0.01, 0.9)) %>%
+  gf_segment(1 + 1 ~ 0.001 + 1 / (1 + 1), linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(
+    1 + 0.001 ~ 1 / (1 + 1) + 1 / (1 + 1),
+    linetype = "dashed",
+    linewidth = 0.2,
+    xlab = "Log Probability p",
+    ylab = "Log Odds",
+    title = "Log Odds vs Log Probability"
+  )  %>%
+  gf_segment(1.2 + 1.2 ~ 0.001 + 1.2 / (1.2 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(1.2 + 0.001 ~ 1.2 / (1.2 + 1) + 1.2 / (1.2 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  
+  gf_segment(9 + 9 ~ 0.001 + 9 / (9 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(9 + 0.001 ~ 9 / (9 + 1) + 9/ (9+ 1),
+             linetype = "dashed",
+             linewidth = 0.2)  %>%
+  gf_segment(10.8 + 10.8 ~ 0.001 + 10.8 / (10.8 + 1),
+             linetype = "dashed",
+             linewidth = 0.2) %>%
+  gf_segment(
+    10.8 + 0.001 ~ 10.8 / (10.8 + 1) + 10.8 / (10.8 + 1),
+    linetype = "dashed",
+    linewidth = 0.2
+  ) %>%
+  gf_theme(theme_classic()) %>%
+  gf_refine(coord_cartesian(expand = FALSE),
+            scale_x_log10(),
+            scale_y_log10())
+
+```
+
+To understand this issue intuitively, consider what happens to, say, a
+5% change in the odds ratio near 1.0 compared to more extreme odds
+ratios, @fig-odds-plot-1 . If the odds ratio is $1.0$, then the
+probabilities `p` and `1-p` are $0.5$, and $0.5$. A 20% increase in the
+odds ratio to $1.20$ would correspond to probabilities of $0.545$ and
+$0.455$. However, if the original probabilities were $0.9$ and $0.1$ for
+an odds ratio $9$, then a 20% increase to $10.8$ would correspond to
+probabilities of $0.915$ and $0.085$, a much smaller change in the
+probabilities. Hence, extreme probabilities (near 1 or 0) are more
+stable (i.e., have less error) than middle probabilities.
+
+This should remind us of the [**LINE** assumptions in linear
+regression](../LinReg/LinReg.qmd#sec-assumptions-in-linear-models) where we assume that the errors (in prediction) are normally distributed with common variance, across different values of the independent/predictor variable. The solution to this *heteroscedasticity* problem is similar here to what we discussed there: the *log transformation*, @fig-odds-plot-2. This transformation works because it makes the same percentage changes equivalent no matter what the starting value of the odds or the probabilities; logs convert multipliers/divisors to sums/differences and the graph is linear for the most part.
+
+So in our model, instead of modeling *odds* as the dependent variable,
+we will use $log(odds)$, also known as the **logit**, defined as:
+
+$$
+\begin{align}
+log(odds_i) &= log[(p_i)/(1-p_i)]\\ \nonumber
+            &= logit(p_i)\\ 
+\end{align}
+$$
+
+::: callout-note
+### Binomially distributed target variable
+
+In linear regression, we assume a normally distributed target variable.
+With a categorical target variable with two levels $0$ and $1$ it would be impossible for the errors $e_i = Y_i - \hat{Y_i}$ to have a *normal distribution*, as assumed for the statistical tests to be valid. The
+errors are bounded by \[0,1\]!
+One candidate for the error distribution in this case is the *binomial distribution*, whose mean and variance are `p` and `np(1-p)` respectively. Note immediately that the variance moves with the mean! So the model has "built-in" heteroscedasticity, which we need to counter with transformations such as the $log()$ function. More on this later.
+:::
+
+5.  **Estimation of Model Parameters**: The last problem to solve is
+    that because we have made so many transformations to get to the
+    `logits` that we want to model, the logic of minimizing the **sum of squared errors(SSE)** is no longer appropriate.
+    
+::: callout-note
+The probabilities for `default` are $0$ and $1$...the `log(odds)` will map respectively to $-\infty$ and $\infty$. So if we naively try to take residuals, we will find that they are **all** $\infty$ !! Hence $SSE$ cannot be computed and we need another way to assess the quality of our model. 
+:::
+
+Instead, we will have to use **maximum likelihood estimation(MLE)** to estimate the models, and we will use the $X^2$ ("chi-squared") statistic instead of `t` and `F`to evaluate the model comparisons. The *maximum likelihood method* maximizes the probability of obtaining the data at hand against every choice of model parameters $\beta_i$. 
+    
+This is our **Logistic Regression Model**, which uses a Quantitative
+Predictor variable to predict a Categorical target variable. We write the model as ( for the `Default` dataset:
+
+$$
+\begin{align}
+logit(default) & = \beta_0 + \beta_1 * balance&\\  \nonumber
+log(p(default)/(1-p(default))) & = \beta_0+\beta_1 * balance&\\ \nonumber
+therefore\\
+p(default) & = \frac{exp(\beta_0 + \beta_1 * balance)}{1 + exp(\beta_0 + \beta_1 * balance)}\\
+\end{align}
+$$
+
+From the Eqn.4 above it should be clear that a *unit increase* in `balance` should increase the odds of `default` by $\beta_1$ units. 
+
+The RHS of Eqn.5 is a *sigmoid* function of the weighted sum of predictors and is limited to the range [0,1]. The parameters $\beta_i$ need to be estimated using maximum likelihood methods. 
+
+```{r}
+#| echo: false
+#| warning: false
+#| layout-ncol: 3
+#| column: screen-inset-right
+#| label: fig-model-plots
+#| fig-cap: "Model Plots"
+#| fig-subcap: 
+#|   - naive linear regression model
+#|   - logistic regression model
+#|   - log odds gives linear models
+library(knitr)
+Default %>%
+  gf_point(default ~ balance, colour = ~ default,
+           title = "Student Credit Card Default data") %>%
+  gf_abline(intercept = lm_mod$coefficients[1],
+            slope = lm_mod$coefficients[2]) %>%
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
+  gf_theme(theme_classic())
+
+Default %>%
+  gf_point(
+    default ~ balance,
+    color = ~ default,
+    alpha = 0.3,
+    ylab = "Probability of Default",
+    title = "Student Credit Card Default data"
+  ) %>%
+  gf_fun(exp(0.01 * (x - 1600)) / (1 + exp(0.01 * (x - 1600))) + 1 ~ x,
+         xlim = c(1, 3000)) %>%
+  gf_text(1.5 ~ 2000, label = "Logistic Regression\n model", inherit = F) %>%
+  gf_refine(scale_y_discrete(labels = c(0, 1))) %>% 
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
+  gf_theme(theme_classic())
+
+#THis next code runs very slowly
+# Also give a warning that I cannot yet understand
+Default %>%
+mutate(default = if_else(default == "No", 1, 1000)) %>%
+  gf_point(default ~ balance,
+           color = ~ default,
+           alpha = 0.2,
+           ylab = "Log(odds) of Default",
+           title = "Student Credit Card Default data",
+           subtitle = "Log(odds) on Y-axis gives Straight Line Model") %>%
+  gf_abline(intercept = -0.5, slope = 0.0016) %>%
+  gf_text(70 ~ 2000, label = "Logistic Regression\n model", inherit = F) %>%
+  gf_label(25 ~ 2000,
+          label = expression(y == beta[0] + beta[1] * Balance),
+          inherit = F) %>%
+  gf_refine(scale_y_log10()) %>%
+  gf_refine(scale_color_fermenter(palette = "RdBu",guide = "none")) %>%
+  gf_theme(theme(axis.text.x = element_blank())) %>% 
+  gf_theme(theme_classic())
+
+```
+
+
+## {{< iconify simple-icons hypothesis >}} Logistic Regression Models as Hypothesis Tests   
+
+
+::: {.content-hidden when-format="html"}
+## {{< iconify tdesign function-curve >}} Generalized Linear Model
 
 ::: callout-important
-A generalized linear model is made up of a linear predictor:
+A **generalized linear model** is made up of a linear predictor:
 
 $$
 \eta_i = \beta_0 + \beta_1x_{1i} + ... + \beta_px_{pi}
-$$ 
+$$
 
 and two functions:
 
 -   a link function that describes how the mean, $E(Y_i) = \mu_i$,
     depends on the linear predictor:\
-    
+
     $$
     g(\mu_i) = \eta_i
     $$
-    
+
 -   a variance function that describes how the variance, $var(Y_i)$
     depends on the mean:\
-    
+
     $$
     var(Y_i) = \Phi*V(\mu_i)
     $$
 
-where the dispersion parameter $\Phi$ is a constant. 
+where the dispersion parameter $\Phi$ is a constant.
 :::
 
-For example we can obtain our *general linear model* with the following choice: 
+For example we can obtain our *general linear model* with the following
+choice:
 
 $$
 \begin{align}
 & g(\mu_i) = \mu_i\\
 & Phi = 1
 \end{align}
-$$ 
+$$
 
 If now we assume that the *target* variable $Y_i$ is a **binomial**,
 i.e. a two-valued variable:\
@@ -133,36 +454,114 @@ Then we can state that:\
 
 $$
 \begin{align}
-mean(Y_i/n_i) = mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
+mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
 var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
 \end{align}
-$$ 
+$$
 
-Inspecting the above, we can write for the **target variable**: 
+Inspecting the above, we can write:
 
 $$
 \sigma_i^2 = \frac{\mu_i(1-\mu_i)}{n_i}
-$$ 
+$$
 
 and since the link function needs to map ${[-\infty, \infty]}$ to
-${[0,1]}$, we use the `logit` function: 
+${[0,1]}$, we use the `logit` function:
 
 $$
 g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
 $$
+:::
 
-## References
 
-1.  <https://yury-zablotski.netlify.app/post/how-logistic-regression-works/>
 
-2.  <https://uc-r.github.io/logistic_regression>
+## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
 
-3.  <https://francisbach.com/self-concordant-analysis-for-logistic-regression/>
 
-4.  <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
+Let us now read in the data and check for these assumptions as part of
+our Workflow.
 
-5.  
+::: callout-note
+## Research Question
 
-[^1]: https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf
+How do we predict the price of a house in Boston, based on other
+parameters Quantitative parameters such as area, location, rooms, and
+crime-rate in the neighbourhood?
+:::
 
-[^2]: https://en.wikipedia.org/wiki/Taylor%27s_law
+```{r}
+
+data("turbines", package = "GLMsData")
+inspect(turbines)
+glimpse(turbines)
+skimr::skim(turbines)
+
+```
+
+## {{< iconify flat-color-icons workflow >}} Workflow: EDA
+
+## {{< iconify flat-color-icons workflow >}} Workflow: Model Building
+
+:::{.panel-tabset .nav-pills style="background: whitesmoke;"} 
+
+### {{< iconify mingcute code-fill >}} Model Code
+WIP
+
+### {{< iconify mdi thinking >}} Logistic Regression Model Intuitive {#sec-lg-intuitive}
+WIP
+
+### {{< iconify material-symbols slideshow-sharp >}} Logistic Regression Models Manually Demonstrated
+WIP
+
+### {{< iconify iconoir stats-report >}} Using Other Packages {#sec--using-other-packages}
+WIP
+:::
+
+
+## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
+
+### {{< iconify ic twotone-rule >}} Checks for Uncertainty
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
+
+So our Linear Modelling workflow might look like this: we have not seen
+all stages yet, but that is for another course module or tutorial!
+
+```{mermaid}
+%%| echo: false
+flowchart TD
+    A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
+    B --> |corrplot +  corrgram  + ggformula + purrr + cor.test| C(C: Check Relationships)
+    C --> D[D: Decide on Simple/Complex Model]
+    D --> E{E: Is the Model Possible?}
+    E --> |Yes| G[G: Build Model]
+    E -->|Nope| F[F: Transform Variables]
+    E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
+    K --> D
+    F --> D
+    G --> H{H: Check Model Diagnostics}
+    H --> |Problems| D
+    H --> |All   good| I(Interpret Your Model)
+    I --> J(((Apply the Model for Predictions)))
+    
+```
+
+## {{< iconify ooui references-rtl >}} References {#sec-references}
+
+1.  Judd, Charles M. & McClelland, Gary H. & Ryan, Carey S. *Data
+    Analysis: A Model Comparison Approach to Regression, ANOVA, and
+    Beyond.* Routledge, Aug 2017. Chapter 14.
+
+2.  <https://yury-zablotski.netlify.app/post/how-logistic-regression-works/>
+
+3.  <https://uc-r.github.io/logistic_regression>
+
+4.  <https://francisbach.com/self-concordant-analysis-for-logistic-regression/>
+
+5.  <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
+
+6.  <https://jasp-stats.org/2022/06/30/generalized-linear-models-glm-in-jasp/>
+
+[^1]: <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
+
+[^2]: <https://en.wikipedia.org/wiki/Taylor%27s_law>

@@ -18,7 +18,7 @@ abstract: "Using Regression to predict Quantitative Target Variables"
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
 |                                                                                                                                       |                                                                                                                                         |                                                                                                             |     |
-|------------------|------------------|------------------|------------------|
+|---------------------|---------------------|----------------|--------------|
 | <a href="./files/forward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i> Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i> Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -123,6 +123,26 @@ $$
 where each of the $\beta_i$ are slopes defining the relationship between
 y and $x_i$. Together, the RHS of that equation defines an n-dimensional
 *hyperplane*.
+The model is **linear in the parameters** $\beta_i$, e.g. these are OK:
+
+$$
+\color{blue}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
+ & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
+\end{cases}
+}
+$$
+but not, for example, these:
+
+$$
+\color{red}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
+ & y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
+\end{cases}
+}
+$$
 
 As per Lindoloev, many statistical tests, going from one-sample
 `t-tests` to `two-way ANOVA`, are special cases of this system. Also see
@@ -157,7 +177,7 @@ follows: With $y = \beta_0 + \beta_1 *x$
     probability **p** that $\beta_1 = Estimated\ Value$ by mere chance
     under $H_0$ is very small.
 
-## {{< iconify icon-park-outline thinking-problem >}} Assumptions in Linear Models
+## {{< iconify icon-park-outline thinking-problem >}} Assumptions in Linear Models {#sec-assumptions-in-linear-models}
 
 We can write the assumptions in Linear Regression Models as an acronym,
 **LINE**:\
@@ -201,7 +221,7 @@ The original data are 506 observations on 14 variables, `medv` being the
 target variable:
 
 |         |                                                                       |
-|:---------------|:-------------------------------------------------------|
+|:-------------|:---------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -551,9 +571,12 @@ gf_point(
   alpha = 0.2
 ) %>%
   
-  gf_abline(slope = slope,
-            intercept = intercept,
-            colour = "lightcoral", linewidth = 2)  %>%
+  # Plot the model equation
+  gf_abline(slope = slope, intercept = intercept, colour = "lightcoral",
+            linewidth = 2)  %>%
+  
+  # Plot the model prediction points on the line
+  gf_smooth(method = "lm", geom = "point", color = "yellow", size = 0.5) %>%
   
   gf_segment(
     0 + 29 ~ 7 + 7, # manually calculated
@@ -1175,37 +1198,39 @@ flowchart TD
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
-1.  The Boston Housing Dataset, corrected version. StatLib \@ CMU,
+1.  <https://mlu-explain.github.io/linear-regression/>
+
+2.  The Boston Housing Dataset, corrected version. StatLib \@ CMU,
     [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)
 
-2.  <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>
+3.  <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>
 
-3.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
+4.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
 
-4.  Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
+5.  Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
     *Introduction to Statistical Learning*, Springer, 2021. Chapter 3.
     <https://www.statlearning.com/>
 
-5.  David C Howell, [Permutation Tests for Factorial ANOVA
+6.  David C Howell, [Permutation Tests for Factorial ANOVA
     Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)
 
-6.  Marti Anderson, [Permutation tests for univariate or multivariate
+7.  Marti Anderson, [Permutation tests for univariate or multivariate
     analysis of variance and
     regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-7.  Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E,
+8.  Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E,
     Elberg A, Crowley J (2022). *GGally: Extension to 'ggplot2'*.
     <https://ggobi.github.io/ggally/>,
     <https://github.com/ggobi/ggally>.
 
-8.  <http://r-statistics.co/Assumptions-of-Linear-Regression.html>
+9.  <http://r-statistics.co/Assumptions-of-Linear-Regression.html>
 
-9.  Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
+10. Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
     "Introduction to Data Analysis." In, 1--9. Routledge.
     <https://doi.org/10.4324/9781315744131-1>. Also see
     <http://www.dataanalysisbook.com/index.html>
 
-10. Patil, I. (2021). Visualizations with statistical details: The
+11. Patil, I. (2021). Visualizations with statistical details: The
     'ggstatsplot' approach. Journal of Open Source Software, 6(61),
     3167,
     [https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}
