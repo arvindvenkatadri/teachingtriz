@@ -103,7 +103,7 @@ Download the data by clicking the button below.
 ::: callout-important
 ## Data Folder
 
-Save the CSV it in a subfolder titled "data" inside your R work folder.
+Save the CSV in a subfolder titled "data" inside your R work folder.
 :::
 
 ```{r}
@@ -122,16 +122,17 @@ respectively.
 
 The data is badly organized, with a separate column for each
 Temperature, and a common column for Sample ID. There are NA entries
-since not all samples of spawn are subject to all temperatures. (E.g.
-Sample ID #1 was maintained at 13°C). Hence, we should `pivot_longer()`
-this data, so all Time readings are in one numerical column, all
-Temperatures are also in a column that we should convert into a
-`factor`: \[ See this animation for pivot_longer():
-<https://haswal.github.io/pivot/> \]
+since not all samples of spawn can be subject to all temperatures. (E.g.
+Sample ID #1 was maintained at 13°C). 
+
+We will first stack up the `Temperature**` columns into a single column, separate that into pieces and then retain just the number part (13, 18, 25), getting rid of the *word* `Temperature` from the column titles. Then the remaining **numerical** column with temperatures (13, 18, 25) will be converted into a factor. 
+
+We will use `pivot_longer()`and `separate_wider_regex()` to achieve this. [See this animation for pivot_longer(): <https://haswal.github.io/pivot/> ]
+
 
 ```{r}
 #| layout-ncol: 2
-frogs_long <- frogs_orig %>%
+frogs_orig %>%
   pivot_longer(
     .,
     cols = starts_with("Temperature"),
@@ -142,10 +143,10 @@ frogs_long <- frogs_orig %>%
   ) %>%
   drop_na() %>%
   
-  # knock off the unnecessary "Temperature" word everywhere
-  # Just keep the digits thereafter
   separate_wider_regex(
     cols = Temp,
+  # knock off the unnecessary "Temperature" word everywhere
+  # Just keep the digits thereafter
     patterns = c("Temperature",
                  TempFac = "\\d+"),
     cols_remove = TRUE
@@ -157,7 +158,7 @@ frogs_long <- frogs_orig %>%
     levels = c(13, 18, 25),
     labels = c("13", "18", "25")
   )) %>%
-  rename("Id" = `Frogspawn sample id`)
+  rename("Id" = `Frogspawn sample id`) -> frogs_long
 
 frogs_long
 
@@ -203,8 +204,7 @@ The histograms look well separated and the box plots also show very
 little overlap. So we can reasonably hypothesize that Temperature has a
 significant effect on Hatching Time.
 
-One more slightly esoteric plot: Jitter/Scatter with a new *categorical
-x-axis* offered by the `ggprism` package:
+One more slightly esoteric plot: Jitter/Scatter with a new *categorical x-axis* offered by the `ggprism` package:
 
 ```{r}
 #| label: using ggprism
@@ -354,6 +354,8 @@ $$
 SST = \Sigma (y - \mu_{tot})^2
 $$ {#eq-SST}
 
+
+::: callout-note
 If there are $k$ levels in `qual` and $n$ observations $y_ n$ for each
 level, we can also write:
 
@@ -362,6 +364,7 @@ SST =
 \sum_{i=1}^{kn}y_i^2 - \frac{ \left( \sum_{i=1}^{kn}
 y_i \right)^2}{kn}
 $$
+:::
 
 In Fig B, the *horizontal* green and red lines are the means of the
 individual groups, respectively $\mu_A$ and $\mu_B$. The green and red
@@ -375,11 +378,9 @@ SSE = \Sigma [(y - \mu_i)^2 +... (y - \mu_k)^2]
 $$ {#eq-SSE}
 
 If the $\mu_A$ and $\mu_B$ are different from $\mu_{tot}$, then what
-would be the relationship between $SSA$ and $SSE$ ? Clearly if the all
+would be the relationship between $SST$ and $SSE$ ? [Clearly if the all
 means are identical then the $SST$ and $SSE$ are equal, since the two
-coloured lines would be in the same place as the black line. It should
-be clear that if $\mu_A$ and $\mu_B$ are different from the overall
-mean, then $SSE < SST$.
+coloured lines would be in the same place as the black line]{style="background-color: yellow;"}. It should be clear that if $\mu_A$ and $\mu_B$ are different from the overall mean $\mu_{tot}$, then $SSE < SST$.
 
 So, when we desire to detect if the two groups are different in their
 means, we take the difference:
@@ -392,6 +393,7 @@ $$ {#eq-SSA}
 Squares**]{style="background-color: yellow;"} and is a measure the
 differences in means of observations at different levels of the factor.
 
+::: callout-note
 $SSA$ can also directly be re-written in a very symmetric fashion as:
 
 $$
@@ -403,26 +405,20 @@ Note that in the first term, we are calculating sums of observations
 within each group in the inner summation, which is like a per-group
 mean(without the division). The outer summation takes the sum of squares
 of these undivided summations and divides by $n$.
+:::
 
 Comparing $SSA$ and $SSE$ now provides us with a method that helps us
-decide whether these means are different. The logic is that we compare
-global differences and local differences. Since each of these measures
-uses a different sets of observations, the comparison is done after
-scaling each of $SSA$ and $SSE$ by the number of observations
-influencing them.
+decide whether these means are different. $SSA$ is the leftover unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis). $SSE$ is the unexplained error using individual means per group (Alternative Hypothesis). The logic in comparing these two global differences and local differences is there *must* be a significant **reduction** in unexplained error going from NULL to Alternative Hypothesis. 
 
-This means that we need to divide each of $SSA$ and $SSE$ by their
-[*degrees of freedom*]{style="background-color: yellow;"}, which gives
-us [a ratio of **variances**, the
-F-statistic]{style="background-color: yellow;"}:
+Before we compare, we need to scale: since each of these measures uses a different set of observations, the comparison is done after scaling each of $SSA$ and $SSE$ by the number of observations influencing them. (a sort of "per capita" error). This means that we need to divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, which gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}:
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 $$
 
 where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
-in $SSA$ and $SSE$. And so we are in effect deciding if means are
-significantly different by analyzing (a ratio of) variances! Hence
+in $SSA$ and $SSE$. [And so we are in effect deciding if means are
+significantly different by analyzing (a ratio of) variances!]{style="background-color: yellow;"} Hence
 *AN-alysis O-f VA-riance*, **ANOVA**.
 
 In order to find which of the means is significantly different from
