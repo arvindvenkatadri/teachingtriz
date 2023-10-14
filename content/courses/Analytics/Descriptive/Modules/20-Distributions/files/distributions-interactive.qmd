@@ -28,6 +28,10 @@ library(plotly) # An older more established package for interactive graphs using
 
 ```
 
+```{r}
+ggplot2::theme_set(new = theme_classic())
+```
+
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} Introduction
 
 We will query our dataset, developing insights and new questions as each
@@ -83,6 +87,7 @@ Let us choose the famous `Galton` dataset:
 ```{r}
 data("Galton")
 Galton <- as_tibble(Galton)
+
 ```
 
 ### {{< iconify grommet-icons inspect >}} Look at the Data:
@@ -147,7 +152,7 @@ Galton_counts
 
 ```
 
-### Using `ggformula`
+### Using ggformula
 
 ```{r}
 Galton_counts %>% 
@@ -156,7 +161,7 @@ Galton_counts %>%
 
 ```
 
-### Using `echarts4r`
+### Using echarts4r
 
 ```{r}
 #| label: Question-1
@@ -169,21 +174,22 @@ Galton_counts %>%
 # https://echarts4r.john-coene.com/articles/grid.html
 # echarts4r does not "automatically" name the axes!
 # And look at the "categorical" x-axis below!
+
   e_x_axis(name = "Family Size", nameLocation = "center", 
            nameGap = 25, type = "category") %>% 
-  e_y_axis(name = "Count",nameLocation = "center", nameGap = 25,) %>% 
+  e_y_axis(name = "Count", nameLocation = "center", nameGap = 25,) %>% 
   
   e_tooltip(trigger = "item") %>% 
   e_title("No of Families of each size")
 
 ```
 
-### Using `plotly`
+### Using plotly
 
 ```{r}
 
 Galton_counts %>% 
-  plot_ly(x = ~nkids, y = ~No_of_families) %>% 
+  plot_ly(x = ~ nkids, y = ~ No_of_families) %>% 
   add_bars()
 
 ```
@@ -199,9 +205,22 @@ size `nkids`?
 :::
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### Using `ggformula`
+### Using ggformula
 
-### Using `echarts4r`
+```{r}
+#| message: false
+Galton_counts_by_sex <- Galton %>% 
+  mutate(family = as.integer(family)) %>% 
+  group_by(nkids, sex) %>% 
+  summarise(count_by_sex = n()) %>% 
+  ungroup() %>% 
+  group_by(sex)
+Galton_counts_by_sex %>%
+  gf_col(count_by_sex ~ nkids | sex, fill = ~ sex, data = .)
+```
+
+
+### Using echarts4r
 
 ```{r}
 #| message: false
@@ -609,17 +628,17 @@ Across Education?
 # NHANES %>% gf_histogram( ~ PhysActiveDays | Education, fill = ~ Education)
 NHANES %>% 
   group_by(Gender) %>% 
-  e_charts(PhysActiveDays,height = 350) %>%  
+  e_charts(PhysActiveDays, height = 350) %>%  
   e_histogram(PhysActiveDays) %>% 
   e_x_axis(max = 8) %>% 
-  e_facet(cols = 2) %>% e_tooltip()
+  e_facet(cols = 2, rows = 1) %>% e_tooltip()
 
 NHANES %>% 
   group_by(Education) %>% 
-  e_charts(PhysActiveDays) %>% 
+  e_charts(PhysActiveDays, height = 350) %>% 
   e_histogram(PhysActiveDays) %>% 
   e_x_axis(max = 8) %>% 
-  e_facet(rows = 2, cols = 3) %>% e_tooltip()
+  e_facet(rows = 1, cols = 3) %>% e_tooltip()
 
 
 ```

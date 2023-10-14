@@ -15,6 +15,28 @@ categories:
 abstract: "Using Regression to predict Quantitative Target Variables"
 ---
 
+```{mermaid}
+%%| label: fig-regression-flowchart
+%%| fig-cap: Linear Regression Workflow
+%%| echo: false
+
+flowchart TD
+    A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
+    B --> |corrplot +  corrgram  + ggformula + purrr + cor.test| C(C: Check Relationships)
+    C --> D[D: Decide on Simple/Complex Model]
+    D --> E{E: Is the Model Possible?}
+    E --> |Yes| G[G: Build Model]
+    E -->|Nope| F[F: Transform Variables]
+    E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
+    K --> D
+    F --> D
+    G --> H{H: Check Model Diagnostics}
+    H --> |Problems| D
+    H --> |All good| I(Interpret Your Model)
+    I --> J(((Apply the Model for Predictions)))
+    
+```
+
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-tutorials}
 
 |                                                                                                                                       |                                                                                                                                         |                                                                                                             |     |
@@ -44,23 +66,14 @@ library(nomnoml)
 #| label: plot theme
 # Let us set a plot theme for Data visualization
 
-my_theme <- function(){  # Creating a function
-  theme_classic() +  # Using pre-defined theme as base
-  theme(plot.title = element_text(face = "bold", size = 14),
-        axis.text.x = element_text(size = 10, face = "bold"),  
-        # Customizing axes text      
-        axis.text.y = element_text(size = 10, face = "bold"),
-        axis.title = element_text(size = 12, face = "bold"),  
-        # Customizing axis title
-        panel.grid = element_blank(),  # Taking off the default grid
-        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
-        legend.text = element_text(size = 8, face = "italic"),  
-        # Customizing legend text
-        legend.title = element_text(size = 10, face = "bold"),  
-        # Customizing legend title
-        legend.position = "right",  # Customizing legend position
-        plot.caption = element_text(size = 8))  # Customizing plot caption
-}   
+theme_set(theme_light(base_size = 11, base_family = "Roboto Condensed"))
+
+theme_update(
+  panel.grid.minor = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot"
+)
+
 
 ```
 
@@ -272,7 +285,7 @@ with the target variable `cmedv` and do a pairs-plots with them:
 #| warning: false
 #| layout-nrow: 2
 
-theme_set(theme_bw())
+#theme_set(theme_bw())
 housing %>%
   # Target variable cmedv
   # Predictors Rooms / Age / Distance to City Centres / Radial Highway Access
@@ -335,27 +348,22 @@ gf_point(
   cmedv ~ age,
   title = "Price vs Proportion of houses older than 1940",
   ylab = "Median Price",
-  xlab = "Proportion of older-than-1940 buildings"
-) %>%
-  gf_theme(my_theme())
+  xlab = "Proportion of older-than-1940 buildings")
+
 
 gf_point(
   data = housing,
   cmedv ~ lstat,
   title = "Price vs Proportion of lower classes in the neighbourhood",
   ylab = "Median Price",
-  xlab = "proportion of lower classes in the neighbourhood"
-) %>%
-  gf_theme(my_theme())
+  xlab = "proportion of lower classes in the neighbourhood")
 
 gf_point(
   data = housing,
   cmedv ~ rm,
   title = "Price vs Average no. of Rooms",
   ylab = "(cmedv) Median Price",
-  xlab = "(rm) Avg. No. of Rooms"
-) %>%
-  gf_theme(my_theme())
+  xlab = "(rm) Avg. No. of Rooms")
 
 
 ```
@@ -371,7 +379,7 @@ Charles river (`chas`) does seem to affect the prices somewhat.
 
 ```{r}
 #| label: Charles River
-theme_set(theme_bw())
+
 housing %>%
   # Target variable cmedv
   # Predictor Access to Charles River
@@ -443,8 +451,6 @@ all_corrs %>%
   # Plot points(smallest geom) last!
   gf_point(estimate ~ reorder(predictor, estimate)) %>%
   gf_labs(x = "Predictors", y = "Correlation with cmedv") %>%
-  
-  gf_theme(my_theme()) %>%
   
   # tilt the x-axis labels for readability
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
@@ -610,14 +616,15 @@ gf_point(
     # removes plot panel margins
     scale_y_continuous(limits = c(0, 55),
                        expand = c(0, 0))
-  )  %>% 
-  gf_theme(my_theme())
+  )  
 
 ```
 
 For any new value of `rm`, we go up to the vertical blue line and read
 off the predicted median price by following the horizontal blue line.
 That is how the model is used (by hand).
+
+### {{< iconify carbon forecast-hail >}} Forecasting with the Linear Model
 
 In practice, we use the `broom` package functions (`tidy`, `glance` and
 `augment`) to obtain a clear view of the model parameters and
@@ -695,19 +702,19 @@ lm_sample <- lm_sample %>%
     .l = list(sample, line),
     .f = \(sample, line)
     gf_point(cmedv ~ rm, data = sample, size = 2) %>%
-      gf_line(
+    gf_line(
         pred ~ rm,
         data = line ,
         color = "dodgerblue",
         linewidth = 2
       ) %>%
-      gf_refine(
+    
+    gf_refine(
         scale_x_continuous(limits = c(2.5, 10),
                            expand = c(0, 0)),
         # removes plot panel margins
         scale_y_continuous(limits = c(0, 55),
-                           expand = c(0, 0))
-      ) %>% gf_theme(my_theme())))  
+                           expand = c(0, 0)))))
 
 ```
 
@@ -754,8 +761,7 @@ housing_sample %>%
     label = expression(paste(mu, "_tot")),
     inherit = F,
     family = "Merri"
-  ) %>%
-  gf_theme(my_theme())
+  ) 
 
 housing_sample  %>%
   gf_segment(
@@ -769,8 +775,7 @@ housing_sample  %>%
   gf_abline(slope = slope,
             intercept = intercept,
             colour = "dodgerblue", linewidth = 2) %>%
-  gf_point(cmedv ~ rm) %>%
-  gf_theme(my_theme())
+  gf_point(cmedv ~ rm) 
 
 
 ```
@@ -821,7 +826,6 @@ sim_model %>%
   gf_segment(min_r_squared + 0 ~ min_slope + min_slope, 
              colour = "red", 
              arrow = arrow(ends = "last", length = unit(1, "mm")))  %>% 
-  gf_theme(my_theme()) %>%
   gf_refine(coord_cartesian(expand = FALSE), 
             expand_limits(y = c(0, 20000), x = c(3.5, 15)))
 
@@ -1010,11 +1014,11 @@ supernova::supernova(housing_lm)
 ```
 
 This table is very neat in that it gives the `Sums of Squares` for both
-the NULL and the current model, for comparison. The `PRE` entry is the
+the NULL (empty) model, and the current model for comparison. The `PRE` entry is the
 *Proportional Reduction in Error*, a measure that is identical with
 `r.squared`, which shows how much the model reduces the error compared
-to the NULL model(48%). The PRE idea is nicely discussed in Judd et al.
-@sec-references
+to the NULL model(48%). The PRE idea is nicely discussed in Judd et al.@sec-references
+
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
@@ -1064,8 +1068,7 @@ housing_lm_tidy %>%
   gf_hline(yintercept = 0) %>% 
   gf_errorbar(conf.low + conf.high ~ term, 
               width = 0.1, 
-              title = "Model Estimates with Confidence Intervals") %>% 
-  gf_theme(my_theme())
+              title = "Model Estimates with Confidence Intervals") 
 
 ```
 
@@ -1085,26 +1088,23 @@ variation in their range
 ```{r}
 #| label: Looking at Residuals
 #| layout-ncol: 2
+#| warning: false
 
 housing_lm_augment %>% 
   gf_point(.resid ~ .fitted, title = "Residuals vs Fitted") %>%
-  gf_smooth(method = "loess") %>% 
-  gf_theme(my_theme())
+  gf_smooth(method = "loess")
 
 housing_lm_augment %>% 
   gf_hline(yintercept = 0, colour = "grey", linewidth = 2) %>%
-  gf_point(.resid ~ cmedv, title = "Residuals vs Target Variable") %>% 
-  gf_theme(my_theme())
+  gf_point(.resid ~ cmedv, title = "Residuals vs Target Variable") 
 
 housing_lm_augment %>% 
   gf_dhistogram(~ .resid, title = "Histogram of Residuals") %>% 
-  gf_fitdistr()%>% 
-  gf_theme(my_theme())
+  gf_fitdistr()
 
 housing_lm_augment %>% 
   gf_qq(~ .resid, title = "Q-Q Residuals") %>% 
-  gf_qqline() %>% 
-  gf_theme(my_theme())
+  gf_qqline() 
 
 ```
 
@@ -1149,7 +1149,9 @@ The `r-squared` for a model `lm(cmedv ~ rm^2)` shows some improvement:
 ```{r}
 #| echo: false
 lm(cmedv ~ poly(rm,2), data = housing) %>% 
-  broom::glance() %>% select(r.squared) %>% as.numeric()
+  broom::glance() %>% 
+  select(r.squared) %>% 
+  as.numeric()
 
 ```
 :::
@@ -1178,6 +1180,7 @@ So our Linear Modelling workflow might look like this: we have not seen
 all stages yet, but that is for another course module or tutorial!
 
 ```{mermaid}
+
 %%| echo: false
 flowchart TD
     A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
@@ -1191,12 +1194,14 @@ flowchart TD
     F --> D
     G --> H{H: Check Model Diagnostics}
     H --> |Problems| D
-    H --> |All   good| I(Interpret Your Model)
+    H --> |All good| I(Interpret Your Model)
     I --> J(((Apply the Model for Predictions)))
     
 ```
 
-## {{< iconify ooui references-rtl >}} References {#sec-references}
+
+
+## {{< iconify ooui references-rtl >}} References{#sec-references}
 
 1.  <https://mlu-explain.github.io/linear-regression/>
 

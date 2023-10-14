@@ -43,6 +43,7 @@ library(ggformula)
 library(echarts4r) # Interactive graphs
 ```
 
+
 ## {{< iconify entypo line-graph >}} What Time Evolution Charts can we plot?
 
 In these cases, the x-axis is typically *time*...and we chart the
@@ -52,7 +53,16 @@ geometry.
 Let is take a healthcare budget dataset from [Our World in
 Data](https://ourworldindata.org/grapher/public-health-expenditure-share-GDP-OWID):
 We will plot graphs for 5 countries (India, China, Brazil, Russia,
-Canada ). Download this data by clicking on the button below:
+Canada ). 
+
+::: callout-note
+## And introducing `echarts4r`
+
+We will also build *interactive versions* of these charts using
+`echarts4r`!
+:::
+
+Download this data by clicking on the button below:
 
 {{< downloadthis data/public-health-expenditure-share-GDP-OWID.csv dname="public-health-expenditure-share-GDP-OWID" label="Download the Health data" icon="database-fill-down" type="info" >}}
 
@@ -72,11 +82,12 @@ health_filtered <- health %>%
 
 ```
 
-::: panel-tabset
-### Using `ggformula`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using ggformula
 
 ```{r}
 #| layout-ncol: 2
+#| results: hold
 gf_point(data = health_filtered,
              public_health_expenditure_pc_gdp ~ Year, 
              colour = ~ Entity, 
@@ -94,10 +105,11 @@ gf_area(data = health_filtered,
 
 ```
 
-### Using `echarts4r`
+### Using echarts4r
 
 ```{r}
 #| layout-ncol: 2
+#| results: hold
 
 health_filtered %>% group_by(Entity) %>% 
   e_charts(Year) %>% 
@@ -170,12 +182,7 @@ For the next few charts, there are (as yet) no equivalents in
 `ggformula`. Hence we will use `ggplot`.
 :::
 
-::: callout-note
-## And introducing `echarts4r`
 
-We will also build *interactive versions* of these charts using
-`echarts4r`!
-:::
 
 ### {{< iconify pajamas issue-type-test-case >}} Case Study-1: Titanic Dataset
 
@@ -205,8 +212,9 @@ practically all this while. You will find examples of on the
 <https://corybrunson.github.io/ggalluvial/>
 :::
 
-::: panel-tabset
-#### Using `ggplot`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Using ggplot
 
 ```{r}
 Titanic %>% ggplot(data = .,
@@ -269,7 +277,7 @@ Titanic %>% ggplot(data = .,
 >     strata at each end of the plot or connecting the flows on either
 >     side of the center stratum.
 
-#### Using `echarts4r`
+#### Using echarts4r
 
 Let us make an interactive graph for this dataset using `echarts4`.\
 
@@ -279,17 +287,20 @@ Let us make an interactive graph for this dataset using `echarts4`.\
 #| warning: false
 
 ClassSex <- 
-  Titanic %>% group_by(Class, Sex) %>% summarise(cs = sum(n)) %>% 
+  Titanic %>% group_by(Class, Sex) %>% 
+  summarise(cs = sum(n)) %>% 
   ungroup() %>% 
   rename("source" = Class, "target" = Sex, "value" = cs)
             
 SexAge <- 
-  Titanic %>% group_by(Sex,Age) %>% summarise(sa = sum(n)) %>% 
+  Titanic %>% group_by(Sex,Age) %>% 
+  summarise(sa = sum(n)) %>% 
   ungroup() %>% 
   rename("source" = Sex, "target" = Age, "value" = sa)
 
 AgeSurvived <- 
-  Titanic %>% group_by(Age,Survived) %>% summarise(as = sum(n)) %>% 
+  Titanic %>% group_by(Age,Survived) %>% 
+  summarise(as = sum(n)) %>% 
   ungroup() %>% 
   rename("source" = Age, "target" = Survived, "value" = as)
 

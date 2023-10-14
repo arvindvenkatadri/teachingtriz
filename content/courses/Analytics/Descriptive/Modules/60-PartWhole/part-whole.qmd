@@ -72,7 +72,8 @@ accepted! Do also read this spirited defense of pie charts here.
 And we will also see that there is an attractive, and similar-looking
 alternative, called a `fan chart` which we will explore here.
 
-::: panel-tabset
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ### Using Base R
 
 Base R has a simple `pie` command that does the job. Let's create some
@@ -104,7 +105,44 @@ pie(
 
 ```
 
-### Using `echarts4r`
+### Using ggformula
+
+We create a bar chart or a column chart as appropriate, with bars filled by category. The `width` parameter is set to `1` so that the bars touch. The bars have a **fixed** width along the x-axis; the height of the bar varies based on the number we wish to show. 
+Then the `coord_polar(theta = "y")` converts the bar plot into a pie. 
+
+```{r}
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+# Using gf_col since we have a count/value column already
+pie_data %>%
+  gf_col(sales ~ 1, fill = ~ labels, width = 1) 
+
+pie_data %>%
+  gf_col(sales ~ 1, fill = ~ labels, width = 1)  %>%
+  gf_refine(coord_polar(theta = "y"))
+
+# Using gf_bar since we don't have ready made counts
+gf_bar(data = mpg,
+       ~ 1,
+       fill = ~ drv,
+       color = "black", # border for the bars/slices
+       width =  1)
+
+gf_bar(data = mpg,
+       ~ 0.5,
+       fill = ~ drv,
+       color = "black", # border for the bars/slices
+       width =  1) %>%
+  gf_theme(theme_minimal()) %>%
+  gf_theme(theme(axis.line.y = element_blank(),
+                 axis.text.y = element_blank(),
+                 axis.title.y = element_blank())) %>%
+  gf_refine(coord_polar(theta = "y"))
+
+```
+
+### Using echarts4r
 
 Here is a basic interactive pie chart with`echarts4r`:
 
@@ -195,8 +233,9 @@ The `donut` chart suffers from the same defects as the pie, so should be
 used with discretion. The `donut` chart is essentially a `gf_rect` from
 `ggformula`, plotted on a **polar coordinate** set of of axes:
 
-::: panel-tabset
-#### Using `ggformula`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Using ggformula
 
 Let us make some toy data:
 
@@ -252,7 +291,7 @@ df %>%
 
 ```
 
-#### Using `echarts4r`
+#### Using echarts4r
 
 The `donut` chart is simply a variant of the pie chart in `echarts4r`:
 
