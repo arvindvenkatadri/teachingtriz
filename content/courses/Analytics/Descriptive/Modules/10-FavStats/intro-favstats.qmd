@@ -1,0 +1,244 @@
+---
+title: "\U0001F4CA Descriptive Statistics "
+subtitle: "Mirror, mirror on the wall..."
+author: "Arvind Venkatadri"
+date: 15/Oct/2023
+date-modified: "`r Sys.Date()`"
+abstract: "Who is the Fairest of them All?"
+order: 20
+image: preview.jpg
+image-alt: Image by rawpixel.com
+categories:
+- Qual Variables
+- Quant Variables
+- Mean
+- Median
+- Standard Deviation
+- Quartiles
+citation: true
+---
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| include: true
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(mosaic)
+library(palmerpenguins) # dataset "penguins"
+library(skimr)
+library(explore)
+library(easystats)
+library(easyanova)
+
+```
+
+```{r}
+#| label: Themes and Extra Packages
+#| echo: false
+#| message: false
+ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+library(checkdown)
+library(epoxy)
+
+```
+
+## {{< iconify fxemoji japanesesymbolforbeginner >}} How do we Grasp Data?
+
+We spoke of Experiments and Data Gathering in the first module [Nature of Data](/content/courses/Analytics/Descriptive/Modules/05-NatureData/nature-data.qmd#sec-where-data). This helped us to **obtain** data. 
+
+As we discussed in that same Module, for us to grasp the significance of the data, we need to **describe** it; the actual data is usually too vast for us to comprehend in its entirety. Anything more than a handful of observations in a dataset is enough for us to require other ways of grasping it. 
+
+The first thing we need to do, therefore, is to reduce it to a few salient numbers that allow us to summarize the data. 
+
+:::callout-important
+
+## Reduction is Addition
+Such a **reduction** may seem paradoxical but is one of the important tenets of statistics: reduction, while taking away information, ends up *adding* to insight.
+
+Steven Stigler[@stigler2016] is the author of the book "*The Seven
+Pillars of Statistical Wisdom*". One of the *Big Ideas in Statistics* from that
+book is:
+
+##### Aggregation
+
+> The first pillar I will call Aggregation, although it could just as
+> well be given the nineteenth-century name, "The Combination of
+> Observations," or even reduced to the simplest example, taking a mean.
+> Those simple names are misleading, in that I refer to an idea that is
+> now old but was truly revolutionary in an earlier day---and it still
+> is so today, whenever it reaches into a new area of application. How
+> is it revolutionary? By stipulating that, given a number of
+> observations, you can actually gain information by **throwing
+> information away**! In taking a simple arithmetic mean, we discard the
+> individuality of the measures, subsuming them to one summary.
+
+:::
+
+
+
+## {{< iconify file-icons influxdata >}} Examine the Data
+
+So in this module we will look at a few *favourite statistics* or "favstats" that we can derive from data. R is full of packages that can provide very evocative and effective summaries of data. We will first start with the `skimr` package, then the `mosaic` package, and finally the `Hmisc` package. We will look at the summary outputs from these and learn how to interpret them.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using skimr
+
+Let us look at the popular `mpg` dataset ( from R ) using
+`skimr::skim()`. 
+
+From the output of `?skimr`:
+
+> The format of the results are a single wide data frame combining the results, with some additional attributes and two metadata columns:
+
+- `skim_variable`: name of the original variable
+- `skim_type`: class of the variable
+
+We can use `skim(dataset)` directly as shown below:
+
+```{r}
+skimr::skim(mpg)
+
+```
+
+Taken together, we have the following:
+
+:::callout-note
+
+## Descriptive Stat Summary
+- A *Data Summary*: it lists the dimensions of the `mpg` dataset: 234 rows and 11 columns. 6 columns are character formatted, the remaining 5 are numeric. The dataset is not "grouped" (more on this later).
+
+- The second part of the output shows a table with the `character` variables which are therefore `factor` variables with `levels`. 
+
+- The third part shows a table listing the names and summary stats for the `numerical` variables. We have `mean`, `sd`, all the quantiles (0, 25, 50(median), 75 and 100 percentiles) and a neat little histogram for each. From the histogram we can see that `year` is two-valued, `cyl` is three-valued, and `cty` and `hwy` are continuous...
+
+:::
+
+### Using mosaic
+
+Let us look at the popular `mpg` dataset ( from R ) using
+`mosaic::inspect()`. We get very similar output from `mosaic`
+
+```{r}
+#| label: inspect-penguins
+
+inspect(penguins)
+
+```
+
+::: column-margin
+We can save and see the outputs separately:
+
+```{r mpg-inspect-2, eval=FALSE}
+
+penguins_describe <- inspect(penguins)
+penguins_describe$categorical
+penguins_describe$quantitative
+
+```
+:::
+
+We see that the output of `mosaic::inspect()` is organized as follows:
+
+- There are two dataframes/tables in the output, one describing the *Qualitative Variables* and the other describing the *Quantitative Variables*. 
+- In the table describing the Qual variables, we have:
+  - `name`: Name of the variable in the (parent) dataset. i.e Column Names
+  - `class`: format of that column
+  - `levels`: All these variables are factors, with levels shown here. Some for example, `manufacturer` has 15 levels, and there are 234 rows
+
+
+There is a lot of Description generated by the `mosaic::inspect()`
+command ! What can we say about the dataset and its variables? How big
+is the dataset? How many variables? What types are they, Quant or Qual?
+If they are Qual, what are the *levels*? Are they *ordered* levels?
+
+### Using Hmisc
+
+:::
+
+
+### Your Turn
+
+-   What is the number of *qualitative/categorical* variables in the
+    `mpg` data?
+    `r checkdown::check_question(answer = 6, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many manufacturers are named in this dataset?
+    `r checkdown::check_question(answer = 15, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many levels does the variable `drv` have?
+    `r checkdown::check_question(answer = 3, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many *quantitative/numerical* variables **shown** in the `mpg`
+    data?
+    `r checkdown::check_question(answer = 5, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   But the
+    variable`r checkdown::check_question(answer = "cyl", options = c("hwy", "cty", "cyl", "displ"), type = "select", right = "correct", wrong = "not correct", placeholder = "select a variable name")`
+    is actually a **qualitative variable**.
+
+### {{< iconify ic round-addchart >}} Graphing Packages in R
+
+::: callout-tip
+Note the standard method for all commands from the `mosaic` package:
+
+`goal( y ~ x | z, data = mydata, …)`
+
+With `ggformula`, one can create any graph/chart using:
+
+`gf_***(y ~ x | z, data = mydata)`
+
+The "\*\*\*" indicates what kind of graph you desire: histogram, bar,
+scatter, density..etc.
+:::
+
+## {{< iconify icon-park-outline chart-histogram >}} Histograms and Bar Charts
+
+::: callout-note
+## 
+:::
+
+::: callout-important
+:::
+
+::: callout-note
+## 
+:::
+
+::: callout-important
+## 
+:::
+
+## {{< iconify mdi chart-bell-curve >}} Densities
+
+::: callout-note
+## 
+:::
+
+## {{< iconify carbon box-plot >}} Box Plots
+
+::: callout-note
+## Business Insights from Boxplots
+:::
+
+## {{< iconify streamline nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle >}} Ridge Plots
+
+::: callout-note
+## 
+:::
+
+## {{< iconify entypo new >}}Distributions and Densities in the Wild
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+## {{< iconify openmoji person >}}Your Turn
+
+`inspect` the dataset in each case and develop a set of Questions, that
+can be answered by appropriate stat measures, or by using a chart to
+show the distribution.
+
+## {{< iconify ooui references-rtl >}} References
