@@ -53,9 +53,10 @@ To reiterate: Packages and datasets are **not** the same thing !!
 Packages are (small) collections of programs. Datasets are
 just....information.
 
-```{r setup, include = FALSE}
+```{r setup}
+#| include: true
 
-knitr::opts_chunk$set(cache = TRUE, echo = FALSE, message = FALSE)
+knitr::opts_chunk$set(cache = TRUE, echo = TRUE, message = FALSE)
 options(digits = 3)
 
 # Here we will include **packages** that allow us to code in specific way. 
@@ -74,15 +75,20 @@ library(palmerpenguins)
 # A collection of historical datasets
 library(HistData)
 
-# For pedagogical reasons
+```
+
+
+```{r}
+#| label: extras For pedagogical reasons
+#| include: false
 library(flair)
 
 ```
 
 ## A Teaser from John Snow
 
-```{r teaser,echo=FALSE}
-
+```{r teaser}
+#| echo: false
 # SnowMap(polygons = TRUE)
 # Write some comments on this code and what it seems to be creating
 # Are there "layers" in this visualization?
@@ -181,7 +187,7 @@ answers in a geometric way. Let us write some simple English
 descriptions of measures and visuals and see what commands they use in
 R.
 
-### Components of the layered grammar of graphics
+## Components of the layered grammar of graphics
 
 **Layers** are used to create the objects on a plot. They are defined by
 five basic parts:
@@ -192,13 +198,13 @@ five basic parts:
 4.  Geometric object (geom) (What shape, colour, size...do I want?)
 5.  Position adjustment (position) (Where do I want it on the graph?)
 
-## Data {.tabset .tabset-pills}
+### Data
 
 We will use "real world" data. Let's use the `penguins` dataset in the
 `palmerpenguins` package. Run `?penguins` in the console to get more
 information about this dataset.
 
-### Head
+#### Head
 
 ```{r penguins-1}
 head(penguins)
@@ -226,7 +232,7 @@ ggplot(data = penguins) # Creates an empty graphsheet, ready for plotting!!
 
 ```
 
-## Mapping
+### Mapping
 
 Now that we have told R what data to use, we need to state what
 variables to plot and how.
@@ -245,7 +251,7 @@ So if we were graphing information from `penguins`, we might map a
 penguin's `flipper_length_mm` **column** to the $x$ position, and the
 `body_mass_g` **column** to the $y$ position.
 
-### Mapping Example-1 {.tabset .tabset-pills}
+### Mapping Example-1
 
 We can try another example of aesthetic mapping with the same dataset:
 
@@ -253,21 +259,23 @@ We can try another example of aesthetic mapping with the same dataset:
 
 ```{r mapping-1a}
 ggplot(data = penguins)
+
 ```
 
 #### Plot-1b
 
-```{r mapping-1b,include=FALSE}
+```{r mapping-1b}
 ggplot(penguins) + 
 
 # Plot geom = histogram. So we need a quantity on the x
   geom_histogram(
     aes(x = body_mass_g))
+
 ```
 
 #### Plot-1c
 
-```{r mapping-1c,include = FALSE}
+```{r mapping-1c}
 ggplot(penguins) +
 
 # Plot geom = histogram. So we need a quantity on the x
@@ -278,7 +286,7 @@ ggplot(penguins) +
 
 ```
 
-### Mapping Example-2 {.tabset .tabset-pills}
+### Mapping Example-2
 
 We can try another example of aesthetic mapping with the same dataset:
 
@@ -290,7 +298,7 @@ ggplot(data = penguins)
 
 #### Plot-2b
 
-```{r mapping-2b,include=FALSE}
+```{r mapping-2b}
 ggplot(penguins) + 
 
 # Plot geom = histogram. So we need a quantity on the x
@@ -300,84 +308,19 @@ ggplot(penguins) +
 
 #### Plot-2c
 
-```{r mapping-2c,include = FALSE}
+```{r mapping-2c}
 ggplot(penguins) +
 
 # Plot geom = histogram. So we need a quantity on the x
   geom_histogram(
     aes(x = body_mass_g,
-        fill = island)   #<< # color aesthetic = another variable
+        fill = species)   #<< # color aesthetic = another variable
     )
 
 ```
 
-### Mapping Example-3 {.tabset .tabset-pills}
 
-We can try another example of aesthetic mapping with the same dataset:
-
-#### Plot-3a
-
-```{r mapping-3a}
-ggplot(data = penguins)
-```
-
-#### Plot-3b
-
-```{r mapping-3b,include=FALSE}
-ggplot(penguins) + 
-
-# Plot geom = histogram. So we need a quantity on the x
-  geom_histogram(
-    aes(x = body_mass_g))
-```
-
-#### Plot-3c
-
-```{r mapping-3c,include = FALSE}
-ggplot(penguins) +
-
-# Plot geom = histogram. So we need a quantity on the x
-  geom_histogram(
-    aes(x = body_mass_g,
-        fill = island)    # color aesthetic = another variable
-    )
-
-```
-
-### Mapping Example-4 {.tabset .tabset-pills}
-
-We can try another example of aesthetic mapping with the same dataset:
-
-#### Plot-4a
-
-```{r mapping-4a}
-ggplot(data = penguins)
-```
-
-#### Plot-4b
-
-```{r mapping-4b,include=FALSE}
-ggplot(penguins) + 
-
-# Plot geom = histogram. So we need a quantity on the x
-  geom_histogram(
-    aes(x = body_mass_g))
-```
-
-#### Plot-4c
-
-```{r mapping-4c,include = FALSE}
-ggplot(penguins) +
-
-# Plot geom = histogram. So we need a quantity on the x
-  geom_histogram(
-    aes(x = body_mass_g,
-        fill = island)    # color aesthetic = another variable
-    )
-
-```
-
-## Geometric objects {.tabset .tabset-pills}
+## Geometric objects
 
 **Geometric objects** (*geoms*) control the type of plot you create.
 Geoms are classified by their dimensionality:
@@ -398,6 +341,7 @@ graph.
 ```{r other_geoms-1}
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_line()
+
 ```
 
 ### Plot2
@@ -405,7 +349,7 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
 ```{r other-geoms-2}
 ggplot(data = penguins) + 
   geom_line(aes(x = bill_length_mm, 
-                     y = body_mass_g))
+                y = body_mass_g))
 ```
 
 ### Plot3
@@ -413,12 +357,15 @@ ggplot(data = penguins) +
 ```{r other-geoms-3}
 ggplot(data = penguins) + 
   geom_point(aes(x = bill_length_mm, 
-                     y = body_mass_g,
+                 y = body_mass_g,
                  color = island, 
-                 shape = species)) + 
+                 shape = species),
+             size = 3) + 
   
   ggtitle("A point geom with position and color and shape aesthetics")
+
 ```
+
 
 ```{r geom_bar-1}
 ggplot(data = penguins, 
@@ -426,26 +373,30 @@ ggplot(data = penguins,
   # No need to type "mapping"...
   geom_bar() + # Where does the height come from?
   ggtitle("A bar geom with position and height aesthetics")
+
 ```
 
+
 ```{r geom_bar-2}
-ggplot(data = penguins, aes(x = species)) +
+ggplot(data = penguins, aes(x = island)) +
   geom_bar() +
   ggtitle("A bar geom with position and height aesthetics")
+
 ```
 
 -   Position determines the starting location (origin) of each bar
 -   Height determines how tall to draw the bar. Here the height is based
     on the number of observations in the dataset for each possible
-    number of cylinders.
+    species.
 
-## Position adjustment {.tabset .tabset-pills}
+## Position adjustment
 
 Sometimes with dense data we need to adjust the position of elements on
 the plot, otherwise data points might obscure one another. Bar plots
 frequently **stack** or **dodge** the bars to avoid overlap:
 
 ```{r geom_bar_position_stack_and_dodge}
+#| include: false
 count(x = penguins, species, island) %>%
   ggplot(mapping = aes(x = species, y = n, fill = island)) +
   geom_bar(stat = "identity") +
@@ -455,9 +406,13 @@ count(x = penguins, species, island) %>%
   ggplot(mapping = aes(x = species, y = n, fill = island)) +
   geom_bar(stat = "identity", position = "dodge") +
   ggtitle(label = "A dodged bar chart")
+
 ```
 
+
 ```{r}
+#| label: duplicate
+#| include: false
 penguins %>%
   ggplot(mapping = aes(x = species, fill = island)) +
   geom_bar() +
@@ -467,6 +422,7 @@ penguins %>%
   ggplot(mapping = aes(x = species, fill = island)) +
   geom_bar(position = "dodge") +
   ggtitle(label = "A dodged bar chart")
+
 ```
 
 Sometimes scatterplots with few unique $x$ and $y$ values are
@@ -484,9 +440,10 @@ ggplot(data = penguins,
                      y = body_mass_g)) +
   geom_jitter() +
   ggtitle("A point geom with jittered data points")
+
 ```
 
-## Statistical transformation {.tabset .tabset-pills}
+## Statistical transformation
 
 A **statistical transformation** (*stat*) pre-transforms the data,
 before plotting. For instance, in a bar graph you might summarize the
@@ -497,6 +454,7 @@ categories, and then plotting the count.
 
 ```{r stat-transform-1}
 count(x = penguins, island)
+
 ```
 
 ### Count and Bar Graph
@@ -506,6 +464,7 @@ mydat <- count(penguins,island)
 
 ggplot(data = mydat) +
     geom_col(aes(x = island, y = n))
+
 ```
 
 ### Tidy Count and Bar Graph
@@ -517,7 +476,7 @@ penguins %>%           # This IS a pipe Operator!!
   
   ggplot(.) +    
   
-  geom_col(aes(x = island, y = n))
+  geom_col(aes(x = island, y = n)) # Note: geom_COL!!
 
 ```
 
@@ -528,7 +487,7 @@ penguins %>%           # Our pipe Operator
   
   ggplot(.) +          # "." becomes the penguins dataset
   
-  geom_bar(aes(x = island)) # Note: y = count, and is computed internally!!
+  geom_bar(aes(x = island)) # Note: geom_BAR !! y = count, and is computed internally!!
 
 ```
 
@@ -538,7 +497,7 @@ variables to map onto the graph. In these situations, the statistical
 transformation is an *identity* transformation - the stat simply passes
 in the original dataset and exports the exact same dataset.
 
-## Scale {.tabset .tabset-pills}
+## Scale
 
 A **scale** controls how data is mapped to aesthetic attributes, so we
 need one scale for every aesthetic property employed in a layer. For
@@ -561,14 +520,15 @@ ggplot(data = penguins,
                      y = body_mass_g, 
                      color = species)) +
   geom_point() +
-  scale_color_brewer(palette = "Dark2",direction = -1)
+  scale_color_brewer(palette = "Dark2", direction = -1)
+
 ```
 
 Now we are using a different palette, but the scale is still consistent:
 all Adelie penguins utilize the same color, whereas Chinstrap use a new
 color **but each Adelie still uses the same, consistent color**.
 
-## Coordinate system {.tabset .tabset-pills}
+## Coordinate system
 
 A **coordinate system** (*coord*) maps the position of objects onto the
 plane of the plot, and controls how the axes and grid lines are drawn.
@@ -579,7 +539,9 @@ system**](https://en.wikipedia.org/wiki/Cartesian_coordinate_system):
 ```{r coord-cart}
 x1 <- c(1, 10)
 y1 <- c(1, 5)
-p <- qplot(x = x1, y = y1, geom = "point", xlab = NULL, ylab = NULL) +
+p <- qplot(x = x1, y = y1, 
+           geom = "point", # Quick Plot. Deprecated, don't use
+           xlab = NULL, ylab = NULL) +
   theme_bw()
 p +
   ggtitle(label = "Cartesian coordinate system")
@@ -588,6 +550,7 @@ p +
 ggplot(penguins, aes(flipper_length_mm, body_mass_g)) +
   geom_point() + 
   coord_polar()
+
 ```
 
 This system requires a fixed and equal spacing between values on the
@@ -600,6 +563,7 @@ logarithmically compresses the distance on an axis:
 p +
   coord_trans(y = "log10") +
   ggtitle(label = "Semi-log coordinate system")
+
 ```
 
 Or could even be drawn using [**polar
@@ -609,9 +573,10 @@ coordinates**](https://en.wikipedia.org/wiki/Polar_coordinate_system):
 p +
   coord_polar() +
   ggtitle(label = "Polar coordinate system")
+
 ```
 
-## Faceting {.tabset .tabset-pills}
+## Faceting
 
 **Faceting** can be used to split the data up into subsets of the entire
 dataset. This is a powerful tool when investigating whether patterns are
@@ -626,14 +591,19 @@ ggplot(data = penguins,
                      y = body_mass_g)) +
   geom_point() +
   facet_wrap(~ island)
+
 ```
 
 ```{r facet-2}
-ggplot(data = penguins, mapping = aes(x = bill_length_mm, y = body_mass_g, color = sex)) +
+ggplot(data = penguins, 
+       mapping = aes(x = bill_length_mm, 
+                     y = body_mass_g, 
+                     color = sex)) +
   geom_point() +
   facet_grid(species ~ island, scales = "free_y")
 
-# Ria's explanation: This code did not work becasue....
+# Ria's explanation: This code did not work because....
+# 
 ```
 
 ## Defaults
@@ -662,6 +632,7 @@ ggplot() +
   scale_x_continuous() +
   scale_y_continuous() +
   coord_cartesian()
+
 ```
 
 The above code:
@@ -705,6 +676,7 @@ ggplot() +
   geom_point(data = penguins, 
              mapping = aes(x = bill_length_mm, 
                            y = body_mass_g))
+
 ```
 
 This generates the exact same plot, but uses fewer lines of code.
@@ -717,6 +689,7 @@ ggplot(data = penguins,
        mapping = aes(x = bill_length_mm, 
                      y = body_mass_g)) +
   geom_point()
+
 ```
 
 And as we will learn, function arguments in R use specific ordering, so
@@ -725,6 +698,7 @@ we can omit the explicit call to `data` and `mapping`:
 ```{r default4}
 ggplot(penguins, aes(bill_length_mm, body_mass_g)) +
   geom_point()
+
 ```
 
 ```{r echo=FALSE}
