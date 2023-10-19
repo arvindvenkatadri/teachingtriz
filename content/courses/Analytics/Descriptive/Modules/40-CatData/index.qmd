@@ -17,6 +17,7 @@ categories:
 - Balloon Plots
 - Pie Charts
 - Correspondence Analysis
+citation: true
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages {#sec-setting-up-r-packages}
@@ -25,7 +26,7 @@ categories:
 #| label: setup
 #| include: true
 #| message: false
-knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(mosaic) # Our trusted friend
 library(GGally) 
@@ -40,7 +41,6 @@ library(sjlabelled) # Creating Labelled Data for Likert Plots
 
 library(ggpubr) # Colours, Themes and new geometries in ggplot
 library(ca) # Correspondence Analysis, for use some day
-
 
 ## Making Tables
 library(kableExtra) # html styled tables
@@ -110,7 +110,6 @@ Visualization](http://ddar.datavis.ca/pages/home) :
 
 ```{r}
 #| label: case-form-data
-#| column: body-outset-right
 #| layout-ncol: 2
 
 class(Arthritis)
@@ -150,10 +149,9 @@ variables and at least one column containing `frequency` or `count`
 information.
 
 ```{r}
-#| layout-ncol: 3
+#| layout-ncol: 2
 #| column: body-outset-right
 str(GSS)
-GSS 
 
 # Tibble as HTML for presentation
 GSS %>%
@@ -278,19 +276,17 @@ packages for our purposes. Then we will see how it can be visualized.
 
 ```{r}
 #| label: base-R-one-way-two-way
-#| layout-ncol: 2
 
 # One Way Table ( one variable )
 table(Arthritis$Treatment) # Contingency Table
 
 # 1-way Contingency Table
 table(Arthritis$Treatment) %>% addmargins() # Contingency Table with margins
+###
 
 # 2-Way Contingency Tables
-
 # Choosing Treatment and Improved
 table(Arthritis$Treatment, Arthritis$Improved) %>% addmargins() 
-
 # Choosing Treatment and Sex
 table(Arthritis$Sex, Arthritis$Improved) %>% addmargins()
 
@@ -304,8 +300,6 @@ margins to convert into a Contingency Table:
 
 ```{r}
 #| label: r-base-three-way-table
-#| layout-ncol: 3
-#| column: body-outset-right
 mytable <- table(Arthritis$Treatment, Arthritis$Sex, Arthritis$Improved)
 mytable
 
@@ -410,7 +404,7 @@ humans; some of these structures are also capable being passed directly
 to commands such as `stats::chisq.test()` or `janitor::chisq.test()`.
 
 Often we need Contingency Tables that are in `tibble` form and we need
-to perform some data processing using `dplyr` to get there:
+to perform some data processing using `dplyr` to get there.
 
 ### Using the tidyverse
 
@@ -460,12 +454,23 @@ diamonds %>%
 
 ## {{< iconify carbon chart-3d >}} Plots for Categorical Data
 
-Now that we have Contingency Tables, we can plot these. We have already
-seen **bar plots**, which allow us to plot counts of categorical data.
-These can be used for say 2 or 3 Categorical variables, with not too
-many *levels*. However, for more complex data, if there are a large
-number of categorical variables, or if the categorical variables have
-many levels, the bar plot is not adequate.
+Let us now examine the various kinds of plots we can make with
+Categorical Data. We will start with simple Bar plots, then move to
+plotting entire Contingency Tables, and then look Balloon Plots as an
+alternative. Finally we will look at a special case of **survey data**
+and look at Likert Plots.
+
+### Simple Bar Plots
+
+### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Plotting Contingency Tables with Mosaic Plots
+
+We have already seen **bar plots**, which allow us to plot counts of
+categorical data. These can be used for say 2 or 3 Categorical
+variables, with not too many *levels*. However, for more complex data,
+if there are a large number of categorical variables, or if the
+categorical variables have many levels, the bar plot is not adequate.
+Now that we know how to create Contingency Tables, we can use these to
+create plots for such complex data.
 
 From Michael Friendly:
 
@@ -487,15 +492,12 @@ $$\pmb{area \sim frequency}$$
 > circumstances.
 
 Let us not look at some sample plots that embody this *area-frequency*
-principle.
-
-### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Mosaic Plots
-
-A mosaic plot is basically an area-proportional visualization of
-(typically observed) frequencies, consisting of tiles (corresponding to
-the cells) created by vertically and horizontally splitting a rectangle
-recursively. Thus, the area of each tile is proportional to the
-corresponding cell entry given the dimensions of previous splits.
+principle. A **mosaic plot** is basically an area-proportional
+visualization of (typically observed) frequencies, consisting of tiles
+(corresponding to the cells) created by vertically and horizontally
+splitting a rectangle recursively. Thus, the area of each tile is
+proportional to the corresponding cell entry given the dimensions of
+previous splits.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 #### Using vcd
@@ -507,9 +509,12 @@ We will use our `vcd::structable()` function to construct one:
 #| label:  mosaic-plot-using-vcd
 #| layout-ncol: 2
 
-art <- vcd::structable(~ Treatment + Improved, data = Arthritis)
-art
-vcd::mosaic(art, gp = shading_max, main = "Arthritis Treatment Dataset")
+arthritis_table <- vcd::structable(~ Treatment + Improved, data = Arthritis)
+arthritis_table
+
+vcd::mosaic(arthritis_table, 
+            gp = shading_max, 
+            main = "Arthritis Treatment Dataset")
 
 
 ```
@@ -552,7 +557,11 @@ mosaic plot; perhaps not the most intuitive of methods either. This code
 has been developed using this [Stackoverflow
 post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2).
 
-```{r warning=FALSE,message=FALSE}
+```{r}
+#| label: marimekko
+#| message: false
+#| warning: false
+
 # Reference
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
 
@@ -620,6 +629,7 @@ And repeat with the familiar `HairEyeColor` dataset:
 #| label: Balloon-Plots-2
 #| layout-ncol: 3
 #| column: page-inset-right
+
 df <- as_tibble(HairEyeColor)
 df
 ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
@@ -633,32 +643,113 @@ ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
               fill = "n", facet.by = "Sex",
               ggtheme = theme_bw()) +
   scale_fill_viridis_c(option = "C") + 
-  labs(title = "Balloon Plot with Facetting")
+  labs(title = "Balloon Plot with Facetting", 
+       subtitle = "Hair and Eye Color")
 
 ```
 
 Note the somewhat different syntax with `ggballoonplot`: the variable
 names are enclosed in quotes.
 
-### {{< iconify fluent likert-16-regular >}} Plots for Likert Data
+Balloon Plots work because they use color and size aesthetics to
+represent categories and counts respectively.
 
-In many business situations, we perform surveys to get [Likert
-Scale](https://www.simplypsychology.org/likert-scale.html) data, where
-several respondents rate a product or a service on a scale of
+## {{< iconify fluent likert-16-regular >}} Plots for Survey Data
+
+In many business situations, we perform say *customer surveys* to get
+[Likert Scale](https://www.simplypsychology.org/likert-scale.html) data,
+where several respondents rate a product or a service on a scale of
 `Very much like`, `somewhat like`, `neutral`, `Dislike` and
-`Very much dislike,` for example. Such data may look for example as
-follows:
+`Very much dislike,` for example. 
+
+:::callout-note
+## A fictitious QuickEZ app
+We are a startup that has an app called **QuickEZ** for delivery of
+groceries. We conduct a survey of 200 people at a local store.
+
+1.  "Have your heard of the QuickEZ app?"
+2.  "Do you use the QuickEZ app?"
+3.  "Do you find it easy to use the QuickEZ app?"
+4.  "Will you continue to use the QuickEZ app?"
+
+each to be answered on a scale of : "always", "often", "never",
+"sometimes".
+
+:::
+
+Such data may look for example as follows:
 
 ```{r}
-data(efc)
-head(efc, 20)
+#| label: Demoing_labelled_data
+#| layout-ncol: 2
+#| column: body-outset-right
+#| echo: false
+
+#library(sjlabelled
+set.seed(42)
+score_labels = c("always", "often", "never", "sometimes") # numerically 1:4
+question_labels <- c("Have your heard of the QuickEZ app?",
+                     "Do you use the QuickEZ app?",
+                     "Do you find it easy to use the QuickEZ app?",
+                     "Will you continue to use the QuickEZ app?")
+quickez_data <- 
+  # Create toy survey data
+  # 200 responses to 5 questions
+  # responses on Likert Scale
+  # 1:4 = "never", "sometimes","often","always")
+  # 
+  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
+                             prob = c(0.2, 0.2, 0.5, 0.1)),
+         q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
+                             prob = c(0.3, 0.3, 0.3, 0.1)),
+         q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
+                             prob = c(0.2, 0.1, 0.1, 0.6)),
+         q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
+                             prob = c(0.4, 0.2, 0.1, 0.3))) %>%
+  
+  # Set VARIABLE labels
+  sjlabelled::set_label(x = .,
+                        label = question_labels) %>%
+  
+  # Now set VALUE labels
+  sjlabelled::set_labels(x = ., labels = score_labels)
+
+quickez_data
+str(quickez_data)
 
 ```
 
-`efc` is a German data set from a European study on family care of older
-people. Following a common protocol, data were collected from national
-samples of approximately 1,000 family carers (i.e. caregivers) per
-country and clustered into comparable subgroups to facilitate
+Such data is also a form of *Categorical data* and we need to count
+and plot counts for each of the survey questions. Such a plot is called
+a **Likert plot** and it looks like this:
+
+```{r}
+#| label: Likert-Plot-1
+#| echo: false
+
+plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
+            #sort.frq = "" # Try "pos.desc" good news on top!
+            reverse.colors = TRUE,
+            show.prc.sign = TRUE
+            )
+
+```
+
+
+Based on this chart, since it looks like about half the survey
+respondents have not heard of our app, we need more publicity, and many
+do not find it easy to use 😿, so we have serious re-design and user
+testing to do !! But at least those who have managed to get past the
+hurdles are stating they will continue to use the app, so it does the
+job, but we can make it easier to use.
+
+Here is another example of Likert data from the *healthcare industry*.
+
+`efc` is a German data set from a European study titled [**EUROFAM
+study**](https://doi.org/10.1093/geront/48.6.752), on *family care of
+older people*. Following a common protocol, data were collected from
+national samples of approximately 1,000 family carers (i.e. caregivers)
+per country and clustered into comparable subgroups to facilitate
 cross-national analysis. The *research questions* in [**this EUROFAM
 study**](https://doi.org/10.1093/geront/48.6.752) were:
 
@@ -684,14 +775,29 @@ We will select the variables from the `efc` data set that related to
 inspecting them:
 
 ```{r}
-efc %>% select(dplyr::contains("cop")) %>% str()
+#| label: efc_data
+#| layout-nrow: 2
+#| column: body-outset-right
+#| echo: fenced
+data(efc,package = "sjPlot")
+
+efc %>% 
+  select(dplyr::contains("cop")) %>% 
+  head(20)
+efc %>% 
+  select(dplyr::contains("cop")) %>% 
+  str()
 
 ```
 
 The `cop`ing related variables have responses on the Likert Scale
 `(1,2,3,4)` which correspond to `(never, sometimes, often, always)`,
-**and** each variable also has a `label` defining each variable. We can
-plot this data using the `plot_likert` function from package `sjPlot`:
+**and** each variable also has a `label` defining each variable. The
+labels are actually ( and perhaps usually ) the *questions* in the
+survey.
+
+We can plot this data using the `plot_likert` function from package
+`sjPlot`:
 
 ```{r}
 
@@ -700,17 +806,35 @@ efc %>% select(dplyr::contains("cop")) %>%
 
 ```
 
+Many questions here have strong *negative* responses. This may indicate
+that policy and publicity related efforts may be required.
+
+::: callout-note
+## Colours and Orientation in the Likert Plot
+
+One could prefer (as I do) that "often" and "always" scores should be
+toward the right and "sometimes" and "never" scores towards the left.
+One can do this within the `plot_likert` command using:
+
+`plot_likert(..., reverse.scale = TRUE)`
+
+If you want the colours to be reversed, then...
+
+`plot_likert(..., reverse.colors = TRUE)`
+
+Try these options now in your Console! (Note the American spelling
+`color`)
+:::
+
 #### {{< iconify fluent-emoji label >}} Labelled Data
 
-Note how the y-axis has been populated with **labels**: this is an
-example of a *labelled dataset*, where not only do the variables have
-*names* i.e. column names, but also have longish text labels that add
-information to the data variables. A simple example is a survey dataset,
-where the column names can be the Likert
-scale(`Like/Dislike/Strongly Dislike` OR `never/sometimes/often/always`)
-and the labels are the survey questions themselves. Let us manually
-create one such dataset, since this is a common-enough situation[^1]. We
-will use the R package `sjlabelled` to label our data.[^2].
+Note how the y-axis has been populated with **Survey Questions**: this
+is an example of a *labelled dataset*, where not only do the variables
+have *names* i.e. column names, but also have longish text **labels**
+that add information to the data variables. The **data values** ( i.e
+scores) in the columns is also **labelled** as per the the Likert scale
+(`Like/Dislike/Strongly Dislike` OR `never/sometimes/often/always`) etc.
+These **Likert scores** are usually a set of contiguous integers.
 
 ::: callout-note
 ## Variable Labels and Value Labels
@@ -723,28 +847,35 @@ description it is easier to remember what those variable names refer
 to.\
 **Value labels** are similar to variable labels, but value labels are
 descriptions of the values a variable can take. Labeling values means we
-don't have to remember if 1=Extremely poor and 7=Excellent or
+don't have to remember if `1=Extremely poor` and `7=Excellent` or
 vice-versa. We can easily get dataset description and variables summary
 with info function.
 :::
 
+Let us manually create one such dataset, since this is a common-enough
+situation[^1] that we have survey data and then have to label the
+variables and the values before plotting. We will use the R package
+`sjlabelled` to label our data.[^2].
+
 ```{r}
 #| label: Creating_labelled_data
-#| layout-ncol: 2
+#| layout-nrow: 2
 
 #library(sjlabelled)
-likert_labels = c("never", "sometimes","often","always") # numerically 1:4
+
 variable_labels <- c("Do you practice Analytics?",
                      "Do you code in R?",
                      "Have you published your R Code?",
                      "Do you use Quarto as your Workflow in R?",
                      "Will you use R at Work?")
+value_labels = c("never", "sometimes","often","always") #numerically 1:4
+
 my_survey_data <- 
   # Create toy survey data
   # 200 responses to 5 questions
   # responses on Likert Scale
   # 1:4 = "never", "sometimes","often","always")
-  # 
+
   tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
                              prob = c(0.2, 0.2, 0.5, 0.1)),
          q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
@@ -761,34 +892,48 @@ my_survey_data <-
                         label = variable_labels) %>%
   
   # Now set VALUE labels
-  sjlabelled::set_labels(x = ., labels = likert_labels)
+  sjlabelled::set_labels(x = ., labels = value_labels)
 
 str(my_survey_data)
 
-plot_likert(my_survey_data, title = "Summary of Analytics Questionnaire")
+plot_likert(my_survey_data, 
+            title = "Summary of Analytics Questionnaire",
+            reverse.scale = TRUE,# Reverse score values on plot
+            reverse.colors = FALSE, # let the colors be
+            show.prc.sign = TRUE, # Show percentage sign
+            legend.pos = "bottom")
 
 ```
 
-So there we are with Categorical data ! There are a few other plots with
-this type of data, which are useful in very specialized circumstances.
-One example of this is the `agreement plot` which captures the agreement
-between two (sets) of evaluators, on ratings given on a shared ordinal
-scale to a set of items. An example from the field of medical diagnosis
-is the opinions of two specialists on a common set of patients. However,
-that is for a more advanced course!
+It seems many people in the survey plan to use R at work!! And have
+published R code as well. But Quarto seems to have mixed results! But of
+course this is a toy dataset!!
+
+So there we are with Categorical data analysis and plots!
+
+There are a few other plots with this type of data, which are useful in
+very specialized circumstances. One example of this is the
+`agreement plot` which captures the agreement between two (sets) of
+evaluators, on ratings given on a shared ordinal scale to a set of
+items. An example from the field of medical diagnosis is the opinions of
+two specialists on a common set of patients. However, that is for a more
+advanced course!
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-How are these bar plots different from histograms? Why don't "regular"
-scatter plots simply work for Categorical data? Discuss!
+How are the bar plots for categorical data different from histograms?
+Why don't "regular" scatter plots simply work for Categorical data?
+Discuss!
 
 There are quite a few things we can do with Qualitative/Categorical
 data:
 
-1)  Make Contingency Tables for a $X^2$-test
-2)  Make Mosaic Plots to show how the categories stack up
-3)  Make Balloon Charts
-4)  Make Likert Charts for Survey Questionnaire Data
+1)  Make simple bar charts with colours and facetting
+2)  Make Contingency Tables for a $X^2$-test
+3)  Make Mosaic Plots to show how the categories stack up
+4)  Make Balloon Charts as an alternative
+5)  Make Likert Charts for Survey Questionnaire Data
+6)  Then, draw your inferences and tell the story!
 
 ## {{< iconify openmoji person >}}Your Turn
 
