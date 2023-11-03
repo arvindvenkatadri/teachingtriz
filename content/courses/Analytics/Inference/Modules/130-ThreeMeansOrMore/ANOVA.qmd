@@ -123,12 +123,17 @@ respectively.
 The data is badly organized, with a separate column for each
 Temperature, and a common column for Sample ID. There are NA entries
 since not all samples of spawn can be subject to all temperatures. (E.g.
-Sample ID #1 was maintained at 13°C). 
+Sample ID #1 was maintained at 13°C).
 
-We will first stack up the `Temperature**` columns into a single column, separate that into pieces and then retain just the number part (13, 18, 25), getting rid of the *word* `Temperature` from the column titles. Then the remaining **numerical** column with temperatures (13, 18, 25) will be converted into a factor. 
+We will first stack up the `Temperature**` columns into a single column,
+separate that into pieces and then retain just the number part (13, 18,
+25), getting rid of the *word* `Temperature` from the column titles.
+Then the remaining **numerical** column with temperatures (13, 18, 25)
+will be converted into a factor.
 
-We will use `pivot_longer()`and `separate_wider_regex()` to achieve this. [See this animation for pivot_longer(): <https://haswal.github.io/pivot/> ]
-
+We will use `pivot_longer()`and `separate_wider_regex()` to achieve
+this. \[See this animation for pivot_longer():
+<https://haswal.github.io/pivot/> \]
 
 ```{r}
 #| layout-ncol: 2
@@ -204,7 +209,8 @@ The histograms look well separated and the box plots also show very
 little overlap. So we can reasonably hypothesize that Temperature has a
 significant effect on Hatching Time.
 
-One more slightly esoteric plot: Jitter/Scatter with a new *categorical x-axis* offered by the `ggprism` package:
+One more slightly esoteric plot: Jitter/Scatter with a new *categorical
+x-axis* offered by the `ggprism` package:
 
 ```{r}
 #| label: using ggprism
@@ -354,7 +360,6 @@ $$
 SST = \Sigma (y - \mu_{tot})^2
 $$ {#eq-SST}
 
-
 ::: callout-note
 If there are $k$ levels in `qual` and $n$ observations $y_ n$ for each
 level, we can also write:
@@ -380,7 +385,10 @@ $$ {#eq-SSE}
 If the $\mu_A$ and $\mu_B$ are different from $\mu_{tot}$, then what
 would be the relationship between $SST$ and $SSE$ ? [Clearly if the all
 means are identical then the $SST$ and $SSE$ are equal, since the two
-coloured lines would be in the same place as the black line]{style="background-color: yellow;"}. It should be clear that if $\mu_A$ and $\mu_B$ are different from the overall mean $\mu_{tot}$, then $SSE < SST$.
+coloured lines would be in the same place as the black
+line]{style="background-color: yellow;"}. It should be clear that if
+$\mu_A$ and $\mu_B$ are different from the overall mean $\mu_{tot}$,
+then $SSE < SST$.
 
 So, when we desire to detect if the two groups are different in their
 means, we take the difference:
@@ -408,9 +416,21 @@ of these undivided summations and divides by $n$.
 :::
 
 Comparing $SSA$ and $SSE$ now provides us with a method that helps us
-decide whether these means are different. $SSA$ is the leftover unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis). $SSE$ is the unexplained error using individual means per group (Alternative Hypothesis). The logic in comparing these two global differences and local differences is there *must* be a significant **reduction** in unexplained error going from NULL to Alternative Hypothesis. 
+decide whether these means are different. $SSA$ is the leftover
+unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis).
+$SSE$ is the unexplained error using individual means per group
+(Alternative Hypothesis). The logic in comparing these two global
+differences and local differences is there *must* be a significant
+**reduction** in unexplained error going from NULL to Alternative
+Hypothesis.
 
-Before we compare, we need to scale: since each of these measures uses a different set of observations, the comparison is done after scaling each of $SSA$ and $SSE$ by the number of observations influencing them. (a sort of "per capita" error). This means that we need to divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, which gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}:
+Before we compare, we need to scale: since each of these measures uses a
+different set of observations, the comparison is done after scaling each
+of $SSA$ and $SSE$ by the number of observations influencing them. (a
+sort of "per capita" error). This means that we need to divide each of
+$SSA$ and $SSE$ by their [*degrees of
+freedom*]{style="background-color: yellow;"}, which gives us [a ratio of
+**variances**, the F-statistic]{style="background-color: yellow;"}:
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
@@ -418,8 +438,9 @@ $$
 
 where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom
 in $SSA$ and $SSE$. [And so we are in effect deciding if means are
-significantly different by analyzing (a ratio of) variances!]{style="background-color: yellow;"} Hence
-*AN-alysis O-f VA-riance*, **ANOVA**.
+significantly different by analyzing (a ratio of)
+variances!]{style="background-color: yellow;"} Hence *AN-alysis O-f
+VA-riance*, **ANOVA**.
 
 In order to find which of the means is significantly different from
 others, we need to make a pair-wise comparison of the means, applying
@@ -1086,22 +1107,23 @@ tests can be carried out when these assumptions do not quite hold.
 1.  The ANOVA tutorial at [Our Coding
     Club](https://ourcodingclub.github.io/tutorials/anova/).
 
-2.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
+2.  Antoine Soetewey. *How to: one-way ANOVA by hand*.     <https://statsandr.com/blog/how-to-one-way-anova-by-hand/>
 
-3.  David C Howell, [Permutation Tests for Factorial ANOVA
+3. ANOVA in R - Stats and R <https://statsandr.com/blog/anova-in-r/>
+
+4.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.
+
+5.  David C Howell, [Permutation Tests for Factorial ANOVA
     Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)
 
-4.  Marti Anderson, [Permutation tests for univariate or multivariate
-    analysis of variance and
-    regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
+6.  Marti Anderson, [Permutation tests for univariate or multivariate
+    analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)
 
-5.  ANOVA in R - Stats and R <https://statsandr.com/blog/anova-in-r/>
-
-6.  Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
+7.  Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
     "Introduction to Data Analysis." In, 1--9. Routledge.
     https://doi.org/10.4324/9781315744131-1.
 
-7.  Patil, I. (2021). *Visualizations with statistical details: The
+8.  Patil, I. (2021). *Visualizations with statistical details: The
     'ggstatsplot' approach.* Journal of Open Source Software, 6(61),
     3167, doi:10.21105/joss.03167
 
