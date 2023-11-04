@@ -16,6 +16,7 @@ categories:
 - Histograms
 - Density Plots
 - Box Plots
+- Violin Plots
 bibliography: references.bib
 ---
 
@@ -670,6 +671,98 @@ variable at different levels of a Qual variable. We see that the
 distribution of `hwy` mileage varies substantially with `drv` type.
 :::
 
+### {{< iconify carbon chart-violin-plot >}} Violin Plots
+
+Often one needs to view **multiple densities** at the same time. Ridge plots of course give us one option, where we get densities of a *Quant* variable split by a *Qual* variable. Another option is to generate a density plot facetted into *small multiples* using a *Qual* variable. 
+
+Yet another plot that allows comparison of multiple densities side by side is a **violin plot**. The violin plot combines the aspects of a *boxplot*(ranking of values, median, quantiles...) with a superimposed *density* plot. This allows us to look at medians, means, densities, and quantiles of a *Quant* variable with respect to another *Qual* variable. 
+Let us see what this looks like!
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+
+```{r}
+#| label: Violin plots with ggformula
+#| layout-ncol: 2
+
+gf_violin(price ~ "", data = diamonds, 
+          draw_quantiles = c(0,.25,.50,.75)) %>%
+  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             color = ~ cut,
+             alpha = 0.3,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             colour = ~ cut,             
+             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_facet_wrap(vars(clarity)) %>%
+  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+```
+
+
+### Using ggplot
+
+```{r}
+#| label: Violin plots with ggplot
+#| layout-ncol: 2
+diamonds %>% ggplot() + 
+  geom_violin(aes(y = price, x = ""),
+              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
+  labs(title = "Plot A: violin for Diamond Prices")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price),
+              draw_quantiles = c(0,.25,.50,.75)) + 
+  labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price, 
+                  color = cut, fill = cut),
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4) +
+  labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), 
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4)  +  
+  facet_wrap(vars(clarity)) +
+  labs(title = "Plot D: Price by Cut facetted by Clarity") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))
+
+```
+
+:::
+
+::: callout-note
+### Business Insights from `diamond` Violin Plots
+
+The distribution for price is clearly *long-tailed* (skewed). The distributions also vary considerably based on both `cut` and `clarity`. These *Qual* variables clearly have a large effect on the prices of individual diamonds. 
+
+:::
 
 ## {{< iconify grommet-icons test >}} Case Study-2: race dataset
 
@@ -986,7 +1079,7 @@ TeachHistDens(Mean = 60, Sd = 10)
 -   Box Plots "dwell upon" **medians** and **Quartiles**
 -   Qualitative data variables can be plotted as **counts**, using Bar
     Charts, or using Heat Maps
--   2D density plots are used for describing *two quant* variables
+-   Violin Plots help us to visualize multiple distributions at the same time, as when we split a *Quant* variable wrt to the *levels* of a *Qual* variable. 
 -   Ridge Plots are **density plots** used for describing one Quant and
     one Qual variable (by inherent splitting)
 -   We can split all these plots on the basis of another Qualitative
