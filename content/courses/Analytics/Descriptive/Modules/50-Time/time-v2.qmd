@@ -1,6 +1,6 @@
 ---
 title: "\U0001F554 Time Series"
-author: Arvind Venkatadri
+author: "Arvind V."
 date: 15/Dec/2022
 date-modified: "`r Sys.Date()`"
 abstract: Events, Trends, Seasons, and Changes over Time
@@ -10,12 +10,15 @@ categories:
   - Line Graphs
   - Time Series
 image: feature.jpg
+bibliography: 
+  - grateful-refs.bib
+citation: true
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-slides-and-tutorials}
 
 |                                                                                                             |                                                                                                          |                                                                                                                  |
-|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+|------------------------|-----------------------|-------------------------|
 | <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis</a>  | <a href="./files/timeseries-interactive"> <i class="fa-solid fa-database"></i> Time Series Interactive Plots</a> |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -46,7 +49,7 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 
 library(checkdown)
 library(epoxy)
-
+library(grateful)
 ```
 
 ::: callout-tip
@@ -135,23 +138,25 @@ likely to encounter most are:
     other variables vary with time. The standard tibble object is used
     by many packages, e.g. `timetk` & `modeltime`.
 
--   [The **tsibble** format]{.underline}: this is a new format for time series analysis. The special `tsibble` object ("time series tibble") is used by `fable`, `feasts` and others from the [`tidyverts`](https://tidyverts.org/) set of packages.
+-   [The **tsibble** format]{.underline}: this is a new format for time
+    series analysis. The special `tsibble` object ("time series tibble")
+    is used by `fable`, `feasts` and others from the
+    [`tidyverts`](https://tidyverts.org/) set of packages.
 
 There are many other `time-oriented` data formats too...[probably too
 many](https://xkcd.com/927), such a `tibbletime` and `TimeSeries`
 objects. For now the best way to deal with these, should you encounter
-them, is to convert them (Using the package [tsbox](https://docs.ropensci.org/tsbox/)) to a `tibble` or a `tsibble`
+them, is to convert them (Using the package
+[tsbox](https://docs.ropensci.org/tsbox/)) to a `tibble` or a `tsibble`
 and work with these.
 
 ![Standards](https://imgs.xkcd.com/comics/standards.png){fig-align="center"}
 
 To start, we will use simple `ts` data first, and then do another with
-`tibble` format that we can plot *as is*. We will then look at `tibble` data that does have a time-oriented variables. We will then perform
+`tibble` format that we can plot *as is*. We will then look at `tibble`
+data that does have a time-oriented variables. We will then perform
 conversion to `tsibble` format, and then a final example with a
 ground-up `tsibble` dataset.
-
-
-
 
 ### {{< iconify vaadin hourglass-start >}} Base-R `ts` format data
 
@@ -213,14 +218,14 @@ plot(ChickWeight_ts) # Using base-R
 
 We see that the weights of a young chick specimen increases over time.
 
-
-
 ### {{< iconify mdi table-clock >}} `tibble` data
 
 The `ts` data format can handle *only one time series*; in the above
 example, we could not have plotted the weight of two chicks, if we had
 wanted to. If we want to plot/analyze multiple time series,based on say
-*Qualitative* variables, (e.g. sales figures over time across multiple products and locations) we need other data formats. Using the familiar `tibble` structure opens up new possibilities.\
+*Qualitative* variables, (e.g. sales figures over time across multiple
+products and locations) we need other data formats. Using the familiar
+`tibble` structure opens up new possibilities.\
 
 -   We can have **multiple** **time series** within a tibble (think of
     numerical time-series data like `GDP`, `Population`, `Imports`,
@@ -301,10 +306,10 @@ births_2000_2014 %>%
 
 Not particularly illuminating. This is because the data is **daily** and
 we have considerable variation over time, and here we have too much data
-to visualize. 
+to visualize.
 
-**Summaries** will help, so we could calculate the the
-**mean births per month** in each year and plot that:
+**Summaries** will help, so we could calculate the the **mean births per
+month** in each year and plot that:
 
 ```{r}
 #| label: using-tibble-data-3
@@ -482,7 +487,8 @@ births on average on Sat and Sun, over the years! Why? Should we watch
 :::
 
 ::: callout-important
-Note that this is still using just `tibble` data, without converting it into a `time series` format. So far we are simply treating the
+Note that this is still using just `tibble` data, without converting it
+into a `time series` format. So far we are simply treating the
 `year/month/day` variables are simple variables and using `dplyr` to
 group and summarize. We have not created an explicit `time` or `date`
 variable.
@@ -492,7 +498,8 @@ variable.
 
 #### Plotting `tibble` time-series
 
-Now, we *can* convert the time-oriented columns in this dataset into a single `date` variable, giving us a proper tibble time-series:
+Now, we *can* convert the time-oriented columns in this dataset into a
+single `date` variable, giving us a proper tibble time-series:
 
 ```{r}
 births_tibble_timeseries <- 
@@ -505,8 +512,12 @@ births_tibble_timeseries <-
 births_tibble_timeseries
 
 ```
-Note that we have a proper  `date` formatted column, as desired. This is a single time series, but if we had other Qualitative variables such as say `city`, we could easily have had multiple series here. 
-We can plot this with `ggformula/ggplot` as we have done before, and with now with `timetk`:
+
+Note that we have a proper `date` formatted column, as desired. This is
+a single time series, but if we had other Qualitative variables such as
+say `city`, we could easily have had multiple series here. We can plot
+this with `ggformula/ggplot` as we have done before, and with now with
+`timetk`:
 
 ```{r}
 #| eval: false
@@ -519,7 +530,6 @@ births_tibble_timeseries %>%
 
 ```
 
-
 ```{r}
 #| label: Time-series-timetk
 births_tibble_timeseries %>%
@@ -530,8 +540,6 @@ births_tibble_timeseries %>%
                            .x_lab = "Time",
                            .y_lab = "Births")
 ```
-
-
 
 ### {{< iconify icon-park database-time >}} `tsibble` data
 
@@ -557,7 +565,7 @@ Monthly Medicare prescription data in Australia.
 ```{r}
 #| label: PBS
 #| message: true
-#| layout-ncol: 3
+#| layout-ncol: 2
 PBS
 glimpse(PBS)
 
@@ -571,7 +579,7 @@ in your console]{.aside}
     `ATC2`) which are categorical, as foreseen.
 -   Data appears to be *monthly,* as indicated by the `1M`.
 -   the time index variable is called `Month`, formatted as `yearmonth`,
-    a new type of variable introduced in the `tsibble` package. 
+    a new type of variable introduced in the `tsibble` package.
 
 Note that there are multiple **Quantitative variables**
 (`Scripts`,`Cost`), each sliced into 336 time-series, a feature which is
@@ -596,7 +604,6 @@ Let us simply plot `Cost` over time:
 
 ```{r}
 #| label:  PBS-Cost-ggformula
-#| layout-ncol: 2
 
 PBS %>%
   gf_point(Cost ~ Month, data = .) %>% 
@@ -620,13 +627,13 @@ PBS %>%
 ```
 
 ### Using timetk
+
 ```{r}
 PBS %>%
   timetk::plot_time_series(.date_var = Month, .value = Cost, 
                            .interactive = FALSE,
                            .smooth = FALSE)
 ```
-
 :::
 
 This basic plot is quite messy. Other than an overall rising trend and
@@ -635,8 +642,7 @@ cannot say more. There is simply too much happening here and it is now
 time (sic!) for us to look at summaries of the data using `dplyr`-like
 verbs.
 
-We will do that in the @Slides-and-Tutorials.
-
+We will do that in the @sec-slides-and-tutorials.
 
 ## Time Series Heatmaps
 
@@ -673,7 +679,7 @@ births_2000_2014 %>%
 We have seen a good few data formats for time series, and how to work
 with them and plot them.
 
-In the Tutorial @sec--slides-and-tutorials, we will explore:
+In the Tutorial @sec-slides-and-tutorials, we will explore:
 
 -   wrangling with Time series to produce grouped and filtered
     aggregates/summaries and plots with these
@@ -690,26 +696,32 @@ In the Tutorial @sec--slides-and-tutorials, we will explore:
 
 ## {{< iconify ooui references-ltr >}} References
 
-1.  Robert Hyndman, *Forecasting: Principles and Practice (Third
-    Edition)*. [available online](https://otexts.com/fpp3/)
+::: {#refs style="font-size: 60%;"}
+\
+Robert Hyndman, *Forecasting: Principles and Practice (Third Edition)*.[available online](https://otexts.com/fpp3/)\
+[Time Series Analysis at Our Coding Club](https://ourcodingclub.github.io/tutorials/time/)\
+[The Nuclear Threat---The Shadow Peace, part
+1](http://www.fallen.io/shadow-peace/1/)\
+[11 Ways to Visualize Changes Over Time -- A
+Guide](https://flowingdata.com/2010/01/07/11-ways-to-visualize-changes-over-time-a-guide/)\
+[What is seasonal adjustment and why is it
+used?](http://junkcharts.typepad.com/junk_charts/2010/11/what-is-seasonal-adjustment-and-why-is-it-used.html)\
+[The start-at-zero
+rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)\
 
-2.  [Time Series Analysis at Our Coding
-    Club](https://ourcodingclub.github.io/tutorials/time/)
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("fable", "fabletools", "feasts","fpp3",
+           "sweep", "timetk","tsbox", "tsdl", "tsibble", "tsibbledata", "TSstudio")
+) %>%
+  knitr::kable(format = "simple")
 
-## {{< iconify ep reading >}} Readings
-
-1.  [The Nuclear Threat---The Shadow Peace, part
-    1](http://www.fallen.io/shadow-peace/1/)
-
-2.  [11 Ways to Visualize Changes Over Time -- A
-    Guide](https://flowingdata.com/2010/01/07/11-ways-to-visualize-changes-over-time-a-guide/)
-
-3.  [What is seasonal adjustment and why is it
-    used?](http://junkcharts.typepad.com/junk_charts/2010/11/what-is-seasonal-adjustment-and-why-is-it-used.html)
-
-4.  [The start-at-zero
-    rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)
-
-------------------------------------------------------------------------
+```
+:::
 
 [^1]: https://www.gapminder.org/data/

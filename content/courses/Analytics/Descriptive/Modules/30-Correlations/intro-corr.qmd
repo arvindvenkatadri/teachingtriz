@@ -1,7 +1,7 @@
 ---
 title: "\U0001F4CE Correlations"
 subtitle: "Correlations"
-author: "Arvind Venkatadri"
+author: "Arvind V."
 date: 22/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 30
@@ -15,6 +15,9 @@ categories:
 - 2D Density Plots  
 - Heatmaps  
 - Regression Lines  
+bibliography: 
+  - grateful-refs.bib
+citation: true
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-slides-and-tutorials}
@@ -49,6 +52,7 @@ ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 
 library(checkdown)
 library(epoxy)
+library(grateful)
 
 ```
 
@@ -58,26 +62,14 @@ One of the basic Questions we would have of our data is: Does some
 variable depend upon another in some way? Does $y$ vary with $x$? A
 **Correlation Test** is designed to exactly answer this question.
 
-The word **correlation** is used in everyday life to denote some form of
-association. We might say that we have noticed a correlation between
-rainy days and reduced sales at supermarkets. However, in statistical
-terms we use correlation to denote association between two quantitative
-variables. We also assume that the association is **linear**, that one
-variable increases or decreases a fixed amount for a unit increase or
-decrease in the other. The other technique that is often used in these
-circumstances is **regression**, which involves estimating the best
-straight line to summarise the association.
+The word **correlation** is used in everyday life to denote some form of association. We might say that we have noticed a correlation between rainy days and reduced sales at supermarkets. However, in statistical terms we use correlation to denote association between two quantitative variables. We also assume that the association is **linear**, that one variable increases or decreases a fixed amount for a unit increase or decrease in the other. The other technique that is often used in these circumstances is **regression**, which involves estimating the best straight line to summarise the association.
 
-## {{< iconify arcticons tapemeasure >}} Correlation coefficient
+## {{< iconify arcticons tapemeasure >}} Pearson Correlation coefficient
 
 The degree of association is measured by a *correlation coefficient*,
-denoted by r. It is sometimes called Pearson's correlation coefficient
-after its originator and is a measure of linear association. (If a
-curved line is needed to express the relationship, other and more
-complicated measures of the correlation must be used.)
+denoted by r. It is sometimes called *Pearson's correlation coefficient* after its originator and is a measure of linear association. (*If a curved line is needed to express the relationship, other and more complicated measures of the correlation must be used.*)
 
-The correlation coefficient is measured on a scale that varies from + 1
-through 0 to -- 1. Complete correlation between two variables is
+The correlation coefficient is measured on a scale that varies from + 1 through 0 to -- 1. Complete correlation between two variables is
 expressed by either + 1 or -1. When one variable increases as the other
 increases the correlation is positive; when one decreases as the other
 increases it is negative.
@@ -96,7 +88,7 @@ as *the average of the products of two scaled variables*.
 ### Correlation uses z-scores
 
 We can see $(x-\mu_x)/\sigma_x$ is a centering and scaling of the
-variable $x$. It is called the `z-score` of x.
+variable $x$. Recall from our discussion on [Distributions](../../Modules/20-Distributions/intro-dist.qmd#iconify-ph-bell-simple-z-duotone-z-scores) that this is called the `z-score` of x.
 :::
 
 A quick reminder on how `mosaic` and `ggformula` work in a very similar
@@ -159,8 +151,6 @@ skimr::skim(movies)
 
 ```{r}
 #| label: inspect-movies
-#| layout-ncol: 2
-#| column: body-outset-right
 
 movies_describe <- inspect(movies)
 movies_describe$categorical
@@ -209,10 +199,15 @@ Some of the very basic and commonly used plots for data are:
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### Using ggformula
+
 ```{r}
 #| label: scatter-plot-ggformula
 #| warning: false
 #| layout-ncol: 2
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
 
 # Which are the numeric variables?
 movies_quant <- movies %>%
@@ -220,27 +215,55 @@ movies_quant <- movies %>%
   select(where(is.numeric))
 movies_quant
 
+##
 movies %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
   gf_lm(title = "Scatter Plot",
             subtitle = "Movie Gross Earnings: Domestics vs World")
+
 ##
 movies %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
   gf_lm(title = "Scatter Plot",
             subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
+##
 movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
 ```
 
+
+We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
+
+```{r}
+#| label: corr-ggformula-scores
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+##
+movies %>%
+  drop_na() %>%
+  gf_point(RottenTomatoes ~ AudienceScore, 
+           color = ~ Genre) %>%
+ gf_lm()
+
+```
+
+By and large yes..there are only small variations in slope across `Genre`s.
+
 ### Using ggplot
+
 ```{r}
 #| label: scatter-plot-ggplot
 #| warning: false
 #| layout-ncol: 2
 
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+##
 movies %>% ggplot(aes(x = DomesticGross,y = WorldGross)) + 
   geom_point() + 
   geom_lm(title = "Scatter Plot",
@@ -256,6 +279,7 @@ movies %>% ggplot(aes(AudienceScore,RottenTomatoes)) +
   geom_lm(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
 ```
+
 :::callout-note
 ### Business Insight from `movies` scatter plots
 We have fitted a **trend line** to each of the scatter plots.
@@ -264,21 +288,10 @@ We have fitted a **trend line** to each of the scatter plots.
 - `AudienceScore` and `RottenTomatoes` seem clearly related...both increase together.
 - `OpeningWeek` and `Profitability` are also related in a linear way. There are just **two** movies which have been extremely profitable..but they do not **influence** the slope of the trend line too much, because of their location midway in the range of `OpeningWeek`. Influence is something that is a key concept in Linear Regression. 
 
-::::
+:::
 
 
 We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
-
-```{r}
-#| label: corr-ggformula-scores
-#| 
-movies %>%
-  drop_na() %>%
-  gf_point(RottenTomatoes ~ AudienceScore, 
-           color = ~ Genre) %>%
- gf_lm()
-
-```
 
 ```{r}
 #| label: corr-ggplot-scores
@@ -291,13 +304,22 @@ movies %>% drop_na() %>%
 ```
 
 By and large yes..there are only small variations in slope across `Genre`s. 
+
 :::
 
 ## {{< iconify gis contour-map >}} 2D Density Plot
 
-### Using ggformula
-```{r}
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
+### Using ggformula
+
+```{r}
+#| layout-ncol: 2
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+##
 movies %>% 
   drop_na() %>%
   gf_density_2d(WorldGross ~ DomesticGross) %>% 
@@ -312,6 +334,12 @@ movies %>%
   gf_lm(title = "Scatter Plot",
             subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
+```
+
+```{r}
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
 movies %>% 
   drop_na() %>%
   gf_density_2d(RottenTomatoes ~ AudienceScore) %>% 
@@ -319,12 +347,17 @@ movies %>%
   gf_lm(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
 
-
 ```
 
 ### Using ggplot
-```{r}
 
+```{r}
+#| layout-ncol: 2
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+##
 movies %>% drop_na() %>%
   ggplot(aes(DomesticGross, WorldGross)) + 
   geom_density_2d() + 
@@ -341,6 +374,14 @@ movies %>% drop_na() %>%
   labs(title = "Scatter Plot",
             subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
+```
+
+
+```{r}
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+##
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
   geom_density_2d() + 
@@ -351,6 +392,11 @@ movies %>% drop_na() %>%
 
 
 ```
+
+:::
+
+:::callout-note
+### Business Insight from `movies` 2D plots
 The 2D density show us areas inscribed by closed contours where the
 values of the two variables fixed. The more concentrated and aligned
 these contours, the more likely that there would be significant
@@ -358,12 +404,13 @@ correlation between the two.
 
 In the plot above, we can see two such areas of concentration and these
 are also aligned roughly along a line.
+:::
+
 
 ::: callout-important
 ## Independent and Dependent Variables
 
-Note that we have rather *arbitrarily* taken `AudienceScore` as the independent variable, to be plotted on the `x-axis`, and `RottenTomatoes` on the `y-axis`. It could easily have been the other way around, based on our Research Question. Datasets are gathered with specific Research Hypotheses in mind, so check the help file and also with the person who gathered the
-data about what variable they are interested in!
+Note that we have rather *arbitrarily* taken `AudienceScore` as the independent variable, to be plotted on the `x-axis`, and `RottenTomatoes` on the `y-axis`. It could easily have been the other way around, based on our Research Question. Datasets are gathered with specific Research Hypotheses in mind, so check the help file and also with the person who gathered the data about what variable they are interested in!
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Quantizing Correlation
@@ -375,6 +422,7 @@ a formal **correlation test** with the `mosaic` package.
 
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ### Using GGally
 
 By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpairs.html) provides:\
@@ -388,6 +436,7 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 ```{r}
 #| label: pairs chart
 #| message: false
+#| layout-ncol: 2
 
 ggplot2::theme_set(theme_bw()) # Works better for ggpairs
 
@@ -420,6 +469,7 @@ GGally::ggpairs(
 
 ```
 :::callout-note
+
 ### Business Insight from Pairs Plot#1
 - As we saw earlier from the Scatter Plot, `AudienceScore` and `RottenTomatoes` are well correlated, with a correlation score of $0.833$
 - `DomesticGross` and `ForeignGross` are also extremely well correlated, with a score of $0.873$. 
@@ -429,8 +479,6 @@ GGally::ggpairs(
 
 :::
 
-
-:::callout-note
 
 Let us also try a few other variables, related to budget and profits. For instance, it would be interesting to see the relationship between `Budget` and `Profitability` and even either of the "gross" earnings and `Profitability`.  
 
@@ -467,10 +515,7 @@ GGally::ggpairs(
 - The `Budget` variable has good correlation scores with `DomesticGross` and `ForeignGross`
 - `Profitability` and `Budget` seem to have a very slight negative correlation, but this does not appear to be significant. 
 :::
-:::
 
-
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### Using corrplot
 
@@ -487,21 +532,16 @@ Ellipse for example.
     score in value.
 
 ::: callout-note
-Whereas `GGally` **computes** the correlation scores, `corplot` "merely"
-displays them in an evocative way. We need to compute the correlations a
-priori.
+Whereas `GGally` **computes** the correlation scores, `corplot` "merely" displays them in an evocative way. We need to compute the correlations a priori.
 :::
 
 Note also:
 
 ::: callout-tip
+
 R package `corrplot` provides a visual exploratory tool on correlation
-matrix that supports **automatic variable reordering** to help detect hidden
-patterns among variables. `corrplot` is very easy to use and provides a
-rich array of plotting options in visualization method, graphic layout,
-color, legend, text labels, etc. It also provides `p-values` and
-`confidence intervals` to help users determine the **statistical
-significance** of the correlations.
+matrix that supports **automatic variable reordering** to help detect hidden patterns among variables. `corrplot` is very easy to use and provides a rich array of plotting options in visualization method, graphic layout, color, legend, text labels, etc. It also provides `p-values` and `confidence intervals` to help users determine the **statistical significance** of the correlations.
+
 :::
 
 ```{r}
@@ -557,7 +597,7 @@ corrplot::corrplot.mixed(mydata_cor,
 
 :::
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 
 ### Doing a Correlation Test
 
@@ -565,32 +605,57 @@ Correlations scores can be obtained by conducting a formal test in R. We will us
 
 ```{r}
 #| column: body-outset-right
-mosaic::cor_test(Budget ~ Profitability, data = movies) %>% 
+mosaic::cor_test(Profitability ~ Budget, data = movies) %>% 
   broom::tidy() %>% 
   knitr::kable(digits = 2,
-               caption = "Movie Budget vs Profitability")
+               caption = "Movie Profitability vs Budget")
 
+mosaic::cor_test(DomesticGross ~ Budget, data = movies) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 2,
+               caption = "Movie Domestic Gross vs Budget")
+
+mosaic::cor_test(ForeignGross ~ Budget, data = movies) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 2,
+               caption = "Movie Foreign Gross vs Budget")
 ```
+
+:::callout-note
+## Business Insights from Correlation Tests
+The `budget` and `profitability` are not well correlated, sadly. We see this from the `p.value` which is $0.34$ and the confidence values for the correlation `estimate` which also cover $0$.
+
+However, both `DomesticGross` and `ForeignGross` are well correlated with `Budget`. Look at the `p.value` (=0) and the confindence intervals which are unipolar. 
+
+:::
+
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
 Our workflow for evaluating correlations between target variable and
 other predictor variables uses several packages such as `GGally`,
 `corrplot`, and of course `mosaic` for correlation tests. We will
-explore the R code for these in the tutorials,
-@sec-slides-and-tutorials.
+explore more R code for these in the tutorials @sec-slides-and-tutorials.
 
 ## {{< iconify ooui references-ltr >}} References
+::: {#refs style="font-size: 60%;"}
+\
+Minimal R using `mosaic`.
+    <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
+Antoine Soetewey. *Pearson, Spearman and Kendall correlation coefficients by hand* <https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/>\
 
-1.  Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E,
-    Elberg A, Crowley J (2021). *GGally: Extension to 'ggplot2'. R
-    package version 2.1.2*, <https://CRAN.R-project.org/package=GGally>.
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("corrplot", "GGally")
+) %>%
+  knitr::kable(format = "simple")
 
-2.  Taiyun Wei and Viliam Simko (2021). *R package 'corrplot':
-    Visualization of a Correlation Matrix (Version 0.92)*. Available
-    from <https://github.com/taiyun/corrplot>
+```
+:::
 
-3.  Minimal R using `mosaic`.
-    <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>
 
-4. Antoine Soetewey. *Pearson, Spearman and Kendall correlation coefficients by hand* <https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/>

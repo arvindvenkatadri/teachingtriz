@@ -1,7 +1,7 @@
 ---
 title: "\U0001F4CA Distributions, Densities, Bar Plots, and Boxplots"
 subtitle: "How many of this and that?"
-author: "Arvind Venkatadri"
+author: "Arvind V."
 date: 15/Nov/2022
 date-modified: "`r Sys.Date()`"
 abstract: "Quant and Qual Variable Graphs and their Siblings"
@@ -17,7 +17,11 @@ categories:
 - Density Plots
 - Box Plots
 - Violin Plots
-bibliography: references.bib
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
@@ -47,7 +51,6 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 
 ```
 
-
 ```{r}
 #| label: Extra Pedagogical Packages
 #| echo: false
@@ -57,6 +60,7 @@ library(checkdown)
 library(epoxy)
 library(TeachHist)
 library(TeachingDemos)
+library(grateful)
 
 ```
 
@@ -353,7 +357,6 @@ diamonds %>% gf_bar( ~ cut, fill = ~ clarity,
           caption = "Turbo Palette from Viridis set")
 ```
 
-
 ```{r}
 diamonds %>% gf_bar( ~ cut, 
                      fill = ~ clarity, 
@@ -406,7 +409,6 @@ diamonds %>% ggplot() +
        subtitle = "Dodged Bar Chart",
        caption = "Turbo Palette from Viridis set")
 ```
-
 
 ```{r}
 diamonds %>% ggplot() + 
@@ -636,7 +638,6 @@ diamonds %>% ggplot() +
 -   Similar trends with Plot D showing facetted plots
 :::
 
-
 ### {{< iconify streamline nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle >}} Ridge Plots
 
 Sometimes we may wish to show the distribution/density of a Quant
@@ -645,9 +646,9 @@ prices of different items of furniture, based on the furniture "style"
 variable. Or the `sales` of a particular line of products, across
 different shops or cities. We did this with both histograms and
 densities, by colouring based on a Qual variable, and by facetting using
-a Qual variable. There is a third way, using what is called a *ridge plot*. Ridge Plots currently have their own package; neither `ggformula`
+a Qual variable. There is a third way, using what is called a *ridge
+plot*. Ridge Plots currently have their own package; neither `ggformula`
 nor `ggplot` supports it directly.
-
 
 ```{r}
 #| label: more-charts
@@ -673,13 +674,19 @@ distribution of `hwy` mileage varies substantially with `drv` type.
 
 ### {{< iconify carbon chart-violin-plot >}} Violin Plots
 
-Often one needs to view **multiple densities** at the same time. Ridge plots of course give us one option, where we get densities of a *Quant* variable split by a *Qual* variable. Another option is to generate a density plot facetted into *small multiples* using a *Qual* variable. 
+Often one needs to view **multiple densities** at the same time. Ridge
+plots of course give us one option, where we get densities of a *Quant*
+variable split by a *Qual* variable. Another option is to generate a
+density plot facetted into *small multiples* using a *Qual* variable.
 
-Yet another plot that allows comparison of multiple densities side by side is a **violin plot**. The violin plot combines the aspects of a *boxplot*(ranking of values, median, quantiles...) with a superimposed *density* plot. This allows us to look at medians, means, densities, and quantiles of a *Quant* variable with respect to another *Qual* variable. 
+Yet another plot that allows comparison of multiple densities side by
+side is a **violin plot**. The violin plot combines the aspects of a
+*boxplot*(ranking of values, median, quantiles...) with a superimposed
+*density* plot. This allows us to look at medians, means, densities, and
+quantiles of a *Quant* variable with respect to another *Qual* variable.
 Let us see what this looks like!
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 ### Using ggformula
 
 ```{r}
@@ -717,7 +724,6 @@ diamonds %>%
 
 ```
 
-
 ### Using ggplot
 
 ```{r}
@@ -754,14 +760,15 @@ diamonds %>% ggplot() +
   theme(axis.text.x = element_text(angle = 45,hjust = 1))
 
 ```
-
 :::
 
 ::: callout-note
 ### Business Insights from `diamond` Violin Plots
 
-The distribution for price is clearly *long-tailed* (skewed). The distributions also vary considerably based on both `cut` and `clarity`. These *Qual* variables clearly have a large effect on the prices of individual diamonds. 
-
+The distribution for price is clearly *long-tailed* (skewed). The
+distributions also vary considerably based on both `cut` and `clarity`.
+These *Qual* variables clearly have a large effect on the prices of
+individual diamonds.
 :::
 
 ## {{< iconify grommet-icons test >}} Case Study-2: race dataset
@@ -808,7 +815,6 @@ skim(race_df)
 skim(rank_df)
 ```
 
-
 ```{r}
 #| label: inspect-race
 # inspect(race_df) # does not work with hms and difftime variables
@@ -816,31 +822,43 @@ inspect(rank_df)
 
 ```
 
-:::callout-note
+::: callout-note
 ### Business Insights from `race` data
-- We have two datasets, one for races (`race_df`) and one for the ranking of athletes (`rank_df`).
-- There is atleast one common column between the two, the `race_year_id` variable. 
-- Overall, there are *Qualitative* variables such as `country`, `city`,`gender`, and `participation`. This last variables seems badly coded, with entries showing `solo` and `Solo`. 
-- *Quantitative variables* are `rank`, `time`,`time_in_seconds`, `age` from `rank_df`; and  `distance`, `elevation_gain`, `elevation_loss`,`particants`, and `aid_stations` from `race_df`.
-- We have 1207 races and over 130K participants! But some races do show *zero* participants!! Is that an error in data entry?
 
+-   We have two datasets, one for races (`race_df`) and one for the
+    ranking of athletes (`rank_df`).
+-   There is atleast one common column between the two, the
+    `race_year_id` variable.
+-   Overall, there are *Qualitative* variables such as `country`,
+    `city`,`gender`, and `participation`. This last variables seems
+    badly coded, with entries showing `solo` and `Solo`.
+-   *Quantitative variables* are `rank`, `time`,`time_in_seconds`, `age`
+    from `rank_df`; and `distance`, `elevation_gain`,
+    `elevation_loss`,`particants`, and `aid_stations` from `race_df`.
+-   We have 1207 races and over 130K participants! But some races do
+    show *zero* participants!! Is that an error in data entry?
 :::
 
 ### {{< iconify fluent-mdl2 explore-data >}} EDA with `race` datasets
 
 ::: callout-note
-Questions: Which countries host the maximum number of races? Which countries send the maximum number of participants??
+Questions: Which countries host the maximum number of races? Which
+countries send the maximum number of participants??
+
 ```{r}
 race_df %>% count(country) %>% arrange(desc(n))
 rank_df %>% count(nationality) %>% arrange(desc(n))
 ```
 
-The top three locations for races were the USA, UK, and France. These are also the countries that send the maximum number of participants, naturally!
+The top three locations for races were the USA, UK, and France. These
+are also the countries that send the maximum number of participants,
+naturally!
 :::
 
-
 ::: callout-note
-Questions: Which countries have the maximum number of winners (top 3 ranks)? 
+Questions: Which countries have the maximum number of winners (top 3
+ranks)?
+
 ```{r}
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
@@ -848,16 +866,18 @@ rank_df %>%
 
 ```
 
-1240 Participants from the USA have been top 3 finishers. Across *all* races...
-
+1240 Participants from the USA have been top 3 finishers. Across *all*
+races...
 :::
 
+::: callout-note
+Question: Which countries have had the most top-3 finishes in the
+**longest** distance race?
 
-:::callout-note
-Question: Which countries have had the most top-3 finishes in the  **longest** distance race?
-
-Here we see we have ranks in one dataset, and race details in another! How do we do this now? We have to **join** the two data frames into one data frame, using a *common variable* that uniquely identifies observations in **both** datasets. 
-
+Here we see we have ranks in one dataset, and race details in another!
+How do we do this now? We have to **join** the two data frames into one
+data frame, using a *common variable* that uniquely identifies
+observations in **both** datasets.
 
 ```{r}
 #| layout-nrow: 2
@@ -873,11 +893,15 @@ longest_races %>%
 
 ```
 
-Wow....France has one the top 10 positions 26 times in the longest races... which take place in France, Thailand, Chad, Australia, and Portugal. So although the USA has the greatest number of top 10 finishes, when it comes to the *longest* races, it is *vive la France*!
+Wow....France has one the top 10 positions 26 times in the longest
+races... which take place in France, Thailand, Chad, Australia, and
+Portugal. So although the USA has the greatest number of top 10
+finishes, when it comes to the *longest* races, it is *vive la France*!
 :::
 
 ::: callout-note
-Question: What is the distribution of the finishing times, across all races and all ranks?
+Question: What is the distribution of the finishing times, across all
+races and all ranks?
 
 ```{r}
 # Set graph theme
@@ -888,12 +912,17 @@ rank_df %>%
 
 ```
 
-So the distribution is (very) roughly bell-shaped, spread over a 2X range. And some people may have dropped out of the race very early and hence we have a small bump close to *zero* time!
-The histogram shows three bumps...at least one reason is that the distances to be covered are not the same...but could there be other reasons? Like `altitude_gained` for example?
+So the distribution is (very) roughly bell-shaped, spread over a 2X
+range. And some people may have dropped out of the race very early and
+hence we have a small bump close to *zero* time! The histogram shows
+three bumps...at least one reason is that the distances to be covered
+are not the same...but could there be other reasons? Like
+`altitude_gained` for example?
 :::
 
-:::callout_note
+::: callout_note
 Question: What is the distribution of race distances?
+
 ```{r}
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
@@ -903,19 +932,23 @@ race_df %>%
 
 ```
 
-Hmm...a closely clumped set of race distances, with some entries in between [0-150], but some are zero? Which are these?
+Hmm...a closely clumped set of race distances, with some entries in
+between \[0-150\], but some are zero? Which are these?
 
 ```{r}
 race_df %>%
   filter(distance == 0)
 ```
 
-Curious...some of these zero-distance races have had participants too! Perhaps these were cancelled events...all of them are stated to be `100 mile` events...
-
+Curious...some of these zero-distance races have had participants too!
+Perhaps these were cancelled events...all of them are stated to be
+`100 mile` events...
 :::
 
 ::: callout-note
-Question: For all races that have a distance around 150, what is the distribution of finishing times? Can these be split/facetted using `start_time` of the race (i.e. morning / evening) ?
+Question: For all races that have a distance around 150, what is the
+distribution of finishing times? Can these be split/facetted using
+`start_time` of the race (i.e. morning / evening) ?
 
 Let's make a count of start times:
 
@@ -926,7 +959,8 @@ race_times
 
 ```
 
-Let's convert `start_time` into a `factor` with levels: early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400),
+Let's convert `start_time` into a `factor` with levels:
+early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400),
 afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
 
 ```{r}
@@ -984,11 +1018,11 @@ race_start_factor %>%
 
 ```
 
-We see that finish times tend to be longer for afternoon and evening start races; these are lower for early morning and night time starts. 
-Mid-day starts show a curious double hump in finish times that should be studied. 
-
+We see that finish times tend to be longer for afternoon and evening
+start races; these are lower for early morning and night time starts.
+Mid-day starts show a curious double hump in finish times that should be
+studied.
 :::
-
 
 ## {{< iconify entypo new >}} Distributions and Densities in the Wild
 
@@ -1047,26 +1081,49 @@ gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-v
 Be prepared to transform your data with `log` or `sqrt` transformations
 when you see skewed distributions! Salaries, Instagram connections,
 number of customers vs Companies, net worth /valuation of Companies,
-extreme events on stock markets....all of these could have highly skewed distributions. In such a case, the standard statistics of mean/median/sd may not convey too much information.
-
+extreme events on stock markets....all of these could have highly skewed
+distributions. In such a case, the standard statistics of mean/median/sd
+may not convey too much information.
 
 ## {{< iconify ph bell-simple-z-duotone >}} Z-scores
 
-Often when we compute wish to compare distributions with different values for means and standard deviations, we resort to a *scaling* of the variables that are plotted in the respective distributions. 
-
-TBW.
+Often when we compute wish to compare distributions with different
+values for means and standard deviations, we resort to a *scaling* of
+the variables that are plotted in the respective distributions.
 
 ```{r}
 #| label: z-scores
 #| echo: false
 #| layout-ncol: 2
 library(TeachHist)
-TeachHistDens(Mean = 60, Sd = 5)
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+p1 <- TeachHistDens(Mean = 60, Sd = 5)
+p3 <- TeachHistDens(Mean = 10, Sd = 5)
+p2 <- TeachHistDens(Mean = 60, Sd = 15)
+p4 <- TeachHistDens(Mean = 10, Sd = 15)
 
-TeachHistDens(Mean = 60, Sd = 10)
 
 ```
 
+Although the densities all look the same, they are are quite different!
+The x-axis in each case has *two scales*: one is the actual value of the
+x-variable, and the other is the *z-score* which is calculated as:
+
+$$
+z_x = \frac{x - \mu_{x}}{\sigma_x}
+$$
+
+With similar distributions (i.e. normal distributions), we see that the
+variation in density is the **same** at the same values of `z-score` for
+each variable. However since the $\mu_i$ and $\sigma_i$ are different,
+the *absolute* value of the `z-score` is different for each variable. In
+the first plot (from the top left), $z = 1$ corresponds to an absolute
+change of $5$ units; it is $15$ units in the plot directly below it.
+
+Our comparisons are done easily when we compare differences in
+probabilities at identical `z-scores`, or differences in `z-scores` at
+identical probabilities.
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
@@ -1079,7 +1136,9 @@ TeachHistDens(Mean = 60, Sd = 10)
 -   Box Plots "dwell upon" **medians** and **Quartiles**
 -   Qualitative data variables can be plotted as **counts**, using Bar
     Charts, or using Heat Maps
--   Violin Plots help us to visualize multiple distributions at the same time, as when we split a *Quant* variable wrt to the *levels* of a *Qual* variable. 
+-   Violin Plots help us to visualize multiple distributions at the same
+    time, as when we split a *Quant* variable wrt to the *levels* of a
+    *Qual* variable.
 -   Ridge Plots are **density plots** used for describing one Quant and
     one Qual variable (by inherent splitting)
 -   We can split all these plots on the basis of another Qualitative
@@ -1103,10 +1162,26 @@ show the distribution.
 
 ## {{< iconify ooui references-rtl >}} References
 
-1.  See the scrolly animation for a histogram at this website:
-    **Exploring Histograms, an essay by Aran Lunzer and Amelia
-    McNamara** <https://tinlizzie.org/histograms/?s=09>
-2.  Minimal R using `mosaic`.
-    <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>
-3.  [*Plotting multiple plots using purrr::map and ggplot*. Sebastian
-    Sauer](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)
+::: {#refs style="font-size: 60%;"}
+See the scrolly animation for a histogram at this website: *Exploring
+Histograms, an essay by Aran Lunzer and Amelia McNamara*
+<https://tinlizzie.org/histograms/?s=09> \
+Minimal R using
+`mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf> \
+Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [
+](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/) \
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("ggridges", "NHANES", "TeachHist",
+           "TeachingDemos")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::

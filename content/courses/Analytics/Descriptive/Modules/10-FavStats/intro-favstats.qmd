@@ -1,7 +1,7 @@
 ---
 title: "\U0001F4CA Descriptive Statistics "
 subtitle: "Mirror, mirror on the wall..."
-author: "Arvind Venkatadri"
+author: "Arvind V."
 date: 15/Oct/2023
 date-modified: "`r Sys.Date()`"
 abstract: "Who is the Fairest of them All?"
@@ -15,6 +15,9 @@ categories:
 - Median
 - Standard Deviation
 - Quartiles
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
 citation: true
 ---
 
@@ -43,27 +46,36 @@ ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 library(checkdown)
 library(epoxy)
 library(explore) # fake data generation
+library(grateful)
 
 ```
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} How do we Grasp Data?
 
-We spoke of Experiments and Data Gathering in the first module [Nature of Data](/content/courses/Analytics/Descriptive/Modules/05-NatureData/nature-data.qmd#sec-where-data). This helped us to **obtain** data. 
+We spoke of Experiments and Data Gathering in the first module [Nature
+of
+Data](/content/courses/Analytics/Descriptive/Modules/05-NatureData/nature-data.qmd#sec-where-data).
+This helped us to **obtain** data.
 
-As we discussed in that same Module, for us to grasp the significance of the data, we need to **describe** it; the actual data is usually too vast for us to comprehend in its entirety. Anything more than a handful of observations in a dataset is enough for us to require other ways of grasping it. 
+As we discussed in that same Module, for us to grasp the significance of
+the data, we need to **describe** it; the actual data is usually too
+vast for us to comprehend in its entirety. Anything more than a handful
+of observations in a dataset is enough for us to require other ways of
+grasping it.
 
-The first thing we need to do, therefore, is to reduce it to a few salient numbers that allow us to summarize the data. 
+The first thing we need to do, therefore, is to reduce it to a few
+salient numbers that allow us to summarize the data.
 
-:::callout-important
-
+::: callout-important
 ## Reduction is Addition
-Such a **reduction** may seem paradoxical but is one of the important tenets of statistics: reduction, while taking away information, ends up *adding* to insight.
 
-Steven Stigler[@stigler2016] is the author of the book "*The Seven
-Pillars of Statistical Wisdom*". One of the *Big Ideas in Statistics* from that
-book is:
+Such a **reduction** may seem paradoxical but is one of the important
+tenets of statistics: reduction, while taking away information, ends up
+*adding* to insight.
 
-##### Aggregation
+Steven @stigler2016 is the author of the book "*The Seven Pillars of
+Statistical Wisdom*". One of the *Big Ideas in Statistics* from that
+book is: **Aggregation**
 
 > The first pillar I will call Aggregation, although it could just as
 > well be given the nineteenth-century name, "The Combination of
@@ -75,17 +87,20 @@ book is:
 > observations, you can actually gain information by **throwing
 > information away**! In taking a simple arithmetic mean, we discard the
 > individuality of the measures, subsuming them to one summary.
-
 :::
-
-
 
 ## {{< iconify file-icons influxdata >}} Examine the Data
 
-So in this module we will look at a few *favourite statistics* or "favstats" that we can derive from data. R is full of packages that can provide very evocative and effective summaries of data. We will first start with the `dplyr` package from the tidyverse, the `skimr` package, then the `mosaic` package. We will look at the summary outputs from these and learn how to interpret them.
+So in this module we will look at a few *favourite statistics* or
+"favstats" that we can derive from data. R is full of packages that can
+provide very evocative and effective summaries of data. We will first
+start with the `dplyr` package from the tidyverse, the `skimr` package,
+then the `mosaic` package. We will look at the summary outputs from
+these and learn how to interpret them.
 
-
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Using dpylr::glimpse
+
 The `dplyr` package offers a convenient command called `glimpse`:
 
 ```{r}
@@ -93,22 +108,30 @@ The `dplyr` package offers a convenient command called `glimpse`:
 glimpse(mpg)
 
 ```
-:::callout-note
+
+::: callout-note
 ### Descriptive Stat Summary from `dplyr::glimpse`
-Very crisp output, giving us the size of the dataset(234 X 11) and the nature of the variable columns, along with their first few entries. The `chr` variables are usually *Categorical/Qualitative*, the `int` or `dbl` (double precision) are usually *Numerical/Quantitative*. But be careful! *Verify that this is as per your intent, interpret the variables and modify their encoding as needed.* 
+
+Very crisp output, giving us the size of the dataset(234 X 11) and the
+nature of the variable columns, along with their first few entries. The
+`chr` variables are usually *Categorical/Qualitative*, the `int` or
+`dbl` (double precision) are usually *Numerical/Quantitative*. But be
+careful! *Verify that this is as per your intent, interpret the
+variables and modify their encoding as needed.*
 :::
 
 ### Using skimr
 
 Let us look at the popular `mpg` dataset ( from R ) using
-`skimr::skim()`. 
+`skimr::skim()`.
 
 From the output of `?skimr`:
 
-> The format of the results are a single wide data frame combining the results, with some additional attributes and two metadata columns:
+> The format of the results are a single wide data frame combining the
+> results, with some additional attributes and two metadata columns:
 
-- `skim_variable`: name of the original variable
-- `skim_type`: class of the variable
+-   `skim_variable`: name of the original variable
+-   `skim_type`: class of the variable
 
 We can use `skim(dataset)` directly as shown below:
 
@@ -119,15 +142,24 @@ skimr::skim(mpg) # explicitly stating package name
 
 Taken together, we have the following:
 
-:::callout-note
+::: callout-note
 ### Descriptive Stat Summary from `skimr::skim`
-- A *Data Summary*: it lists the dimensions of the `mpg` dataset: 234 rows and 11 columns. 6 columns are character formatted, the remaining 5 are numeric. The dataset is not "grouped" (more on this later).
 
-- The second part of the output shows a table with the `character` variables which are therefore `factor` variables with `levels`. 
+-   A *Data Summary*: it lists the dimensions of the `mpg` dataset: 234
+    rows and 11 columns. 6 columns are character formatted, the
+    remaining 5 are numeric. The dataset is not "grouped" (more on this
+    later).
 
-- The third part shows a table listing the names and summary stats for the `numerical` variables. We have `mean`, `sd`, all the quantiles (p0, p25, p50(median), p75 and p100 percentiles) and **a neat little histogram** for each. From the histogram we can see that `year` is two-valued, `cyl` is three-valued, and `cty` and `hwy` are continuous...
-Again check that this is as you intend them to be. We may need to modify the encoding if needed. 
+-   The second part of the output shows a table with the `character`
+    variables which are therefore `factor` variables with `levels`.
 
+-   The third part shows a table listing the names and summary stats for
+    the `numerical` variables. We have `mean`, `sd`, all the quantiles
+    (p0, p25, p50(median), p75 and p100 percentiles) and **a neat little
+    histogram** for each. From the histogram we can see that `year` is
+    two-valued, `cyl` is three-valued, and `cty` and `hwy` are
+    continuous... Again check that this is as you intend them to be. We
+    may need to modify the encoding if needed.
 :::
 
 ### Using mosaic
@@ -142,6 +174,27 @@ inspect(penguins)
 
 ```
 
+::: callout-note
+### Descriptive Stat Summary from `mosaic::inspect`
+
+We see that the output of `mosaic::inspect()` is organized as follows:
+
+-   There are two dataframes/tables in the output, one describing the
+    *Qualitative Variables* and the other describing the *Quantitative
+    Variables*.
+-   In the table describing the Qual variables, we have:
+    -   `name`: Name of the variable in the (parent) dataset. i.e Column
+        Names
+    -   `class`: format of that column
+    -   `levels`: All these variables are factors, with levels shown
+        here. Some for example, `manufacturer` has 15 levels, and there
+        are 234 rows
+
+`inspect` also conveniently shows how much data is **missing** and in
+which variables. This is a very important consideration in the use of
+the data for analytics purposes.
+:::
+
 ::: column-margin
 We can save and see the outputs separately:
 
@@ -153,22 +206,7 @@ penguins_describe$quantitative
 
 ```
 :::
-
-:::callout-note
-### Descriptive Stat Summary from `mosaic::inspect`
-
-We see that the output of `mosaic::inspect()` is organized as follows:
-
-- There are two dataframes/tables in the output, one describing the *Qualitative Variables* and the other describing the *Quantitative Variables*. 
-- In the table describing the Qual variables, we have:
-  - `name`: Name of the variable in the (parent) dataset. i.e Column Names
-  - `class`: format of that column
-  - `levels`: All these variables are factors, with levels shown here. Some for example, `manufacturer` has 15 levels, and there are 234 rows
-
-`inspect` also conveniently shows how much data is **missing** and in which variables. This is a very important consideration in the use of the data for analytics purposes. 
 :::
-
-
 
 ### Your Turn
 
@@ -189,16 +227,23 @@ We see that the output of `mosaic::inspect()` is organized as follows:
 -   But the
     variable`r checkdown::check_question(answer = "cyl", options = c("hwy", "cty", "cyl", "displ"), type = "select", right = "correct", wrong = "not correct", placeholder = "select a variable name")`
     is actually a **qualitative variable**.
-    
-    
+
 ## Reporting Tables for Data and the Data Schema
 
-:::callout-important
+::: callout-important
 ### Data and their Schema
-Note that all the three methods report the **schema** of the original dataframe. The schema are also **formatted as data frames**! However they do not "contain" the original data! Do not confuse between the data and it's reported schema!
+
+Note that all the three methods report the **schema** of the original
+dataframe. The schema are also **formatted as data frames**! However
+they do not "contain" the original data! Do not confuse between the data
+and it's reported schema!
 :::
 
-It is usually a good idea to make crisp business-like tables, for the data itself, and the *schema* as revealed by one of the outputs of the three methods presented above. There are many methods to do this; one of the simplest and effective ones is to use the `kable` set of commands from the `knitr` package that we have installed already:
+It is usually a good idea to make crisp business-like tables, for the
+data itself, and the *schema* as revealed by one of the outputs of the
+three methods presented above. There are many methods to do this; one of
+the simplest and effective ones is to use the `kable` set of commands
+from the `knitr` package that we have installed already:
 
 ```{r}
 #| label: kable-for-data
@@ -225,14 +270,16 @@ skim(mpg) %>%
            symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"))
 ```
 
-## {{< iconify mdi-light group >}}{{< iconify mdi counting-5 >}} Groups and Counts
+## {{< iconify mdi-light group >}}{{\< iconify mdi counting-5 \>}} Groups and Counts
 
-We have looked at means, limits, and percentiles of *Quantitative* variables. Another good idea to examine datasets is to look at counts and frequencies with respect to *Qualitative* variables. We will do this with the `dplyr` package from the `tidyverse`:
+We have looked at means, limits, and percentiles of *Quantitative*
+variables. Another good idea to examine datasets is to look at counts
+and frequencies with respect to *Qualitative* variables. We will do this
+with the `dplyr` package from the `tidyverse`:
 
 ```{r}
 #| label: counts-and-tables
-#| layout-ncol: 4
-#| column: body-outset-right
+
 diamonds %>% count(cut)
 diamonds %>% count(color)
 diamonds %>% count(clarity)
@@ -245,18 +292,47 @@ diamonds %>%
 
 ::: callout-note
 ### Business Insights from Groups and Counts
-We see that the groups for each level of `cut`, `color`, and `clarity` are not the same size: for instance the group with the "ideal" cut is largest at 21K observations, and "fair" has only 1.6K observations. 
 
-Group counts based on `color` are also not balanced, and nor are those for `clarity`. 
-Counting all combinations of these three `factors` also shows imbalanced counts.
+We see that the groups for each level of `cut`, `color`, and `clarity`
+are not the same size: for instance the group with the "ideal" cut is
+largest at 21K observations, and "fair" has only 1.6K observations.
 
-These aspects may need to be factored into downstream modelling or machine learning tasks. (Usually by stratification wrt levels of the Qualitative variables)
+Group counts based on `color` are also not balanced, and nor are those
+for `clarity`. Counting all combinations of these three `factors` also
+shows imbalanced counts.
 
-The levels are not too many, so tables work, and so would bar charts, which we will examine next. If there are too many levels in any factor, tables are a better option. Bar charts can still be plotted, but it may be preferable to  `lump` smaller categories/levels together. (Using the `forcats` package)
+These aspects may need to be factored into downstream modelling or
+machine learning tasks. (Usually by stratification wrt levels of the
+Qualitative variables)
+
+The levels are not too many, so tables work, and so would bar charts,
+which we will examine next. If there are too many levels in any factor,
+tables are a better option. Bar charts can still be plotted, but it may
+be preferable to `lump` smaller categories/levels together. (Using the
+`forcats` package)
 :::
-
-
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-The three methods given here give us a very comprehensive look into the **structure** of the dataset. Make these part of your *Workflow*.
+The three methods given here give us a very comprehensive look into the
+**structure** of the dataset. Make these part of your *Workflow*.
+
+
+
+## {{< iconify ooui references-rtl >}} References
+
+::: {#refs style="font-size: 60%;"}
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("mosaic", "palmerpenguins", "skimr")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::
