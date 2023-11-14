@@ -11,9 +11,10 @@ image-alt: Photo by Jonathan Chng on Unsplash
 categories:
 - Bar Charts
 - Lollipop Charts
+- Dumbbell Charts
 - Radar Charts
-- Word Clouds
 - Bump Charts
+- Word Clouds
 bibliography: 
   - grateful-refs.bib
 citation: true
@@ -32,16 +33,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse) # includes ggplot for plotting
 library(mosaic)
 library(ggformula)
+library(RColorBrewer) # colour palettes
 
 library(ggbump) # Bump Charts
-
 library(ggiraphExtra) # Radar, Spine, Donut and Donut-Pie combo charts !!
+library(ggalt) # New geometries, coordinate systems, statistical transformations, scales and fonts
 
 # install.packages("devtools")
 # devtools::install_github("ricardo-bion/ggradar")
 library(ggradar) # Radar Plots
 
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
 ```
+
 
 ```{r}
 #| label: Extra Pedagogical Packages
@@ -60,41 +67,42 @@ When we wish to compare the size of things and rank them, there are
 quite a few ways to do it.
 
 Bar Charts and Lollipop Charts are immediately obvious when we wish to
-rank things on *one* aspect or parameter.
+rank things on *one aspect or parameter*, e.g. mean income vs gender. We can also *put two lollipop charts back-to-back* to make a Dumbbell Chart to show comparisons/ranks across *two datasets* based on *one aspect*, e.g change in mean income over two years, across gender.
+ 
+When we wish to rank the *multiple objects* against *multiple aspects or parameters*, then we can use Bump Charts and Radar Charts, e.g performance of one or more products against multiple criteria (cost, size, performance...)s.
 
-When we wish to rank the same set of objects against **multiple**
-aspects or parameters, then we can use Bump Charts and Radar Charts.
 
 ## {{< iconify openmoji poppy >}} Lollipop Charts
+Let's make a toy dataset of Products and Ratings:
 
 ```{r}
 # Sample data set
 set.seed(1)
 df1 <- tibble(product = LETTERS[1:10],
-                 rank = sample(20:35, 10, replace = TRUE))
+              rank = sample(20:35, 10, replace = TRUE))
 df1
 
+```
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+
+```{r}
+#| layout-ncol: 2
+
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+###
 gf_segment(0 + rank ~ product + product, data = df1) %>% 
 # A formula with shape y + yend ~ x + xend.
   
   gf_point(rank ~ product, colour = ~ product, 
            size = 5,
            ylab = "Rank",
-           xlab = "Product")
+           xlab = "Product") 
 
-
-# Compare with ggplot code:
-# ggplot(df1) + 
-#   geom_segment(aes(x = x, xend = x, y = 0, yend = y)) + 
-#   geom_point(aes(x = x, y = y, colour = x), size = 5)
-
-```
-
-We can flip this horizontally *and* reorder the $x$ categories in order
-of decreasing ( or increasing ) $y$, using `forcats::fct_reorder`:
-
-```{r}
-
+###
 gf_segment(0 + rank ~ fct_reorder(product, - rank) + 
              fct_reorder(product, - rank), 
            data = df1) %>%
@@ -103,23 +111,186 @@ gf_segment(0 + rank ~ fct_reorder(product, - rank) +
   gf_point(rank ~ product, colour = ~ product, size = 5) %>%
   
   gf_refine(coord_flip()) %>%
-  gf_labs(x = "Product", y = "Rank") %>%
-  gf_theme(theme_minimal())
-
-
-# Compare with ggplot code
-# ggplot(df1) + 
-#   geom_segment(aes(x = fct_reorder(x, -y), # in decreasing order of y
-#                    xend = fct_reorder(x, -y), 
-#                    y = 0, 
-#                    yend = y)) + 
-#   geom_point(aes(x = x, y = y, colour = x), size = 5) +
-#   coord_flip() + 
-#   xlab("Group") +
-#   ylab("") +
-#   theme_minimal()
+  gf_labs(x = "Product", y = "Rank") 
 
 ```
+
+We have flipped the chart horizontally *and* reordered the $x$ categories in order of decreasing ( or increasing ) $y$, using `forcats::fct_reorder`.
+
+
+### Using ggplot
+
+```{r}
+#| layout-ncol: 2
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+###
+ggplot(df1) +
+  geom_segment(aes(y = 0, yend = rank, 
+                   x = product, 
+                   xend = product)) +
+  geom_point(aes(y = rank, x = product, colour = product), size = 5) +
+  labs(title = "Product Ratings", x = "Product", y = "Rank")
+
+###
+ggplot(df1) +
+  geom_segment(aes(y = 0, yend = rank, 
+                   x = fct_reorder(product, -rank),
+                   xend = fct_reorder(product, -rank)))  +
+  geom_point(aes(x = product, y = rank, colour = product), size = 5) +
+  labs(title = "Product Ratings", x = "Product", y = "Rank")  +
+  coord_flip()
+ 
+```
+
+:::
+
+::: callout-note
+### Business Insights from Lollipop Plots
+
+- Very simple chart, almost like a bar chart
+- Differences between the same set of data across one *aspect* (i.e. rank) is very quickly apparent
+- *Ordering* the dataset by the attribute (i.e ordering product by rank) makes the message very clear.
+- Even a large number of data can safely be visualized and understood
+
+:::
+
+
+## {{< iconify solar dumbbells-bold >}} Dumbbell Charts
+
+A lollipop chart compares a set of data against *one aspect*. What if we have more than one? Say sales in many product lines *across two years*?
+
+Let us once again construct a very similar looking toy dataset, but with *two* columns for ratings, one for each of two years:
+
+```{r}
+# Sample data set
+# Wide Format data!
+set.seed(2)
+df2 <- tibble(product = LETTERS[1:10],
+              rank_year1 = sample(20:35, 10, replace = TRUE),
+              rank_year2 = sample(15:45, 10, replace = TRUE))
+df2
+
+```
+
+A short diversion: we can also make this data into long form: this will become useful very shortly!
+
+::: callout-note
+
+### {{< iconify icon-park pivot-table >}} Wide Form and Long Form Data
+
+Look at the data: this is **wide form data**. The columns pertaining to each of the Product-Features would normally be stacked into two columns, one with the Feature and the other with the score. Note the trio: Qual(product) + Qual(year) + Quant(scores):
+
+```{r}
+# With Long Format Data
+df2_long <- df2 %>% 
+  pivot_longer(cols = c(dplyr::starts_with("rank")), 
+               names_to = "year", values_to = "scores")
+df2_long
+
+```
+
+A cool visualization of this operation was created by [Garrick Aden-Buie](https://www.garrickadenbuie.com/project/tidyexplain/):
+
+![](https://github.com/gadenbuie/tidyexplain/raw/main/images/tidyr-pivoting.gif)
+
+
+:::
+
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+
+```{r}
+#| layout-ncol: 2
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+## With Wide Form Data
+## 
+df2 %>% gf_segment(product + product ~ rank_year1 + rank_year2 ) %>% 
+  gf_point(product ~ rank_year1, size = 3, colour = "#123456") %>% 
+  gf_point(product ~ rank_year2, size = 3, colour = "#bad744") %>% gf_labs(x = "Rank", y = "Product")
+
+## With Long Form Data
+df2_long %>% 
+  gf_segment(product + product ~ scores + scores, 
+             group = ~ year, colour = "grey", 
+             linewidth = 2, data = ., caption = "Segments not Showing? Why?") %>% 
+  gf_point(size = 3, colour = ~ year)
+
+```
+
+
+
+
+### Using ggplot
+
+```{r}
+#| layout-ncol: 2
+#| warning: false
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+## With Wide Format Data
+ggplot(df2, aes(y = product, yend = product, x = rank_year1, xend = rank_year2)) + 
+  geom_segment(size = 3, color="#e3e2e1") + 
+  geom_point(aes(rank_year1, product), colour = "#5b8124", size = 3)   +
+  geom_point(aes(rank_year2, product), colour = "#bad744", size = 3) + 
+  labs(x = "Rank", y = "Product")
+
+## With Long Form Data
+df2_long %>% 
+  ggplot(aes(y = product, x = scores, group = year, colour = year)) + 
+  geom_segment(aes(y = product, yend = product, x = scores, xend = scores, group = year)) + 
+  geom_point(size = 3) +
+  labs(caption = "Segments not showing? Why?")
+
+```
+
+
+### Using ggalt
+
+```{r}
+#| warning: false
+df2 %>% ggplot() + 
+  geom_dumbbell(aes(y = product, x = rank_year1, xend = rank_year2),
+                size = 3, color = "#e3e2e1", 
+                colour_x = "#5b8124", colour_xend = "#bad744",
+                dot_guide=TRUE,  # Try FALSE
+                dot_guide_size=0.25) +
+  
+  labs(x = NULL, y = NULL, title = "ggplot2 geom_dumbbell with dot guide", caption = "Made with ggalt") +
+  theme_minimal() +
+  theme(panel.grid.major.x=element_line(size=0.05)) +
+  theme(panel.grid.major.y=element_blank())
+
+```
+
+
+### Comparison barchart
+
+```{r}
+df2_long %>% 
+  gf_col(product ~ scores, group = ~ year, fill = ~ year, position = "dodge")
+
+```
+
+:::
+
+::: callout-note
+### Business Insights from Dumbbell Plots
+
+- Dumbbell Plots are clearly they are more intuitive and clear than the bar chart
+- Differences between the same set of data at two different *aspects* is very quickly apparent
+- *Differences in differences(DID)* are also quite easily apparent. Experiments do use these metrics and these plots would be very useful there. 
+- `ggalt` works nicely with additional visible guides rendered in the chart
+- However: *long form* data does not seem to work out very well. There is no chart rendered and the code does not throw an error either...need to investigate!
+
+:::
+
+
+
 
 ## {{< iconify teenyicons curved-connector-outline >}} Bump Charts
 
@@ -136,32 +307,42 @@ product <- c("A", "A", "A",
             "C", "C", "C",
             "D", "D", "D")
 
-df2 <- tibble(year,position,product)
+df3 <- tibble(year,position,product)
 
-df2
+df3
 
 ```
 
+
 ::: callout-note
-## `ggbump` uses `ggplot` syntax
+
+### `ggbump` uses `ggplot` syntax
 
 We need to use a new package called, what else, `ggbump` to create our
-`Bump Charts`: Here again we do not yet have a `ggformula` equivalent .
-Note the `+` syntax with ggplot code!!
+`Bump Charts`: Here again we do not yet have a `ggformula` equivalent. ( Though it may be possible with a combination of `gf_point` and `gf_polygon`, and pre-computing the coordinates. Seems long-winded.)
+
+Note the `+` syntax with `ggplot` code!!
+
 :::
 
 ```{r}
 #| label: bump-1
-library(ggbump)
+#| warning: false
 
-ggplot(df2) +
+#library(ggbump)
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+###
+df3 %>%  
+  ggplot() +
   geom_bump(aes(x = year, y = position, color = product)) +
   geom_point(aes(x = year, y = position, color = product),
              size = 6) +
-    theme_minimal() +
-    xlab("Year") +
-    ylab("Rank") +
-    scale_color_brewer(palette = "RdBu") # Change Colour Scale
+  xlab("Year") +
+  ylab("Rank") +
+  scale_color_brewer(palette = "RdBu") + # Change Colour Scale
+  scale_x_discrete(limits = c(2019, 2020, 2021)) # Check warning here...
   
 ```
 
@@ -170,39 +351,57 @@ altogether:
 
 ```{r}
 #| label: bump-2
+#| warning: false
 
-ggplot(df2) +
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+###
+ggplot(df3) +
   geom_bump(aes(x = year, y = position, color = product)) +
   geom_point(aes(x = year, y = position, color = product),
              size = 6) +
-  theme_minimal() +
   scale_color_brewer(palette = "RdBu") + # Change Colour Scale
 # Same as before up to here
 # Add the labels at start and finish
 
-  geom_text(data = df2 %>% filter(year == min(year)),
+  geom_text(data = df3 %>% filter(year == min(year)),
             aes(x = year - 0.1, label = product, y = position),
             size = 5, hjust = 1) +
-  geom_text(data = df2 %>% filter(year == max(year)),
+  geom_text(data = df3 %>% filter(year == max(year)),
             aes(x = year + 0.1, label = product, y = position),
             size = 5, hjust = 0) +
   xlab("Year") +
   ylab("Rank") +
-  theme(legend.position = "none")
+  scale_x_discrete(limits = c(2019:2021)) + 
+  theme(legend.position = "")
 
 ```
+
+::: callout-note
+
+### Business Insights from Bump Charts
+
+- Bump charts are good for depicting Ranks/Scores pertaining to a set of data, as they vary over another *aspect*, for a set of products
+- Cannot have too many levels in the *aspect* parameter, else the graph gets too hard to make sense with.
+- For instance if we had 10 years in the data above, we would have lost the plot, literally! Better off with a dumbbell plot in such a case. 
+
+
+:::
+
+
 
 ## {{< iconify ant-design radar-chart-outlined >}} Radar Charts
 
 What if your marketing folks had rated some products along several
 different desirable criteria? Such data, where a certain set of items
-(Qualitative!!) are **rated** (Quantitative !!) against another set
-(Qualitative again!!) can be plotted on a roughly circular set of axes,
-with the radial distance defining the rank against each axes.
+(Qualitative!!) are **rated** (Quantitative!) against another set
+(Qualitative again!!) can be plotted on a roughly *circular set of axes*,
+with the *radial distance* defining the rank against each axes. Such a plot is called a *radar plot*. 
 
 Of course, we will use the aptly named `ggradar`, which is at this time
 (Feb 2023) a development version and not yet part of CRAN. We will still
-try it, and another package `ggiraphExtra` which IS a part of CRAN ( and
+try it, and another package `ggiraphExtra` which IS a part of CRAN (and
 has some other capabilities too, which are worth exploring!)
 
 ```{r using ggradar}
@@ -210,7 +409,7 @@ has some other capabilities too, which are worth exploring!)
 #library(ggradar)
 
 set.seed(4)
-df3 <- tibble(Product = c("G1", "G2", "G3"),
+df4 <- tibble(Product = c("G1", "G2", "G3"),
               Power = runif(3), 
               Cost = runif(3),
               Harmony = runif(3),
@@ -219,37 +418,18 @@ df3 <- tibble(Product = c("G1", "G2", "G3"),
               Manufacturability = runif(3),
               Durability = runif(3),
               Universality = runif(3))
-df3
+df4
 
 ```
 
 ::: callout-note
-### Wide Form Data
 
-Look at the data: this is **wide form data**. The columns pertaining to each of the Product-Features would normally be stacked into two columns, one with the Feature and the other with the score. Note the trio: Qual(Product) + Quant(Scores) + Qual(Criteria, multi-column)
-
-![](https://github.com/gadenbuie/tidyexplain/raw/main/images/tidyr-pivoting.gif)
-:::
-
-::: column-margin
-#### {{< iconify icon-park pivot-table >}} Data: Wide to Long
-
-```{r}
-#| column: margin
-df3 %>% 
-  pivot_longer(cols = c(-Product), 
-               names_to = "Feature", 
-               values_to = "Score") %>% 
-  arrange(Product)
-
-```
-:::
 
 ### {{< iconify icon-park radar-chart >}} Using `ggradar`
 
 ```{r}
 
-ggradar::ggradar(plot.data = df3,
+ggradar::ggradar(plot.data = df4,
                  axis.label.size = 3, # Titles of Params
                  grid.label.size = 4, # Score Values/Circles
                  group.point.size = 3,# Product Points Sizes
@@ -273,8 +453,9 @@ From the `ggiraphExtra` website:
 ```{r using ggiraphExtra}
 # library(ggiraphExtra)
 
-ggiraphExtra::ggRadar(data = df3,
+ggiraphExtra::ggRadar(data = df4,
         aes(colour = Product),
+        interactive = FALSE, # try TRUE
         rescale = FALSE,
         title = "Using ggiraphExtra"
           )  + # recale = TRUE makes it look different...try!!
@@ -283,8 +464,17 @@ ggiraphExtra::ggRadar(data = df3,
 
 ```
 
-Both render very similar-looking radar charts and the syntax is not too
-intimidating!!
+:::
+
+::: callout-note
+### Business Insights from Radar Plots
+
+- Differences in scores for a given item across several *aspect* or parameters are readily apparent.
+- These can also be compared, parameter for parameter, with more than one item
+- the same set of data at two different *aspects* is very quickly apparent
+- Data is clearly in *wide* form
+- Both `ggradar` and `ggiraphExtra` render very similar-looking radar charts and the syntax is not too intimidating!!
+:::
 
 ## {{< iconify icon-park me >}} Your Turn
 
@@ -293,8 +483,32 @@ intimidating!!
     can see in that dataset. What choice will you make for the the axes?
 2.  Try the `SaratogaHouses` dataset also from `mosaicData`.
 
+:::{.hidden}
+::::: columns
+::: column
+```{r}
+mpg %>% gf_point(hwy ~ cty)
+
+```
+:::
+
+::: column
+```{r}
+mpg %>% gf_point(hwy ~ cty, 
+                 color = ~ cyl)
+```
+:::
+:::::
+:::
+
 ## {{< iconify ooui references-ltr >}} References
 ::: {#refs style="font-size: 60%;"}
+\
+Highcharts Blog. [Why you need to start using dumbbell charts](https://www.highcharts.com/blog/tutorials/why-you-need-to-start-using-dumbbell-charts/)\
+<https://github.com/hrbrmstr/ggalt#lollipop-charts>\
+
+
+###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}
 #| echo: false
@@ -303,7 +517,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggbump", "ggiraphExtra", "ggradar")
+  pkgs = c("ggalt", "ggbump", "ggiraphExtra", "ggradar")
 ) %>%
   knitr::kable(format = "simple")
 

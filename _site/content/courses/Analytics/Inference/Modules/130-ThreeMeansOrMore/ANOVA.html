@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.450">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="author" content="Arvind Venkatadri">
+<meta name="author" content="Arvind V.">
 <meta name="dcterms.date" content="2023-03-28">
 <title>The Foundation Series - Comparing Multiple Means with ANOVA</title>
 <style>
@@ -53,7 +53,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 <script src="../../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../../../../../site_libs/clipboard/clipboard.min.js"></script>
@@ -329,7 +348,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Arvind Venkatadri </p>
+             <p>Arvind V. </p>
           </div>
   </div>
     
@@ -343,7 +362,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 1, 2023</p>
+      <p class="date-modified">November 10, 2023</p>
     </div>
   </div>
     
@@ -426,7 +445,7 @@ Research Question
 </section><section id="iconify-flat-color-icons-workflow-workflow-read-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-read-the-data">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</h2>
 <p>Download the data by clicking the button below.</p>
-<p><a href="#dnldts51315" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQ0KMSwyNCwsDQoyLCwyMSwNCjMsLCwxOA0KNCwyNiwsDQo1LCwyMiwNCjYsLCwxNA0KNywyNywsDQo4LCwyMiwNCjksLCwxNQ0KMTAsMjcsLA0KMTEsLDIxLA0KMTIsLCwxNQ0KMTMsMjYsLA0KMTQsLDIwLA0KMTUsLCwxNg0KMTYsMjcsLA0KMTcsLDIwLA0KMTgsLCwxNg0KMTksMjcsLA0KMjAsLDE5LA0KMjEsLCwxNw0KMjIsMjUsLA0KMjMsLDIxLA0KMjQsLCwxNw0KMjUsMjYsLA0KMjYsLDIzLA0KMjcsLCwxNw0KMjgsMjgsLA0KMjksLDIxLA0KMzAsLCwxNw0KMzEsMjQsLA0KMzIsLDIxLA0KMzMsLCwxOA0KMzQsMjYsLA0KMzUsLDIyLA0KMzYsLCwxNA0KMzcsMjcsLA0KMzgsLDIyLA0KMzksLCwxNQ0KNDAsMjcsLA0KNDEsLDIxLA0KNDIsLCwxNQ0KNDMsMjYsLA0KNDQsLDIwLA0KNDUsLCwxNg0KNDYsMjcsLA0KNDcsLDIwLA0KNDgsLCwxNg0KNDksMjcsLA0KNTAsLDE5LA0KNTEsLCwxNw0KNTIsMjUsLA0KNTMsLDIxLA0KNTQsLCwxNw0KNTUsMjYsLA0KNTYsLDIzLA0KNTcsLCwxNw0KNTgsMjgsLA0KNTksLDIxLA0KNjAsLCwxNw0K').then(res => res.blob()).then(blob => {
+<p><a href="#dnldts61230" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQ0KMSwyNCwsDQoyLCwyMSwNCjMsLCwxOA0KNCwyNiwsDQo1LCwyMiwNCjYsLCwxNA0KNywyNywsDQo4LCwyMiwNCjksLCwxNQ0KMTAsMjcsLA0KMTEsLDIxLA0KMTIsLCwxNQ0KMTMsMjYsLA0KMTQsLDIwLA0KMTUsLCwxNg0KMTYsMjcsLA0KMTcsLDIwLA0KMTgsLCwxNg0KMTksMjcsLA0KMjAsLDE5LA0KMjEsLCwxNw0KMjIsMjUsLA0KMjMsLDIxLA0KMjQsLCwxNw0KMjUsMjYsLA0KMjYsLDIzLA0KMjcsLCwxNw0KMjgsMjgsLA0KMjksLDIxLA0KMzAsLCwxNw0KMzEsMjQsLA0KMzIsLDIxLA0KMzMsLCwxOA0KMzQsMjYsLA0KMzUsLDIyLA0KMzYsLCwxNA0KMzcsMjcsLA0KMzgsLDIyLA0KMzksLCwxNQ0KNDAsMjcsLA0KNDEsLDIxLA0KNDIsLCwxNQ0KNDMsMjYsLA0KNDQsLDIwLA0KNDUsLCwxNg0KNDYsMjcsLA0KNDcsLDIwLA0KNDgsLCwxNg0KNDksMjcsLA0KNTAsLDE5LA0KNTEsLCwxNw0KNTIsMjUsLA0KNTMsLDIxLA0KNTQsLCwxNw0KNTUsMjYsLA0KNTYsLDIzLA0KNTcsLCwxNw0KNTgsMjgsLA0KNTksLDIxLA0KNjAsLCwxNw0K').then(res => res.blob()).then(blob => {
       const downloadURL = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       document.body.appendChild(a);
@@ -434,7 +453,7 @@ Research Question
       a.download = 'frogs.csv'; a.click();
       window.URL.revokeObjectURL(downloadURL);
       document.body.removeChild(a);
-        });"><button class="btn btn-info downloadthis  " id="dnldts51315"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
+        });"><button class="btn btn-info downloadthis  " id="dnldts61230"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -448,7 +467,7 @@ Data Folder
 <p>Save the CSV in a subfolder titled “data” inside your R work folder.</p>
 </div>
 </div>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-3_d376b626b714532671c8d376ac4fbb5b">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-4_7fc5470a2aaaf684567800d9e51eb293">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>frogs_orig <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/frogs.csv"</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>frogs_orig</span>
@@ -503,7 +522,7 @@ Data Folder
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>frogs_long <span class="sc">%&gt;%</span> <span class="fu">count</span>(TempFac)</span>
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-4_e165cf0acf416c44fea939a29d52557e">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-5_879652ae009ad1043d54f02d1fee37e3">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 
@@ -550,20 +569,20 @@ Data Folder
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gf_theme</span>(<span class="at">theme =</span> <span class="fu">my_theme</span>(),</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>           <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Temperature level (°C)"</span>)))</span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-5_2bce2e2ea6f706d784eb30ec77667b32">
+<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-6_d4f7b84b5433dce338f6f041fd797ca2">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="2100"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
 </div>
 <p>The histograms look well separated and the box plots also show very little overlap. So we can reasonably hypothesize that Temperature has a significant effect on Hatching Time.</p>
 <p>One more slightly esoteric plot: Jitter/Scatter with a new <em>categorical x-axis</em> offered by the <code>ggprism</code> package:</p>
-<div class="cell" data-hash="ANOVA_cache/html/using ggprism_11bde768354a2f25c38a454f47629338">
+<div class="cell" data-hash="ANOVA_cache/html/using ggprism_176b6d0997e3ac1333b30cc77b19b485">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: using ggprism</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggprism)</span>
@@ -597,7 +616,7 @@ Data Folder
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>R offers a very simple command to execute an ANOVA test: Note the familiar <code>formula</code> of stating the variables:</p>
-<div class="cell" data-hash="ANOVA_cache/html/ANOVA with code_4ac7faf25836d967acbd6381aa414342">
+<div class="cell" data-hash="ANOVA_cache/html/ANOVA with code_dd3df112d0d1806a2912da5b76f95e30">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ANOVA with code</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>frogs_anova <span class="ot">&lt;-</span> <span class="fu">aov</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span>
@@ -708,7 +727,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(p1, p2, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Fig A: SST"</span>, <span class="st">"Fig B: SSE"</span>))</span>
 <span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Anova Intuitive_ad3ee01ccc52e2e9df0d403d11305cfe">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Anova Intuitive_9b1a13a37add5e9bdceadf394e18507d">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 
@@ -784,7 +803,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <p>Now that we understand what <code><a href="https://rdrr.io/r/stats/aov.html">aov()</a></code> is doing, let us hand-calculate the numbers for our <code>frogs</code> dataset and check. Let us visualize our calculations first.</p>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Frogs SST and SSE Graphs_dd51916060eb8eac7f79ba419cd2fc00">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Frogs SST and SSE Graphs_e741b186674a7c7bd63ee5a04f744d09">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/Frogs SST and SSE Graphs-1.png" class="img-fluid" width="2100"></p>
@@ -795,7 +814,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 <p>Here is the SST:</p>
-<div class="cell" data-hash="ANOVA_cache/html/SST Total Sum of Squares_334949bd66adb97a35d220966d62f9ab">
+<div class="cell" data-hash="ANOVA_cache/html/SST Total Sum of Squares_0204efa9cb508bb4ace7a3378d6eded9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: SST Total Sum of Squares</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
@@ -827,7 +846,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 <p>And here is the SSE:</p>
-<div class="cell" data-hash="ANOVA_cache/html/SSE Within Group Sum of Squares_d59f76f2d10203ab3a65c49351fe9f4d">
+<div class="cell" data-hash="ANOVA_cache/html/SSE Within Group Sum of Squares_a5c0f489d805d85c4728e5b5c53e26f9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: SSE Within Group Sum of Squares</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
@@ -862,7 +881,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 <p>OK, we have <span class="math inline">\(SST\)</span> and <span class="math inline">\(SSE\)</span>, so let’s get <span class="math inline">\(SSA\)</span>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-12_9c77d1e33c8f4715143d4f5ed9909585">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-13_c31fcc6903bfdd80cfeb4df958a9c100">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>SST</span>
@@ -887,7 +906,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <p><span class="math inline">\(SSE\)</span> has <span class="math inline">\(k*(n-1)\)</span> as degrees of freedom, since each of the <span class="math inline">\(k\)</span> groups there are <span class="math inline">\(n\)</span> observations and each group loses one degree to calculate its own group mean.</p>
 <p>And therefore <span class="math inline">\(SSA\)</span>, being their difference, has <span class="math inline">\(k-1\)</span> degrees of freedom.</p>
 <p>We can still calculate these in R, for the sake of method and clarity:</p>
-<div class="cell" data-hash="ANOVA_cache/html/Degrees of Freedom_cd5764bb3be90e27301b6992803fbd5a">
+<div class="cell" data-hash="ANOVA_cache/html/Degrees of Freedom_73c1e66e4be00d568c60653278fbf4b7">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Degrees of Freedom</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -919,7 +938,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>df_SSE</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>df_SSA</span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-14_21734805732a4ce24390e5c21736095b">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-15_01144120cbb9faf14712b2fec7142772">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <pre><code>[1] 59
@@ -930,7 +949,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 <p>Now we are ready to compute the F-statistic: dividing each sum-of-squares byt its degrees of freedom gives us <em>variances</em> which we will compare, using the <em>F-statistic</em> as a ratio:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-15_fcb0768dc9626eb0bfd9304339364c78">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-16_6af2bc50b2f4871835fd3440612fb5af">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Finally F_Stat!</span></span>
@@ -956,7 +975,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 <p>The <code>F-stat</code> is compared with a <strong>critical value</strong> of the F-statistic,<code>F_crit</code> which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to <span class="math inline">\(\alpha = 0.95\)</span>, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to <code><a href="https://rdrr.io/r/stats/Fdist.html">qf()</a></code> which computes the critical F value as a <strong>quartile</strong>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-16_34e7bab7e450a205a846e9b80499780d">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-17_2ef716236bee4e87c6fe51036124dc4a">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>F_crit <span class="ot">&lt;-</span>  </span>
@@ -994,16 +1013,16 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">df1 =</span> df_SSA, <span class="at">df2 =</span> df_SSE,</span>
 <span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">log.p =</span> <span class="cn">FALSE</span>,<span class="at">lower.tail =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-17_e0f8e740426711f6f0244e1068982423">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-18_731f417d455429a1d641d619951ae787">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
 <pre><code>[1] 0.9833333</code></pre>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="2100"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 10.0%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-18-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
@@ -1025,7 +1044,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <section id="iconify-ic-twotone-rule-checks-for-normality" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="iconify-ic-twotone-rule-checks-for-normality">
 <iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Checks for Normality</h3>
 <p>The <code>shapiro.wilk</code> test tests if a vector of numeric data is normally distributed and rejects the hypothesis of normality when the <a href="https://variation.com/wp-content/distribution_analyzer_help/hs132.htm">p-value</a> is less than or equal to 0.05.&nbsp;</p>
-<div class="cell" data-hash="ANOVA_cache/html/Check for Normality_a9e13e2b53b7f2be73303a1472bbf21a">
+<div class="cell" data-hash="ANOVA_cache/html/Check for Normality_08a2e9c3fa7867993ff02f75ec3c5e5c">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Check for Normality</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(<span class="at">x =</span> frogs_long<span class="sc">$</span>Time)</span>
@@ -1039,7 +1058,7 @@ W = 0.92752, p-value = 0.001561</code></pre>
 </div>
 </div>
 <p>The p-value is very low and we cannot reject the (alternative) hypothesis that the overall data is <strong>not</strong> normal. How about normality at each level of the factor?</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-19_32ad005446e1d21ae335b4f1134c46ee">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-20_471b6df381d74d7c23139990ef0c26b8">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>frogs_grouped <span class="ot">&lt;-</span> frogs_long <span class="sc">%&gt;%</span> </span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TempFac) <span class="sc">%&gt;%</span> </span>
@@ -1107,7 +1126,7 @@ W = 0.88954, p-value = 0.02638</code></pre>
 <span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(frogs_anova<span class="sc">$</span>residuals)</span>
 <span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-20_a0d7abc8be32a06b9e1bd58625929fad">
+<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-21_459cc4e16a5c5136c90ba831c4aed0b5">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <pre><code>
@@ -1117,10 +1136,10 @@ data:  frogs_anova$residuals
 W = 0.94814, p-value = 0.01275</code></pre>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="2100"></p>
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
@@ -1145,7 +1164,7 @@ W = 0.94814, p-value = 0.01275</code></pre>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>DescTools<span class="sc">::</span><span class="fu">LeveneTest</span>(Time <span class="sc">~</span> TempFac, <span class="at">data =</span> frogs_long)</span>
 <span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-body-outset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-21_4a880013ad8aea172d8710039fd57909">
+<div class="cell column-body-outset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-22_de9178f913b9f4f6d9ab1a82ec492d6a">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 
@@ -1182,7 +1201,7 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </section></section><section id="iconify-flat-color-icons-workflow-workflow-effect-size" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-effect-size">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Effect Size</h2>
 <p>The simplest way to find the actual <code>effect sizes</code> detected by an ANOVA test is to use (paradoxically) the <code><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm()</a></code> command:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-22_6cf29080ac074697a4d41bc9e4faf62a">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-23_8d33f02bf4d805dee5bd0fd1755bb6d0">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>tidy_anova <span class="ot">&lt;-</span> </span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  frogs_anova <span class="sc">%&gt;%</span> </span>
@@ -1214,7 +1233,7 @@ Standard Errors
 </div>
 </div>
 <p>We can easily plot bar-chart with error bars for the effect size:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-23_dda3d113992c3f7326da21547ce3f096">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-24_419b8146407366665e183bb15874f5bc">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>tidy_anova <span class="sc">%&gt;%</span> </span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hi =</span> estimate <span class="sc">+</span> std.error,</span>
@@ -1237,11 +1256,11 @@ Standard Errors
 <span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span>
 <span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>If we want an “absolute value” plot for effect size, it needs just a little bit of work:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-24_28096c682459a2807d043b506ea45b03">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-25_74b48af27e9403946e59113c8005bf73">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Merging group averages with `std.error`</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>frogs_long <span class="sc">%&gt;%</span> </span>
@@ -1267,7 +1286,7 @@ Standard Errors
 <span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gf_theme</span>(<span class="fu">my_theme</span>())</span>
 <span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <p>In both graphs, note the difference in the error-bar heights.</p>
@@ -1280,7 +1299,7 @@ Standard Errors
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <p>There is a very neat package called <code>ggstatsplot</code><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> that allows us to plot very comprehensive statistical graphs. Let us quickly do this:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-25_ac8a108e814cd640eb41a0d649f80bfe">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-26_bcc1e799998dd1db5c5cf6178a831ff9">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggstatsplot)</span>
@@ -1289,7 +1308,7 @@ Standard Errors
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">title =</span> <span class="st">"ANOVA : Frogs Spawn Time vs Temperature Setting"</span>)</span>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="2100"></p>
+<p><img src="ANOVA_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
@@ -1302,7 +1321,7 @@ Standard Errors
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>supernova<span class="sc">::</span><span class="fu">supernova</span>(frogs_anova)</span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>supernova<span class="sc">::</span><span class="fu">pairwise</span>(frogs_anova)</span>
 <span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-26_929f3d073e6630172f641d6085dfb818">
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-27_c36e3af9518d04a25435107730e4361f">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <pre><code> Analysis of Variance Table (Type III SS)
@@ -1343,7 +1362,7 @@ Standard Errors
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <p><code>mosaic</code> offers an easy and intuitive way of doing a repeated permutation test, using the <code>do()</code> command. We will <code>shuffle</code> the <code>TempFac</code> factor to jumble up the <code>Time</code> observations, 4999 times. Each time we shuffle, we compute the F_statistic and record it. We then plot the 4999 F-statistics and compare that with the real-world observation of <code>F-stat</code>.</p>
-<div class="cell" data-hash="ANOVA_cache/html/permutation test for ANOVA with mosaic_1a3d05ec87c7b1ad045b824e795c69da">
+<div class="cell" data-hash="ANOVA_cache/html/permutation test for ANOVA with mosaic_a088ed6c3762cac3e450115d01cecbc5">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: permutation test for ANOVA with mosaic</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>obs_F_stat <span class="ot">&lt;-</span> </span>
@@ -1387,7 +1406,7 @@ Standard Errors
 </div>
 </div>
 <p>The Null distribution of the <code>F_statistic</code> under permutation shows it never crosses the real-world observed value, testifying as to the strength of the effect of <code>TempFac</code> on hatching <code>Time</code>. And the <code>p-value</code> is:</p>
-<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-28_e9902dea5c56c82b52999326e7589334">
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-29_ac78cdd4a0d76ec18f4f6557551627a5">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">mean</span>(null_dist_mosaic<span class="sc">$</span>F <span class="sc">&gt;=</span> observed_mosaic, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>p_value</span>
@@ -1399,7 +1418,7 @@ Standard Errors
 </div>
 <div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <p>We calculate the observed F-stat with <code>infer</code>, which also has a very direct, if verbose, syntax for doing permutation tests:</p>
-<div class="cell" data-hash="ANOVA_cache/html/ANOVA F-statistic with infer_18be73fe8586fa6d95b37bea439daca5">
+<div class="cell" data-hash="ANOVA_cache/html/ANOVA F-statistic with infer_3332d69b02f66363319e4c3858d5131c">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ANOVA F-statistic with infer</span></span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1420,7 +1439,7 @@ Standard Errors
 </div>
 </div>
 <p>We see that the observed F-Statistic is of course <span class="math inline">\(385.8966\)</span> as before. Now we use <code>infer</code> to generate a NULL distribution using permutation of the factor <code>TempFac</code>:</p>
-<div class="cell" data-hash="ANOVA_cache/html/Permutation using infer_7f945193e1c34138ff78ad2c94624186">
+<div class="cell" data-hash="ANOVA_cache/html/Permutation using infer_837a3df412bd5500077cc77e2236a537">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Permutation using infer</span></span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1461,16 +1480,70 @@ Standard Errors
 <p>We have discussed ANOVA as a means of modelling the effects of a Categorical variable on a Continuous (Quant) variable. ANOVA can be carried out using the standard formula <code>aov</code> when assumptions on distributions, variances, and independence are met. Permutation ANOVA tests can be carried out when these assumptions do not quite hold.</p>
 </section><section id="sec--references" class="level2"><h2 class="anchored" data-anchor-id="sec--references">
 <iconify-icon inline="" icon="ooui:references-rtl"></iconify-icon> References</h2>
-<ol type="1">
-<li><p>The ANOVA tutorial at <a href="https://ourcodingclub.github.io/tutorials/anova/">Our Coding Club</a>.</p></li>
-<li><p>Antoine Soetewey. <em>How to: one-way ANOVA by hand</em>. <a href="https://statsandr.com/blog/how-to-one-way-anova-by-hand/" class="uri">https://statsandr.com/blog/how-to-one-way-anova-by-hand/</a></p></li>
-<li><p>ANOVA in R - Stats and R <a href="https://statsandr.com/blog/anova-in-r/" class="uri">https://statsandr.com/blog/anova-in-r/</a></p></li>
-<li><p>Michael Crawley, The R Book,second edition, 2013. Chapter 11.</p></li>
-<li><p>David C Howell, <a href="https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html">Permutation Tests for Factorial ANOVA Designs</a></p></li>
-<li><p>Marti Anderson, <a href="https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download">Permutation tests for univariate or multivariate analysis of variance and regression</a></p></li>
-<li><p>Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017. “Introduction to Data Analysis.” In, 1–9. Routledge. https://doi.org/10.4324/9781315744131-1.</p></li>
-<li><p>Patil, I. (2021). <em>Visualizations with statistical details: The ‘ggstatsplot’ approach.</em> Journal of Open Source Software, 6(61), 3167, doi:10.21105/joss.03167</p></li>
-</ol>
+<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" role="list">
+<p><br>
+The ANOVA tutorial at <a href="https://ourcodingclub.github.io/tutorials/anova/">Our Coding Club</a><br>
+Antoine Soetewey. <em>How to: one-way ANOVA by hand</em>. <a href="https://statsandr.com/blog/how-to-one-way-anova-by-hand/" class="uri">https://statsandr.com/blog/how-to-one-way-anova-by-hand/</a><br>
+ANOVA in R - Stats and R <a href="https://statsandr.com/blog/anova-in-r/" class="uri">https://statsandr.com/blog/anova-in-r/</a><br>
+Michael Crawley, The R Book,second edition, 2013. Chapter 11.<br>
+David C Howell, <a href="https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html">Permutation Tests for Factorial ANOVA Designs</a><br>
+Marti Anderson, <a href="https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download">Permutation tests for univariate or multivariate analysis of variance and regression</a><br>
+Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017. “Introduction to Data Analysis.” In, 1–9. Routledge. https://doi.org/10.4324/9781315744131-1.<br>
+Patil, I. (2021). <em>Visualizations with statistical details: The ‘ggstatsplot’ approach.</em> Journal of Open Source Software, 6(61), 3167, doi:10.21105/joss.03167</p>
+<div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-32_c5f0a3e130453682d3a54f803e52a6e5">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">Package</th>
+<th style="text-align: left;">Version</th>
+<th style="text-align: left;">Citation</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DescTools</td>
+<td style="text-align: left;">0.99.50</td>
+<td style="text-align: left;"><span class="citation" data-cites="DescTools">Signorell (<a href="#ref-DescTools" role="doc-biblioref">2023</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ggprism</td>
+<td style="text-align: left;">1.0.4</td>
+<td style="text-align: left;"><span class="citation" data-cites="ggprism">Dawson (<a href="#ref-ggprism" role="doc-biblioref">2022</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ggstatsplot</td>
+<td style="text-align: left;">0.12.1</td>
+<td style="text-align: left;"><span class="citation" data-cites="ggstatsplot">Patil (<a href="#ref-ggstatsplot" role="doc-biblioref">2021</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ggtext</td>
+<td style="text-align: left;">0.1.2</td>
+<td style="text-align: left;"><span class="citation" data-cites="ggtext">Wilke and Wiernik (<a href="#ref-ggtext" role="doc-biblioref">2022</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">supernova</td>
+<td style="text-align: left;">2.5.8</td>
+<td style="text-align: left;"><span class="citation" data-cites="supernova">Blake et al. (<a href="#ref-supernova" role="doc-biblioref">2023</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="ref-supernova" class="csl-entry" role="listitem">
+Blake, Adam, Jeff Chrabaszcz, Ji Son, and Jim Stigler. 2023. <em><span class="nocase">supernova</span>: Judd, McClelland, &amp; Ryan Formatting for ANOVA Output</em>. <a href="https://CRAN.R-project.org/package=supernova">https://CRAN.R-project.org/package=supernova</a>.
+</div>
+<div id="ref-ggprism" class="csl-entry" role="listitem">
+Dawson, Charlotte. 2022. <em><span class="nocase">ggprism</span>: A <span>“<span class="nocase">ggplot2</span>”</span> Extension Inspired by <span>“<span>GraphPad Prism</span>”</span></em>. <a href="https://CRAN.R-project.org/package=ggprism">https://CRAN.R-project.org/package=ggprism</a>.
+</div>
+<div id="ref-ggstatsplot" class="csl-entry" role="listitem">
+Patil, Indrajeet. 2021. <span>“<span class="nocase">Visualizations with statistical details: The <span><span>‘<span class="nocase">ggstatsplot</span>’</span></span> approach</span>.”</span> <em><span>Journal of Open Source Software</span></em> 6 (61): 3167. <a href="https://doi.org/10.21105/joss.03167">https://doi.org/10.21105/joss.03167</a>.
+</div>
+<div id="ref-DescTools" class="csl-entry" role="listitem">
+Signorell, Andri. 2023. <em><span>DescTools</span>: Tools for Descriptive Statistics</em>. <a href="https://CRAN.R-project.org/package=DescTools">https://CRAN.R-project.org/package=DescTools</a>.
+</div>
+<div id="ref-ggtext" class="csl-entry" role="listitem">
+Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span class="nocase">ggtext</span>: Improved Text Rendering Support for <span>“<span class="nocase">ggplot2</span>”</span></em>. <a href="https://CRAN.R-project.org/package=ggtext">https://CRAN.R-project.org/package=ggtext</a>.
+</div>
+</div>
 
 
 </section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
@@ -1484,7 +1557,19 @@ Standard Errors
 <li id="fn7"><p><a href="https://github.com/UCLATALL/supernova" class="uri">https://github.com/UCLATALL/supernova</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn8"><p>Ernst, Michael D. 2004. “Permutation Methods: A Basis for Exact Inference.” Statistical Science 19 (4): 676–85. doi:10.1214/088342304000000396.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn9"><p>Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</ol></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2023,
+  author = {V., Arvind},
+  title = {Comparing {Multiple} {Means} with {ANOVA}},
+  date = {2023-03-28},
+  url = {https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/130-ThreeMeansOrMore/ANOVA.html},
+  langid = {en},
+  abstract = {ANOVA to investigate how frogspawn hatching time varies
+    with temperature.}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-v.2023" class="csl-entry quarto-appendix-citeas" role="listitem">
+V., Arvind. 2023. <span>“Comparing Multiple Means with ANOVA.”</span>
+March 28, 2023. <a href="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/130-ThreeMeansOrMore/ANOVA.html">https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/130-ThreeMeansOrMore/ANOVA.html</a>.
+</div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");

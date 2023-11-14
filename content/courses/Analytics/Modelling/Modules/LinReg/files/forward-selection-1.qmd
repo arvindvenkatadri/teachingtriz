@@ -1,6 +1,6 @@
 ---
 title: "Tutorial: Multiple Linear Regression with Forward Selection"
-author: "Arvind Venkatadri"
+author: "Arvind V."
 date: 13/May/2023
 date-modified: "`r Sys.Date()`"
 categories: 
@@ -10,6 +10,10 @@ categories:
   - Sum of Squares
   - Residuals
 abstract: "Using Multiple Regression to predict Quantitative Target Variables"
+bibliography: 
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -34,6 +38,18 @@ library(ISLR)
 ```
 
 
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(grateful)
+
+```
 
 
 ```{r}
@@ -184,7 +200,7 @@ all_corrs %>%
            color = "grey") %>%
   gf_errorbar(
     conf.high + conf.low ~ reorder(predictor, estimate),
-    color = ~ -log10(p.value),
+    color = ~ estimate,
     linewidth =  ~ -log10(p.value),
     width = 0.5,
     caption = "Significance = -log10(p.value)"
@@ -586,7 +602,7 @@ We can clean it up a wee bit:
 ```{r}
 #| label: clean-helper-summary
 #| column: page-inset-right
-
+library(gt)
 # big_model has 4 parts: formulas, residuals, coefficients, overall
 
 overall_clean <- summary(big_model)$overall %>% as_tibble() %>% janitor::clean_names()
@@ -598,7 +614,9 @@ formulas_clean <- summary(big_model)$formulas %>%
 all_models <- cbind(formulas_clean, overall_clean) %>% 
   dplyr::select(1,2,8)
 all_models %>% 
-  gt::gt()
+  gt::gt() %>% 
+    tab_style(style = cell_fill(color = "grey"),
+            locations = cells_body(rows = seq(1, 18, 2)))
 
 ```
 
@@ -608,12 +626,26 @@ Slightly weird that the NULL model of `Salary~1` does not show an `r.squared` va
 :::
 
 ## {{< iconify ooui references-rtl >}} References
+::: {#refs style="font-size: 60%;"}
+\
+<https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/>
 
-1.  <https://ethanwicker.com/2021-01-11-multiple-linear-regression-002/>
 
+###### {{< iconify lucide package-check >}} R Package Citations
 
-## {{< iconify lucide package-check >}} R Package Citations
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("corrgram", "corrplot", "GGally","gt",
+           "infer", "ISLR", "janitor", "reghelper")
+) %>%
+  knitr::kable(format = "simple")
 
-1.Hughes J, Beiner D (2023). *reghelper: Helper Functions for Regression Analysis*. R package version 1.1.2, <https://CRAN.R-project.org/package=reghelper>.
+```
 
+:::
 

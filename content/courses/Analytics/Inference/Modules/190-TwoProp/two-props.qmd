@@ -1,6 +1,6 @@
 ---
 title: "\U0001F0CF Inferences Test for Two Proportions"
-author: "Arvind Venkatadri"
+author: "Arvind V."
 date: 10/Nov/2022
 abstract: "Inference Test for Two Proportions"
 lastmod: "`r Sys.Date()`"
@@ -13,6 +13,10 @@ categories:
 - Random Number Generation
 - Distributions
 - Generating Parallel Worlds
+bibliography: 
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R packages
@@ -27,27 +31,53 @@ library(ggmosaic) # plotting mosaic plots for Categorical Data
 ### Dataset from Chihara and Hesterberg's book (Second Edition)
 library(resampledata)
 library(vcd)
+
 ```
+
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(grateful)
+
+```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-We saw from the diagram created by Allen Downey that *there is only one
-test*! We will now use this philosophy to develop a technique that
-allows us to mechanize several *Statistical Models* in that way, with
-nearly identical code.
+We saw from the diagram created by Allen Downey that [there is only one
+test](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)!
+We will now use this philosophy to develop a technique that allows us to
+mechanize several *Statistical Models* in that way, with nearly
+identical code.
 
-We will use two packages in R, `mosaic` and the relatively new `infer`
-package, to develop our intuition for what are called **permutation**
-based statistical tests.
+We will use two packages in R, `mosaic` and the relatively new [`infer`
+package](https://infer.netlify.app), to develop our intuition for what
+are called **permutation** based statistical tests.
 
-## Inference for Two or More Proportions
+## {{< iconify lucide ratio >}} Inference for Two (or More) Proportions
+
+### {{< iconify grommet-icons test >}} Case Study-1: `GSS2002` dataset
+
+
+
+### {{< iconify grommet-icons test >}} Case Study-2: `GSS2002` dataset
+
+We can extend this idea to *multiple proportions* too.
 
 Let us try a dataset with Qualitative / Categorical data. This is the
-`General Social Survey GSS dataset`, and we have people with different
-levels of `Education` stating their opinion on the `Death Penalty`. We
-want to know if these two Categorical variables have a correlation, i.e.
-can the opinions in favour of the `Death Penalty` be explained by the
-`Education` level?
+`General Social Survey GSS dataset` from the [`resampledata`
+package](https://github.com/rudeboybert/resampledata), and we have
+people with different levels of `Education` stating their opinion on the
+`Death Penalty`. We want to know if these two Categorical variables have
+a correlation, i.e. can the opinions in favour of the `Death Penalty` be
+explained by the `Education` level?
 
 Since data is Categorical ( both variables ), we need to take `counts`
 in a table, and then implement a `chi-square test`. In the test, we will
@@ -56,10 +86,13 @@ its *effect size* is.
 
 ```{r}
 
-data(GSS2002)
+data(GSS2002, package = "resampledata")
+glimpse(GSS2002)
 inspect(GSS2002)
+skimr::skim(GSS2002)
 
 ```
+
 
 Note how *all* variables are Categorical !! `Education` has five
 `levels`, and of course `DeathPenalty` has three:
@@ -83,7 +116,7 @@ gss2002 <- GSS2002 %>%
 
 
 
-gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
+gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002)
 gss_table %>% 
   addmargins()
 
@@ -94,10 +127,11 @@ gss_table %>%
 The Contingency Table can be plotted, as we have seen, using a `mosaic`
 plot using several packages:
 
-::: panel-tabset
-### Using `ggformula`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-Need a little more work, to convert the Contigency Table into a tibble:
+### Using ggformula
+
+Needs a little more work, to convert the Contingency Table into a tibble:
 
 ```{r warning=FALSE,message=FALSE}
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
@@ -115,7 +149,6 @@ gss_summary <- gss2002 %>%
   summarise(count = n()) %>% # This is good for a chisq test
   
   # Add two more columns to facilitate mosaic/Marrimekko Plot
-  # 
   mutate(edu_count = sum(count), 
          edu_prop = count / sum(count)) %>%
   ungroup() 
@@ -143,23 +176,24 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 ```
 
-### Using `vcd`
+### Using vcd
 
 ```{r}
 vcd::mosaic(gss_table, gp = shading_hsv)
 
 ```
 
-### Using `ggmosaic`
+### Using ggmosaic
 
 ```{r mosaic-plot,warning=FALSE}
 #library(ggmosaic)
 
 ggplot(data = gss2002) +
   geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty))
+                  fill = DeathPenalty)) + theme_minimal()
 
 ```
+
 :::
 
 ## Observed Statistic: the $X^2$ metric
@@ -167,7 +201,8 @@ ggplot(data = gss2002) +
 When there are multiple proportions involved, the $X^2$ test is what is
 used.
 
-::: panel-tabset
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ### Intuitive Explanation
 
 Let us look at the Contingency Table that we have:
@@ -175,7 +210,7 @@ Let us look at the Contingency Table that we have:
 ```{r echo=FALSE}
 
 gss_table %>% addmargins() %>% 
-  kableExtra::kbl(caption = "Contigency Table") %>%
+  kableExtra::kbl(caption = "Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
@@ -224,7 +259,7 @@ gss_exp <- gss_table * gss_table / ((
 ```{r echo=FALSE}
 
 gss_exp %>% addmargins() %>% 
-   kableExtra::kbl(caption = "Expected Contigency Table", digits = 0) %>%
+   kableExtra::kbl(caption = "Expected Contingency Table", digits = 0) %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
@@ -232,7 +267,7 @@ gss_exp %>% addmargins() %>%
 ```{r echo=FALSE}
 
 gss_table %>% addmargins() %>% 
-   kableExtra::kbl(caption = "Actual Contigency Table") %>%
+   kableExtra::kbl(caption = "Actual Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 
@@ -263,6 +298,7 @@ stats::chisq.test(tally(DeathPenalty ~ Education, data = gss2002))
 ```
 
 We see that our observed $X^2 = 23.45$.
+
 :::
 
 ### Hypotheses Definition
@@ -278,7 +314,7 @@ We should now repeat the test with permutations on `Education`:
 
 ```{r}
 
-null_chisq <- do(10000) * 
+null_chisq <- do(9999) * 
   chisq.test(tally(DeathPenalty ~ shuffle(Education), 
                    data = gss2002))
 
@@ -298,26 +334,39 @@ The `p-value` is well below our threshold of $0.05$, so we would
 conclude that `Education` has a significant effect on `DeathPenalty`
 opinion!
 
-## Conclusion
-
-Why would a permutation test be a good idea here?
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 In our basic $X^2$ test, we calculate the test statistic of $X^2$ and
 look up a *theoretical* null distribution for that statistic, and see
 how unlikely our observed value is.
 
-With a permutation test, there are *no assumptions* of the null
-distribution: this is computed based on real data. We note in passing
-that, in this case, since the number of `cases` in each cell of the
-Contingency Table are fairly high ( \>= 5) the resulting NULL
+Why would a permutation test be a good idea here? With a permutation test, there are *no assumptions* of the null distribution: this is computed based on real data. We note in passing that, in this case, since the number of `cases` in each cell of the Contingency Table are fairly high ( \>= 5) the resulting NULL
 distribution is of the $X^2$ variety.
 
-## References
+## {{< iconify ooui references-rtl >}} References
 
-1.  [OpenIntro Modern Statistics: Chapter
-    17](https://openintro-ims.netlify.app/inference-one-prop.html)
-2.  Exploring the underlying theory of the chi-square test through
-    simulation - part 1 <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence/>
-3.  Exploring the underlying theory of the chi-square test through
-    simulation - part 2 <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>
+::: {#refs style="font-size: 60%;"}
+\
+[OpenIntro Modern Statistics: Chapter
+17](https://openintro-ims.netlify.app/inference-one-prop.html)\
+Exploring the underlying theory of the chi-square test through
+simulation - part 1
+<https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence/>\
+Exploring the underlying theory of the chi-square test through
+simulation - part 2
+<https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>\
 
+```{r}
+#| echo: false
+scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("ggmosaic", "resampledata", "scales",
+           "vcd")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::

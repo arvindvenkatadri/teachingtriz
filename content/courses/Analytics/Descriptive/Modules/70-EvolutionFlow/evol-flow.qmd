@@ -25,9 +25,9 @@ citation: true
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                        |                                                                                                                       |                                                                                                 |                                                                               |
-|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| <a href="./files/evolutions.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a> | <a href="./files/evolutions.ows"> <iconify-icon icon="fluent-emoji:orange-circle"></iconify-icon> Orange Tutorial</a> | <a href="./files/evolutions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial </a> | <a href="./data/data.zip"> <i class="fa-solid fa-database"> </i> Datasets</a> |
+|                                                                                       |     |     |     |
+|-----------------|---------------------|-----------------|-----------------|
+| <a href="./files/evolutions.qmd"><i class="fa-brands fa-r-project"></i>R Tutorial</a> |     |     |     |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -52,7 +52,6 @@ library(echarts4r) # Interactive graphs
 
 ```
 
-
 ```{r}
 #| label: Extra Pedagogical Packages
 #| echo: false
@@ -75,11 +74,9 @@ Data](https://ourworldindata.org/grapher/public-health-expenditure-share-GDP-OWI
 We will plot graphs for 5 countries (India, China, Brazil, Russia,
 Canada ).
 
-::: callout-note
-## And introducing `echarts4r`
-
-We will also build *interactive versions* of these charts using
-`echarts4r`!
+:::callout-important
+### And Introducting `echarts4r`
+We will also build interactive versions of these charts using `echarts4r`!
 :::
 
 Download this data by clicking on the button below:
@@ -113,38 +110,39 @@ gf_point(data = health_filtered,
              colour = ~ Entity, 
              ylab = "Healthcare Budget\n as % of GDP",
          title = "Line Charts to show Evolution (over Time )") %>% 
-  gf_theme(theme_minimal())
+  gf_line() %>% 
+  gf_theme(theme_classic())
 
+###
 gf_area(data = health_filtered,
           public_health_expenditure_pc_gdp ~ Year, 
           fill = ~ Entity, alpha = 0.3, 
           ylab = "Healthcare Budget\n as % of GDP",
         title = "Area Charts to show Evolution (over Time )") %>% 
   gf_line(colour = ~ Entity) %>% 
-  gf_theme(theme_minimal())
+  gf_theme(theme_classic())
 
 ```
 
 ### Using echarts4r
 
 ```{r}
-#| layout-ncol: 2
 #| results: hold
 
 health_filtered %>% group_by(Entity) %>% 
   e_charts(Year) %>% 
   e_scatter(public_health_expenditure_pc_gdp) %>% 
   e_line(public_health_expenditure_pc_gdp) %>% 
-  e_x_axis(name = "Year", min = 1850, max = 2100) %>% 
+  e_x_axis(name = "Year", min = 1850, max = 2050) %>% 
   e_y_axis(name = "Public Health Expenditure", 
            nameLocation = "middle", nameGap = 25) %>% 
   e_tooltip()
-
+###
 health_filtered %>% group_by(Entity) %>% 
   e_charts(Year) %>% 
   e_scatter(public_health_expenditure_pc_gdp) %>% 
   e_area(public_health_expenditure_pc_gdp) %>% 
-  e_x_axis(name = "Year", min = 1850, max = 2100) %>% 
+  e_x_axis(name = "Year", min = 1850, max = 2050) %>% 
   e_y_axis(name = "Public Health Expenditure", 
            nameLocation = "middle",nameGap = 25) %>% 
   e_tooltip()
@@ -169,7 +167,7 @@ says:
 
 > A **parallel sets diagram** is a type of visualisation showing the
 > interaction between multiple categorical variables. If the variables
-> have an intrinsic order the representation can be thought of as a
+> have an **intrinsic order** the representation can be thought of as a
 > **Sankey Diagram**. If each variable is a point in time it will
 > resemble an **Alluvial diagram**.
 
@@ -372,6 +370,57 @@ What business data would you depict in this way? Revenue streams?
 Employment? Expenditures over time and market? There are many
 possibilities!
 
+:::{.hidden}
+```{.d2}
+logs: {
+  shape: page
+  style.multiple: true
+}
+user: User {shape: person}
+network: Network {
+  tower: Cell Tower {
+    satellites: {
+      shape: stored_data
+      style.multiple: true
+    }
+
+    satellites -> transmitter
+    satellites -> transmitter
+    satellites -> transmitter
+    transmitter
+  }
+  processor: Data Processor {
+    storage: Storage {
+      shape: cylinder
+      style.multiple: true
+    }
+  }
+  portal: Online Portal {
+    UI
+  }
+
+  tower.transmitter -> processor: phone logs
+}
+server: API Server
+
+user -> network.tower: Make call
+network.processor -> server
+network.processor -> server
+network.processor -> server
+
+server -> logs
+server -> logs
+server -> logs: persist
+
+server -> network.portal.UI: display
+user -> network.portal.UI: access {
+  style.stroke-dash: 3
+}
+
+```
+:::
+
+
 ## Your Turn
 
 1.  Within the `ggalluvial` package are two datasets, `majors` and
@@ -385,17 +434,20 @@ possibilities!
 
 ::: {#refs style="font-size: 60%;"}
 \
-Global Migration, <https://download.gsb.bund.de/BIB/global_flow/> A
-    good example of the use of a Chord Diagram.\
-`ggalluvial` cheatsheet,<https://cheatography.com/seleven/cheat-sheets/ggalluvial/>\
+Global Migration, <https://download.gsb.bund.de/BIB/global_flow/> A good
+example of the use of a Chord Diagram.\
+`ggalluvial`
+cheatsheet,<https://cheatography.com/seleven/cheat-sheets/ggalluvial/>\
 John Coene, Sankey plots with `echarts4r`,
 <https://echarts4r.john-coene.com/articles/chart_types.html#sankey>\
-Other packages: [Sankey plot \| the R Graph Gallery (r-graph-gallery.com)](https://r-graph-gallery.com/sankey-diagram.html)\
+Other packages: [Sankey plot \| the R Graph Gallery
+(r-graph-gallery.com)](https://r-graph-gallery.com/sankey-diagram.html)\
 Another package: [Sankey diagrams in ggplot2 with ggsankey \| RCHARTS
-    (r-charts.com)](https://r-charts.com/flow/sankey-diagram-ggplot2/)\
+(r-charts.com)](https://r-charts.com/flow/sankey-diagram-ggplot2/)\
 Sankey Charts using networkD3:
-    <http://christophergandrud.github.io/networkD3>\
+<http://christophergandrud.github.io/networkD3>\
 
+###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}
 #| echo: false
