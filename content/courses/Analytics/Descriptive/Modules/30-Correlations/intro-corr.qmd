@@ -31,14 +31,22 @@ citation: true
 ```{r}
 #| label: setup
 #| message: false
+#| warning: false
 
 library(tidyverse) # Tidy data processing and plotting
 library(ggformula) # Formula based plots
-library(mosaic) # Our go to package
+library(mosaic) # Our go-to package
+library(skimr) # Another Data inspection package
+
+library(correlation) # Different Types of Correlations
+# From the easystats collection of packages
+
 library(GGally) # Corr plots
 library(corrplot) # More corrplots
-library(skimr) # Another Data inspection package
+library(ggExtra) # Making Combination Plots
+
 library(Lock5withR) # Datasets
+library(palmerpenguins) # A famous dataset
 
 # Set plot theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
@@ -85,11 +93,14 @@ where $E$ is the expectation operator ( i.e taking mean ). Think of this
 as *the average of the products of two scaled variables*.
 
 ::: callout-tip
-### Correlation uses z-scores
+### Pearson Correlation uses z-scores
 
 We can see $(x-\mu_x)/\sigma_x$ is a centering and scaling of the
 variable $x$. Recall from our discussion on [Distributions](../../Modules/20-Distributions/intro-dist.qmd#iconify-ph-bell-simple-z-duotone-z-scores) that this is called the `z-score` of x.
 :::
+
+Pearson correlation *assumes* that the relationship between the two variables is **linear**. There are of course many other types of correlation measures: some which work when this is not so. Type `vignette("types", package = "correlation")` in your Console to see the vignette from the `correlation` package.
+
 
 A quick reminder on how `mosaic` and `ggformula` work in a very similar
 fashion:
@@ -195,6 +206,17 @@ Some of the very basic and commonly used plots for data are:
 
 ## {{< iconify ph chart-scatter-bold >}} Scatter Plots
 
+Which are the numeric variables in `movies`?
+
+```{r}
+
+movies_quant <- movies %>%
+  drop_na() %>%
+  select(where(is.numeric))
+movies_quant
+
+```
+Now let us plot their relationships.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
@@ -206,14 +228,7 @@ Some of the very basic and commonly used plots for data are:
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
-
-# Which are the numeric variables?
-movies_quant <- movies %>%
-  drop_na() %>%
-  select(where(is.numeric))
-movies_quant
+ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 
 ##
 movies %>% 
@@ -231,18 +246,13 @@ movies %>%
 movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
-```
 
-
-We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
-
-```{r}
-#| label: corr-ggformula-scores
-
-# Set graph theme
+##
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
                                        base_family = "sans"))
+
 ##
+## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
 movies %>%
   drop_na() %>%
   gf_point(RottenTomatoes ~ AudienceScore, 
@@ -250,8 +260,6 @@ movies %>%
  gf_lm()
 
 ```
-
-By and large yes..there are only small variations in slope across `Genre`s.
 
 ### Using ggplot
 
@@ -274,11 +282,22 @@ movies %>% ggplot(aes(OpeningWeekend,Profitability)) +
   geom_lm(title = "Scatter Plot",
             subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
+##
 movies %>% ggplot(aes(AudienceScore,RottenTomatoes)) + 
   geom_point() + 
   geom_lm(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
+
+
+##
+movies %>%
+  drop_na() %>%
+  ggplot(aes(RottenTomatoes, AudienceScore, color = Genre)) + 
+  geom_point() + 
+    geom_smooth(method = "lm", se = FALSE)
+
 ```
+:::
 
 :::callout-note
 ### Business Insight from `movies` scatter plots
@@ -287,25 +306,11 @@ We have fitted a **trend line** to each of the scatter plots.
 - `DomesticGross` and `World Gross` are related, though there are fewer movies at the high end of `DomesticGross`...
 - `AudienceScore` and `RottenTomatoes` seem clearly related...both increase together.
 - `OpeningWeek` and `Profitability` are also related in a linear way. There are just **two** movies which have been extremely profitable..but they do not **influence** the slope of the trend line too much, because of their location midway in the range of `OpeningWeek`. Influence is something that is a key concept in Linear Regression. 
+- By and large, there are only small variations in slope across `Genre`s.
 
 :::
+ 
 
-
-We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
-
-```{r}
-#| label: corr-ggplot-scores
-#| eval: false
-movies %>% drop_na() %>%
-  ggplot(aes(AudienceScore, RottenTomatoes, colour = Genre)) + 
-  geom_point() + 
-  geom_lm()
-
-```
-
-By and large yes..there are only small variations in slope across `Genre`s. 
-
-:::
 
 ## {{< iconify gis contour-map >}} 2D Density Plot
 
@@ -629,6 +634,23 @@ However, both `DomesticGross` and `ForeignGross` are well correlated with `Budge
 
 :::
 
+## A New Combination Plot...
+
+Sometimes, a simple scatter, or density alone, or viewed next to one another is not adequate to develop, or convey, our insight. We might just need a combination density + scatter plot. Such a plot can be be constructed from the ground up using `ggformula` or `ggplot`; however, there is a new package (Nov 2023) called `ggScatRidges` that allows the creation of a powerful combination plot:
+
+```{r}
+#| label: Scatter-Plot with Marginal Densities
+
+library(ggExtra)
+
+penguins %>% 
+  drop_na() %>% 
+  gf_point(body_mass_g  ~ flipper_length_mm, colour = ~ species) %>% 
+  gf_smooth(method = "lm") %>% 
+  ggExtra::ggMarginal(type = "density", groupColour = TRUE, groupFill = TRUE)
+
+
+```
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
@@ -653,7 +675,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("corrplot", "GGally")
+  pkgs = c("corrplot", "GGally", "ggExtra")
 ) %>%
   knitr::kable(format = "simple")
 
