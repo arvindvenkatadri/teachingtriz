@@ -23,6 +23,7 @@ citation: true
 %%| label: fig-regression-flowchart
 %%| fig-cap: Linear Regression Workflow
 %%| echo: false
+%%| eval: false
 
 flowchart TD
     A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
@@ -1196,26 +1197,79 @@ that look like $predictor1 \times predictor2$.
 So our Linear Modelling workflow might look like this: we have not seen
 all stages yet, but that is for another course module or tutorial!
 
-```{mermaid}
+```{.d2 theme="MixedBerryBlue" layout="dagre"}
 
-%%| echo: false
-flowchart TD
-    A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
-    B --> |corrplot +  corrgram  + ggformula + purrr + cor.test| C(C: Check Relationships)
-    C --> D[D: Decide on Simple/Complex Model]
-    D --> E{E: Is the Model Possible?}
-    E --> |Yes| G[G: Build Model]
-    E -->|Nope| F[F: Transform Variables]
-    E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
-    K --> D
-    F --> D
-    G --> H{H: Check Model Diagnostics}
-    H --> |Problems| D
-    H --> |All good| I(Interpret Your Model)
-    I --> J(((Apply the Model for Predictions)))
+title: Our Linear Regression Workflow {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 29
+    bold: true
+    underline: true
+  }
+}
+  Data :  {
+  style: {
+    stroke: "#53C0D8"
+    stroke-width: 5
+    shadow: true
+  }
+}
+  
+  EDA : {
+  style: {
+    opacity: 0.6
+    fill: red
+    3d: true
+    stroke: black
+  }
+}
+Check Relationships; 
+Build Model; 
+Transform Variables {shape: cloud}; Try Multiple Regression\n and/or interaction effects {shape: cloud};
+Check Model Diagnostics: {shape: diamond}
+Check Model Diagnostics: {tooltip: Check R^2 }
+Interpret Model
+Apply Model {shape: oval}
+
+    Data -> EDA : "inspect"
+    Data -> EDA : "ggformula"
+    Data -> EDA : "glimpse"
+    Data -> EDA : "skim"
+    EDA --> Check Relationships : "corrplot"
+    EDA --> Check Relationships : "corrgram"
+    EDA -> Check Relationships : "ggformula + purrr"
+    EDA -> Check Relationships : "cor.test"
+    Check Relationships --> Simple or\nComplex Model Decision
+    Simple or\nComplex Model Decision -> Is the Model Possible?
+    Is the Model Possible? -> Build Model
+    Build Model -> Check Model Diagnostics
+    Check Model Diagnostics -> Interpret Model : "All Good"
+    Check Model Diagnostics -> Transform Variables : "Inadequate" {
+
+          source-arrowhead.label: 1
+          style.stroke: red
+          target-arrowhead: {
+          shape: diamond
+          style.filled: true
+          label: 1
+          }
+    }
+    Check Model Diagnostics -> Try Multiple Regression\n and/or interaction effects : " Still Inadequate" {
+          source-arrowhead.label: 2
+          style.stroke: red
+          target-arrowhead: {
+          shape: diamond
+          style.filled: true
+          label: 2
+          }
+    }
+    Transform Variables ->  Build Model {style.stroke: red }
+     Try Multiple Regression\n and/or interaction effects ->  Build Model {style.stroke: red }
+    Interpret Model -> Apply Model
     
+  
 ```
-
 
 
 ## {{< iconify ooui references-rtl >}} References{#sec-references}
