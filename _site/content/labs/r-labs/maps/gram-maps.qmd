@@ -4,29 +4,10 @@ subtitle: "Where is the Secret Garden?"
 author: "Arvind Venkatadri"
 date: 22 April 2021
 date-modified: "`r Sys.Date()`"
-format: html
-#fig-format: retina
-code-fold: false
-code-summary: Show the Code
-code-block-border-left: true
-code-overflow: scroll
-code-block-bg: "beige"
-code-tools: true
-code-line-numbers: true
-code-copy: true
-fig-align: center
-reference-location: margin
-cap-location: margin
-highlight-style: tango
-df-print: paged
-section-divs: true
-number-sections: true
-execute: 
-  freeze: auto
 abstract: Part of my Workshop course on R
 ---
 
-# Introduction
+## Introduction
 
 This RMarkdown document is part of my Workshop Course in R. The intent
 is to build Skill in coding in R, and also appreciate R as a way to
@@ -37,7 +18,7 @@ All RMarkdown/Quarto files combine code, text, web-images, and figures
 developed using code. Everything is text; code chunks are enclosed in
 **fences** (\`\`\`)
 
-# Goals
+## Goals
 
 At the end of this Lab session, we should:\
 - know the types and structures of `spatial data` and be able to work
@@ -51,7 +32,7 @@ from sources such as `naturalearth` and `Open Streep Map`\
 these maps.\
 - plot maps on a globe using the `threejs` package
 
-# Pedagogical Note
+## Pedagogical Note
 
 The method followed will be based on
 [PRIMM](https://blogs.kcl.ac.uk/cser/2017/09/01/primm-a-structured-approach-to-teaching-programming/):
@@ -78,7 +59,7 @@ To reiterate: Packages and datasets are **not** the same thing !!
 Packages are (small) collections of programs. Datasets are
 just....information.
 
-# Setup the Packages
+## Setup the Packages
 
 -   Run this in your Console first:
     `devtools::install_github("ropensci/rnaturalearthhires")`
@@ -88,20 +69,17 @@ just....information.
 
 ```{r}
 #| label: setup
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
-# Getting Map Data into R
-# library(osmdata) # Import Open Street Data
 library(rnaturalearth)
 library(rnaturalearthdata)
 
 # Run this in your console first
-#devtools::install_github("ropensci/rnaturalearthhires")
+# devtools::install_github("ropensci/rnaturalearthhires")
 library(rnaturalearthhires)
 
 # Plotting Maps
 library(tidyverse) # Maps using ggplot + geom_sf
 library(tmap) # Thematic Maps, static and interactive
-library(osmplotr) # "Bespoke" maps in R
+library(osmdata) # Fetch map data from osmdata.org
 library(leaflet) # interactive Maps
 library(threejs) # Globe maps in R. Part of the htmlwidgets family of packages
 
@@ -110,7 +88,7 @@ library(sf)
 
 ```
 
-# Introduction to Maps in R
+## Introduction to Maps in R
 
 We will take small steps in making maps using just two of the several
 map making packages in R.
@@ -121,37 +99,40 @@ The steps we will use are:
 2.  Learn how to access spatial/map data using `osmdata`
 3.  Plot and dress up our map using `ggplot` and `tmap`
 4.  Create interactive maps with `leaflet` using a variety of map data
-    providers. Note: `tmap` can also do interactive maps which we will
-    explore also.
+    providers. (Note: `tmap` can also do interactive maps which we will
+    explore also.)
 
 Bas. Onwards and Map-wards!!
 
-# Step1 - Specifying an area of interest
+## Step1 - Specifying an area of interest
 
-In R, we need to specify a "**BOUNDING BOX**" first, to declare our area
-of interest. God made me a BengaluR-kaR...I think..Let's see if we can
-declare an area of interest. Then we can order on Swiggy and...never
-mind.
+In R, we need to specify a "**BOUNDING BOX**" first, to declare our area of interest. God made me a BengaluR-kaR...I think..Let's see if we can declare an area of interest. Then we can order on Swiggy and...never mind.
 
-We can declare a **BOUNDING BOX** in several ways, using a variety of R
-packages.
+We can declare a **BOUNDING BOX** in several ways.
 
-a)  Using a rough longitude latitude info directly, or using a place
-    name to search for the long/lat info. THIS WILL ALWAYS WORK if the
-    LON/LAT NUMBERS ARE OK !!
+a)  Using a longitude latitude info from [Bounding Box Tool](https://boundingbox.klokantech.com) which gives bounding boxes in many different formats. 
 
-```{r I-am-going-home 1}
-# BLR Bounding Box using `osmplotr` package
-# get_bbox is a command from the `osmplotr` package
-# get_bbox needs lat and lon ranges
-# Format is c(min-lon, min-lat, max-lon, max-lat)
-bbox_1 <- osmplotr::get_bbox(latlon = c(77.46,12.83,77.74,13.14))
+- Locate the place of interest using the search box. 
+- click on the "box with arrow" tool on the upper left. This will create a rectangular shape.   
+- Move/resize this box and then copy the bounding box from the menu at the bottom. Ensure you copy in **CSV** format.   
+
+```{r}
+#| label:  I-am-going-home 1
+
+# https://boundingbox.klokantech.com
+# CSV: 77.574028,12.917262,77.595073,12.939895
+bbox_1 <- matrix(
+  c(77.574028, 12.917262, 77.595073, 12.939895),
+  byrow = FALSE,
+  nrow = 2,
+  ncol = 2,
+  dimnames = list(c('x', 'y'), c('min', 'max'))
+)
 bbox_1
 
 ```
 
-b)  Using a place name to look up a BOUNDING BOX. This may not always
-    work if the place name is know well known.
+b)  Using a place name to look up a BOUNDING BOX with `osmdata::getbb`. This may not always work if the place name is know well known.
 
 ```{r I-am-going-home 2}
 # Using getbb command from the osmdata package
@@ -160,7 +141,7 @@ bbox_2
 
 ```
 
-Let us examine all the calculated BOUNDING BOXes
+Let us examine both the calculated BOUNDING BOXes:
 
 ```{r}
 bbox_1
@@ -168,30 +149,11 @@ bbox_2
 
 ```
 
-`bbox_1` is quite big: 0.3 degrees range in both lon and lat. `bbox_2`
-is reasonably sized: 0.04 degrees in longitude range and in latitude
-range.
+Both look similar in size; `bbox_2` is slightly bigger.
 
-We will use the `bbox_2` from the above, to ensure we have smaller data
-downloads!
+We will use the `bbox_2` from the above, to ensure we have a decent collection of features. If the download becomes too hefty, we can fall back on the smaller bbox!
 
-# Step2 - Get Map data
-
-Within our `bbox` for Jayanagar, Bangalore, we want to download diverse
-kinds of **FEATURE** data. Remember that a **FEATURE** is any object
-that can be "seen" on a map. This is done using the
-`osmplotr::extract_osm_objects()` command. The main parameters for this
-command are:
-
--   bbox
--   **KEY / VALUE** pairs (**"TAGS"**) to specify the kind of feature
-    you need
--   **return_type** if you want a specific kind of geometry to be
-    returned. Say you want only **POINT** locations of restaurants, and
-    not their buildings themselves. Then you need to say
-    `return_type = "point"`.
-
-## Using Open Street Map (OSM)
+## Step2 - Get Map data
 
 > [OpenStreetMap (OSM)](https://www.openstreetmap.org/) provides maps of
 > the world mostly created by volunteers. They are completely free to
@@ -203,8 +165,6 @@ command are:
 > database. Simple queries can be performed more easily using the
 > `osmdata` library for R, which automatically constructs the query and
 > imports the data in a convenient format.
-
-## OSM feature key-value pairs
 
 Open Street Map **features** have attributes in **key-value pairs**. We
 can use them to download the specific data we need. These features can
@@ -234,57 +194,84 @@ Useful **key-value pairs** / **tags** include:
 | natural  |                                                                                                                            |
 | boundary |                                                                                                                            |
 
-For more information see:
+For more information see:[OSM Tags](https://taginfo.openstreetmap.org/) for a nice visual description of popular **key-value pairs** that we can use. See what the `highway` tag looks like [tag : highway](https://taginfo.openstreetmap.org/keys/highway#values)
 
-See [OSM Tags](https://taginfo.openstreetmap.org/) for a nice visual
-description of popular **key-value pairs** that we can use. See what the
-`highway` tag looks like [tag :
-highway](https://taginfo.openstreetmap.org/keys/highway#values)
+The `osmdata` commands `available_features` and `available_tags` can help also us get the associated *key-value** pairs to retrieve data from OSM.
 
-## Downloading Data from Open Street Map
+```{r}
+#| layout-ncol: 2
+osmdata::available_features() %>% as_tibble()
+available_tags(feature = "highway")
+available_tags("amenity")
+available_tags("natural")
 
-Now we know the map features we are interested in. We also know what
-key-value pairs will be used to get this info from OSM. We will get our
-map data from OSM and then save it avoid repeated downloads. So, please
-copy/paste and run the following commands in your console.
+```
 
-**Do not run these commands too many times**. **Re-run this ONLY if you
-have changed your BOUNDING BOX.**
+We can use these **key-value** pairs to download different types of map data. Within our `bbox` for Jayanagar, Bangalore, we want to download diverse  kinds of **FEATURE** data. Remember that a **FEATURE** is any object that can be "seen" on a map. This is done using the OPQ query in the `osmdata` package. The main parameters for this command are:
+
+-   bbox
+-   **KEY / VALUE** pairs (**"TAGS"**) to specify the kind of feature
+    you need
+    
+The query returns a **list** data structure, with **all geometries** and features within the bounding box, and we can use any or all of them. Now we know the map features we are interested in. We also know 
+what key-value pairs will be used to get this info from OSM. 
+
+::: callout-danger
+### Data Downloads from OSM
+**Do not run these commands too many times**. **Re-run this ONLY if you have changed your BOUNDING BOX.**. We will get our map data from OSM and then save it avoid repeated downloads. So, please copy/paste and run the following commands in your console. The chunk below is set to eval:false so it will *not* run when you render!
+:::
 
 ```{r}
 #| eval: false
 # Eval is set to false here
 # This code is for reference
 # Run these commands ONCE in your Console
+# Or run this chunk manually one time
+
+# Get all restaurants, atms, colleges within my bbox
+locations <- 
+  osmdata::opq(bbox = bbox_2) %>% 
+  osmdata::add_osm_feature(key = "amenity", 
+                           value = c("restaurant", "atm", "college")) %>% 
+  osmdata_sf() %>%  # Convert to Simple Features format
+  purrr::pluck("osm_points") # Pull out the data frame of interest
 
 # Get all buildings within my bbox
-dat_buildings <-extract_osm_objects (key = "building", 
-                                     bbox = bbox_2)
+dat_buildings <-
+  osmdata::opq(bbox = bbox_2) %>% 
+  osmdata::add_osm_feature(key = "building") %>% 
+  osmdata_sf() %>% 
+  purrr::pluck("osm_polygons") 
 
 # Get all residential roads within my bbox
-dat_roads <- extract_osm_objects (key = 'highway', 
-                                     value = c("residential"),
-                                     bbox = bbox_2)
+dat_roads <- 
+  osmdata::opq(bbox = bbox_2) %>% 
+  osmdata::add_osm_feature(key = "highway", 
+                           value = c("residential")) %>% 
+  osmdata_sf() %>% 
+  purrr::pluck("osm_lines") 
 
-# Get all parks within my bbox
-dat_parks <- extract_osm_objects (key = 'park', 
-                                  bbox = bbox_2)
+# Get all parks / natural /greenery areas and spots within my bbox
+dat_natural <-   
+  osmdata::opq(bbox = bbox_2) %>% 
+  osmdata::add_osm_feature(key = "natural",
+                           value = c("tree", "water", "wood")) %>% 
+  osmdata_sf()
+dat_natural
 
-# Get all green areas within my bbox
-dat_greenery <- extract_osm_objects (key = 'landuse', 
-                                  value = 'grass', 
-                                  bbox = bbox_2)
+dat_trees <- 
+  dat_natural %>% 
+  purrr::pluck("osm_points") 
 
-dat_trees <- extract_osm_objects (key = 'natural', 
-                                  value = 'tree', 
-                                  bbox = bbox_2)
+dat_greenery <- 
+  dat_natural %>% pluck("osm_polygons")
+ 
+
 ```
 
-### Let us save this data, so we don't need to download all this again!
-
-We will store the downloaded data as `.gpkg` files on our local hard
+Let us save this data, so we don't need to download all this again! We will store the downloaded data as `.gpkg` files on our local hard
 drives to use when we run this file again later. We will name our stored
-files as `buildings`, `parks`, `roads`, and `trees`, each with the
+files as `buildings`, `roads`, and `greenery`, and `trees`, each with the
 `.gpkg` file extension, e.g. `trees.gpkg`.
 
 Check your local project folder for these files after executing these
@@ -295,14 +282,15 @@ commands.
 # Eval is set to false here
 # This code is for reference
 # Run these commands ONCE in your Console
+# Or manually run this chunk once
+
+st_write(dat_roads, dsn = "roads.gpkg", 
+         append = FALSE, quiet = FALSE)
 
 st_write(dat_buildings, 
          dsn = "buildings.gpkg", 
          append = FALSE, 
          quiet = FALSE)
-
-st_write(dat_parks, dsn = "parks.gpkg", 
-         append = FALSE, quiet = FALSE)
 
 st_write(dat_greenery, dsn = "greenery.gpkg", 
          append = FALSE,quiet = FALSE)
@@ -310,42 +298,34 @@ st_write(dat_greenery, dsn = "greenery.gpkg",
 st_write(dat_trees, dsn = "trees.gpkg", 
          append = FALSE,quiet = FALSE)
 
-st_write(dat_roads, dsn = "roads.gpkg", 
-         append = FALSE, quiet = FALSE)
-
 ```
 
-**Always work from here to avoid repeated downloads from OSM.** **Start
-from the top ONLY if you intend to map new locations and need to modify
-your Bounding Box.**
+::: callout-danger
+**Always work from here to avoid repeated downloads from OSM. Start from the top ONLY if you intend to map new locations and need to modify your Bounding Box.**
+:::
 
-### Reading Back the saved Data
+Let us now read back the saved Data:
 
 ```{r}
 #| label: resume-from-here
 buildings <- st_read("./buildings.gpkg")
-parks <- st_read("./parks.gpkg")
 greenery <- st_read("./greenery.gpkg")
 trees <- st_read("./trees.gpkg")
 roads <- st_read("./roads.gpkg")
 
 ```
-
-### Let's look at the data
-
-How many rows? ( Rows -\> Features ) What kind of `geom` column?
+How many rows? ( Rows -\> Features ) What kind of `geom` column in each data set?
 
 ```{r}
 # How many buildings?
 nrow(buildings)
 buildings$geom
 class(buildings$geom)
+
 ```
 
 So the `buildings` dataset has `r nrow(buildings)` buildings and their
 geometry is naturally a POLYGON type of geometry column.
-
-### Your Turn 1
 
 Do this check for all the other spatial data, in the code chunk below.
 What kind of `geom` column does each dataset have?
@@ -356,24 +336,12 @@ What kind of `geom` column does each dataset have?
 
 ```
 
-### What Other Kinds of Data could we get from OSM?
 
-`osm_structures` returns a data.frame of OSM structure types, associated
-**key-value** pairs and unique suffixes which may be appended to data
-structures/filenames for storage purposes, and suggested colours.
-
-```{r}
-osmplotr::osm_structures()
-```
-
-We can use these **key-value** pairs to download different types of map
-data.
-
-# My first Map in R
+## My first Map in R
 
 There are two ways of plotting maps that we will learn:
 
-## ggplot and geom_sf()
+### ggplot and geom_sf()
 
 First we will plot with `ggplot` and `geom_sf()` : recall that our data
 is stored in 5 files: `buildings`, `parks`, `roads`, `trees`, and
@@ -382,11 +350,16 @@ is stored in 5 files: `buildings`, `parks`, `roads`, `trees`, and
 ```{r}
 
 ggplot() +
-  geom_sf(data = buildings, colour = "orange") +    # POLYGONS
-  geom_sf(data = roads, col = "gray20") +           # LINES
-  geom_sf(data = parks, col = "darkseagreen1") +    # POLYGONS
+  geom_sf(data = buildings, fill = "gold", color = "grey", linewidth = 0.025) +    # POLYGONS
+  geom_sf(data = roads, color = '#ff9999', linewidth = 0.5) +        # LINES
   geom_sf(data = greenery, col = "darkseagreen") +  # POLYGONS
-  geom_sf(data = trees, col = "green")              # POINTS
+  geom_sf(data = trees, col = "darkgreen")  +       # POINTS
+  
+  # Set plot limits to exactly the bbox_2
+  coord_sf(xlim = c(bbox_2[1,1], bbox_2[1,2]),
+           ylim = c(bbox_2[2,1], bbox_2[2,2]),
+           expand = FALSE) + 
+  theme_minimal()
 
 ```
 
@@ -409,23 +382,21 @@ with code in "groups": each group starts with a `tm_shape()` command.
 #| label: using-tmap
 # Group-1
 tm_shape(buildings) +
-  tm_fill(col = "mediumblue") +
+  tm_fill(col = "burlywood") +
 
 #Group-2
 tm_shape(roads) +
-  tm_lines(col = "gold") +
+  tm_lines(col = "grey20") +
 
 #Group-3  
 tm_shape(greenery) +
   tm_polygons(col = "limegreen") +
   
-#Group-4  
-tm_shape(parks) +
-  tm_polygons(col = "limegreen") +
 
-#Group-5  
+#Group-4
 tm_shape(trees) +
-  tm_dots(col = "green")
+  tm_dots(col = "darkgreen")
+
 ```
 
 How do we make this map interactive? One more line of code !! Add this
@@ -433,7 +404,7 @@ line in your console and then run the above chunk again
 
 `tmap_mode("view")`
 
-# Using data from `tmap`
+## Using data from `tmap`
 
 Like many other packages ( e.g. ggplot ) `tmap` also has a few built-in
 spatial datasets: `World` and `metro`, `rivers`, `land` and a few
@@ -538,7 +509,6 @@ In the `india_neighbours` data frame:\
 - Column `iso_3166_2` contains the abbreviation of the state within each
 neighbouring country.
 
-### Map 1
 
 ```{r}
 #| label:  Map_1
@@ -577,9 +547,11 @@ tmap_mode("view")
 Can you try to download a map area of your home town and plot it as we
 have above?
 
-```{r Your-Turn-2, include=TRUE}
+```{r Your-Turn-2, include=TRUE, eval=FALSE}
 
 ```
+
+
 
 ## Adding my favourite Restaurants to the map
 
@@ -592,30 +564,26 @@ if it is already there we can download using *key-value* pairs in our
 OSM data query.
 
 Restaurants can be downloaded using
-`key= "amenity", value = "restaurant"`. Since we want JUST their
-location, and not the restaurant BUILDINGs, we say
-`return_type = "points"`.
+`key= "amenity", value = "restaurant"` or `"cafe"` etc. There are also other tags to explore!Searching for McDonalds for instance...( `key = "name", value = "McDonalds"`). Since we want JUST their location, and not the restaurant BUILDINGs, we extract `osm_points`. 
 
-There are also other tags to explore!Searching for McDonalds for
-instance...( `key = "name", value = "McDonalds"`)
 
 ```{r restaurant-data-1, eval=FALSE}
 
 # Again, run these commands in your Console
-dat_R <- extract_osm_objects(bbox = bbox_2, 
-                             key = "amenity", 
-                             value = "restaurant", 
-                             return_type = "point") #<<
+dat_R <-
+  osmdata::opq(bbox = bbox_2) %>% 
+  osmdata::add_osm_feature(key = "amenity", 
+                           value = c("restaurant")) %>% 
+  osmdata_sf() %>% 
+  purrr::pluck("osm_points") 
 
 # Save the data for future use
 write_sf(dat_R, dsn = "restaurants.gpkg",append = FALSE, quiet = FALSE)
 
 ```
 
-Note the `return_type` parameter: we want the location and **not** the
-**building** in which the restaurant is!!
 
-## Reading the saved Restaurant Data
+Now reading the saved Restaurant Data
 
 ```{r}
 restaurants <- st_read("./restaurants.gpkg")
@@ -637,7 +605,7 @@ These are the names of columns in the Restaurant Data: Note the
 
 ```{r restaurant-data-3}
 
-names(restaurants)
+glimpse(restaurants)
 
 ```
 
@@ -705,11 +673,16 @@ ggplot() +
   geom_sf(data = roads, colour = "gray80") +
   geom_sf(
     data = restaurants %>% drop_na(cuisine),
-    aes(fill = cuisine),
+    aes(fill = cuisine, geometry = geom),
     colour = "black",
     shape = 21,
     size = 3
-  ) +
+  ) +  
+  # Set plot limits to exactly the bbox_2
+  coord_sf(xlim = c(bbox_2[1,1], bbox_2[1,2]),
+           ylim = c(bbox_2[2,1], bbox_2[2,2]),
+           expand = FALSE) + 
+  theme_minimal() + 
   theme(legend.position = "right") +
   labs(title = "Restaurants in South Central Bangalore",
        caption = "Based on osmdata")
