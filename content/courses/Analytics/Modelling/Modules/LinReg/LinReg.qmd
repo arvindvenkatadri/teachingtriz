@@ -19,34 +19,11 @@ citation: true
 #suppress-bibliography: true
 ---
 
-```{mermaid}
-%%| label: fig-regression-flowchart
-%%| fig-cap: Linear Regression Workflow
-%%| echo: false
-%%| eval: false
+## {{< fa folder-open >}} Slides and Tutorials {#sec-linreg-tutorials}
 
-flowchart TD
-    A[(A: Data)] -->|mosaic  +  ggformula|B[B:EDA] 
-    B --> |corrplot +  corrgram  + ggformula + purrr + cor.test| C(C: Check Relationships)
-    C --> D[D: Decide on Simple/Complex Model]
-    D --> E{E: Is the Model Possible?}
-    E --> |Yes| G[G: Build Model]
-    E -->|Nope| F[F: Transform Variables]
-    E -->|Nope| K[K: Try Multiple Regression <br> and/or Interaction Terms]
-    K --> D
-    F --> D
-    G --> H{H: Check Model Diagnostics}
-    H --> |Problems| D
-    H --> |All good| I(Interpret Your Model)
-    I --> J(((Apply the Model for Predictions)))
-    
-```
-
-## {{< fa folder-open >}} Slides and Tutorials{#sec-linreg-tutorials}
-
-|                                                                                                                                       |                                                                                                                                         |                                                                                                             |     |
-|---------------------|---------------------|----------------|--------------|
-| <a href="./files/forward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i> Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i> Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |     |
+|                                                                                                                                       |                                                                                                                                  |                                                                                                             |
+|------------------------|--------------------------|----------------------|
+| <a href="./files/forward-selection-1.qmd"><i class="fa-brands        fa-r-project"></i> Multiple Regression - Forward Selection</a>   | <a href="./files/backward-selection-1.qmd"><i class="fa-brands fa-r-project"></i> Multiple Regression - Backward Selection</a>   | <a href="./files/lin-perm.qmd"> <i class="fa-brands fa-r-project"></i> Permutation Test for Regression</a>  |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -65,8 +42,6 @@ library(corrgram)
 library(ggstatsplot)
 ```
 
-
-
 ```{r}
 #| label: Extra Pedagogical Packages
 #| echo: false
@@ -80,6 +55,7 @@ library(nomnoml)
 library(grateful)
 
 ```
+
 ```{r}
 #| label: plot theme
 # Let us set a plot theme for Data visualization
@@ -97,64 +73,49 @@ theme_update(
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-One of the most common problems in Prediction Analytics is that of
-predicting a Quantitative response variable, based on one or more
-Quantitative predictor variables or *features*. This is called Linear
-Regression. We will use the intuitions built up during our study of
-ANOVA to develop our ideas about Linear Regression.
+One of the most common problems in Prediction Analytics is that of predicting a Quantitative response variable, based on one or more Quantitative predictor variables or *features*. This is called Linear Regression. We will use the intuitions built up during our study of ANOVA to develop our ideas about Linear Regression.
 
-Suppose we have data on salaries in a Company, with years of study and
-previous experience. Would we be able to predict the prospective salary
-of a new candidate, based on their years of study and experience? Or
-based on mileage done, could we predict the resale price of a used car?
-These are typical problems in Linear Regression.
+Suppose we have data on salaries in a Company, with years of study and previous experience. Would we be able to predict the prospective salary of a new candidate, based on their years of study and experience? Or based on mileage done, could we predict the resale price of a used car? These are typical problems in Linear Regression.
 
-In this tutorial, we will use the Boston housing dataset. Our research
-question is:
+In this tutorial, we will use the Boston housing dataset. Our research question is:
 
 ::: callout-note
 ## Research Question
 
-How do we predict the price of a house in Boston, based on other
-parameters Quantitative parameters such as area, location, rooms, and
-crime-rate in the neighbourhood?
+How do we predict the price of a house in Boston, based on other parameters Quantitative parameters such as area, location, rooms, and crime-rate in the neighbourhood?
 :::
 
 ## {{< iconify radix-icons box-model >}} The Linear ( Regression ) Model
 
-The premise here is that many common statistical tests are special cases
-of the linear model.
+The premise here is that many common statistical tests are special cases of the linear model.
 
-A linear model estimates the relationship between one *continuous* or
-*ordinal* variable (dependent variable or "response") and one or more
-other variables (explanatory variable or "predictors"). It is assumed
-that the relationship is linear:[^1]
+A linear model estimates the relationship between one *continuous* or *ordinal* variable (dependent variable or "response") and one or more other variables (explanatory variable or "predictors"). It is assumed that the relationship is linear:[^1]
+
+[^1]: The model is linear in the **parameters** $\beta_i$, e.g. We can have this: $$
+    y_i \sim \beta_1*x_i + \beta_0\\
+    $$ or $$
+    y_1 \sim exp(\beta_1)*x_i + \beta_0
+    $$ but not: $$
+    y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\
+    $$ or $$
+    y_i \sim \beta_1 *x^{\beta_2} + \beta_0
+    $$
 
 $$
 y = \beta_0 + \beta_1 *x
 $$
 
-$\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear
-fit, that **predicts** the value of y based the value of x. Each
-prediction leaves a small "residual" error between the actual and
-predicted values. $\beta_0$ and $\beta_1$ are calculated based on
-minimizing the *sum of square*s of these residuals, and hence this
-method is called "ordinary least squares" (**OLS**) regression.
+$\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear fit, that **predicts** the value of y based the value of x. Each prediction leaves a small "residual" error between the actual and predicted values. $\beta_0$ and $\beta_1$ are calculated based on minimizing the *sum of square*s of these residuals, and hence this method is called "ordinary least squares" (**OLS**) regression.
 
 ![Least Squares](../../../../../materials/images/OLS.png){height="360"}
 
-The net *area* of all the shaded squares is minimized in the calculation
-of $\beta_0$ and $\beta_1$. It is also possible that there is more than
-one explanatory variable: this is **multiple regression.**
+The net *area* of all the shaded squares is minimized in the calculation of $\beta_0$ and $\beta_1$. It is also possible that there is more than one explanatory variable: this is **multiple regression.**
 
 $$
 y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
 $$
 
-where each of the $\beta_i$ are slopes defining the relationship between
-y and $x_i$. Together, the RHS of that equation defines an n-dimensional
-*hyperplane*.
-The model is **linear in the parameters** $\beta_i$, e.g. these are OK:
+where each of the $\beta_i$ are slopes defining the relationship between y and $x_i$. Together, the RHS of that equation defines an n-dimensional *hyperplane*. The model is **linear in the parameters** $\beta_i$, e.g. these are OK:
 
 $$
 \color{blue}{
@@ -163,8 +124,7 @@ $$
  & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
 \end{cases}
 }
-$$
-but not, for example, these:
+$$ but not, for example, these:
 
 $$
 \color{red}{
@@ -175,21 +135,13 @@ $$
 }
 $$
 
-As per Lindoloev, many statistical tests, going from one-sample
-`t-tests` to `two-way ANOVA`, are special cases of this system. Also see
-[Jeffrey Walker "A
-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables)
+As per Lindoloev, many statistical tests, going from one-sample `t-tests` to `two-way ANOVA`, are special cases of this system. Also see [Jeffrey Walker "A linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables)
 
 ## {{< iconify simple-icons hypothesis >}} Linear Models as Hypothesis Tests
 
-Using linear models is based on the idea of **Testing of Hypotheses**.
-The Hypothesis Testing method typically defines a NULL Hypothesis where
-the statements read as "**there is no relationship**" between the
-variables at hand, explanatory and responses. The Alternative Hypothesis
-typically states that there *is* a relationship between the variables.
+Using linear models is based on the idea of **Testing of Hypotheses**. The Hypothesis Testing method typically defines a NULL Hypothesis where the statements read as "**there is no relationship**" between the variables at hand, explanatory and responses. The Alternative Hypothesis typically states that there *is* a relationship between the variables.
 
-Accordingly, in fitting a linear model, we follow the process as
-follows: With $y = \beta_0 + \beta_1 *x$
+Accordingly, in fitting a linear model, we follow the process as follows: With $y = \beta_0 + \beta_1 *x$
 
 1.  Make the following hypotheses: $$
     NULL\ Hypothesis\ H_0 => x\ and\ y\ are\ unrelated.\ (\beta_1 = 0)
@@ -198,28 +150,18 @@ follows: With $y = \beta_0 + \beta_1 *x$
     $$
 2.  We "assume" that $H_0$ is true.
 3.  We calculate $\beta_1$.
-4.  We then find probability **p** that $\beta_1 = Estimated\ Value$
-    **when the NULL Hypothesis** is **assumed** TRUE. This is the
-    **p-value**. If that probability is **p\>=0.05**, we say we "cannot
-    reject" $H_0$ and there is unlikely to be significant linear
-    relationship.
-5.  However, if **p\<= 0.05** can we reject the NULL hypothesis, and say
-    that there could be a significant linear relationship, because the
-    probability **p** that $\beta_1 = Estimated\ Value$ by mere chance
-    under $H_0$ is very small.
+4.  We then find probability **p** that $\beta_1 = Estimated\ Value$ **when the NULL Hypothesis** is **assumed** TRUE. This is the **p-value**. If that probability is **p\>=0.05**, we say we "cannot reject" $H_0$ and there is unlikely to be significant linear relationship.
+5.  However, if **p\<= 0.05** can we reject the NULL hypothesis, and say that there could be a significant linear relationship, because the probability **p** that $\beta_1 = Estimated\ Value$ by mere chance under $H_0$ is very small.
 
 ## {{< iconify icon-park-outline thinking-problem >}} Assumptions in Linear Models {#sec-assumptions-in-linear-models}
 
-We can write the assumptions in Linear Regression Models as an acronym,
-**LINE**:\
+We can write the assumptions in Linear Regression Models as an acronym, **LINE**:\
 1. **L**: $\color{blue}{linear}$ relationship\
 2. **I**: Errors are **independent** (across observations)\
-3. **N**: y is $\color{red}{normally}$ distributed at each "level" of
-x.\
+3. **N**: y is $\color{red}{normally}$ distributed at each "level" of x.\
 4. **E**: equal variance at all levels of x. No *heteroscedasticity*.\
 
-![OLS
-Assumptions](../../../../../materials/images/ols_assumptions.png){height="360"}
+![OLS Assumptions](../../../../../materials/images/ols_assumptions.png){height="360"}
 
 Hence a very concise way of expressing the Linear Model is:
 
@@ -230,13 +172,10 @@ $$
 ::: callout-important
 ## General Linear Models
 
-The target variable $y$ is modelled as a *normally* distributed variable
-**whose mean depends upon a linear combination of predictor variables**
-$x$, and whose variance is $\sigma^2$.
+The target variable $y$ is modelled as a *normally* distributed variable **whose mean depends upon a linear combination of predictor variables** $x$, and whose variance is $\sigma^2$.
 :::
 
-Let us now read in the data and check for these assumptions as part of
-our Workflow.
+Let us now read in the data and check for these assumptions as part of our Workflow.
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
 
@@ -248,11 +187,10 @@ inspect(housing)
 
 ```
 
-The original data are 506 observations on 14 variables, `medv` being the
-target variable:
+The original data are 506 observations on 14 variables, `medv` being the target variable:
 
 |         |                                                                       |
-|:-------------|:---------------------------------------------------------|
+|:---------------|:-------------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -278,24 +216,16 @@ The corrected data set has the following additional columns:
 | lon   | longitude of census tract                                    |
 | lat   | latitude of census tract                                     |
 
-Our response variable is `cmedv`, the *corrected median value of
-owner-occupied homes in USD 1000'*s. Their are many Quantitative feature
-variables that we can use to predict `cmedv`. And there are two
-Qualitative features, `chas` and `tax`.
+Our response variable is `cmedv`, the *corrected median value of owner-occupied homes in USD 1000'*s. Their are many Quantitative feature variables that we can use to predict `cmedv`. And there are two Qualitative features, `chas` and `tax`.
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: EDA
 
-In order to fit the linear model, we need to choose **predictor**
-variables that have strong correlations with the **target** variable. We
-will first do this with `GGally`, and then with the `tidyverse` itself.
-Both give us a very unique view into the correlations that exist within
-this dataset.
+In order to fit the linear model, we need to choose **predictor** variables that have strong correlations with the **target** variable. We will first do this with `GGally`, and then with the `tidyverse` itself. Both give us a very unique view into the correlations that exist within this dataset.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Correlations with GGally
 
-Let us select a few sets of Quantitative and Qualitative features, along
-with the target variable `cmedv` and do a pairs-plots with them:
+Let us select a few sets of Quantitative and Qualitative features, along with the target variable `cmedv` and do a pairs-plots with them:
 
 ```{r}
 #| label: pairs plots 1
@@ -328,36 +258,19 @@ housing %>%
 
 ```
 
-Clearly, `rm` (avg. number of rooms) is a big determining feature for
-median price `cmedv`. This we infer based on the large magnitudes of
-correlations of `rm` with`cmedv`. The variable`age` (proportion of
-owner-occupied units built prior to 1940) may also be a significant
-influence on `cmedv`. (See top row)
+Clearly, `rm` (avg. number of rooms) is a big determining feature for median price `cmedv`. This we infer based on the large magnitudes of correlations of `rm` with`cmedv`. The variable`age` (proportion of owner-occupied units built prior to 1940) may also be a significant influence on `cmedv`. (See top row)
 
-None of the Quant variables `rad, zn, indus, tax` have a overly strong
-correlation with `cmedv`. (See top row)
+None of the Quant variables `rad, zn, indus, tax` have a overly strong correlation with `cmedv`. (See top row)
 
-The variable `lstat` (proportion of lower classes in the neighbourhood)
-as expected, has a strong (negative) correlation with `cmedv`;
-`rad`(index of accessibility to radial highways), `nox`(nitrous oxide)
-and `crim`(crime rate) also have fairly large correlations with `cmedv`.
+The variable `lstat` (proportion of lower classes in the neighbourhood) as expected, has a strong (negative) correlation with `cmedv`; `rad`(index of accessibility to radial highways), `nox`(nitrous oxide) and `crim`(crime rate) also have fairly large correlations with `cmedv`.
 
 ::: callout-important
 ## Correlation Scores and Uncertainty
 
-Recall that `cor.test` reports a correlation score and the `p-value` for
-the same. There is also a `confidence interval` reported for the
-correlation score, an interval within which we are 95% sure that the
-true correlation value is to be found. Note that `GGally` too reports
-the significance of the correlation scores using stars, `***` or `**`.
-This indicates the p-value in the scores obtained by `GGally`;
-Presumably, there is an internal `cor.test` that is run for each pair of
-variables and the p-value and confidence levels are also computed
-internally.
+Recall that `cor.test` reports a correlation score and the `p-value` for the same. There is also a `confidence interval` reported for the correlation score, an interval within which we are 95% sure that the true correlation value is to be found. Note that `GGally` too reports the significance of the correlation scores using stars, `***` or `**`. This indicates the p-value in the scores obtained by `GGally`; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally.
 :::
 
-Let us plot (again) scatter plots of Quant Variables that have strong
-correlation with `cmedv`:
+Let us plot (again) scatter plots of Quant Variables that have strong correlation with `cmedv`:
 
 ```{r}
 #| layout-ncol: 2
@@ -386,14 +299,9 @@ gf_point(
 
 ```
 
-So, `rm` does have a positive effect on `cmedv`, and `age` may have a
-(mild?) negative effect on `cmedv`; `lstat` seems to have a pronouced
-negative effet on `cmedv`. We have now managed to get a decent idea
-which *Quant predictor variables* might be useful in modelling `cmedv`:
-`rm`, `lstat` for starters, then perhaps`age`.
+So, `rm` does have a positive effect on `cmedv`, and `age` may have a (mild?) negative effect on `cmedv`; `lstat` seems to have a pronouced negative effet on `cmedv`. We have now managed to get a decent idea which *Quant predictor variables* might be useful in modelling `cmedv`: `rm`, `lstat` for starters, then perhaps`age`.
 
-Let us also check the *Qualitative predictor variables*: Access to the
-Charles river (`chas`) does seem to affect the prices somewhat.
+Let us also check the *Qualitative predictor variables*: Access to the Charles river (`chas`) does seem to affect the prices somewhat.
 
 ```{r}
 #| label: Charles River
@@ -408,30 +316,17 @@ housing %>%
 
 ```
 
-Look at the bar plot above. While not too many properties can be near
-the Charles River (for obvious reasons) the box plots do seem to show
-some dependency of `cmedv` on `chas`.
+Look at the bar plot above. While not too many properties can be near the Charles River (for obvious reasons) the box plots do seem to show some dependency of `cmedv` on `chas`.
 
 ::: callout-note
-Qualitative predictors for a Quantitative target can be included in the
-model using what is called *dummy variables*, where each *level* of the
-Qualitative variable is given a **one-hot** kind of encoding. See for
-example <https://www.statology.org/dummy-variables-regression/>
+Qualitative predictors for a Quantitative target can be included in the model using what is called *dummy variables*, where each *level* of the Qualitative variable is given a **one-hot** kind of encoding. See for example <https://www.statology.org/dummy-variables-regression/>
 :::
 
 ### Correlations using cor.test and purrr
 
-This is somewhat advanced material: We will use the `purrr` package to
-develop all correlations with respect to our target variable in one shot
-and also plot these correlation test scores in an error-bar plot. This
-has the advantage of being able to depict all correlations in one plot.
-(We will use this approach again here when we trim our linear models
-down from the *maximal* one to a workable one of lesser complexity.).
-Let us do this.
+This is somewhat advanced material: We will use the `purrr` package to develop all correlations with respect to our target variable in one shot and also plot these correlation test scores in an error-bar plot. This has the advantage of being able to depict all correlations in one plot. (We will use this approach again here when we trim our linear models down from the *maximal* one to a workable one of lesser complexity.). Let us do this.
 
-We develop a *list object* containing all correlation test results with
-respect to `cmedv`, tidy these up using `broom::tidy`, and then plot
-these:
+We develop a *list object* containing all correlation test results with respect to `cmedv`, tidy these up using `broom::tidy`, and then plot these:
 
 ```{r}
 #| label: corrtest plots
@@ -484,44 +379,33 @@ all_corrs %>%
 
 ```
 
-We can clearly see that `rm` and `lstat` have strong correlations with
-`cmedv` and should make good choices for setting up a minimal linear
-regression model. (`medv` is the older errorred version of `cmedv`)
+We can clearly see that `rm` and `lstat` have strong correlations with `cmedv` and should make good choices for setting up a minimal linear regression model. (`medv` is the older errorred version of `cmedv`)
 :::
 
 ::: callout-note
 ## Simple Regression vs Multiple Regression
 
-If there are many predictor variables, we would typically want to use
-more of them to make our model and predictions. There are three ways[^2]
-to include more predictors:
+If there are many predictor variables, we would typically want to use more of them to make our model and predictions. There are three ways[^2] to include more predictors:
 
--   **Backward Selection**: We would typically start with a **maximal
-    model**[^3] and progressively simplify the model by knocking off
-    predictors that have the least impact on model accuracy.
--   **Forward Selection**: Start with no predictors and systematically
-    add them one by one to increase the quality of the model
--   **Mixed Selection**: Wherein we start with no predictors and add
-    them to gain improvement, or remove them at as their *significance*
-    changes based on other predictors that have been added.
+-   **Backward Selection**: We would typically start with a **maximal model**[^3] and progressively simplify the model by knocking off predictors that have the least impact on model accuracy.
+-   **Forward Selection**: Start with no predictors and systematically add them one by one to increase the quality of the model
+-   **Mixed Selection**: Wherein we start with no predictors and add them to gain improvement, or remove them at as their *significance* changes based on other predictors that have been added.
 
-We will do the first two in the other tutorials (see @sec-linreg-tutorials above); Mixed Selection we will leave for a more advanced course. But
-for now we will first use just one predictor `rm`(Avg. no. of Rooms) to
-model housing prices.
+We will do the first two in the other tutorials (see @sec-linreg-tutorials above); Mixed Selection we will leave for a more advanced course. But for now we will first use just one predictor `rm`(Avg. no. of Rooms) to model housing prices.
 :::
+
+[^2]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, *Introduction to Statistical Learning, Springer, 2021. Chapter 3. Linear Regression*. [Available Online](https://www.statlearning.com/)
+
+[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9. Statistical Modelling*
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Building
 
-We will first execute the `lm` test with code and evaluate the results.
-Then we will do an intuitive walk through of the process and finally,
-hand-calculate entire analysis for clear understanding.
+We will first execute the `lm` test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### {{< iconify mingcute code-fill >}} Model Code
 
-R offers a very simple command `lm` to execute an Linear Model: Note the
-familiar `formula` of stating the variables: ( $y \sim x$; where $y$ =
-target, $x$ = predictor)
+R offers a very simple command `lm` to execute an Linear Model: Note the familiar `formula` of stating the variables: ( $y \sim x$; where $y$ = target, $x$ = predictor)
 
 ```{r}
 #| label: Linear Model with code
@@ -530,30 +414,19 @@ summary(housing_lm)
 
 ```
 
-The model for $\widehat{cmedv}$ , the prediction for `cmedv`can be
-written in the form of $y = mx + c$, as:
+The model for $\widehat{cmedv}$ , the prediction for `cmedv`can be written in the form of $y = mx + c$, as:
 
 $$
 \widehat{cmedv} \sim -34.65924 + 9.09967* rm
 $$ {#eq-rm-model}
 
 ::: callout-important
--   The **effect size** of `rm` on predicting `cmedv` a (slope) value of
-    $9.09967$ which is significant at p-value of $<2.2e-16$; for every
-    one room increase in `rm`, we have a \$ USD 90997\$ increase in
-    median price `cmedv`.
--   The **F-statistic** for the Linear Model is given by $474.3$, which
-    is very high. (We will use the F-statistic again when we do Multiple
-    Regression.)
--   The `R-squared` value is 48% which means that `rm` is able to
-    explain about half of the trend in `cmedv`; there is substantial
-    variation in `cmedv` that is left to explain, an indication that we
-    should perhaps use a richer model, with more predictors. We will
-    explore this in the Tutorials. @sec-linreg-tutorials
+-   The **effect size** of `rm` on predicting `cmedv` a (slope) value of $9.09967$ which is significant at p-value of $<2.2e-16$; for every one room increase in `rm`, we have a \$ USD 90997\$ increase in median price `cmedv`.
+-   The **F-statistic** for the Linear Model is given by $474.3$, which is very high. (We will use the F-statistic again when we do Multiple Regression.)
+-   The `R-squared` value is 48% which means that `rm` is able to explain about half of the trend in `cmedv`; there is substantial variation in `cmedv` that is left to explain, an indication that we should perhaps use a richer model, with more predictors. We will explore this in the Tutorials. @sec-linreg-tutorials
 :::
 
-We can plot the scatter plot of these two variables with the model also
-over-plotted.
+We can plot the scatter plot of these two variables with the model also over-plotted.
 
 ```{r}
 #| label: model
@@ -637,24 +510,13 @@ gf_point(
 
 ```
 
-For any new value of `rm`, we go up to the vertical blue line and read
-off the predicted median price by following the horizontal blue line.
-That is how the model is used (by hand).
+For any new value of `rm`, we go up to the vertical blue line and read off the predicted median price by following the horizontal blue line. That is how the model is used (by hand).
 
 ### {{< iconify carbon forecast-hail >}} Forecasting with the Linear Model
 
-In practice, we use the `broom` package functions (`tidy`, `glance` and
-`augment`) to obtain a clear view of the model parameters and
-predictions of `cmedv` for all *existing* values of `rm`. We see
-estimates for the intercept and slope (`rm`) for the linear model, along
-with the *standard errors* and *p.values* for these estimated
-parameters. And we see the fitted values of `cmedv` for the existing
-`rm`; these values will naturally lie **on** the straight-line depicting
-the model. We will examine this `augment`-ed data more in
-@sec-diagnostics.
+In practice, we use the `broom` package functions (`tidy`, `glance` and `augment`) to obtain a clear view of the model parameters and predictions of `cmedv` for all *existing* values of `rm`. We see estimates for the intercept and slope (`rm`) for the linear model, along with the *standard errors* and *p.values* for these estimated parameters. And we see the fitted values of `cmedv` for the existing `rm`; these values will naturally lie **on** the straight-line depicting the model. We will examine this `augment`-ed data more in @sec-diagnostics.
 
-To predict `cmedv` with *new* values of `rm`, we use `predict`. Let us
-now try to make predictions with some new data:
+To predict `cmedv` with *new* values of `rm`, we use `predict`. Let us now try to make predictions with some new data:
 
 ```{r}
 #| label: predictions with new data
@@ -671,20 +533,14 @@ Note that "negative values" for predicted `cmedv` would have no meaning!
 
 ### {{< iconify mdi thinking >}} Linear Model Intuitive {#sec-lm-intuitive}
 
-All that is very well, but what is happening under the hood of the `lm`
-command? Consider the `cmedv` (target) variable and the `rm`
-feature/predictor variable. What we do is:
+All that is very well, but what is happening under the hood of the `lm` command? Consider the `cmedv` (target) variable and the `rm` feature/predictor variable. What we do is:
 
 1.  Plot a scatter plot `gf_point(cmedv ~ rm, housing)`
-2.  Find a line that, in some way, gives us some prediction of `cmedv`
-    for any given `rm`
-3.  Calculate the errors in prediction and use those to find the "best"
-    line.
+2.  Find a line that, in some way, gives us some prediction of `cmedv` for any given `rm`
+3.  Calculate the errors in prediction and use those to find the "best" line.
 4.  Use that "best" line henceforth as a model for prediction.
 
-How does one fit the "best" line? Consider a choice of "lines" that we
-can use to fit to the data. Here are 6 lines of varying slopes (and
-intercepts ) that we can try as candidates for the best fit line:
+How does one fit the "best" line? Consider a choice of "lines" that we can use to fit to the data. Here are 6 lines of varying slopes (and intercepts ) that we can try as candidates for the best fit line:
 
 ```{r}
 #| echo: false
@@ -748,12 +604,7 @@ lm_sample %>% pluck("graphs",6)
 
 ```
 
-It should be apparent that while we cannot determine which line may be
-the best, the **worst** line seems to be the one in the final plot,
-which ignores the x-variable `rm` altogether. This corresponds to the
-*NULL Hypothesis*, that there is *no relationship* between the two
-variables. Any of the other lines could be a decent candidate, so how do
-we decide?
+It should be apparent that while we cannot determine which line may be the best, the **worst** line seems to be the one in the final plot, which ignores the x-variable `rm` altogether. This corresponds to the *NULL Hypothesis*, that there is *no relationship* between the two variables. Any of the other lines could be a decent candidate, so how do we decide?
 
 ```{r}
 #| echo: false
@@ -797,32 +648,21 @@ housing_sample  %>%
 
 ```
 
-In Fig A, the *horizontal* [blue line]{style="color: dodgerblue;"} is
-the overall mean of `cmedv`, denoted as $\mu_{tot}$. The vertical [green
-lines]{style="color: palegreen;"} to the points show the departures of
-each point from this overall mean, called
-[**residuals**]{style="background-color: yellow;"}. The sum of *squares*
-of these residuals in Fig A is called the [**Total Sum of Squares**
-(SST)]{style="background-color: yellow;"}.
+In Fig A, the *horizontal* [blue line]{style="color: dodgerblue;"} is the overall mean of `cmedv`, denoted as $\mu_{tot}$. The vertical [green lines]{style="color: palegreen;"} to the points show the departures of each point from this overall mean, called [**residuals**]{style="background-color: yellow;"}. The sum of *squares* of these residuals in Fig A is called the [**Total Sum of Squares** (SST)]{style="background-color: yellow;"}.
 
 $$
 SST = \Sigma (y - \mu_{tot})^2
 $$ {#eq-SST}
 
-In Fig B, the vertical [red lines]{style="color: red;"} are the
-residuals of each point from the potential line of fit. The sum of the
-*squares* of these lines is called the [**Total Error Sum of Squares**
-(SSE)]{style="background-color: yellow;"}.
+In Fig B, the vertical [red lines]{style="color: red;"} are the residuals of each point from the potential line of fit. The sum of the *squares* of these lines is called the [**Total Error Sum of Squares** (SSE)]{style="background-color: yellow;"}.
 
 $$
 SSE = \Sigma [(y - a - b * rm)^2]
 $$ {#eq-SSE}
 
-It should be apparent that if there is any positive linear relationship
-between `cmedv` and `rm`,then $SSE < SST$.
+It should be apparent that if there is any positive linear relationship between `cmedv` and `rm`,then $SSE < SST$.
 
-How do we get the optimum slope + intercept? If we plot the $SSE$ as a
-function of varying slope, we get:
+How do we get the optimum slope + intercept? If we plot the $SSE$ as a function of varying slope, we get:
 
 ```{r}
 #| label: slopes vs SSE
@@ -848,15 +688,11 @@ sim_model %>%
 
 ```
 
-We see that there is a quadratic minimum $SSE$ at the optimum value of
-slope and at all other slopes, the $SSE$ is higher. We can use this to
-find the optimum slope, which is what the function `lm` does.
+We see that there is a quadratic minimum $SSE$ at the optimum value of slope and at all other slopes, the $SSE$ is higher. We can use this to find the optimum slope, which is what the function `lm` does.
 
 ### {{< iconify material-symbols slideshow-sharp >}} Linear Models Manually Demonstrated (Apologies to Spinoza)
 
-Let us hand-calculate the numbers so we know what the test is doing.
-Here is the SST: we pretend that there is no relationship between
-`cmedv` ans `rm` and compute a **NULL** model:
+Let us hand-calculate the numbers so we know what the test is doing. Here is the SST: we pretend that there is no relationship between `cmedv` ans `rm` and compute a **NULL** model:
 
 ```{r}
 #| label: SST Total Sum of Squares
@@ -877,10 +713,7 @@ SSE
 
 ```
 
-Given that the model leaves **unexplained** variations in `cmedv` to the
-extent of $SSE$, we can compute the $SSR$, [the Regression Sum of
-Squares]{style="background-color: yellow;"}, the amount of variation in
-`cmedv` that the linear model **does** explain:
+Given that the model leaves **unexplained** variations in `cmedv` to the extent of $SSE$, we can compute the $SSR$, [the Regression Sum of Squares]{style="background-color: yellow;"}, the amount of variation in `cmedv` that the linear model **does** explain:
 
 ```{r}
 #| label: SSR
@@ -889,30 +722,21 @@ SSR
 
 ```
 
-We have $SST = 42577.74$, $SSE = 21934.39$ and therefore
-$SSR = 20643.35$.
+We have $SST = 42577.74$, $SSE = 21934.39$ and therefore $SSR = 20643.35$.
 
-In order to calculate the F-Statistic, we need to compute the variances,
-using these sum of squares. We obtain variances by dividing by their
-*Degrees of Freedom*:
+In order to calculate the F-Statistic, we need to compute the variances, using these sum of squares. We obtain variances by dividing by their *Degrees of Freedom*:
 
 $$
 F_{stat} = \frac{SSR / df_{SSR}}{SSE / df_{SSE}}
 $$
 
-where $df_{SSR}$ and $df_{SSE}$ are respectively the degrees of freedom
-in SSR and SSE.
+where $df_{SSR}$ and $df_{SSE}$ are respectively the degrees of freedom in SSR and SSE.
 
-Let us calculate these Degrees of Freedom. If we have $n=$
-`r dim(housing)[[1]]` observations of data, then:
+Let us calculate these Degrees of Freedom. If we have $n=$ `r dim(housing)[[1]]` observations of data, then:
 
--   $SST$ clearly has degree of freedom
-    $n-1 = `r dim(housing)[[1]] -1`$, since it uses all observations but
-    loses one degree to calculate the global mean.
--   $SSE$ was computed using the slope and intercept, so it has
-    $(n-2) = `r dim(housing)[[1]] -2`$ as degrees of freedom.
--   And therefore $SSR$ being their difference has just $1$ degree of
-    freedom.
+-   $SST$ clearly has degree of freedom $n-1 = `r dim(housing)[[1]] -1`$, since it uses all observations but loses one degree to calculate the global mean.
+-   $SSE$ was computed using the slope and intercept, so it has $(n-2) = `r dim(housing)[[1]] -2`$ as degrees of freedom.
+-   And therefore $SSR$ being their difference has just $1$ degree of freedom.
 
 Now we are ready to compute the F-statistic:
 
@@ -925,11 +749,7 @@ F_stat
 
 ```
 
-The F-stat is compared with a **critical value** of the F-statistic,
-which is computed using the formula for the f-distribution in R. As with
-our hypothesis tests, we set the significance level to 0.95, and quote
-the two relevant degrees of freedom as parameters to `qf()` which
-computes the critical F value as a **quartile**:
+The F-stat is compared with a **critical value** of the F-statistic, which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to 0.95, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
 
 ```{r}
 F_crit <-  qf(p = 0.95,     # Significance level is 5%
@@ -948,13 +768,9 @@ mosaic::pdist(dist = "f",
               df1 = df_SSR, df2 = df_SSE)
 ```
 
-Any value of F more than the $F_{crit}$ occurs with smaller probability
-than 0.05. Our F_stat is much higher than $F_{crit}$, by orders of
-magnitude! And so we can say with confidence that `rm` has a significant
-effect on `cmedv`.
+Any value of F more than the $F_{crit}$ occurs with smaller probability than 0.05. Our F_stat is much higher than $F_{crit}$, by orders of magnitude! And so we can say with confidence that `rm` has a significant effect on `cmedv`.
 
-The value of `R.squared` is also calculated from the previously computed
-sums of squares:
+The value of `R.squared` is also calculated from the previously computed sums of squares:
 
 $$
 R.squared = \frac{SSR}{SST} = \frac{SSY-SSE}{SST}
@@ -970,17 +786,14 @@ r_squared
 
 So `R.squared` = `r (SST - SSE)/SST`
 
-The value of Slope and Intercept are computed using a maximum likelihood
-derivation and the knowledge that the means square error is a minimum at
-the optimum slope: for a linear model $y \sim mx + c$
+The value of Slope and Intercept are computed using a maximum likelihood derivation and the knowledge that the means square error is a minimum at the optimum slope: for a linear model $y \sim mx + c$
 
 $$
 slope = \frac{\Sigma[(y - y_{mean})*(x - x_{mean})]}{\Sigma(x - x_{mean})^2}
 $$
 
 ::: callout-tip
-Note that the slope is equal to the ratio of the covariance of x and y
-to the variance of x.
+Note that the slope is equal to the ratio of the covariance of x and y to the variance of x.
 :::
 
 and
@@ -999,13 +812,11 @@ intercept
 
 ```
 
-So, there we are! All of this is done for us by one simple formula,
-`lm()`!
+So, there we are! All of this is done for us by one simple formula, `lm()`!
 
 ### {{< iconify iconoir stats-report >}} Using Other Packages {#sec--using-other-packages}
 
-There is a very neat package called `ggstatsplot`[^5] that allows us to
-plot very comprehensive statistical graphs. Let us quickly do this:
+There is a very neat package called `ggstatsplot`[^5] that allows us to plot very comprehensive statistical graphs. Let us quickly do this:
 
 ```{r}
 #| message: false
@@ -1016,12 +827,9 @@ housing_lm %>%
 
 ```
 
-This chart shows the estimates for the `intercept` and `rm` along with
-their error bars, the `t-statistic`, degrees of freedom, and the
-`p-value`.
+This chart shows the estimates for the `intercept` and `rm` along with their error bars, the `t-statistic`, degrees of freedom, and the `p-value`.
 
-We can also obtain crisp-looking model tables from the new `supernova`
-package [^6], which is based on the methods discussed in Judd et al.
+We can also obtain crisp-looking model tables from the new `supernova` package [^6], which is based on the methods discussed in Judd et al.
 
 ```{r}
 #| layout-ncol: 2
@@ -1030,45 +838,30 @@ supernova::supernova(housing_lm)
 
 ```
 
-This table is very neat in that it gives the `Sums of Squares` for both
-the NULL (empty) model, and the current model for comparison. The `PRE` entry is the
-*Proportional Reduction in Error*, a measure that is identical with
-`r.squared`, which shows how much the model reduces the error compared
-to the NULL model(48%). The PRE idea is nicely discussed in Judd et al.@sec-references
-
+This table is very neat in that it gives the `Sums of Squares` for both the NULL (empty) model, and the current model for comparison. The `PRE` entry is the *Proportional Reduction in Error*, a measure that is identical with `r.squared`, which shows how much the model reduces the error compared to the NULL model(48%). The PRE idea is nicely discussed in Judd et al @sec-references
 :::
+
+[^4]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9. Statistical Modelling*
+
+[^5]: <https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html>
+
+[^6]: <https://github.com/UCLATALL/supernova>
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
 
-We will follow much of the treatment on Linear Model diagnostics, given
-[here on the STHDA
-website](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#homogeneity-of-variance).
+We will follow much of the treatment on Linear Model diagnostics, given [here on the STHDA website](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#homogeneity-of-variance).
 
-> A first step of this regression diagnostic is to inspect the
-> significance of the regression beta coefficients, as well as, the
-> R.square that tells us how well the linear regression model fits to
-> the data.
+> A first step of this regression diagnostic is to inspect the significance of the regression beta coefficients, as well as, the R.square that tells us how well the linear regression model fits to the data.
 >
-> For example, the linear regression model makes the assumption that the
-> relationship between the predictors (x) and the outcome variable is
-> linear. This might not be true. The relationship could be polynomial
-> or logarithmic.
+> For example, the linear regression model makes the assumption that the relationship between the predictors (x) and the outcome variable is linear. This might not be true. The relationship could be polynomial or logarithmic.
 >
-> Additionally, the data might contain some influential observations,
-> such as outliers (or extreme values), that can affect the result of
-> the regression.
+> Additionally, the data might contain some influential observations, such as outliers (or extreme values), that can affect the result of the regression.
 >
-> Therefore, the regression model must be closely diagnosed in order to
-> detect potential problems and to check whether the assumptions made by
-> the linear regression model are met or not. To do so, we generally
-> examine the distribution of **residuals errors**, that can tell us
-> more about our data.
+> Therefore, the regression model must be closely diagnosed in order to detect potential problems and to check whether the assumptions made by the linear regression model are met or not. To do so, we generally examine the distribution of **residuals errors**, that can tell us more about our data.
 
 ### {{< iconify ic twotone-rule >}} Checks for Uncertainty
 
-Let us first look at the uncertainties in the estimates of slope and
-intercept. These are most easily read off from the `broom::tidy`-ed
-model:
+Let us first look at the uncertainties in the estimates of slope and intercept. These are most easily read off from the `broom::tidy`-ed model:
 
 ```{r}
 #| label: uncertainty and confidence
@@ -1098,9 +891,7 @@ Linear Modelling makes 4 fundamental assumptions:("**LINE**")
 3.  Residuals are **normally** distributed
 4.  Variance of the `y` variable is **equal** at all values of `x`.
 
-We can check these using checks and graphs: Here we plot the residuals
-against the independent/feature variable and see if there is a gross
-variation in their range
+We can check these using checks and graphs: Here we plot the residuals against the independent/feature variable and see if there is a gross variation in their range
 
 ```{r}
 #| label: Looking at Residuals
@@ -1125,20 +916,10 @@ housing_lm_augment %>%
 
 ```
 
-The Q-Q plot of residuals also has significant deviations from the
-normal quartiles. The residuals are not quite "like the night sky", i.e.
-random enough. These point to the need for a richer model, with more
-predictors. The "trend line" of residuals vs predictors show a U-shaped
-pattern, indicating significant nonlinearity: there is a curved
-relationship in the graph. The solution can be a **nonlinear
-transformation** of the predictor variables, such as $\sqrt(X)$,
-$log(X)$, or even $X^2$. For instance, we might try a model for `cmedv`
-using $rm^2$ instead of just `rm` as we have done. This will **still**
-be a linear model!
+The Q-Q plot of residuals also has significant deviations from the normal quartiles. The residuals are not quite "like the night sky", i.e. random enough. These point to the need for a richer model, with more predictors. The "trend line" of residuals vs predictors show a U-shaped pattern, indicating significant nonlinearity: there is a curved relationship in the graph. The solution can be a **nonlinear transformation** of the predictor variables, such as $\sqrt(X)$, $log(X)$, or even $X^2$. For instance, we might try a model for `cmedv` using $rm^2$ instead of just `rm` as we have done. This will **still** be a linear model!
 
 ::: callout-tip
-Base R has a crisp command to plot these diagnostic graphs. But we will
-continue to use `ggformula`.
+Base R has a crisp command to plot these diagnostic graphs. But we will continue to use `ggformula`.
 
 ```{r}
 
@@ -1148,9 +929,7 @@ plot(housing_lm)
 :::
 
 ::: callout-tip
-One of the [ggplot extension
-packages](https://exts.ggplot2.tidyverse.org/gallery/) named `lindia`
-also has a crisp command to plot these diagnostic graphs.
+One of the [ggplot extension packages](https://exts.ggplot2.tidyverse.org/gallery/) named `lindia` also has a crisp command to plot these diagnostic graphs.
 
 ```{r}
 #| label: lindia
@@ -1176,28 +955,15 @@ lm(cmedv ~ poly(rm,2), data = housing) %>%
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
-We have seen how starting from a basic EDA of the data, we have been
-able to choose a single Quantitative predictor variable to model a
-Quantitative target variable, using Linear Regression. As stated
-earlier, we may have wish to use more than one predictor variables, to
-build more sophisticated models with improved prediction capability. And
-there is more than one way of selecting these predictor variables, which
-we will examine in the Tutorials in @sec-linreg-tutorials.
+We have seen how starting from a basic EDA of the data, we have been able to choose a single Quantitative predictor variable to model a Quantitative target variable, using Linear Regression. As stated earlier, we may have wish to use more than one predictor variables, to build more sophisticated models with improved prediction capability. And there is more than one way of selecting these predictor variables, which we will examine in the Tutorials in @sec-linreg-tutorials.
 
-Secondly, sometimes it may be necessary to mathematically transform the
-variables in the dataset to enable the construction of better models,
-something that was not needed here.
+Secondly, sometimes it may be necessary to mathematically transform the variables in the dataset to enable the construction of better models, something that was not needed here.
 
-We may also encounter cases where the predictor variables seem to work
-together; one predictor may influence "how well" another predictor
-works, something called an *interaction effect* or a *synergy effect*.
-We might then have to modify our formula to include *interaction terms*
-that look like $predictor1 \times predictor2$.
+We may also encounter cases where the predictor variables seem to work together; one predictor may influence "how well" another predictor works, something called an *interaction effect* or a *synergy effect*. We might then have to modify our formula to include *interaction terms* that look like $predictor1 \times predictor2$.
 
-So our Linear Modelling workflow might look like this: we have not seen
-all stages yet, but that is for another course module or tutorial!
+So our Linear Modelling workflow might look like this: we have not seen all stages yet, but that is for another course module or tutorial!
 
-```{.d2 theme="MixedBerryBlue" layout="dagre"}
+``` {.d2 theme="MixedBerryBlue" layout="dagre"}
 
 title: Our Linear Regression Workflow {
   near: top-center
@@ -1271,32 +1037,21 @@ Apply Model {shape: oval}
   
 ```
 
+## {{< iconify ooui references-rtl >}} References {#sec-references}
 
-## {{< iconify ooui references-rtl >}} References{#sec-references}
 ::: {#refs style="font-size: 60%;"}
 \
 <https://mlu-explain.github.io/linear-regression/>\
-The Boston Housing Dataset, corrected version. StatLib \@ CMU,
-    [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)\
+The Boston Housing Dataset, corrected version. StatLib \@ CMU, [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)\
 <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>\
 Andrew Gelman, Jennifer Hill, Aki Vehtari. *Regression and Other Stories*, Cambridge University Press, 2023.[Available Online](https://users.aalto.fi/~ave/ROS.pdf)\
 Michael Crawley, The R Book,second edition, 2013. Chapter 11.\
-Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
-    *Introduction to Statistical Learning*, Springer, 2021. Chapter 3. <https://www.statlearning.com/>\
-David C Howell, [Permutation Tests for Factorial ANOVA
-    Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
-Marti Anderson, [Permutation tests for univariate or multivariate
-    analysis of variance and
-    regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
+Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, *Introduction to Statistical Learning*, Springer, 2021. Chapter 3. <https://www.statlearning.com/>\
+David C Howell, [Permutation Tests for Factorial ANOVA Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
+Marti Anderson, [Permutation tests for univariate or multivariate analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
 <http://r-statistics.co/Assumptions-of-Linear-Regression.html>\
-Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017.
-    "Introduction to Data Analysis." In, 1--9. Routledge.
-    <https://doi.org/10.4324/9781315744131-1>. Also see
-    <http://www.dataanalysisbook.com/index.html>\
-Patil, I. (2021). Visualizations with statistical details: The
-    'ggstatsplot' approach. Journal of Open Source Software, 6(61),
-    3167,[https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}\
-    
+Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017. "Introduction to Data Analysis." In, 1--9. Routledge. <https://doi.org/10.4324/9781315744131-1>. Also see <http://www.dataanalysisbook.com/index.html>\
+Patil, I. (2021). Visualizations with statistical details: The 'ggstatsplot' approach. Journal of Open Source Software, 6(61), 3167,[https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}\
 
 ###### {{< iconify lucide package-check >}} R Package Citations
 
@@ -1314,36 +1069,4 @@ cite_packages(
   knitr::kable(format = "simple")
 
 ```
-
-    
-    
-    
 :::
-
-
-
-[^1]: The model is linear in the **parameters** $\beta_i$, e.g. We can
-    have this: $$
-    y_i \sim \beta_1*x_i + \beta_0\\
-    $$ or $$
-    y_1 \sim exp(\beta_1)*x_i + \beta_0
-    $$ but not: $$
-    y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\
-    $$ or $$
-    y_i \sim \beta_1 *x^{\beta_2} + \beta_0
-    $$
-
-[^2]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
-    *Introduction to Statistical Learning, Springer, 2021. Chapter 3.
-    Linear Regression*. [Available
-    Online](https://www.statlearning.com/)
-
-[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
-    Statistical Modelling*
-
-[^4]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
-    Statistical Modelling*
-
-[^5]: <https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html>
-
-[^6]: <https://github.com/UCLATALL/supernova>

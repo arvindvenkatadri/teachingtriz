@@ -3,7 +3,7 @@ title: "\U0001F554 Time Series Wrangling"
 author: Arvind V
 date: 15/Dec/2022
 date-modified: "`r Sys.Date()`"
-abstract: Grouping, Aggregating, and Summarizing Time Series Data
+abstract: Grouping, Filtering, and Summarizing Time Series Data
 categories:
   - Time Series
   - Filtering
@@ -23,17 +23,13 @@ citation: true
 library(mosaic)
 library(tidyverse)
 library(ggformula) # Our Formula based graphing package
-library(scales)
+library(scales) # Some nice time-oriented scales in graphs!
+library(fpp3)
 
-# Wrangling
-#library(dplyr) # Part of the tidyverse anyway!
-#library(lubridate)  # Deal with dates. Also part of the tidyverse!
 library(timetk)
-library(tsibble)
 
 # Datasets
 library(tsdl)
-library(tsibbledata)
 
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
@@ -41,6 +37,13 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 
 ```
 
+As seen before, the `fpp3` packages loads a good few other packages:
+
+```{r}
+#| echo: false
+fpp3_packages(include_self = FALSE)
+
+```
 
 ```{r}
 #| label: Extra Pedagogical Packages
@@ -55,23 +58,28 @@ library(grateful)
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-We want to start from raw, multiple time series data and arrive at the
-need to `filter`, `group`, and `summarize` these time series as as to
-grasp their meaning. We will first use the `births` data we encountered earlier which had a single time series, and then proceed to a more complex example which has multiple time-series.
+We have now arrived at the need to start from raw, multiple time series data and `filter`, `group`, and `summarize` these time series grasp their meaning, a process known as "wrangling". 
+
+::: callout-note
+### Wrangling with `dplyr`
+The tutorial for wrangling using `dplyr` is [here](../../../../../../labs/r-labs/tidy/dplyr.qmd).
+:::
+
+
+Here, we will first use the `births` data we encountered earlier which had a *single time series*, and then proceed to a more complex example which has multiple time-series.
 
 ## {{< iconify eos-icons data-mining >}} Time-Series Wrangling
 
-We have now arrived at the need to *filter, group, and summarize*
-time-series data. We can do this in two ways, and with two packages:
+We can do this in two ways, and with two packages:
 
 ::: callout-note
-### Wrangling "Dimensions"
+### Two Wrangling "Dimensions"
 
 For all the above operations, we can either use `time` variable as the
 basis, by filtering for specific periods, or computing summaries over
 larger intervals of time e.g. month, quarter, year;
 
-OR
+AND/OR
 
 We can do the same over `space` variables, i.e. the Qualitative
 variables that define individual time series, and based on which we can

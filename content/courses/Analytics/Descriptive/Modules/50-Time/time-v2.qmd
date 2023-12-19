@@ -30,18 +30,29 @@ citation: true
 library(tidyverse)
 library(mosaic)
 library(ggformula) # Our Formula based graphing package
+library(skimr)
+library(fpp3)
 
 # Wrangling
-library(lubridate)  # Deal with dates. Part of the tidyverse anyway!
-library(tsibble)
-# Data
-library(tsibbledata)
+# library(lubridate)  # Deal with dates. Loads with tidyverse
+# library(tsibble) # loads with ffp3
+# library(tsibbledata) # loads with fpp3
+
 # devtools::install_github("FinYang/tsdl")
 library(tsdl)
 library(TSstudio)
+
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
                                        base_family = "sans"))
+
+```
+
+The `fpp3` packages loads a good few other packages:
+
+```{r}
+#| echo: false
+fpp3_packages(include_self = FALSE)
 
 ```
 
@@ -110,7 +121,7 @@ begin by answering fundamental questions, such as:
     by week, month, quarter or year?
 4.  How do we **decompose** the time series into level, trend, and
     seasonal components?
-5.  Hoe might we make a **model** of the underlying process that creates
+5.  How might we make a **model** of the underlying process that creates
     these time series?
 6.  How do we make useful **forecasts** with the data we have?
 
@@ -155,10 +166,8 @@ and work with these.
 
 ![Standards](https://imgs.xkcd.com/comics/standards.png){fig-align="center"}
 
-To start, we will use simple `ts` data first, and then do another with
-`tibble` format that we can plot *as is*. We will then look at `tibble`
-data that does have a time-oriented variables. We will then perform
-conversion to `tsibble` format, and then a final example with a
+To start, we will use simple `ts` data first, and then do another with a "vanilla" `tibble` format that we can plot *as is*. We will then look at a `tibble`data that *does have a time-oriented variable*. We will then perform
+conversion to `tsibble` format to plot it, and then a final example with a
 ground-up `tsibble` dataset.
 
 ### {{< iconify vaadin hourglass-start >}} Base-R `ts` format data
@@ -209,9 +218,10 @@ ChickWeight %>% head()
 
 # Filter for Chick #1 and for Diet #1
 ChickWeight_ts <- ChickWeight %>% 
-  filter(Chick == 1, Diet ==1) %>% 
-  select(weight, Time)
+  dplyr::filter(Chick == 1, Diet ==1) %>% 
+  dplyr::select(weight, Time)
 
+# stats::ts does not accept pipe format
 ChickWeight_ts <- stats::ts(ChickWeight_ts$weight, frequency = 2) 
 str(ChickWeight_ts)
 
@@ -219,15 +229,15 @@ plot(ChickWeight_ts) # Using base-R
 
 ```
 
-We see that the weights of a young chick specimen increases over time.
+We see that the weights of a young chick specimen #1 increases over time.
 
 ### {{< iconify mdi table-clock >}} `tibble` data
 
 The `ts` data format can handle *only one time series*; in the above
 example, we could not have plotted the weight of two chicks, if we had
-wanted to. If we want to plot/analyze multiple time series,based on say
+wanted to. If we want to plot/analyze multiple time series, based on say
 *Qualitative* variables, (e.g. sales figures over time across multiple
-products and locations) we need other data formats. Using the familiar
+*products* and *locations*) we need other data formats. Using the familiar
 `tibble` structure opens up new possibilities.\
 
 -   We can have **multiple** **time series** within a tibble (think of
@@ -263,6 +273,7 @@ Read this data in and inspect it.
 births_2000_2014 <- read_csv("data/US_births_2000-2014_SSA.csv")
 glimpse(births_2000_2014)
 inspect(births_2000_2014)
+skim(births_2000_2014)
 births_2000_2014
 
 ```
@@ -290,7 +301,8 @@ births_2000_2014 %>%
   gf_line(births ~ year, 
           group = ~ day_of_week, 
           color = ~ day_of_week) %>% 
-  gf_point(title = "By Day of Week") %>% 
+  gf_point(title = "Births, By Day of Week", 
+           subtitle = "Over the Years") %>% 
   gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
   gf_theme(theme_classic())
 
@@ -300,7 +312,8 @@ births_2000_2014 %>%
   gf_line(births ~ year, 
           group = ~ date_of_month, 
           color = ~ date_of_month) %>% 
-  gf_point(title = "By Date of Month") %>% 
+  gf_point(title = "Births, By Date of Month",
+           subtitle = "Over the Years") %>% 
   gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
   gf_theme(theme_classic())
 
@@ -405,7 +418,8 @@ births_2000_2014 %>%
              color = day_of_week)) + 
   geom_line() +  
   geom_point() +
-  labs(title = "By Day of Week") + 
+  labs(title = "Births, By Day of Week",
+       subtitle = "Over the Years") + 
   scale_colour_distiller(palette = "Paired")
 ##
 
@@ -415,7 +429,8 @@ births_2000_2014 %>%
              group = date_of_month)) + 
   geom_line() + 
   geom_point() + 
-  labs(title = "By Date of Month") + 
+  labs(title = "Births,By Date of Month",
+       subtitle = "Over the Years") + 
   scale_colour_distiller(palette = "Paired") 
 
 ```
@@ -426,11 +441,11 @@ births_2000_2014 %>%
 #| layout-ncol: 2
 
 births_2000_2014_monthly <- births_2000_2014 %>% 
+  
 # Convert month to factor/Qual variable!
 # So that we can have discrete colours for each month
 # Using base::factor()
 # Could use forcats::as_factor() also
-
   mutate(month = base::factor(month, labels = month.abb)) %>%
 # `month.abb` is a built-in dataset containing names of months.
 
@@ -440,8 +455,8 @@ births_2000_2014_monthly
 
 births_2000_2014_monthly %>% 
   ggplot(aes(year, mean_monthly_births,
-                                        group = month, 
-                                        colour = month)) + 
+             group = month, 
+             colour = month)) + 
   geom_line(linewidth = 1) + 
   geom_point(size = 1.5) + 
   labs(title = "Summaries of Monthly Births over the years") + 
@@ -549,12 +564,12 @@ births_tibble_timeseries %>%
 Finally, we have `tsibble` ("time series tibble") format data, which
 contains three main components:
 
--   an `index` variable that defines time;
+-   an `index` variable that defines **time**;
 -   a set of `key` variables, usually **categorical**, that define sets
     of observations, over time. This allows for each combination of the
     categorical variables to define a **separate time series**.
 -   a set of **quantitative** variables, that represent the quantities
-    that vary over time (i.e `index`)
+    that vary with time (i.e `index`)
 
 Here is Robert Hyndman's video introducing tsibbles:
 
@@ -568,7 +583,7 @@ Monthly Medicare prescription data in Australia.
 ```{r}
 #| label: PBS
 #| message: true
-
+data(PBS, package = "tsibbledata")
 PBS
 glimpse(PBS)
 
@@ -647,7 +662,7 @@ verbs.
 
 We will do that in the @sec-slides-and-tutorials.
 
-## {{<iconify carbon heat-map-03 >}} Time Series Heatmaps
+## {{< iconify carbon heat-map-03 >}} Time Series Heatmaps
 
 How about a heatmap? We can cook up a categorical variable based on the
 number of births (low, fine, high) and use that to create a heatmap:
@@ -658,7 +673,9 @@ births_2000_2014 %>%
   mutate(birthrate = case_when(births >= 10000 ~ "high",
                                births <= 8000 ~ "low",
                                TRUE ~ "fine")) %>%
-  mutate(birthrate = base::factor(birthrate, labels = c("high", "fine", "low"), ordered = TRUE)) %>%
+  mutate(birthrate = base::factor(birthrate, 
+                                  labels = c("high", "fine", "low"), 
+                                  ordered = TRUE)) %>%
   
   gf_tile(
     data = .,
@@ -725,8 +742,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("fable", "fabletools", "feasts","fpp3",
-           "sweep", "timetk","tsbox", "tsdl", "tsibble", 
+  pkgs = c("fpp3", "timetk","tsbox", "tsdl", "tsibble", 
            "tsibbledata", "TSstudio")
 ) %>%
   knitr::kable(format = "simple")

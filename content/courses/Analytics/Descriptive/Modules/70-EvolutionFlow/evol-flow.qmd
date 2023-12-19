@@ -1,21 +1,20 @@
 ---
-title: "\U0001F578 Evolution and Flow"
-subtitle: "Evolution and Flow"
+title: "\U0001F578 Change, Evolution, and Flow"
+subtitle: "Change, Evolution, and Flow"
 author: "Arvind V."
 date: 22/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 70
-abstract: "Changes in Information over space and time"
+abstract: "Changes in Information over Space and Time"
 image: preview.jpg
 image-alt: image from rawpixel.com
 categories:
 - Line and Area Plots
-- Stream Charts
+- Dumbbell Plots
 - Parallel Set Plots
 - Alluvial Plots
 - Sankey Diagrams
 - Chord Diagrams
-- Waterfall Plots
 - Bump Charts
 bibliography: 
   - grateful-refs.bib
@@ -359,6 +358,159 @@ Phew! seems like too much work to do...I wonder if good, old-fashioned
 
 We will explore this diagram when we explore network graphs with the
 `tidygraph` and `ggraph` packages.
+
+
+## {{< iconify icon-park-outline chart-histogram >}} Dumbbell Plots
+
+A simple plot that can quickly indicate changes in multiple variables/aspects over either a time or a space variable is a dumbbell plot. This is a combination of scatter plot + a segment plot. 
+Let us take our prevously loaded `health` dataset and plot just the change in expenditure for multiple countries, across a time span of 8 years (2010 - 2018)
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+```{r}
+#| layout-ncol: 2
+theme_set(theme_classic())
+
+health_2010_2018 <- health %>%
+  # select Years 2010 and 2018
+  filter(Year %in% c(2010, 2018)) %>%
+
+  # Make separate columns for each year, easier that way
+  # Though not essential
+  pivot_wider(
+    id_cols = c(Entity, Code),
+    names_from = Year,
+    names_prefix = "Year",
+    values_from = public_health_expenditure_pc_gdp
+  )
+
+health_2010_2018 %>%   
+  # remove NA data across the data set
+  drop_na() %>%
+  
+  # take the top 20 countries based on 2018 allocation
+  slice_max(n = 20, order_by = Year2018) %>% 
+  
+  gf_segment(Entity + Entity ~ Year2010 + Year2018,
+             colour = "grey",
+             linewidth = 2) %>%
+  gf_point(Entity ~ Year2018,
+           colour = ~ "2018") %>%
+  gf_point(Entity ~ Year2010,
+           colour = ~ "2010")
+
+## Can we do better?
+
+health_2010_2018 %>%
+    # remove NA data across the data set
+  drop_na() %>%
+    
+# take the top 20 countries based on 2018 allocation
+  slice_max(n = 20, order_by = Year2018) %>% 
+  
+# plot segments first
+  gf_segment(
+    reorder(Entity, Year2018) + reorder(Entity, Year2018) ~
+      Year2010 + Year2018,
+    colour = "grey",
+    linewidth = 2
+  ) %>%
+  
+# Then plot points
+  gf_point(reorder(Entity, Year2018) ~ Year2018,
+           colour = ~ "2018",
+           size = 3) %>%
+  gf_point(
+    reorder(Entity, Year2018) ~ Year2010,
+    colour = ~ "2010", size = 3,
+    xlab = "Health Expenditure as Percentage of GDP",
+    ylab = "Country",title = "Healthcare Budgets", subtitle = "Changes between 2010 to 2018"
+  ) %>% 
+  gf_refine(scale_x_continuous(
+    breaks = breaks_width(2), 
+    labels = scales::label_percent(suffix = "%", scale = 1)),
+    
+    scale_colour_manual(name = "Year",values = c("red", "green"))
+  )
+            
+```
+
+### Using ggplot
+
+```{r}
+#| layout-ncol: 2
+theme_set(theme_classic())
+
+health_2010_2018 <- health %>%
+  # select Years 2010 and 2018
+  filter(Year %in% c(2010, 2018)) %>%
+
+  # Make separate columns for each year, easier that way
+  # Though not essential
+  pivot_wider(
+    id_cols = c(Entity, Code),
+    names_from = Year,
+    names_prefix = "Year",
+    values_from = public_health_expenditure_pc_gdp
+  )
+
+health_2010_2018 %>%   
+  # remove NA data across the data set
+  drop_na() %>%
+  
+  # take the top 20 countries based on 2018 allocation
+  slice_max(n = 20, order_by = Year2018) %>% 
+  
+  ggplot() + 
+  geom_segment(aes(y = Entity, yend = Entity, 
+                   x = Year2010, xend = Year2018),
+             colour = "grey",
+             linewidth = 2) + 
+  
+  geom_point(aes(y = Entity, x = Year2018, colour = "2018")) + 
+  geom_point(aes(y = Entity, x = Year2010, colour = "2010"))
+
+## Can we do better?
+
+health_2010_2018 %>%
+    # remove NA data across the data set
+  drop_na() %>%
+    
+# take the top 20 countries based on 2018 allocation
+  slice_max(n = 20, order_by = Year2018) %>% 
+  ggplot() + 
+# plot segments first
+  geom_segment(
+    aes(y = reorder(Entity, Year2018), yend = reorder(Entity, Year2018),
+      x = Year2010, xend = Year2018),
+    colour = "grey",
+    linewidth = 2
+  ) + 
+  
+# Then plot points
+  geom_point(aes(y = reorder(Entity, Year2018), x = Year2018, 
+                 colour = "2018"),size = 3) + 
+  geom_point(aes(y = reorder(Entity, Year2018), x = Year2010, 
+                 colour = "2010"), size = 3) + 
+    labs(x = "Health Expenditure as Percentage of GDP",
+    y = "Country",title = "Healthcare Budgets", 
+    subtitle = "Changes between 2010 to 2018"
+  ) + 
+  scale_x_continuous(
+    breaks = breaks_width(2), 
+    labels = scales::label_percent(suffix = "%", scale = 1)) + 
+    
+    scale_colour_manual(name = "Year",values = c("red", "green"))
+           
+
+```
+
+:::
+
+
+
+
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
