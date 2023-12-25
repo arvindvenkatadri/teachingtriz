@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.3.450">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-11-10">
@@ -360,17 +360,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 
 </header><section id="setting-up-the-packages" class="level2"><h2 class="anchored" data-anchor-id="setting-up-the-packages">Setting up the Packages</h2>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/setup_ba39c1598d8028aea00b141b05dd7a9a">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: true</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mosaic)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmosaic) <span class="co"># plotting mosaic plots for Categorical Data</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">### Dataset from Chihara and Hesterberg's book (Second Edition)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(resampledata)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/setup_eacedbc5f81165599b85477b1cdcf1ae">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/haleyjeppson/ggmosaic">ggmosaic</a></span><span class="op">)</span> <span class="co"># plotting mosaic plots for Categorical Data</span></span>
+<span></span>
+<span><span class="co">### Dataset from Chihara and Hesterberg's book (Second Edition)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rudeboybert/resampledata">resampledata</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>We saw from the diagram created by Allen Downey that <em>there is only one test</em>! We will now use this philosophy to develop a technique that allows us to mechanize several <em>Statistical Models</em> in that way, with nearly identical code.</p>
@@ -378,11 +374,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="testing-for-two-or-more-proportions" class="level2"><h2 class="anchored" data-anchor-id="testing-for-two-or-more-proportions">Testing for Two or More Proportions</h2>
 <p>Let us try a dataset with Qualitative / Categorical data. This is the General Social Survey GSS dataset, and we have people with different levels of <code>Education</code> stating their opinion on the <code>Death Penalty</code>. We want to know if these two Categorical variables have a correlation, i.e. can the opinions in favour of the <code>Death Penalty</code> be explained by the <code>Education</code> level?</p>
 <p>Since data is Categorical ( both variables ), we need to take <code>counts</code> in a table, and then implement a <code>chi-square test</code>. In the test, we will permute the <code>Education</code> variable to see if we can see how significant its <em>effect size</em> is.</p>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-2_081007d127fcdaf6d0b9d2cd9594639c">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(GSS2002)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">inspect</span>(GSS2002)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-2_1608e6147171c338df9e53d4e02cfabc">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">GSS2002</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">GSS2002</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 categorical variables:  
@@ -435,11 +429,8 @@ quantitative variables:
 </div>
 </div>
 <p>Note how <em>all</em> variables are Categorical !! <code>Education</code> has five <code>levels</code>:</p>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-3_d9af6d24eb2838fd3941918f2f0243e8">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Education)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(DeathPenalty)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-3_b4a940738113ab0509ef5978c57a4878">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">GSS2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -447,6 +438,10 @@ quantitative variables:
 {"columns":[{"label":["Education"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Left HS","2":"400"},{"1":"HS","2":"1485"},{"1":"Jr Col","2":"202"},{"1":"Bachelors","2":"443"},{"1":"Graduate","2":"230"},{"1":"NA","2":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+</div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">GSS2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">DeathPenalty</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["DeathPenalty"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Favor","2":"899"},{"1":"Oppose","2":"409"},{"1":"NA","2":"1457"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -455,36 +450,33 @@ quantitative variables:
 </div>
 </div>
 <p>Let us drop NA entries in <code>Education</code> and <code>Death Penalty</code>. And set up a table for the chi-square test.</p>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-4_64d3325cbc38ea2177080d195ee105fb">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r,warning=FALSE,message=FALSE}</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>(., <span class="fu">c</span>(Education, DeathPenalty))</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(gss2002)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      Education,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">DeathPenalty =</span> <span class="fu">as.factor</span>(DeathPenalty)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="co"># This is good for a chisq test</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add two more columns to facilitate mosaic/Marrimekko Plot</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># </span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">edu_count =</span> <span class="fu">sum</span>(count), </span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">edu_prop =</span> count <span class="sc">/</span> <span class="fu">sum</span>(count)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>gss_summary</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-4_84eab12570ee83703ec650f948db1976">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gss2002</span> <span class="op">&lt;-</span> <span class="va">GSS2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">Education</span>, <span class="va">DeathPenalty</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="va">.</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">Education</span>, <span class="va">DeathPenalty</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">gss2002</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1307    2</code></pre>
 </div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gss_summary</span> <span class="op">&lt;-</span> <span class="va">gss2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Education <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span></span>
+<span>      <span class="va">Education</span>,</span>
+<span>      levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span><span class="op">)</span>,</span>
+<span>      labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    DeathPenalty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">DeathPenalty</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Education</span>, <span class="va">DeathPenalty</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="co"># This is good for a chisq test</span></span>
+<span>  </span>
+<span>  <span class="co"># Add two more columns to facilitate mosaic/Marrimekko Plot</span></span>
+<span>  <span class="co"># </span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>edu_count <span class="op">=</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span>, </span>
+<span>         edu_prop <span class="op">=</span> <span class="va">count</span> <span class="op">/</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">gss_summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -498,40 +490,36 @@ quantitative variables:
 <p>We can plot a heatmap-like <code>mosaic chart</code> for this table.</p>
 <section id="using-ggplot" class="level3 active"><h3 class="active anchored" data-anchor-id="using-ggplot">Using <code>ggplot</code>
 </h3>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-5_51046315703c79e3d0692f52611d3e7b">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r warning=FALSE}</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss_summary, <span class="fu">aes</span>( <span class="at">x =</span> Education, <span class="at">y =</span> edu_prop)) <span class="sc">+</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">width =</span> edu_count, <span class="at">fill =</span> DeathPenalty), </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">stat =</span> <span class="st">"identity"</span>, </span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">position =</span> <span class="st">"fill"</span>, </span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> scales<span class="sc">::</span><span class="fu">percent</span>(edu_prop)), </span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># if labels are desired</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a> <span class="fu">facet_grid</span>(<span class="sc">~</span> Education, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>) <span class="sc">+</span> </span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"RdYlGn"</span>)) <span class="sc">+</span> </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() </span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-5_2be30a0ba61d591ae705bce3d18efefb">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gss_summary</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span> x <span class="op">=</span> <span class="va">Education</span>, y <span class="op">=</span> <span class="va">edu_prop</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">geom_bar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>width <span class="op">=</span> <span class="va">edu_count</span>, fill <span class="op">=</span> <span class="va">DeathPenalty</span><span class="op">)</span>, </span>
+<span>           stat <span class="op">=</span> <span class="st">"identity"</span>, </span>
+<span>           position <span class="op">=</span> <span class="st">"fill"</span>, </span>
+<span>           colour <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/percent_format.html">percent</a></span><span class="op">(</span><span class="va">edu_prop</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>            position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_stack.html">position_stack</a></span><span class="op">(</span>vjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># if labels are desired</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Education</span>, scales <span class="op">=</span> <span class="st">"free_x"</span>, space <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"RdYlGn"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="co"># theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-mean-tutorial_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </section><section id="using-ggmosaic" class="level3"><h3 class="anchored" data-anchor-id="using-ggmosaic">Using <code>ggmosaic</code>
 </h3>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/mosaic-plot_792932856425918edf1f2eb45f77912b">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mosaic-plot,warning=FALSE}</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#library(ggmosaic)</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss2002) <span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_mosaic</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">product</span>(DeathPenalty, Education), <span class="at">fill =</span> DeathPenalty))</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/mosaic-plot_0f22dcfd514f5ac26503c2070d857be6">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#library(ggmosaic)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggmosaic/man/geom_mosaic.html">geom_mosaic</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ggmosaic/man/product.html">product</a></span><span class="op">(</span><span class="va">DeathPenalty</span>, <span class="va">Education</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">DeathPenalty</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-mean-tutorial_files/figure-html/mosaic-plot-1.png" class="img-fluid" width="2100"></p>
 </div>
@@ -540,26 +528,26 @@ quantitative variables:
 <section id="observed-statistic-the-x2-metric" class="level3"><h3 class="anchored" data-anchor-id="observed-statistic-the-x2-metric">Observed Statistic: the X^2 metric</h3>
 <p>When there are multiple proportions involved, the X^2 test is what is used.</p>
 <p>Let us now perform the base <code>chisq test</code>: We need a <code>table</code> and then the <code>chisq</code> test:</p>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-6_95ccb8a45fc3898d2e99208278c3bfb5">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>gss_table <span class="ot">&lt;-</span> <span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>gss_table</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the observed chi-square statistic</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>observedChi2 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">chisq</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>observedChi2</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Actual chi-square test</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-6_d28f2c2eb6d38c6e65b367d4bda315c5">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">gss_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="va">DeathPenalty</span> <span class="op">~</span> <span class="va">Education</span>, data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span></span>
+<span><span class="va">gss_table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            Education
 DeathPenalty Left HS  HS Jr Col Bachelors Graduate
       Favor      117 511     71       135       64
-      Oppose      72 200     16        71       50
-X.squared 
- 23.45093 
-
+      Oppose      72 200     16        71       50</code></pre>
+</div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Get the observed chi-square statistic</span></span>
+<span><span class="va">observedChi2</span> <span class="op">&lt;-</span> <span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/chisq.html">chisq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="va">DeathPenalty</span> <span class="op">~</span> <span class="va">Education</span>, data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">observedChi2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>X.squared 
+ 23.45093 </code></pre>
+</div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Actual chi-square test</span></span>
+<span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/chisq.test.html">chisq.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="va">DeathPenalty</span> <span class="op">~</span> <span class="va">Education</span>, data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
     Pearson's Chi-squared test
 
 data:  tally(DeathPenalty ~ Education, data = gss2002)
@@ -571,31 +559,27 @@ X-squared = 23.451, df = 4, p-value = 0.0001029</code></pre>
 H_a: Education&nbsp;affects&nbsp;Votes&nbsp;on&nbsp;Death&nbsp;Penalty<br></p>
 <p>$$</p>
 <p>We should now repeat the test with permutations on <code>Education</code>:</p>
-<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-7_b07818d60de7cf569955ec0ed8c28d6b">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>null_chisq <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> <span class="fu">shuffle</span>(Education), <span class="at">data =</span> gss2002))</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(null_chisq)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> X.squared, <span class="at">data =</span> null_chisq) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> observedChi2, <span class="at">color =</span> <span class="st">"red"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> X.squared <span class="sc">&gt;=</span> observedChi2, <span class="at">data =</span> null_chisq)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="one-mean-tutorial_cache/html/unnamed-chunk-7_8ed10024bdb7e911be4641c960faf972">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">null_chisq</span> <span class="op">&lt;-</span> <span class="fu">do</span><span class="op">(</span><span class="fl">10000</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/chisq.test.html">chisq.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="va">DeathPenalty</span> <span class="op">~</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/resample.html">shuffle</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">null_chisq</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["X.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["data"],"name":[6],"type":["chr"],"align":["left"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"7.234715","2":"4","3":"0.1239924","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"1","_rn_":"X-squared...1"},{"1":"10.792592","2":"4","3":"0.0289966","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"2","_rn_":"X-squared...2"},{"1":"3.816543","2":"4","3":"0.4314031","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"3","_rn_":"X-squared...3"},{"1":"1.670764","2":"4","3":"0.7960212","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"4","_rn_":"X-squared...4"},{"1":"1.739737","2":"4","3":"0.7834874","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"5","_rn_":"X-squared...5"},{"1":"1.485966","2":"4","3":"0.8291245","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"6","_rn_":"X-squared...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["X.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["data"],"name":[6],"type":["chr"],"align":["left"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"2.568228","2":"4","3":"0.63246165","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"1","_rn_":"X-squared...1"},{"1":"3.020017","2":"4","3":"0.55448129","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"2","_rn_":"X-squared...2"},{"1":"3.374270","2":"4","3":"0.49725143","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"3","_rn_":"X-squared...3"},{"1":"5.179713","2":"4","3":"0.26934985","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"4","_rn_":"X-squared...4"},{"1":"1.391723","2":"4","3":"0.84563223","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"5","_rn_":"X-squared...5"},{"1":"11.973780","2":"4","3":"0.01754732","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"6","_rn_":"X-squared...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code> prop_TRUE 
-0.00019998 </code></pre>
-</div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">gf_histogram</span><span class="op">(</span> <span class="op">~</span> <span class="va">X.squared</span>, data <span class="op">=</span> <span class="va">null_chisq</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">gf_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">observedChi2</span>, color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="one-mean-tutorial_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="2100"></p>
+</div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">prop1</a></span><span class="op">(</span><span class="op">~</span> <span class="va">X.squared</span> <span class="op">&gt;=</span> <span class="va">observedChi2</span>, data <span class="op">=</span> <span class="va">null_chisq</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> prop_TRUE 
+0.00029997 </code></pre>
 </div>
 </div>
 <p>The <code>p-value</code> is well below our threshold of <span class="math inline">\(0.05%\)</span>, so we would conclude that <code>Education</code> has a significant effect on <code>DeathPenalty</code> opinion!</p>

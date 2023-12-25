@@ -30,6 +30,21 @@ library(gt) # for tables
 
 ```
 
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
+library(grateful)
+library(MKdescr)
+
+```
+
 # {{< iconify fluent pair-24-filled >}} What is Paired Data?
 
 Sometimes the data is collected on the same set of individual
@@ -88,7 +103,9 @@ therefore 12 paired records. How can we quickly visualize this data?
 First, histograms and densities of the two variables at hand:
 
 ```{r}
+#| echo: true
 #| layout-ncol: 3
+
 Diving2017_long <- Diving2017 %>%
   pivot_longer(
     cols = c(Final, Semifinal),
@@ -695,36 +712,42 @@ about the tests:
 ```{r}
 #| results: hold
 #| warning: false
-mosaic::t_test(prices ~ store, paired = TRUE, 
-               data = Groceries_long) %>% 
-  broom::tidy() %>% gt() %>%
-  tab_style(
-    style = list(cell_fill(color = "cyan"),cell_text(weight = "bold")),
-    locations = cells_body(columns = p.value)) %>% 
+mosaic::t_test(prices ~ store, paired = TRUE,
+               data = Groceries_long) %>%
+  broom::tidy() %>%
+  gt() %>%
+  tab_style(style = list(cell_fill(color = "cyan"),
+                         cell_text(weight = "bold")),
+            locations = cells_body(columns = p.value)) %>%
   tab_header(title = "t.test")
-
-lm(Target- Walmart ~ 1, data = Groceries) %>% 
-  broom::tidy(conf.int = TRUE,conf.level = 0.95) %>% gt() %>%
-  tab_style(
-    style = list(cell_fill(color = "cyan"),cell_text(weight = "bold")),
-    locations = cells_body(columns = p.value))  %>% 
+###
+lm(Target - Walmart ~ 1, data = Groceries) %>%
+  broom::tidy(conf.int = TRUE, conf.level = 0.95) %>% gt() %>%
+  tab_style(style = list(cell_fill(color = "cyan"),
+                         cell_text(weight = "bold")),
+            locations = cells_body(columns = p.value))  %>%
   tab_header(title = "Linear Model")
 ###
-wilcox.test(prices ~ store, data = Groceries_long, 
-            digits.rank = 7,
-            paired = TRUE, conf.int = TRUE, conf.level = 0.95) %>% 
+wilcox.test(
+  prices ~ store,
+  data = Groceries_long,
+  digits.rank = 7,
+  paired = TRUE,
+  conf.int = TRUE,
+  conf.level = 0.95
+) %>%
   broom::tidy() %>% gt() %>%
-  tab_style(
-    style = list(cell_fill(color = "palegreen"),cell_text(weight = "bold")),
-    locations = cells_body(columns = p.value))  %>% 
+  tab_style(style = list(cell_fill(color = "palegreen"),
+                         cell_text(weight = "bold")),
+            locations = cells_body(columns = p.value))  %>%
   tab_header(title = "Wilcoxon Test")
-
-lm(signed_rank(Target - Walmart) ~ 1, 
-                    data = Groceries) %>% 
-  broom::tidy(conf.int = TRUE,conf.level = 0.95) %>% gt() %>%
-  tab_style(
-    style = list(cell_fill(color = "palegreen"),cell_text(weight = "bold")),
-    locations = cells_body(columns = p.value)) %>% 
+###
+lm(signed_rank(Target - Walmart) ~ 1,
+   data = Groceries) %>%
+  broom::tidy(conf.int = TRUE, conf.level = 0.95) %>% gt() %>%
+  tab_style(style = list(cell_fill(color = "palegreen"),
+                         cell_text(weight = "bold")),
+            locations = cells_body(columns = p.value)) %>%
   tab_header(title = "Linear Model with Sign.Ranks")
 
 ```
@@ -740,27 +763,38 @@ the product name)
 #| layout: [[30,5],[50,5]]
 #| warning: false
 set.seed(12345)
-Groceries_less <- Groceries %>% 
-    filter(Product != "Quaker Oats Life Cereal Original") 
+Groceries_less <- Groceries %>%
+  filter(Product != "Quaker Oats Life Cereal Original")
 
-Groceries_less_long <- Groceries_less %>% 
-  pivot_longer(cols = c(Target, Walmart), names_to = "store", values_to = "prices")
+Groceries_less_long <- Groceries_less %>%
+  pivot_longer(
+    cols = c(Target, Walmart),
+    names_to = "store",
+    values_to = "prices"
+  )
 
-wilcox.test(prices ~ store, data = Groceries_less_long, 
-            digits.rank = 7, conf.int = TRUE, conf.level = 0.95) %>% 
+wilcox.test(
+  prices ~ store,
+  data = Groceries_less_long,
+  digits.rank = 7,
+  conf.int = TRUE,
+  conf.level = 0.95
+) %>%
   broom::tidy()
 
-obs_diff_price_less <-  mean( ~ (Target - Walmart), data = Groceries_less)
+obs_diff_price_less <-
+  mean(~ (Target - Walmart), data = Groceries_less)
 obs_diff_price_less
 
-polarity_less <- c(rep(1, 15), rep(-1,14)) # Due to resampling this small bias makes no difference
-null_dist_price_less <- 
-  do(9999) * mean(data = Groceries_less, 
-                    ~(Target - Walmart) * resample(polarity_less,
-                                                 replace = TRUE))
+polarity_less <- c(rep(1, 15), rep(-1, 14))
+# Due to resampling this small bias makes no difference
+null_dist_price_less <-
+  do(9999) * mean(data = Groceries_less,
+                  ~ (Target - Walmart) * resample(polarity_less,
+                                                  replace = TRUE))
 
-gf_histogram(data = null_dist_price_less, ~ mean) %>% 
-  gf_vline(xintercept = obs_diff_price_less, colour = "red") %>% 
+gf_histogram(data = null_dist_price_less, ~ mean) %>%
+  gf_vline(xintercept = obs_diff_price_less, colour = "red") %>%
   gf_theme(theme_classic())
 
 mean(null_dist_price_less >= obs_diff_price_less)
@@ -788,12 +822,30 @@ having to rely on any assumption relating to underlying distributions
 and so on.
 
 ## {{< iconify ooui references-ltr >}} References
+::: {#refs style="font-size: 60%;"}
 
 1.  Randall Pruim, Nicholas J. Horton, Daniel T. Kaplan, [*Start
     Teaching with
     R*](https://github.com/ProjectMOSAIC/LittleBooks/raw/master/Starting/MOSAIC-StartTeaching.pdf)
 2.  <https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307>
 3.  <https://statsandr.com/blog/wilcoxon-test-in-r-how-to-compare-2-groups-under-the-non-normality-assumption/>
-4.  
 
 [^1]: <https://raw.githubusercontent.com/gadenbuie/tidyexplain/main/images/tidyr-pivoting.gif>
+
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("gt", "infer", "MKinfer",
+           "openintro")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::
+

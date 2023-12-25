@@ -1,10 +1,12 @@
 ---
 title: "The Grammar of Maps"
 subtitle: "Where is the Secret Garden?"
-author: "Arvind Venkatadri"
 date: 22 April 2021
 date-modified: "`r Sys.Date()`"
 abstract: Part of my Workshop course on R
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## Introduction
@@ -106,15 +108,22 @@ Bas. Onwards and Map-wards!!
 
 ## Step1 - Specifying an area of interest
 
-In R, we need to specify a "**BOUNDING BOX**" first, to declare our area of interest. God made me a BengaluR-kaR...I think..Let's see if we can declare an area of interest. Then we can order on Swiggy and...never mind.
+In R, we need to specify a "**BOUNDING BOX**" first, to declare our area
+of interest. God made me a BengaluR-kaR...I think..Let's see if we can
+declare an area of interest. Then we can order on Swiggy and...never
+mind.
 
 We can declare a **BOUNDING BOX** in several ways.
 
-a)  Using a longitude latitude info from [Bounding Box Tool](https://boundingbox.klokantech.com) which gives bounding boxes in many different formats. 
+a)  Using a longitude latitude info from [Bounding Box
+    Tool](https://boundingbox.klokantech.com) which gives bounding boxes
+    in many different formats.
 
-- Locate the place of interest using the search box. 
-- click on the "box with arrow" tool on the upper left. This will create a rectangular shape.   
-- Move/resize this box and then copy the bounding box from the menu at the bottom. Ensure you copy in **CSV** format.   
+-   Locate the place of interest using the search box.
+-   click on the "box with arrow" tool on the upper left. This will
+    create a rectangular shape.\
+-   Move/resize this box and then copy the bounding box from the menu at
+    the bottom. Ensure you copy in **CSV** format.
 
 ```{r}
 #| label:  I-am-going-home 1
@@ -132,7 +141,8 @@ bbox_1
 
 ```
 
-b)  Using a place name to look up a BOUNDING BOX with `osmdata::getbb`. This may not always work if the place name is know well known.
+b)  Using a place name to look up a BOUNDING BOX with `osmdata::getbb`.
+    This may not always work if the place name is know well known.
 
 ```{r I-am-going-home 2}
 # Using getbb command from the osmdata package
@@ -151,7 +161,9 @@ bbox_2
 
 Both look similar in size; `bbox_2` is slightly bigger.
 
-We will use the `bbox_2` from the above, to ensure we have a decent collection of features. If the download becomes too hefty, we can fall back on the smaller bbox!
+We will use the `bbox_2` from the above, to ensure we have a decent
+collection of features. If the download becomes too hefty, we can fall
+back on the smaller bbox!
 
 ## Step2 - Get Map data
 
@@ -171,7 +183,8 @@ can use them to download the specific data we need. These features can
 easily be explored in the web browser, by using the 'Query features'
 button on [OpenStreetMap (OSM)](https://www.openstreetmap.org/):
 
-![](images/osm-online-features.gif)
+![OSM
+Features](/content/materials/images/osm-online-features.gif){fig-align="center"}
 
 Head off to [OSM Street Map](https://www.openstreetmap.org/) to try this
 out and to get an intuitive understanding of what OSM **key-value
@@ -194,9 +207,14 @@ Useful **key-value pairs** / **tags** include:
 | natural  |                                                                                                                            |
 | boundary |                                                                                                                            |
 
-For more information see:[OSM Tags](https://taginfo.openstreetmap.org/) for a nice visual description of popular **key-value pairs** that we can use. See what the `highway` tag looks like [tag : highway](https://taginfo.openstreetmap.org/keys/highway#values)
+For more information see: [OSM Tags](https://taginfo.openstreetmap.org/)
+for a nice visual description of popular **key-value pairs** that we can
+use. See what the `highway` tag looks like
+[tag:highway](https://taginfo.openstreetmap.org/keys/highway#values)
 
-The `osmdata` commands `available_features` and `available_tags` can help also us get the associated *key-value** pairs to retrieve data from OSM.
+The `osmdata` commands `available_features` and `available_tags` can
+help also us get the associated \*key-value\*\* pairs to retrieve data
+from OSM.
 
 ```{r}
 #| layout-ncol: 2
@@ -207,18 +225,29 @@ available_tags("natural")
 
 ```
 
-We can use these **key-value** pairs to download different types of map data. Within our `bbox` for Jayanagar, Bangalore, we want to download diverse  kinds of **FEATURE** data. Remember that a **FEATURE** is any object that can be "seen" on a map. This is done using the OPQ query in the `osmdata` package. The main parameters for this command are:
+We can use these **key-value** pairs to download different types of map
+data. Within our `bbox` for Jayanagar, Bangalore, we want to download
+diverse kinds of **FEATURE** data. Remember that a **FEATURE** is any
+object that can be "seen" on a map. This is done using the OPQ query in
+the `osmdata` package. The main parameters for this command are:
 
 -   bbox
 -   **KEY / VALUE** pairs (**"TAGS"**) to specify the kind of feature
     you need
-    
-The query returns a **list** data structure, with **all geometries** and features within the bounding box, and we can use any or all of them. Now we know the map features we are interested in. We also know 
-what key-value pairs will be used to get this info from OSM. 
 
-::: callout-danger
+The query returns a **list** data structure, with **all geometries** and
+features within the bounding box, and we can use any or all of them. Now
+we know the map features we are interested in. We also know what
+key-value pairs will be used to get this info from OSM.
+
+::: callout-warning
 ### Data Downloads from OSM
-**Do not run these commands too many times**. **Re-run this ONLY if you have changed your BOUNDING BOX.**. We will get our map data from OSM and then save it avoid repeated downloads. So, please copy/paste and run the following commands in your console. The chunk below is set to eval:false so it will *not* run when you render!
+
+**Do not run these commands too many times**. **Re-run this ONLY if you
+have changed your BOUNDING BOX**. We will get our map data from OSM and
+then save it avoid repeated downloads. So, please copy/paste and run the
+following commands in your console. The chunk below is set to eval:false
+so it will *not* run when you render!
 :::
 
 ```{r}
@@ -269,9 +298,10 @@ dat_greenery <-
 
 ```
 
-Let us save this data, so we don't need to download all this again! We will store the downloaded data as `.gpkg` files on our local hard
-drives to use when we run this file again later. We will name our stored
-files as `buildings`, `roads`, and `greenery`, and `trees`, each with the
+Let us save this data, so we don't need to download all this again! We
+will store the downloaded data as `.gpkg` files on our local hard drives
+to use when we run this file again later. We will name our stored files
+as `buildings`, `roads`, and `greenery`, and `trees`, each with the
 `.gpkg` file extension, e.g. `trees.gpkg`.
 
 Check your local project folder for these files after executing these
@@ -300,8 +330,11 @@ st_write(dat_trees, dsn = "trees.gpkg",
 
 ```
 
-::: callout-danger
-**Always work from here to avoid repeated downloads from OSM. Start from the top ONLY if you intend to map new locations and need to modify your Bounding Box.**
+::: callout-warning
+### Work from here when you resume!
+**Always work from here to avoid repeated downloads from OSM. Start from
+the top ONLY if you intend to map new locations and need to modify your
+Bounding Box.**
 :::
 
 Let us now read back the saved Data:
@@ -314,7 +347,9 @@ trees <- st_read("./trees.gpkg")
 roads <- st_read("./roads.gpkg")
 
 ```
-How many rows? ( Rows -\> Features ) What kind of `geom` column in each data set?
+
+How many rows? ( Rows -\> Features ) What kind of `geom` column in each
+data set?
 
 ```{r}
 # How many buildings?
@@ -335,7 +370,6 @@ What kind of `geom` column does each dataset have?
 
 
 ```
-
 
 ## My first Map in R
 
@@ -509,7 +543,6 @@ In the `india_neighbours` data frame:\
 - Column `iso_3166_2` contains the abbreviation of the state within each
 neighbouring country.
 
-
 ```{r}
 #| label:  Map_1
 tmap_mode("view")
@@ -551,8 +584,6 @@ have above?
 
 ```
 
-
-
 ## Adding my favourite Restaurants to the map
 
 Is it time to order on Swiggy...
@@ -564,8 +595,10 @@ if it is already there we can download using *key-value* pairs in our
 OSM data query.
 
 Restaurants can be downloaded using
-`key= "amenity", value = "restaurant"` or `"cafe"` etc. There are also other tags to explore!Searching for McDonalds for instance...( `key = "name", value = "McDonalds"`). Since we want JUST their location, and not the restaurant BUILDINGs, we extract `osm_points`. 
-
+`key= "amenity", value = "restaurant"` or `"cafe"` etc. There are also
+other tags to explore!Searching for McDonalds for instance...(
+`key = "name", value = "McDonalds"`). Since we want JUST their location,
+and not the restaurant BUILDINGs, we extract `osm_points`.
 
 ```{r restaurant-data-1, eval=FALSE}
 
@@ -581,7 +614,6 @@ dat_R <-
 write_sf(dat_R, dsn = "restaurants.gpkg",append = FALSE, quiet = FALSE)
 
 ```
-
 
 Now reading the saved Restaurant Data
 

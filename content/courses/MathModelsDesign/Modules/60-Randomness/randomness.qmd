@@ -12,11 +12,12 @@ tags:
 - PPDAC Workflow
 - Sampling
 - Randomization
-
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r include=FALSE}
-library(blogdown)
 library(tidyverse)
 library(mosaic)
 library(patchwork)
@@ -32,7 +33,7 @@ library(ggformula)
 We will use a tool called, umm....**WTFcsv**. Let us first quickly see
 what this tool offers us!
 
-<br> `r blogdown::shortcode("vimeo", "150216437")` <br>
+{{< video "https://vimeo.com/150216437" >}}
 
 Let us import our data into the **WTFcsv** tool [(**Web
 Link**)](https://databasic.io/en/wtfcsv/) and see what patterns lurk
@@ -43,10 +44,11 @@ beneath our data!
 
 ### Is Randomness a Design Tool, then?
 
-![Photo by Sharath G. from Pexels](pexels-sharath-g-4418675.jpg)
+![Photo by "Sharath G."Viewers" from
+Pexels](pexels-viewers-16179014.jpg)
 
 1.  Do you remember plucking mangoes from the trees in your childhood
-    gardens?\
+    gardens?
 2.  Did you happen to be the youngest in the group?
 3.  Did you have run home to get the salt + chilly powder?
 4.  Why did you trust your friends not to eat off the best mangoes in
@@ -68,7 +70,7 @@ beneath our data!
 
 Could this song indicate what our situation might be?
 
-<https://www.youtube.com/watch?v=qan0Y9hXpPQ>
+{{< video "https://www.youtube.com/watch?v=qan0Y9hXpPQ" >}}
 
 <https://www.filmyquotes.com/songs/1381>
 
@@ -79,7 +81,7 @@ Well, perhaps not entirely ;-D
 Let us read the famous nunnery scene from **Hamlet**:
 
 a)  Hamlet in 4 Minutes:\
-    <br> `r blogdown::shortcode("youtube", "EmjWIMMtjDc")` <br>
+    {{< youtube "EmjWIMMtjDc" >}}
 
 b)  *To be or Not to be*: [(Web
     Link)](https://www.nosweatshakespeare.com/quotes/hamlet-to-be-or-not-to-be/)
@@ -97,7 +99,8 @@ What would we want to know?
 Did Hamlet have an idea, any suspicion, that he might have wanted to
 prove? Yes, he did, and that is why he *feigned madness*, so people
 would open up and tell him things, in an unguarded way. So there was
-[*craft in his madness*](http://www.shakespeare-online.com/plays/hamlet/antichamlet.html).
+[*craft in his
+madness*](http://www.shakespeare-online.com/plays/hamlet/antichamlet.html).
 
 If we wanted to know the truth of something, some guess, or a
 **Hypothesis** that we had, then we would need to conduct an
@@ -162,11 +165,9 @@ In each of these Hypotheses, we can see that there are *binary*
 If we want our experiment to be **fair** we must have:
 
 -   Devise a test tool for each combination of binary parameters (*Test
-    Type*)
-
--   the **same number** of subjects for each Test Type
-
--   **randomly** select the people as *respondents* each Test Type
+    Type*).\
+-   the **same number** of subjects for each Test Type.
+-   **randomly** select the people as *respondents* each Test Type.
 
 We will choose one of these questions, or a similar one, and use the
 **PPDAC Method** to proceed with our Experiment. This paper by Lawrence
@@ -207,18 +208,28 @@ scores.)
 
 dat <- tibble(scores = rep(20, 8),
               test = LETTERS[1:8])
-params <- expand_grid(p1 = c("True", "False"), p2 = c("Long", "Short"), p3 = c("Big", "Small"))
+params <-
+  expand_grid(
+    p1 = c("True", "False"),
+    p2 = c("Long", "Short"),
+    p3 = c("Big", "Small")
+  )
 
 scores <- cbind(dat, params)
 scores
 
-p1 <- ggplot(scores, aes(x = test, y = scores, fill = test)) + 
+p1 <- ggplot(scores, aes(x = test, y = scores, fill = test)) +
   geom_bar(stat = "identity") + theme_minimal() + labs(title = "8 sets of 20 scores")
 
-p2 <- ggplot(scores, aes(x = p1, y = scores, fill = test), colour = "black") + 
+p2 <-
+  ggplot(scores, aes(x = p1, y = scores, fill = test), colour = "black") +
   geom_bar(stat = "identity", position = "stack") + theme_minimal() + labs(title = "Two sets of scores from 8 tests")
 
-wrap_plots(p1,p2, ncol = 2, nrow = 1, guides = "collect")
+wrap_plots(p1,
+           p2,
+           ncol = 2,
+           nrow = 1,
+           guides = "collect")
 
 ```
 
@@ -308,15 +319,29 @@ diff
 > We'll pool all twenty observations, **randomly** pick 10 of them to
 > label "basic" and label the rest "extended", and compute the
 > difference in means between the two groups. We'll repeat that many
-> times, say ten thousand, to get the *permutation distribution* shown
-> in Figure 1.
+> times, say five thousand, to get the *permutation distribution* shown
+> in @fig-Perm-Test-2.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
+#| label: fig-Perm-Test-1
+#| fig-cap: 
+#|   - "One Shuffled World"
+#|   - "Permutation Test Worlds"
+
 scores_long <- scores %>% pivot_longer(., cols = c("basic", "extended"), values_to = "times", names_to = "channel")
 scores_long %>% knitr::kable()
+```
 
+------------------------------------------------------------------------
+
+```{r}
+#| label: fig-Perm-Test-2
+#| echo: false
+#| warning: false
+#| fig-cap: 
+#|   - "Permutation Test Worlds"
 null_dist_time <-
-  do(10000) * diff(mean(
+  do(4999) * diff(mean(
     scores_long$times ~ shuffle(scores_long$channel),
     data = scores_long))
 
@@ -324,8 +349,13 @@ null_dist_time %>%
   ggplot(., aes(x = extended)) + 
   geom_histogram(aes(fill = extended >= 2.34)) +
   geom_vline(aes(xintercept = 2.34), colour = "green") + 
-  labs(x = "Distribution of Diff in Ad Time Means under null hypothesis for Channel Type", title = "Figure1 - Is 2.34 possible by Chance?") + 
-  guides(fill = guide_legend("Greater than 2.34"))
+  labs(x = "Difference in Ad Times", 
+       y = "How Often did that happen?",
+       title = "Distribution of Simulated Differences in Ad Times",
+       subtitle = "Alternative Worlds from a Permutation Test",
+       caption = "Is 2.34 possible by Chance?") + 
+  guides(fill = guide_legend("Greater than 2.34")) +
+  theme_classic()
 
 ```
 
@@ -374,7 +404,7 @@ Experiment and make a comic out of it:
 **Data Comic Generator from Gramener**
 [(**Weblink**)](https://gramener.com/comicgen)
 
-<br> `r blogdown::shortcode("youtube", "E_2hdZuugI8")` <br>
+{{< youtube "E_2hdZuugI8" >}}
 
 ### References
 
@@ -408,27 +438,20 @@ Experiment and make a comic out of it:
     read by Sarah Dryden Peterson
     <https://www.youtube.com/watch?v=xNcV5DZhg4c>
 
-### Fun Stuff: Words Belong Hamlet
+### Fun Stuff: *Words B'long Hamlet*
 
-Hamlet's *To be or not to be* in Pidgin English - Video on Twitter!
+[Hamlet's *To be or not to be* in Pidgin English - Video on Twitter!](https://twitter.com/bbcnewspidgin/status/1108724221784530945?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1108724221784530945%7Ctwgr%5Ee0657980c128bdf797a7c69d5b3748da6f96377a%7Ctwcon%5Es1_c10&ref_url=http%3A%2F%2Flocalhost%3A4200%2Fcontent%2Fcourses%2FMathModelsDesign%2FModules%2F60-Randomness%2Frandomness.html%3Fcapabilities%3D1host%3Dhttp3A2F2F127.0.0.13A30781)
 
-```{r echo=FALSE}
-blogdown::shortcode("tweet", 
-                    user = "bbcnewspidgin", 
-                    id = "1108724221784530945")
-                    
-```
-
-To be or Not to be, in [Tok
+Want to recite it yourself? Here you go: To be or Not to be, in [Tok
 Pisin](https://www.hawaii.edu/satocenter/langnet/definitions/tokpisin.html):
 
-> \`Which way this time? Me killem de finish body b'long me. Or me no do
-> 'im? Me no savvy.\
+> Which way this time? Me killem de finish body b'long me.\ 
+Or me no do 'im? Me no savvy.\
 > Might 'e better 'long you-me catchem this fella, string for throw 'im
 > this fella arrow.\
 > Altogether b'long number one bad fella, name b'long him fortune? Me no
 > savvy.\
 > Might 'e better 'long you-me For fightem 'long altogether where him 'e
 > makem you-me sorry too much.\
-> Bimeby him fall down die finish? Me no savvy.'
-
+> Bimeby him fall down die finish?\
+> Me no savvy.

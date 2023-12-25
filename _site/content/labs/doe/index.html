@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.3.450">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-01-30">
@@ -18,6 +18,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -288,7 +322,7 @@ ul.task-list li input[type="checkbox"] {
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">Using Permutation Tests in Undergraduate Stats Class</h1>
+<div class="quarto-title-block"><div><h1 class="title">Using Permutation Tests in Undergraduate Stats Class</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 <p class="subtitle lead">Using Permutation Tests</p>
 </div>
 
@@ -313,7 +347,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 9, 2023</p>
+      <p class="date-modified">December 25, 2023</p>
     </div>
   </div>
     
@@ -338,8 +372,13 @@ ul.task-list li input[type="checkbox"] {
 <p>The data were entered into a Google Sheet and the STM scores were converted to <em>percentages</em> so as to be comparable across WL.</p>
 <p>The data was then “flattened” for each of the binary parameters; this was logical to do since for each parameter, the other two parameters were balanced out by the Test structure. For instance, for WL = 5, the SL and ST parameters used all the four combinations ( SL = 5, 15 ) and (ST = 15, 30 ). Hence the “common sense” analysis could proceed for each of the parameters individually. Joint effects were not considered for this preliminary class.</p>
 </section><section id="data" class="level2"><h2 class="anchored" data-anchor-id="data">Data</h2>
-<div class="cell" data-hash="index_cache/html/reading-data_8e86cc1190e24f6719814998732d6650">
-<div class="cell-output-display">
+<div class="cell" data-hash="index_cache/html/reading-data_56aac2f1b1573ec74713977cfdf32da4">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>stm <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="st">"RandomTesters.xlsx"</span>,</span>
+<span id="cb1-2"><a href="#cb1-2"></a>                         <span class="at">sheet =</span> <span class="st">"Data"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                         <span class="at">range =</span> <span class="st">"C31:H91"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-4"><a href="#cb1-4"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb1-5"><a href="#cb1-5"></a>stm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -352,8 +391,17 @@ ul.task-list li input[type="checkbox"] {
 <section id="basic-plots" class="level3"><h3 class="anchored" data-anchor-id="basic-plots">Basic Plots</h3>
 <p>We will use Box Plots and Density Plots to compare the STM score distributions for each Parameter. To do this we need to <code>pivot_longer</code> the adjacent columns ( e.g.&nbsp;<code>syllable_2</code> and syllable_5) and use these names as categorical variables:</p>
 <section id="syllable-parameter-sl" class="level4"><h4 class="anchored" data-anchor-id="syllable-parameter-sl">Syllable Parameter SL</h4>
-<div class="cell" data-hash="index_cache/html/plots-1_52d0179a3db245b44b0a79003f716ea1">
-<div class="cell-output-display">
+<div class="cell" data-hash="index_cache/html/plots-1_259f4072bfd566071ee782d5125968c0">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>stm_syllable <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"syllable"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="at">data =</span> .,</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"syllable"</span>),</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="at">names_to =</span> <span class="st">"syllable"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="at">values_to =</span> <span class="st">"syl_scores"</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  )</span>
+<span id="cb2-9"><a href="#cb2-9"></a>stm_syllable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -361,13 +409,37 @@ ul.task-list li input[type="checkbox"] {
   </script>
 </div>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>p1 <span class="ot">&lt;-</span> stm_syllable <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="at">y =</span> syl_scores,</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="at">x =</span> syllable,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="at">colour =</span> syllable,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>    <span class="at">fill =</span> syllable</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  ),</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Syllables in Test Word Lists"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a>p2 <span class="ot">&lt;-</span> stm_syllable <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> syl_scores, <span class="at">colour =</span> syllable, <span class="at">fill =</span> syllable), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Syllables in Test Word Lists"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2, <span class="at">guides =</span> <span class="st">"collect"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/plots-1-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </section><section id="study-time-parameter-st" class="level4"><h4 class="anchored" data-anchor-id="study-time-parameter-st">Study Time Parameter ST</h4>
-<div class="cell" data-hash="index_cache/html/plots-2_186a082e59f944b1e46c86958de761aa">
-<div class="cell-output-display">
+<div class="cell" data-hash="index_cache/html/plots-2_c04cfecaa4f2ea08dccead5e6a86b481">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>stm_studytime <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"study"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">data =</span> .,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"study"</span>),</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="at">names_to =</span> <span class="st">"study"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="at">values_to =</span> <span class="st">"study_scores"</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  )</span>
+<span id="cb4-9"><a href="#cb4-9"></a>stm_studytime</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -375,13 +447,33 @@ ul.task-list li input[type="checkbox"] {
   </script>
 </div>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>p1 <span class="ot">&lt;-</span> stm_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="at">y =</span> study_scores,</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="at">x =</span> study,</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="at">colour =</span> study,</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="at">fill =</span> study</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  ),</span>
+<span id="cb5-8"><a href="#cb5-8"></a>  <span class="at">alpha =</span> <span class="fl">0.3</span>,</span>
+<span id="cb5-9"><a href="#cb5-9"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>p2 <span class="ot">&lt;-</span> stm_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> study_scores, <span class="at">colour =</span> study, <span class="at">fill =</span> study), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2, <span class="at">guides =</span> <span class="st">"collect"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/plots-2-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </section><section id="word-list-length-parameter-wl" class="level4"><h4 class="anchored" data-anchor-id="word-list-length-parameter-wl">Word List Length Parameter WL</h4>
-<div class="cell" data-hash="index_cache/html/plots-3_954aea2e4e6f6f728eebc27cf438f089">
-<div class="cell-output-display">
+<div class="cell" data-hash="index_cache/html/plots-3_13422b951b39877cea4c630dd2d6d706">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>stm_words <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"list"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">pivot_longer</span>(<span class="at">data =</span> ., <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"list"</span>), </span>
+<span id="cb6-4"><a href="#cb6-4"></a>               <span class="at">names_to =</span> <span class="st">"list"</span>, <span class="at">values_to =</span> <span class="st">"list_scores"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a>stm_words</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -389,7 +481,16 @@ ul.task-list li input[type="checkbox"] {
   </script>
 </div>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>p1 <span class="ot">&lt;-</span> stm_words <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> list_scores, <span class="at">x =</span> list, <span class="at">colour =</span> list, <span class="at">fill =</span> list), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Word Count in Test Word Lists"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>p2 <span class="ot">&lt;-</span> stm_words <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> list_scores, <span class="at">colour =</span> list, <span class="at">fill =</span> list), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a></span>
+<span id="cb7-9"><a href="#cb7-9"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2,<span class="at">guides =</span> <span class="st">"collect"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/plots-3-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
@@ -399,39 +500,50 @@ ul.task-list li input[type="checkbox"] {
 <p>We wish to establish the significance of the effect size due to each of the Parameters. Already from the Density Plots, we can see that <em>none</em> of the scores are normally distributed. A quick <em>Shapiro-Wilkes Test</em> for each of them confirms that the scores are <em>not</em> normally distributed.</p>
 <p>Hence we go for a Permutation Test to check for significance of effect.</p>
 <p>On the other hand, as remarked in Ernst<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>, the non-parametric permutation test can be both <em>exact</em> and also <strong>intuitively easier</strong> for students to grasp, as I can testify from direct observation in this class. There is no need to discuss sampling distributions and means, t-tests and the like. Permutations are easily executed in R, using packages such as <code>mosaic</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
-<div class="cell" data-hash="index_cache/html/shapiro-wilkes_9499acfaadd3499dae58af6d9f84ff9b">
-<div class="cell-output cell-output-stdout">
+<div class="cell" data-hash="index_cache/html/shapiro-wilkes_48acaf2a6208d3d050cde042a32558c6">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>syllable_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$syllable_2
-W = 0.95508, p-value = 0.02716
-
-
+W = 0.95508, p-value = 0.02716</code></pre>
+</div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>syllable_5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
+<pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$syllable_5
-W = 0.95321, p-value = 0.02211
-
-
+W = 0.95321, p-value = 0.02211</code></pre>
+</div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>study_time_15)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
+<pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$study_time_15
-W = 0.9068, p-value = 0.0002348
-
-
+W = 0.9068, p-value = 0.0002348</code></pre>
+</div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>study_time_30)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
+<pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$study_time_30
-W = 0.95539, p-value = 0.0281
-
-
+W = 0.95539, p-value = 0.0281</code></pre>
+</div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>list_length_7)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
+<pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$list_length_7
-W = 0.90542, p-value = 0.0002085
-
-
+W = 0.90542, p-value = 0.0002085</code></pre>
+</div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>list_length_15)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
+<pre><code>
     Shapiro-Wilk normality test
 
 data:  stm$list_length_15
@@ -440,49 +552,96 @@ W = 0.92806, p-value = 0.001645</code></pre>
 </div>
 </section><section id="permutation-tests" class="level2"><h2 class="anchored" data-anchor-id="permutation-tests">Permutation Tests</h2>
 <p>We proceed with a Permutation Test for each of the Parameters. We start with the Syllable Parameter SL. We shuffle the labels ( SL- = 2 and SL+ = 5) between the scores and determine the null distribution. This is then compared with the difference in <em>mean scores</em> between the unpermuted sets. We continue similarly for the other two parameters.</p>
-<div class="cell" data-hash="index_cache/html/permutation-tests_5724231967ae83f17dba5b773f137fa1">
-<div class="cell-output cell-output-stdout">
+<div class="cell" data-hash="index_cache/html/permutation-tests_fde6aa3904928c30f4d64e0962e55a00">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co">#Syllable Parameter SL</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a></span>
+<span id="cb20-3"><a href="#cb20-3"></a>obs_syl_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>syllable_2) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>syllable_5)</span>
+<span id="cb20-4"><a href="#cb20-4"></a>obs_syl_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.0153731</code></pre>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>null_dist_syllable <span class="ot">&lt;-</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(</span>
+<span id="cb22-3"><a href="#cb22-3"></a>    stm_syllable<span class="sc">$</span>syl_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_syllable<span class="sc">$</span>syllable),</span>
+<span id="cb22-4"><a href="#cb22-4"></a>    <span class="at">data =</span> stm_syllable</span>
+<span id="cb22-5"><a href="#cb22-5"></a>  ))</span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="fu">head</span>(null_dist_syllable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["syllable_5"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.0384418254","_rn_":"1"},{"1":"-0.0314199206","_rn_":"2"},{"1":"0.0333159524","_rn_":"3"},{"1":"-0.0364978571","_rn_":"4"},{"1":"-0.0009965873","_rn_":"5"},{"1":"-0.0733613492","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["syllable_5"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.04768770","_rn_":"1"},{"1":"-0.03268722","_rn_":"2"},{"1":"0.06600040","_rn_":"3"},{"1":"0.01962008","_rn_":"4"},{"1":"0.01616135","_rn_":"5"},{"1":"0.05046579","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>p1 <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>  null_dist_syllable <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> syllable_5)) <span class="sc">+</span> </span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> syllable_5 <span class="sc">&gt;=</span> obs_syl_mean)) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Syllables"</span>)</span>
+<span id="cb23-6"><a href="#cb23-6"></a></span>
+<span id="cb23-7"><a href="#cb23-7"></a></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="co"># Study Time Parameter ST</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a>obs_study_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>study_time_30) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>study_time_15)</span>
+<span id="cb23-10"><a href="#cb23-10"></a>obs_study_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.08526183</code></pre>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>null_dist_studytime <span class="ot">&lt;-</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(</span>
+<span id="cb25-3"><a href="#cb25-3"></a>    stm_studytime<span class="sc">$</span>study_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_studytime<span class="sc">$</span>study),</span>
+<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">data =</span> stm_studytime</span>
+<span id="cb25-5"><a href="#cb25-5"></a>  ))</span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="fu">head</span>(null_dist_studytime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["study_time_30"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.025711508","_rn_":"1"},{"1":"-0.038751190","_rn_":"2"},{"1":"0.009235476","_rn_":"3"},{"1":"0.009585159","_rn_":"4"},{"1":"-0.022232619","_rn_":"5"},{"1":"0.059043413","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["study_time_30"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.011727540","_rn_":"1"},{"1":"0.006360397","_rn_":"2"},{"1":"0.017788968","_rn_":"3"},{"1":"-0.035879762","_rn_":"4"},{"1":"-0.074616905","_rn_":"5"},{"1":"-0.025674524","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>p2 <span class="ot">&lt;-</span> null_dist_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> study_time_30)) <span class="sc">+</span> </span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> study_time_30 <span class="sc">&gt;=</span> obs_study_mean)) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Study Time"</span>)</span>
+<span id="cb26-5"><a href="#cb26-5"></a></span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="co"># Word List Length Parameter WL</span></span>
+<span id="cb26-7"><a href="#cb26-7"></a>obs_word_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>list_length_7) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>list_length_15)</span>
+<span id="cb26-8"><a href="#cb26-8"></a>obs_word_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.2887539</code></pre>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>null_dist_words <span class="ot">&lt;-</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(stm_words<span class="sc">$</span>list_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_words<span class="sc">$</span>list), <span class="at">data =</span> stm_words))</span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="fu">head</span>(null_dist_words)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["list_length_7"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.084169286","_rn_":"1"},{"1":"-0.004785159","_rn_":"2"},{"1":"-0.081559603","_rn_":"3"},{"1":"0.034896270","_rn_":"4"},{"1":"0.003170397","_rn_":"5"},{"1":"-0.000645000","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["list_length_7"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.002490397","_rn_":"1"},{"1":"-0.070517381","_rn_":"2"},{"1":"-0.001314365","_rn_":"3"},{"1":"-0.108306905","_rn_":"4"},{"1":"0.003240714","_rn_":"5"},{"1":"-0.024479444","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>p3 <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>  null_dist_words <span class="sc">%&gt;%</span> </span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> list_length_7)) <span class="sc">+</span> </span>
+<span id="cb29-4"><a href="#cb29-4"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> list_length_7 <span class="sc">&gt;=</span> obs_word_mean)) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Words"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<div class="cell" data-hash="index_cache/html/null-plots_d3e1605e794188283865c6f5f0ee9006">
-<div class="cell-output-display">
+<div class="cell" data-hash="index_cache/html/null-plots_b65b9c4293197ee724f07d01396af822">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># patchwork::wrap_plots(p1 + p2 + p3, nrow= 3, guides = "auto")</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/null-plots-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/null-plots-2.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display">
+<details><summary>Code</summary><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
 <p><img src="index_files/figure-html/null-plots-3.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
@@ -491,6 +650,8 @@ W = 0.92806, p-value = 0.001645</code></pre>
 <p>On the other hand, Syllable Count (SL) does not seem to affect the STM scores significantly.</p>
 </section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">References</h2>
 
+
+<!-- -->
 
 </section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 <ol>
@@ -576,6 +737,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
@@ -745,7 +957,308 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
 });
-</script>
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb33" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb33-1"><a href="#cb33-1"></a><span class="co">---</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="an">title:</span><span class="co"> "Using Permutation Tests in Undergraduate Stats Class"</span></span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="an">subtitle:</span><span class="co"> Using Permutation Tests</span></span>
+<span id="cb33-4"><a href="#cb33-4"></a><span class="an">author:</span><span class="co"> "Arvind Venkatadri"</span></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="an">date:</span><span class="co"> "2022-01-30"</span></span>
+<span id="cb33-6"><a href="#cb33-6"></a><span class="an">date-modified:</span><span class="co"> "`r Sys.Date()`"</span></span>
+<span id="cb33-7"><a href="#cb33-7"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb33-8"><a href="#cb33-8"></a><span class="co">  html:</span></span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="co">    theme: journal</span></span>
+<span id="cb33-10"><a href="#cb33-10"></a><span class="an">df-print:</span><span class="co"> paged</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a><span class="an">code-fold:</span><span class="co"> true</span></span>
+<span id="cb33-12"><a href="#cb33-12"></a><span class="an">code-summary:</span><span class="co"> "Show the Code"</span></span>
+<span id="cb33-13"><a href="#cb33-13"></a><span class="an">code-line-numbers:</span><span class="co"> true</span></span>
+<span id="cb33-14"><a href="#cb33-14"></a><span class="an">highlight-style:</span><span class="co"> dracula</span></span>
+<span id="cb33-15"><a href="#cb33-15"></a><span class="co">---</span></span>
+<span id="cb33-16"><a href="#cb33-16"></a></span>
+<span id="cb33-17"><a href="#cb33-17"></a><span class="in">```{r setup, include=FALSE}</span></span>
+<span id="cb33-18"><a href="#cb33-18"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">FALSE</span>,<span class="at">message =</span> <span class="cn">FALSE</span>,<span class="at">warning =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb33-19"><a href="#cb33-19"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb33-20"><a href="#cb33-20"></a><span class="fu">library</span>(mosaic)</span>
+<span id="cb33-21"><a href="#cb33-21"></a><span class="in">```</span></span>
+<span id="cb33-22"><a href="#cb33-22"></a></span>
+<span id="cb33-23"><a href="#cb33-23"></a><span class="fu">## Introduction</span></span>
+<span id="cb33-24"><a href="#cb33-24"></a></span>
+<span id="cb33-25"><a href="#cb33-25"></a>This project is a quick analysis of the Design of Experiments class</span>
+<span id="cb33-26"><a href="#cb33-26"></a>carried out in the Order and Chaos course, FSP-2021-2022, at SMI MAHE,</span>
+<span id="cb33-27"><a href="#cb33-27"></a>Bangalore.</span>
+<span id="cb33-28"><a href="#cb33-28"></a></span>
+<span id="cb33-29"><a href="#cb33-29"></a>The methodology followed was that in A.J. Lawrance's paper <span class="ot">[^1]</span></span>
+<span id="cb33-30"><a href="#cb33-30"></a>describing a Statistics module based on the method of Design of</span>
+<span id="cb33-31"><a href="#cb33-31"></a>Experiments. The inquiry relates to Short Term Memory (STM) among</span>
+<span id="cb33-32"><a href="#cb33-32"></a>students.</span>
+<span id="cb33-33"><a href="#cb33-33"></a></span>
+<span id="cb33-34"><a href="#cb33-34"></a><span class="fu">## Structure</span></span>
+<span id="cb33-35"><a href="#cb33-35"></a></span>
+<span id="cb33-36"><a href="#cb33-36"></a>The total number of students were 17. Eight Pairs of students were</span>
+<span id="cb33-37"><a href="#cb33-37"></a>created randomly to create eight different Test tools for Short Term</span>
+<span id="cb33-38"><a href="#cb33-38"></a>Memory testing.</span>
+<span id="cb33-39"><a href="#cb33-39"></a></span>
+<span id="cb33-40"><a href="#cb33-40"></a>The binary ( two - level ) variables/parameters that were used in the</span>
+<span id="cb33-41"><a href="#cb33-41"></a>tests, were, following Lawrance:</span>
+<span id="cb33-42"><a href="#cb33-42"></a></span>
+<span id="cb33-43"><a href="#cb33-43"></a><span class="ss">-   </span>WL: Word List Length ( 7 and 15 words )\</span>
+<span id="cb33-44"><a href="#cb33-44"></a><span class="ss">-   </span>SL: Syllables in the Words ( 2 and 5 syllables )\</span>
+<span id="cb33-45"><a href="#cb33-45"></a><span class="ss">-   </span>ST: Study Time allowed for the Respondents ( 15 and 30 seconds )</span>
+<span id="cb33-46"><a href="#cb33-46"></a></span>
+<span id="cb33-47"><a href="#cb33-47"></a>Other parameters considered were a) Language b) Structure/Depiction of</span>
+<span id="cb33-48"><a href="#cb33-48"></a>the Word Lists ( e.g. word clouds, matrices, columns...), c) Whether the</span>
+<span id="cb33-49"><a href="#cb33-49"></a>words would be shown or read aloud, and d) whether the respondents had</span>
+<span id="cb33-50"><a href="#cb33-50"></a>to speak out, or write down, the recollected words. These parameters</span>
+<span id="cb33-51"><a href="#cb33-51"></a>were discussed and abandoned as too complex to mechanize, though they</span>
+<span id="cb33-52"><a href="#cb33-52"></a>could have had an impact on the STM scores.</span>
+<span id="cb33-53"><a href="#cb33-53"></a></span>
+<span id="cb33-54"><a href="#cb33-54"></a>Hence a total of **8 Tests** were created by 8 pairs of students, and</span>
+<span id="cb33-55"><a href="#cb33-55"></a>each team tested the remaining 15 students ( Due to COVID restrictions,</span>
+<span id="cb33-56"><a href="#cb33-56"></a>this testing was carried out entirely online on MS Teams, using</span>
+<span id="cb33-57"><a href="#cb33-57"></a>individual breakout rooms for the Test Teams. )</span>
+<span id="cb33-58"><a href="#cb33-58"></a></span>
+<span id="cb33-59"><a href="#cb33-59"></a>The data were entered into a Google Sheet and the STM scores were</span>
+<span id="cb33-60"><a href="#cb33-60"></a>converted to *percentages* so as to be comparable across WL.</span>
+<span id="cb33-61"><a href="#cb33-61"></a></span>
+<span id="cb33-62"><a href="#cb33-62"></a>The data was then "flattened" for each of the binary parameters; this</span>
+<span id="cb33-63"><a href="#cb33-63"></a>was logical to do since for each parameter, the other two parameters</span>
+<span id="cb33-64"><a href="#cb33-64"></a>were balanced out by the Test structure. For instance, for WL = 5, the</span>
+<span id="cb33-65"><a href="#cb33-65"></a>SL and ST parameters used all the four combinations ( SL = 5, 15 ) and</span>
+<span id="cb33-66"><a href="#cb33-66"></a>(ST = 15, 30 ). Hence the "common sense" analysis could proceed for each</span>
+<span id="cb33-67"><a href="#cb33-67"></a>of the parameters individually. Joint effects were not considered for</span>
+<span id="cb33-68"><a href="#cb33-68"></a>this preliminary class.</span>
+<span id="cb33-69"><a href="#cb33-69"></a></span>
+<span id="cb33-70"><a href="#cb33-70"></a><span class="fu">## Data</span></span>
+<span id="cb33-71"><a href="#cb33-71"></a></span>
+<span id="cb33-72"><a href="#cb33-72"></a><span class="in">```{r, reading-data}</span></span>
+<span id="cb33-73"><a href="#cb33-73"></a>stm <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="st">"RandomTesters.xlsx"</span>,</span>
+<span id="cb33-74"><a href="#cb33-74"></a>                         <span class="at">sheet =</span> <span class="st">"Data"</span>,</span>
+<span id="cb33-75"><a href="#cb33-75"></a>                         <span class="at">range =</span> <span class="st">"C31:H91"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-76"><a href="#cb33-76"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb33-77"><a href="#cb33-77"></a>stm</span>
+<span id="cb33-78"><a href="#cb33-78"></a><span class="in">```</span></span>
+<span id="cb33-79"><a href="#cb33-79"></a></span>
+<span id="cb33-80"><a href="#cb33-80"></a>The data has scores that have been combined into single columns for each</span>
+<span id="cb33-81"><a href="#cb33-81"></a>setting for each of the parameters. For example, the column <span class="in">`syllable_2`</span></span>
+<span id="cb33-82"><a href="#cb33-82"></a>contains STM scores for **all** tests that used SL = 2-syllables in</span>
+<span id="cb33-83"><a href="#cb33-83"></a>their tests. The Word Length WL and Study Time ST go through all their</span>
+<span id="cb33-84"><a href="#cb33-84"></a>combinations in this column. The other columns are constructed</span>
+<span id="cb33-85"><a href="#cb33-85"></a>similarly.</span>
+<span id="cb33-86"><a href="#cb33-86"></a></span>
+<span id="cb33-87"><a href="#cb33-87"></a><span class="fu">### Basic Plots</span></span>
+<span id="cb33-88"><a href="#cb33-88"></a></span>
+<span id="cb33-89"><a href="#cb33-89"></a>We will use Box Plots and Density Plots to compare the STM score</span>
+<span id="cb33-90"><a href="#cb33-90"></a>distributions for each Parameter. To do this we need to <span class="in">`pivot_longer`</span></span>
+<span id="cb33-91"><a href="#cb33-91"></a>the adjacent columns ( e.g. <span class="in">`syllable_2`</span> and syllable_5) and use these</span>
+<span id="cb33-92"><a href="#cb33-92"></a>names as categorical variables:</span>
+<span id="cb33-93"><a href="#cb33-93"></a></span>
+<span id="cb33-94"><a href="#cb33-94"></a><span class="fu">#### Syllable Parameter SL</span></span>
+<span id="cb33-95"><a href="#cb33-95"></a></span>
+<span id="cb33-96"><a href="#cb33-96"></a><span class="in">```{r plots-1}</span></span>
+<span id="cb33-97"><a href="#cb33-97"></a>stm_syllable <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span></span>
+<span id="cb33-98"><a href="#cb33-98"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"syllable"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb33-99"><a href="#cb33-99"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb33-100"><a href="#cb33-100"></a>    <span class="at">data =</span> .,</span>
+<span id="cb33-101"><a href="#cb33-101"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"syllable"</span>),</span>
+<span id="cb33-102"><a href="#cb33-102"></a>    <span class="at">names_to =</span> <span class="st">"syllable"</span>,</span>
+<span id="cb33-103"><a href="#cb33-103"></a>    <span class="at">values_to =</span> <span class="st">"syl_scores"</span></span>
+<span id="cb33-104"><a href="#cb33-104"></a>  )</span>
+<span id="cb33-105"><a href="#cb33-105"></a>stm_syllable</span>
+<span id="cb33-106"><a href="#cb33-106"></a></span>
+<span id="cb33-107"><a href="#cb33-107"></a>p1 <span class="ot">&lt;-</span> stm_syllable <span class="sc">%&gt;%</span></span>
+<span id="cb33-108"><a href="#cb33-108"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(</span>
+<span id="cb33-109"><a href="#cb33-109"></a>    <span class="at">y =</span> syl_scores,</span>
+<span id="cb33-110"><a href="#cb33-110"></a>    <span class="at">x =</span> syllable,</span>
+<span id="cb33-111"><a href="#cb33-111"></a>    <span class="at">colour =</span> syllable,</span>
+<span id="cb33-112"><a href="#cb33-112"></a>    <span class="at">fill =</span> syllable</span>
+<span id="cb33-113"><a href="#cb33-113"></a>  ),</span>
+<span id="cb33-114"><a href="#cb33-114"></a>  <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-115"><a href="#cb33-115"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Syllables in Test Word Lists"</span>)</span>
+<span id="cb33-116"><a href="#cb33-116"></a></span>
+<span id="cb33-117"><a href="#cb33-117"></a>p2 <span class="ot">&lt;-</span> stm_syllable <span class="sc">%&gt;%</span></span>
+<span id="cb33-118"><a href="#cb33-118"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> syl_scores, <span class="at">colour =</span> syllable, <span class="at">fill =</span> syllable), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-119"><a href="#cb33-119"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Syllables in Test Word Lists"</span>)</span>
+<span id="cb33-120"><a href="#cb33-120"></a></span>
+<span id="cb33-121"><a href="#cb33-121"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2, <span class="at">guides =</span> <span class="st">"collect"</span>)</span>
+<span id="cb33-122"><a href="#cb33-122"></a><span class="in">```</span></span>
+<span id="cb33-123"><a href="#cb33-123"></a></span>
+<span id="cb33-124"><a href="#cb33-124"></a><span class="fu">#### Study Time Parameter ST</span></span>
+<span id="cb33-125"><a href="#cb33-125"></a></span>
+<span id="cb33-126"><a href="#cb33-126"></a><span class="in">```{r plots-2}</span></span>
+<span id="cb33-127"><a href="#cb33-127"></a>stm_studytime <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span></span>
+<span id="cb33-128"><a href="#cb33-128"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"study"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb33-129"><a href="#cb33-129"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb33-130"><a href="#cb33-130"></a>    <span class="at">data =</span> .,</span>
+<span id="cb33-131"><a href="#cb33-131"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"study"</span>),</span>
+<span id="cb33-132"><a href="#cb33-132"></a>    <span class="at">names_to =</span> <span class="st">"study"</span>,</span>
+<span id="cb33-133"><a href="#cb33-133"></a>    <span class="at">values_to =</span> <span class="st">"study_scores"</span></span>
+<span id="cb33-134"><a href="#cb33-134"></a>  )</span>
+<span id="cb33-135"><a href="#cb33-135"></a>stm_studytime</span>
+<span id="cb33-136"><a href="#cb33-136"></a></span>
+<span id="cb33-137"><a href="#cb33-137"></a>p1 <span class="ot">&lt;-</span> stm_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb33-138"><a href="#cb33-138"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(</span>
+<span id="cb33-139"><a href="#cb33-139"></a>    <span class="at">y =</span> study_scores,</span>
+<span id="cb33-140"><a href="#cb33-140"></a>    <span class="at">x =</span> study,</span>
+<span id="cb33-141"><a href="#cb33-141"></a>    <span class="at">colour =</span> study,</span>
+<span id="cb33-142"><a href="#cb33-142"></a>    <span class="at">fill =</span> study</span>
+<span id="cb33-143"><a href="#cb33-143"></a>  ),</span>
+<span id="cb33-144"><a href="#cb33-144"></a>  <span class="at">alpha =</span> <span class="fl">0.3</span>,</span>
+<span id="cb33-145"><a href="#cb33-145"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-146"><a href="#cb33-146"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb33-147"><a href="#cb33-147"></a>p2 <span class="ot">&lt;-</span> stm_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb33-148"><a href="#cb33-148"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> study_scores, <span class="at">colour =</span> study, <span class="at">fill =</span> study), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-149"><a href="#cb33-149"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb33-150"><a href="#cb33-150"></a></span>
+<span id="cb33-151"><a href="#cb33-151"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2, <span class="at">guides =</span> <span class="st">"collect"</span>)</span>
+<span id="cb33-152"><a href="#cb33-152"></a><span class="in">```</span></span>
+<span id="cb33-153"><a href="#cb33-153"></a></span>
+<span id="cb33-154"><a href="#cb33-154"></a><span class="fu">#### Word List Length Parameter WL</span></span>
+<span id="cb33-155"><a href="#cb33-155"></a></span>
+<span id="cb33-156"><a href="#cb33-156"></a><span class="in">```{r plots-3}</span></span>
+<span id="cb33-157"><a href="#cb33-157"></a>stm_words <span class="ot">&lt;-</span> stm <span class="sc">%&gt;%</span> </span>
+<span id="cb33-158"><a href="#cb33-158"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"list"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-159"><a href="#cb33-159"></a>  <span class="fu">pivot_longer</span>(<span class="at">data =</span> ., <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"list"</span>), </span>
+<span id="cb33-160"><a href="#cb33-160"></a>               <span class="at">names_to =</span> <span class="st">"list"</span>, <span class="at">values_to =</span> <span class="st">"list_scores"</span>)</span>
+<span id="cb33-161"><a href="#cb33-161"></a>stm_words</span>
+<span id="cb33-162"><a href="#cb33-162"></a></span>
+<span id="cb33-163"><a href="#cb33-163"></a>p1 <span class="ot">&lt;-</span> stm_words <span class="sc">%&gt;%</span></span>
+<span id="cb33-164"><a href="#cb33-164"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> list_scores, <span class="at">x =</span> list, <span class="at">colour =</span> list, <span class="at">fill =</span> list), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-165"><a href="#cb33-165"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Word Count in Test Word Lists"</span>)</span>
+<span id="cb33-166"><a href="#cb33-166"></a></span>
+<span id="cb33-167"><a href="#cb33-167"></a>p2 <span class="ot">&lt;-</span> stm_words <span class="sc">%&gt;%</span></span>
+<span id="cb33-168"><a href="#cb33-168"></a>  <span class="fu">ggplot</span>(.) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> list_scores, <span class="at">colour =</span> list, <span class="at">fill =</span> list), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-169"><a href="#cb33-169"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"STM scores by Study Time in Test Word Lists"</span>)</span>
+<span id="cb33-170"><a href="#cb33-170"></a></span>
+<span id="cb33-171"><a href="#cb33-171"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p1 <span class="sc">+</span> p2,<span class="at">guides =</span> <span class="st">"collect"</span>)</span>
+<span id="cb33-172"><a href="#cb33-172"></a><span class="in">```</span></span>
+<span id="cb33-173"><a href="#cb33-173"></a></span>
+<span id="cb33-174"><a href="#cb33-174"></a><span class="fu">## Preliminary Observations</span></span>
+<span id="cb33-175"><a href="#cb33-175"></a></span>
+<span id="cb33-176"><a href="#cb33-176"></a>Clearly, based on visual inspection of the Plots, the Word Count seems</span>
+<span id="cb33-177"><a href="#cb33-177"></a>to have a large effect on STM Test Scores, with fewer words ( 7 ) being</span>
+<span id="cb33-178"><a href="#cb33-178"></a>easier to recall. Study Time ( 15 and 30 seconds ) also seems to have a</span>
+<span id="cb33-179"><a href="#cb33-179"></a>more modest positive effect on STM scores, while Syllable Count ( 2 or 5</span>
+<span id="cb33-180"><a href="#cb33-180"></a>syllables ) seems to have a modest negative effect on STM scores.</span>
+<span id="cb33-181"><a href="#cb33-181"></a></span>
+<span id="cb33-182"><a href="#cb33-182"></a><span class="fu">## Analysis</span></span>
+<span id="cb33-183"><a href="#cb33-183"></a></span>
+<span id="cb33-184"><a href="#cb33-184"></a>We wish to establish the significance of the effect size due to each of</span>
+<span id="cb33-185"><a href="#cb33-185"></a>the Parameters. Already from the Density Plots, we can see that *none*</span>
+<span id="cb33-186"><a href="#cb33-186"></a>of the scores are normally distributed. A quick *Shapiro-Wilkes Test*</span>
+<span id="cb33-187"><a href="#cb33-187"></a>for each of them confirms that the scores are *not* normally</span>
+<span id="cb33-188"><a href="#cb33-188"></a>distributed.</span>
+<span id="cb33-189"><a href="#cb33-189"></a></span>
+<span id="cb33-190"><a href="#cb33-190"></a>Hence we go for a Permutation Test to check for significance of effect.</span>
+<span id="cb33-191"><a href="#cb33-191"></a></span>
+<span id="cb33-192"><a href="#cb33-192"></a>On the other hand, as remarked in Ernst<span class="ot">[^2]</span>, the non-parametric</span>
+<span id="cb33-193"><a href="#cb33-193"></a>permutation test can be both *exact* and also **intuitively easier** for</span>
+<span id="cb33-194"><a href="#cb33-194"></a>students to grasp, as I can testify from direct observation in this</span>
+<span id="cb33-195"><a href="#cb33-195"></a>class. There is no need to discuss sampling distributions and means,</span>
+<span id="cb33-196"><a href="#cb33-196"></a>t-tests and the like. Permutations are easily executed in R, using</span>
+<span id="cb33-197"><a href="#cb33-197"></a>packages such as <span class="in">`mosaic`</span><span class="ot">[^3]</span>.</span>
+<span id="cb33-198"><a href="#cb33-198"></a></span>
+<span id="cb33-199"><a href="#cb33-199"></a><span class="in">```{r,shapiro-wilkes}</span></span>
+<span id="cb33-200"><a href="#cb33-200"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>syllable_2)</span>
+<span id="cb33-201"><a href="#cb33-201"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>syllable_5)</span>
+<span id="cb33-202"><a href="#cb33-202"></a></span>
+<span id="cb33-203"><a href="#cb33-203"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>study_time_15)</span>
+<span id="cb33-204"><a href="#cb33-204"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>study_time_30)</span>
+<span id="cb33-205"><a href="#cb33-205"></a></span>
+<span id="cb33-206"><a href="#cb33-206"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>list_length_7)</span>
+<span id="cb33-207"><a href="#cb33-207"></a><span class="fu">shapiro.test</span>(stm<span class="sc">$</span>list_length_15)</span>
+<span id="cb33-208"><a href="#cb33-208"></a><span class="in">```</span></span>
+<span id="cb33-209"><a href="#cb33-209"></a></span>
+<span id="cb33-210"><a href="#cb33-210"></a><span class="fu">## Permutation Tests</span></span>
+<span id="cb33-211"><a href="#cb33-211"></a></span>
+<span id="cb33-212"><a href="#cb33-212"></a>We proceed with a Permutation Test for each of the Parameters. We start</span>
+<span id="cb33-213"><a href="#cb33-213"></a>with the Syllable Parameter SL. We shuffle the labels ( SL- = 2 and SL+</span>
+<span id="cb33-214"><a href="#cb33-214"></a>= 5) between the scores and determine the null distribution. This is</span>
+<span id="cb33-215"><a href="#cb33-215"></a>then compared with the difference in *mean scores* between the</span>
+<span id="cb33-216"><a href="#cb33-216"></a>unpermuted sets. We continue similarly for the other two parameters.</span>
+<span id="cb33-217"><a href="#cb33-217"></a></span>
+<span id="cb33-218"><a href="#cb33-218"></a><span class="in">```{r permutation-tests}</span></span>
+<span id="cb33-219"><a href="#cb33-219"></a><span class="co">#Syllable Parameter SL</span></span>
+<span id="cb33-220"><a href="#cb33-220"></a></span>
+<span id="cb33-221"><a href="#cb33-221"></a>obs_syl_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>syllable_2) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>syllable_5)</span>
+<span id="cb33-222"><a href="#cb33-222"></a>obs_syl_mean</span>
+<span id="cb33-223"><a href="#cb33-223"></a></span>
+<span id="cb33-224"><a href="#cb33-224"></a>null_dist_syllable <span class="ot">&lt;-</span></span>
+<span id="cb33-225"><a href="#cb33-225"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(</span>
+<span id="cb33-226"><a href="#cb33-226"></a>    stm_syllable<span class="sc">$</span>syl_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_syllable<span class="sc">$</span>syllable),</span>
+<span id="cb33-227"><a href="#cb33-227"></a>    <span class="at">data =</span> stm_syllable</span>
+<span id="cb33-228"><a href="#cb33-228"></a>  ))</span>
+<span id="cb33-229"><a href="#cb33-229"></a><span class="fu">head</span>(null_dist_syllable)</span>
+<span id="cb33-230"><a href="#cb33-230"></a></span>
+<span id="cb33-231"><a href="#cb33-231"></a>p1 <span class="ot">&lt;-</span></span>
+<span id="cb33-232"><a href="#cb33-232"></a>  null_dist_syllable <span class="sc">%&gt;%</span> </span>
+<span id="cb33-233"><a href="#cb33-233"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> syllable_5)) <span class="sc">+</span> </span>
+<span id="cb33-234"><a href="#cb33-234"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> syllable_5 <span class="sc">&gt;=</span> obs_syl_mean)) <span class="sc">+</span></span>
+<span id="cb33-235"><a href="#cb33-235"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Syllables"</span>)</span>
+<span id="cb33-236"><a href="#cb33-236"></a></span>
+<span id="cb33-237"><a href="#cb33-237"></a></span>
+<span id="cb33-238"><a href="#cb33-238"></a><span class="co"># Study Time Parameter ST</span></span>
+<span id="cb33-239"><a href="#cb33-239"></a>obs_study_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>study_time_30) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>study_time_15)</span>
+<span id="cb33-240"><a href="#cb33-240"></a>obs_study_mean</span>
+<span id="cb33-241"><a href="#cb33-241"></a></span>
+<span id="cb33-242"><a href="#cb33-242"></a>null_dist_studytime <span class="ot">&lt;-</span></span>
+<span id="cb33-243"><a href="#cb33-243"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(</span>
+<span id="cb33-244"><a href="#cb33-244"></a>    stm_studytime<span class="sc">$</span>study_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_studytime<span class="sc">$</span>study),</span>
+<span id="cb33-245"><a href="#cb33-245"></a>    <span class="at">data =</span> stm_studytime</span>
+<span id="cb33-246"><a href="#cb33-246"></a>  ))</span>
+<span id="cb33-247"><a href="#cb33-247"></a><span class="fu">head</span>(null_dist_studytime)</span>
+<span id="cb33-248"><a href="#cb33-248"></a></span>
+<span id="cb33-249"><a href="#cb33-249"></a>p2 <span class="ot">&lt;-</span> null_dist_studytime <span class="sc">%&gt;%</span></span>
+<span id="cb33-250"><a href="#cb33-250"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> study_time_30)) <span class="sc">+</span> </span>
+<span id="cb33-251"><a href="#cb33-251"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> study_time_30 <span class="sc">&gt;=</span> obs_study_mean)) <span class="sc">+</span></span>
+<span id="cb33-252"><a href="#cb33-252"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Study Time"</span>)</span>
+<span id="cb33-253"><a href="#cb33-253"></a></span>
+<span id="cb33-254"><a href="#cb33-254"></a><span class="co"># Word List Length Parameter WL</span></span>
+<span id="cb33-255"><a href="#cb33-255"></a>obs_word_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>list_length_7) <span class="sc">-</span> <span class="fu">mean</span>(stm<span class="sc">$</span>list_length_15)</span>
+<span id="cb33-256"><a href="#cb33-256"></a>obs_word_mean</span>
+<span id="cb33-257"><a href="#cb33-257"></a></span>
+<span id="cb33-258"><a href="#cb33-258"></a>null_dist_words <span class="ot">&lt;-</span></span>
+<span id="cb33-259"><a href="#cb33-259"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">mean</span>(stm_words<span class="sc">$</span>list_scores <span class="sc">~</span> <span class="fu">shuffle</span>(stm_words<span class="sc">$</span>list), <span class="at">data =</span> stm_words))</span>
+<span id="cb33-260"><a href="#cb33-260"></a><span class="fu">head</span>(null_dist_words)</span>
+<span id="cb33-261"><a href="#cb33-261"></a></span>
+<span id="cb33-262"><a href="#cb33-262"></a>p3 <span class="ot">&lt;-</span></span>
+<span id="cb33-263"><a href="#cb33-263"></a>  null_dist_words <span class="sc">%&gt;%</span> </span>
+<span id="cb33-264"><a href="#cb33-264"></a>  <span class="fu">ggplot</span>(., <span class="fu">aes</span>(<span class="at">x =</span> list_length_7)) <span class="sc">+</span> </span>
+<span id="cb33-265"><a href="#cb33-265"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> list_length_7 <span class="sc">&gt;=</span> obs_word_mean)) <span class="sc">+</span></span>
+<span id="cb33-266"><a href="#cb33-266"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Distribution of Diff in Means under null hypothesis for Words"</span>)</span>
+<span id="cb33-267"><a href="#cb33-267"></a><span class="in">```</span></span>
+<span id="cb33-268"><a href="#cb33-268"></a></span>
+<span id="cb33-269"><a href="#cb33-269"></a><span class="in">```{r, null-plots}</span></span>
+<span id="cb33-270"><a href="#cb33-270"></a><span class="co"># patchwork::wrap_plots(p1 + p2 + p3, nrow= 3, guides = "auto")</span></span>
+<span id="cb33-271"><a href="#cb33-271"></a>p1</span>
+<span id="cb33-272"><a href="#cb33-272"></a>p2</span>
+<span id="cb33-273"><a href="#cb33-273"></a>p3</span>
+<span id="cb33-274"><a href="#cb33-274"></a><span class="in">```</span></span>
+<span id="cb33-275"><a href="#cb33-275"></a></span>
+<span id="cb33-276"><a href="#cb33-276"></a><span class="fu">## Conclusions</span></span>
+<span id="cb33-277"><a href="#cb33-277"></a></span>
+<span id="cb33-278"><a href="#cb33-278"></a>From the above null distribution plots obtained using Permutation tests,</span>
+<span id="cb33-279"><a href="#cb33-279"></a>it is clear that both Study Time ( ST ) and List Word Length ( WL) have</span>
+<span id="cb33-280"><a href="#cb33-280"></a>significant effects on the Short Term Memory Scores. The probability</span>
+<span id="cb33-281"><a href="#cb33-281"></a>that the **observed value** is obtained or exceeded by any permutation</span>
+<span id="cb33-282"><a href="#cb33-282"></a>of scores is very low in both cases.</span>
+<span id="cb33-283"><a href="#cb33-283"></a></span>
+<span id="cb33-284"><a href="#cb33-284"></a>On the other hand, Syllable Count (SL) does not seem to affect the STM</span>
+<span id="cb33-285"><a href="#cb33-285"></a>scores significantly.</span>
+<span id="cb33-286"><a href="#cb33-286"></a></span>
+<span id="cb33-287"><a href="#cb33-287"></a><span class="fu">## References</span></span>
+<span id="cb33-288"><a href="#cb33-288"></a></span>
+<span id="cb33-289"><a href="#cb33-289"></a><span class="ot">[^1]: </span>Lawrance, A. J. 1996. "A Design of Experiments Workshop as an</span>
+<span id="cb33-290"><a href="#cb33-290"></a>    Introduction to Statistics." American Statistician 50 (2): 156--58.</span>
+<span id="cb33-291"><a href="#cb33-291"></a>    doi:10.1080/00031305.1996.10474364.</span>
+<span id="cb33-292"><a href="#cb33-292"></a></span>
+<span id="cb33-293"><a href="#cb33-293"></a><span class="ot">[^2]: </span>Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact</span>
+<span id="cb33-294"><a href="#cb33-294"></a>    Inference." Statistical Science 19 (4): 676--85.</span>
+<span id="cb33-295"><a href="#cb33-295"></a>    doi:10.1214/088342304000000396.</span>
+<span id="cb33-296"><a href="#cb33-296"></a></span>
+<span id="cb33-297"><a href="#cb33-297"></a><span class="ot">[^3]: </span>Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping</span>
+<span id="cb33-298"><a href="#cb33-298"></a>    Students to 'Think with Data' Using R." The R Journal, 9(1),</span>
+<span id="cb33-299"><a href="#cb33-299"></a>    77--102.</span>
+<span id="cb33-300"><a href="#cb33-300"></a>    https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer">
     <div class="nav-footer-left">

@@ -19,7 +19,8 @@ citation: true
 #| fig-align: center
 #| fig-dpi: 300
 
-knitr::opts_chunk$set(fig.align = "center", fig.width = 7, fig.height = 5)
+knitr::opts_chunk$set(fig.align = "center", 
+                      fig.width = 7, fig.height = 5, tidy = TRUE)
 options(scipen = 8, digits = 3)
 # CRAN Packages
 library(tidyverse)
@@ -74,9 +75,7 @@ n &= sample\ size
 $$
 The *standard deviation* is:
 $$
-
-\sigma_x &= \sqrt{var_x}\\
-
+\sigma_x = \sqrt{var_x}\\
 $$
 
 The **covariance** of two variables is defined as 
@@ -95,7 +94,7 @@ Hence covariance is *the expectation of the product minus the product of the exp
 Note that in both cases we are dealing with **z-scores**: variable minus its mean, $x_i - \mu_x$, which we have seen when dealing with the CLT and the Gaussian Distribution. 
 :::
 
-So, finally, the coefficient of **correlation* between two variables is defined as:
+So, finally, the coefficient of **correlation** between two variables is defined as:
 
 $$
 \begin{align*}
@@ -108,6 +107,7 @@ Thus correlation coefficient is the *covariance scaled by the geometric mean of 
 
 
 ```{mermaid}
+%%| echo: false
 flowchart TD
     A[Inference for Correlation] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
     B --> C{OK?}
@@ -239,9 +239,10 @@ $$
 ```{r Pearson_Correlation}
 # Pearson (built-in test)
 cor <- cor.test(y1,x,method = "pearson") %>% 
-  broom::tidy() %>% mutate(term = "Pearson Correlation r") %>% select(term, estimate, p.value) 
+  broom::tidy() %>% 
+  mutate(term = "Pearson Correlation r") %>% 
+  select(term, estimate, p.value) 
 cor 
-
 
 ```
 
@@ -250,7 +251,9 @@ Using the *linear model* method we get:
 ```{r}
 # Linear Model
 lin <- lm(y1 ~ 1 + x, data = mydata_wide) %>% 
-  broom::tidy() %>% mutate(term = c("beta_0", "beta_1")) %>% select(term, estimate, p.value)
+  broom::tidy() %>% 
+  mutate(term = c("beta_0", "beta_1")) %>% 
+  select(term, estimate, p.value)
 lin 
 
 ```
@@ -267,7 +270,10 @@ $x$ and $y$:
 ```{r}
 # Scaled linear model
 lin_scl <- lm(scale(y1) ~ 1 + scale(x), data = mydata_wide) %>% 
-  broom::tidy() %>% mutate(term = c("beta_0", "beta_1")) %>% select(term, estimate, p.value) %>% select(term, estimate, p.value)
+  broom::tidy() %>% 
+  mutate(term = c("beta_0", "beta_1")) %>% 
+  select(term, estimate, p.value) %>% 
+  select(term, estimate, p.value)
 lin_scl 
 
 ```
@@ -324,8 +330,12 @@ glimpse(gpa_study_hours)
 We can plot this:
 
 ```{r Pearson_example_3}
-
-ggplot(gpa_study_hours, aes(x = study_hours, y = gpa)) + geom_point() + geom_smooth() + theme_minimal()
+#| results: hold
+ggplot(gpa_study_hours, aes(x = study_hours, y = gpa)) + 
+  geom_point() + 
+  geom_smooth() + 
+  theme_minimal()
+###
 # ggstatsplot::ggscatterstats(data = gpa_study_hours, 
 #                             x = study_hours, 
 #                             y = gpa,
@@ -343,12 +353,10 @@ Let us quickly try it anyway, using a Linear Model for the **scaled**
 `gpa` and `study_hours` variables, from where we get:
 
 ```{r Pearson_example_1}
-
-
 # Pearson Correlation as Linear Model
 model_gpa <-
   lm(scale(gpa) ~ 1 + scale(study_hours), data = gpa_study_hours)
-
+##
 model_gpa %>%
   broom::tidy() %>% 
   mutate(term = c("beta_0", "beta_1")) %>% 
@@ -394,34 +402,58 @@ Let us see how this might work by comparing data and its signed-rank
 version...A quick set of plots:
 
 ```{r data_plots}
-p1 <- ggplot(mydata_long,aes(x = group, y = value)) +
-  geom_jitter(width = 0.02, height = 0,aes(colour = group), size = 4) +
-  geom_segment(data = mydata_wide, aes(y = 0, yend = 0, 
-                                       x = .75, 
-                                       xend = 1.25 )) + 
+p1 <- ggplot(mydata_long, aes(x = group, y = value)) +
+  geom_jitter(width = 0.02,
+              height = 0,
+              aes(colour = group),
+              size = 4) +
+  geom_segment(data = mydata_wide,
+               aes(
+                 y = 0,
+                 yend = 0,
+                 x = .75,
+                 xend = 1.25
+               )) +
   geom_text(aes(x = 1, y = 0.5, label = "0")) +
-  geom_segment(data = mydata_wide, aes(y = 0.3, yend = 0.3, 
-                                       x = 1.75 , 
-                                       xend = 2.25 )) + 
+  geom_segment(data = mydata_wide,
+               aes(
+                 y = 0.3,
+                 yend = 0.3,
+                 x = 1.75 ,
+                 xend = 2.25
+               )) +
   geom_text(aes(x = 2, y = 0.6, label = "0.3")) +
-  geom_segment(data = mydata_wide, aes(y = 0.5, yend = 0.5, 
-                                       x = 2.75, 
-                                       xend = 3.25 )) + 
+  geom_segment(data = mydata_wide,
+               aes(
+                 y = 0.5,
+                 yend = 0.5,
+                 x = 2.75,
+                 xend = 3.25
+               )) +
   geom_text(aes(x = 3, y = 0.8, label = "0.5")) +
-  labs(title = "Original Data", subtitle = "Black Lines show Means") +
-  ylab("Response Variable")
+  labs(title = "Original Data",
+       subtitle = "Black Lines show Means") +
+  ylab("Response Variable") + theme_bw()
 
-p2 <- mydata_long %>% 
-  group_by(group) %>% 
-  mutate( s_value = signed_rank(value)) %>% 
-  ggplot(., aes(x = group, y = s_value)) + 
-  geom_jitter(width = 0.02, height = 0,aes(colour = group), size = 4) + 
-  stat_summary(fun = "mean", geom = "point", colour = "red", 
-               size = 8) + 
-  labs(title = "Signed Rank of Data", subtitle = "Red Points are means of Ranks!") +
-  ylab("Signed Rank of Response Variable")
+p2 <- mydata_long %>%
+  group_by(group) %>%
+  mutate(s_value = signed_rank(value)) %>%
+  ggplot(., aes(x = group, y = s_value)) +
+  geom_jitter(width = 0.02,
+              height = 0,
+              aes(colour = group),
+              size = 4) +
+  stat_summary(
+    fun = "mean",
+    geom = "point",
+    colour = "red",
+    size = 8
+  ) +
+  labs(title = "Signed Rank of Data",
+       subtitle = "Red Points are means of Ranks!") +
+  ylab("Signed Rank of Response Variable") + theme_bw()
 
-patchwork::wrap_plots(p1,p2, nrow = 1, guides = "collect")
+patchwork::wrap_plots(p1, p2, nrow = 1, guides = "collect")
 
 ```
 
@@ -478,7 +510,7 @@ $$
 
 ```{r Spearman_Correlation}
 # Spearman
-cor1 <- cor.test(x,y1, method = "spearman") %>% 
+cor1 <- cor.test(x, y1, method = "spearman") %>%
   broom::tidy() %>% mutate(term = "Spearman Correlation ") %>% select(term, estimate, p.value)
 cor1
 
@@ -486,8 +518,8 @@ cor1
 
 ```{r}
 # Pearson using ranks
-cor2 <- cor.test(rank(y1), rank(x), method = "pearson") %>% 
-broom::tidy() %>% select(estimate, p.value)
+cor2 <- cor.test(rank(y1), rank(x), method = "pearson") %>%
+  broom::tidy() %>% select(estimate, p.value)
 cor2
 ```
 
@@ -515,8 +547,9 @@ are `weight` and `price`.
 ```{r Spearman_example_1}
 cars93 %>% 
   ggplot(aes(weight, price)) + 
-  geom_point() + geom_smooth(method = "lm", se = FALSE, lty = 2) + 
-  labs(title = "Car Weight and Car Price have a nonlinear relationship")
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, lty = 2) + 
+  labs(title = "Car Weight and Car Price have a nonlinear relationship") + theme_classic()
 ```
 
 Let us try a Spearman Correlation score for these variables, since the
@@ -524,6 +557,8 @@ data are not linearly related and the variance of `price` also is not
 constant over `weight`
 
 ```{r Spearman_example_2}
+#| warning: false
+#| message: false
 cor.test(cars93$price, cars93$weight, method = "spearman") %>% broom::tidy()
 
 # Using linear Model
@@ -545,7 +580,9 @@ a correlation of `0.882`.
 
 ```{r}
 # Other ways using other packages
-mosaic::cor_test(gpa ~ study_hours, data = gpa_study_hours) %>% broom:: tidy() %>% select(estimate, p.value, conf.low, conf.high)
+mosaic::cor_test(gpa ~ study_hours, data = gpa_study_hours) %>%
+  broom:: tidy() %>% 
+  select(estimate, p.value, conf.low, conf.high)
 
 ```
 

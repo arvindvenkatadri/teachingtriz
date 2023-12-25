@@ -90,7 +90,8 @@ Let us take $1950$ as a baseline year for *all countries*. Then we model
 `lifeExp` using `year1950` across all countries together:
 
 ```{r}
-gapminder <- gapminder %>% mutate(year1950 = year - 1950) # baseline year
+gapminder <- gapminder %>% 
+  mutate(year1950 = year - 1950) # baseline year
 model <- lm(lifeExp ~ year1950, data = gapminder)
 summary(model)
 ```
@@ -291,7 +292,8 @@ gapminder_models <- gapminder_models %>%
           )) %>% 
   
   # Use mutate + map again to expose the columns of the models
-  # Use broom:: tidy, broom::glance:: and broom::augment for separate columns
+  # Use broom:: tidy, broom::glance(), and 
+  # Use broom::augment for separate columns
   mutate(model_params = map(.x = model, 
                       .f = \(.x) broom::tidy(.x, 
                                              conf.int = TRUE, 
@@ -317,14 +319,14 @@ params <- gapminder_models %>%
   # Now unpack the linear model parameters into columns
   unnest(cols = model_params)
 params
-
+###
 metrics <- gapminder_models %>% 
   select(continent, country, model_metrics) %>% 
   ungroup() %>% 
   # Now unpack the linear model parameters into columns
   unnest(cols = model_metrics)
 metrics
-
+###
 augments <- gapminder_models %>% 
   select(continent, country, model_augment) %>% 
   ungroup() %>% 
@@ -347,7 +349,7 @@ params_filtered <- params %>%
   select(country, estimate, conf.low, conf.high,p.value) %>%
   arrange(estimate)
 params_filtered
-
+###
 params_filtered %>%
   gf_errorbar(conf.high + conf.low ~ reorder(country, estimate),
               linewidth = ~ -log10(p.value), width = 0.3,
@@ -382,15 +384,15 @@ this:
 params_combo <- params %>% 
   select(continent, country, term , estimate) %>% 
   filter(term == "year1950") %>% 
-  left_join(metrics %>% select(continent, country, r.squared)) 
+  left_join(metrics %>% select(continent, country, r.squared))
 params_combo
-
+###
 params_combo %>% 
   gf_point(reorder(country, r.squared) ~ r.squared, 
-           color = "grey90") %>%
+           color = "grey70") %>%
   gf_point(reorder(country, r.squared) ~ r.squared, 
            data = params_combo %>% filter(continent == "Africa"),
-           shape = 21,
+           shape = 21, size = 3,
     fill = "salmon",
     ylab = "Country",
     title = "African Countries are Hard to Model") %>% 
@@ -404,12 +406,13 @@ params_combo %>%
   gf_theme(theme_classic()) %>% 
   gf_refine(theme(axis.text.y = element_text(size = 3, face = "bold")))
 
-
+###
 params_combo %>%
-  gf_point(estimate ~ r.squared, color = "grey90") %>% 
+  gf_point(estimate ~ r.squared, color = "grey70") %>% 
   gf_point(estimate ~ r.squared,
-           data = params_combo %>% filter(continent == "Africa"),
-           shape = 21,
+           data = params_combo %>% 
+             filter(continent == "Africa"),
+           shape = 21,size =3,
     fill = "salmon",
     ylab = "Slope Estimate for Linear Model",
     title = "African Countries are Hard to Model",
