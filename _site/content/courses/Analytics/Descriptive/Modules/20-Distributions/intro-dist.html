@@ -90,6 +90,7 @@ div.csl-indent {
 <script src="../../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
 <link href="../../../../../../site_libs/quarto-contrib/downloadthis-1.9.1/downloadthis.css" rel="stylesheet">
 <link href="../../../../../../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
 <link href="../../../../../../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
@@ -114,7 +115,630 @@ div.csl-indent {
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style type="text/css">.monaco-editor pre {
+  background-color: unset !important;
+}
+
+.qwebr-icon-status-spinner {
+  color: #7894c4;
+}
+
+.qwebr-icon-run-code {
+  color: #0d9c29
+}
+
+.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+.qwebr-editor {
+  border: 1px solid #EEEEEE;
+}
+
+.qwebr-button-run {
+  background-color: #EEEEEE;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; /* Extra styling for consistency */
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #000;
+  text-align: center;
+  text-decoration: none;
+  -webkit-text-decoration: none;
+  -moz-text-decoration: none;
+  -ms-text-decoration: none;
+  -o-text-decoration: none;
+  /* vertical-align: middle; */ /* Prevents a space from appearing between the code cell and button */
+  -webkit-user-select: none;
+  border-color: #dee2e6;
+  border: 1px solid rgba(0,0,0,0);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.qwebr-button-run:hover {
+  color: #000;
+  background-color: #e3e6ea;
+  border-color: #e1e5e9;
+}
+
+.qwebr-button-run:disabled,.qwebr-button-run.disabled,fieldset:disabled .qwebr-button-run {
+  pointer-events: none;
+  opacity: .65
+}
+
+/* Custom styling for RevealJS Presentations*/
+
+/* Reset the style of the interactive area */
+.reveal div.qwebr-interactive-area {
+  display: block;
+  box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+} 
+
+/* Provide space to entries */
+.reveal div.qwebr-output-code-area pre div {
+  margin: 1px 2px 1px 10px;
+}
+
+/* Collapse the inside code tags to avoid extra space between line outputs */
+.reveal pre div code.qwebr-output-code-stdout, .reveal pre div code.qwebr-output-code-stderr {
+  padding: 0;
+  display: contents;
+}
+
+.reveal pre div code.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.reveal pre div code.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+
+/* Create a border around console and output (does not effect graphs) */
+.reveal div.qwebr-console-area {
+  border: 1px solid #EEEEEE;
+  box-shadow: 2px 2px 10px #EEEEEE;
+}
+
+/* Cap output height and allow text to scroll */
+/* TODO: Is there a better way to fit contents/max it parallel to the monaco editor size? */
+.reveal div.qwebr-output-code-area pre {
+  max-height: 400px;
+  overflow: scroll;
+}
+</style>
+<script type="module">// Start a timer
+const initializeWebRTimerStart = performance.now();
+
+// Determine if we need to install R packages
+var installRPackagesList = [''];
+// Check to see if we have an empty array, if we do set to skip the installation.
+var setupRPackages = !(installRPackagesList.indexOf("") !== -1);
+var autoloadRPackages = true;
+
+// Display a startup message?
+var showStartupMessage = true;
+var showHeaderMessage = false;
+if (showStartupMessage) {
+
+  // Get references to header elements
+  const headerHTML = document.getElementById("title-block-header");
+  const headerRevealJS = document.getElementById("title-slide");
+
+  // Create the outermost div element for metadata
+  const quartoTitleMeta = document.createElement("div");
+  quartoTitleMeta.classList.add("quarto-title-meta");
+
+  // Create the first inner div element
+  const firstInnerDiv = document.createElement("div");
+  firstInnerDiv.setAttribute("id", "qwebr-status-message-area");
+
+  // Create the second inner div element for "WebR Status" heading and contents
+  const secondInnerDiv = document.createElement("div");
+  secondInnerDiv.setAttribute("id", "qwebr-status-message-title");
+  secondInnerDiv.classList.add("quarto-title-meta-heading");
+  secondInnerDiv.innerText = "WebR Status";
+
+  // Create another inner div for contents
+  const secondInnerDivContents = document.createElement("div");
+  secondInnerDivContents.setAttribute("id", "qwebr-status-message-body");
+  secondInnerDivContents.classList.add("quarto-title-meta-contents");
+
+  // Describe the WebR state
+  var startupMessageWebR = document.createElement("p");
+  startupMessageWebR.innerText = "🟡 Loading...";
+  startupMessageWebR.setAttribute("id", "qwebr-status-message-text");
+  // Add `aria-live` to auto-announce the startup status to screen readers
+  startupMessageWebR.setAttribute("aria-live", "assertive");
+
+  // Append the startup message to the contents
+  secondInnerDivContents.appendChild(startupMessageWebR);
+
+  // Add a status indicator for COOP and COEP Headers if needed
+  if (showHeaderMessage) {
+    const crossOriginMessage = document.createElement("p");
+    crossOriginMessage.innerText = `${crossOriginIsolated ? '🟢' : '🟡'} COOP & COEP Headers`;
+    crossOriginMessage.setAttribute("id", "qwebr-coop-coep-header");
+    secondInnerDivContents.appendChild(crossOriginMessage);
+  }
+
+  // Combine the inner divs and contents
+  firstInnerDiv.appendChild(secondInnerDiv);
+  firstInnerDiv.appendChild(secondInnerDivContents);
+  quartoTitleMeta.appendChild(firstInnerDiv);
+
+  // Determine where to insert the quartoTitleMeta element
+  if (headerHTML) {
+    // Append to the existing "title-block-header" element
+    headerHTML.appendChild(quartoTitleMeta);
+  } else if (headerRevealJS) {
+    // If using RevealJS, add to the "title-slide" div
+    headerRevealJS.appendChild(firstInnerDiv);
+  } else {
+    // If neither headerHTML nor headerRevealJS is found, insert after "webr-monaco-editor-init" script
+    const monacoScript = document.getElementById("qwebr-monaco-editor-init");
+    const header = document.createElement("header");
+    header.setAttribute("id", "title-block-header");
+    header.appendChild(quartoTitleMeta);
+    monacoScript.after(header);
+  }
+}
+
+// Retrieve the webr.mjs
+import { WebR, ChannelType } from "https://webr.r-wasm.org/v0.2.2/webr.mjs";
+
+// Populate WebR options with defaults or new values based on 
+// webr meta
+globalThis.webR = new WebR({
+  "baseURL": "https://webr.r-wasm.org/v0.2.2/",
+  "serviceWorkerUrl": "",
+  "homedir": "/home/web_user", 
+  "channelType": ChannelType.Automatic
+});
+
+// Initialization WebR
+await webR.init();
+
+// Setup a shelter
+globalThis.webRCodeShelter = await new webR.Shelter();
+
+// Setup a pager to allow processing help documentation 
+await webR.evalRVoid('webr::pager_install()'); 
+
+// Function to set the button text
+function qwebrSetInteractiveButtonState(buttonText, enableCodeButton = true) {
+  document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+    btn.innerHTML = buttonText;
+    btn.disabled = !enableCodeButton;
+  });
+}
+
+// Function to update the status message
+function qwebrUpdateStatusHeader(message) {
+  startupMessageWebR.innerHTML = `
+    <i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i>
+    <span>${message}</span>`;
+}
+
+// Function to install a single package
+async function qwebrInstallRPackage(packageName) {
+  await globalThis.webR.installPackages([packageName]);
+}
+
+// Function to load a single package
+async function qwebrLoadRPackage(packageName) {
+  await globalThis.webR.evalRVoid(`library(${packageName});`);
+}
+
+// Generic function to process R packages
+async function qwebrProcessRPackagesWithStatus(packages, processType, displayStatusMessageUpdate = true) {
+  // Switch between contexts
+  const messagePrefix = processType === 'install' ? 'Installing' : 'Loading';
+
+  // Modify button state
+  qwebrSetInteractiveButtonState(`🟡 ${messagePrefix} package ...`, false);
+
+  // Iterate over packages
+  for (let i = 0; i < packages.length; i++) {
+    const activePackage = packages[i];
+    const formattedMessage = `${messagePrefix} package ${i + 1} out of ${packages.length}: ${activePackage}`;
+    
+    // Display the update
+    if (displayStatusMessageUpdate) {
+      qwebrUpdateStatusHeader(formattedMessage);
+    }
+
+    // Run package installation
+    if (processType === 'install') {
+      await qwebrInstallRPackage(activePackage);
+    } else {
+      await qwebrLoadRPackage(activePackage);
+    }
+  }
+
+  // Clean slate
+  if (processType === 'load') {
+    await globalThis.webR.flush();
+  }
+}
+
+
+// Check to see if any packages need to be installed
+if (setupRPackages) {
+  // Obtain only a unique list of packages
+  const uniqueRPackageList = Array.from(new Set(installRPackagesList));
+
+  // Install R packages one at a time (either silently or with a status update)
+  await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'install', showStartupMessage);
+
+  if(autoloadRPackages) {
+    // Load R packages one at a time (either silently or with a status update)
+    await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'load', showStartupMessage);
+  }
+}
+
+// Stop timer
+const initializeWebRTimerEnd = performance.now();
+
+// Release document status as ready
+if (showStartupMessage) {
+  startupMessageWebR.innerText = "🟢 Ready!"
+}
+
+qwebrSetInteractiveButtonState(
+  `<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>`, 
+  true
+);
+
+// Global version of the Escape HTML function that converts HTML 
+// characters to their HTML entities.
+globalThis.qwebrEscapeHTMLCharacters = function(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};</script><script type="module">// Supported Evaluation Types for Context
+globalThis.EvalTypes = Object.freeze({
+    Interactive: 'interactive',
+    Setup: 'setup',
+    Output: 'output',
+});
+
+// Function to verify a given JavaScript Object is empty
+globalThis.qwebrIsObjectEmpty = function (arr) {
+    return Object.keys(arr).length === 0;
+}
+
+// Function to parse the pager results
+globalThis.qwebrParseTypePager = async function (msg) { 
+
+    // Split out the event data
+    const { path, title, deleteFile } = msg.data; 
+
+    // Process the pager data by reading the information from disk
+    const paged_data = await webR.FS.readFile(path).then((data) => {
+        // Obtain the file content
+        let content = new TextDecoder().decode(data);
+
+        // Remove excessive backspace characters until none remain
+        while(content.match(/.[\b]/)){
+        content = content.replace(/.[\b]/g, '');
+        }
+
+        // Returned cleaned data
+        return content;
+    });
+
+    // Unlink file if needed
+    if (deleteFile) { 
+        await webR.FS.unlink(path); 
+    } 
+
+    // Return extracted data with spaces
+    return paged_data;
+} 
+
+// Function to run the code using webR and parse the output
+globalThis.qwebrComputeEngine = async function(
+    codeToRun, 
+    elements, 
+    options) {
+
+    // Call into the R compute engine that persists within the document scope.
+    // To be prepared for all scenarios, the following happens: 
+    // 1. We setup a canvas device to write to by making a namespace call into the {webr} package
+    // 2. We use values inside of the options array to set the figure size.
+    // 3. We capture the output stream information (STDOUT and STERR)
+    // 4. While parsing the results, we disable image creation.
+
+    // Create a canvas variable for graphics
+    let canvas = undefined;
+
+    // Create a pager variable for help/file contents
+    let pager = [];
+
+    // ---- 
+
+    // Initialize webR
+    await webR.init();
+
+    // Setup a webR canvas by making a namespace call into the {webr} package
+    await webR.evalRVoid(`webr::canvas(width=${options["fig-width"]}, height=${options["fig-height"]})`);
+
+    const result = await webRCodeShelter.captureR(codeToRun, {
+        withAutoprint: true,
+        captureStreams: true,
+        captureConditions: false//,
+        // env: webR.objs.emptyEnv, // maintain a global environment for webR v0.2.0
+    });
+
+    // -----
+
+    // Start attempting to parse the result data
+    try {
+
+        // Stop creating images
+        await webR.evalRVoid("dev.off()");
+
+        // Merge output streams of STDOUT and STDErr (messages and errors are combined.)
+        const out = result.output
+        .filter(evt => evt.type === "stdout" || evt.type === "stderr")
+        .map((evt, index) => {
+            const className = `qwebr-output-code-${evt.type}`;
+            return `<code id="${className}-editor-${elements.id}-result-${index + 1}" class="${className}">${qwebrEscapeHTMLCharacters(evt.data)}</code>`;
+        })
+        .join("\n");
+
+
+        // Clean the state
+        // We're now able to process both graphics and pager events.
+        // As a result, we cannot maintain a true 1-to-1 output order 
+        // without individually feeding each line
+        const msgs = await webR.flush();
+
+        // Output each image event stored
+        msgs.forEach((msg) => {
+        // Determine if old canvas can be used or a new canvas is required.
+        if (msg.type === 'canvas'){
+            // Add image to the current canvas
+            if (msg.data.event === 'canvasImage') {
+                canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
+            } else if (msg.data.event === 'canvasNewPage') {
+                // Generate a new canvas element
+                canvas = document.createElement("canvas");
+                canvas.setAttribute("width", 2 * options["fig-width"]);
+                canvas.setAttribute("height", 2 * options["fig-height"]);
+                canvas.style.width = "700px";
+                canvas.style.display = "block";
+                canvas.style.margin = "auto";
+            }
+        } 
+        });
+
+        // Use `map` to process the filtered "pager" events asynchronously
+        const pager = await Promise.all(
+            msgs.filter(msg => msg.type === 'pager').map(
+                async (msg) => {
+                    return await qwebrParseTypePager(msg);
+                }
+            )
+        );
+
+        // Nullify the output area of content
+        elements.outputCodeDiv.innerHTML = "";
+        elements.outputGraphDiv.innerHTML = "";
+
+        // Design an output object for messages
+        const pre = document.createElement("pre");
+        if (/\S/.test(out)) {
+            // Display results as HTML elements to retain output styling
+            const div = document.createElement("div");
+            div.innerHTML = out;
+            pre.appendChild(div);
+        } else {
+            // If nothing is present, hide the element.
+            pre.style.visibility = "hidden";
+        }
+
+        elements.outputCodeDiv.appendChild(pre);
+
+        // Place the graphics on the canvas
+        if (canvas) {
+            elements.outputGraphDiv.appendChild(canvas);
+        }
+
+        // Display the pager data
+        if (pager) {
+        // Use the `pre` element to preserve whitespace.
+        pager.forEach((paged_data, index) => {
+            let pre_pager = document.createElement("pre");
+            pre_pager.innerText = paged_data;
+            pre_pager.classList.add("qwebr-output-code-pager");
+            pre_pager.setAttribute("id", `qwebr-output-code-pager-editor-${elements.id}-result-${index + 1}`);
+            elements.outputCodeDiv.appendChild(pre_pager);
+        });
+        }
+    } finally {
+        // Clean up the remaining code
+        webRCodeShelter.purge();
+    }
+}
+
+// Function to execute the code (accepts code as an argument)
+globalThis.qwebrExecuteCode = async function (
+    codeToRun,
+    id,
+    evalType = EvalTypes.Interactive,
+    options = {}) {
+
+    // If options are not passed, we fall back on the bare minimum to handle the computation
+    if (qwebrIsObjectEmpty(options)) {
+        options = { "fig-width": 504, "fig-height": 360 };
+    }
+
+    // Next, we access the compute areas values
+    const elements = {
+        runButton: document.getElementById(`qwebr-button-run-${id}`),
+        outputCodeDiv: document.getElementById(`qwebr-output-code-area-${id}`),
+        outputGraphDiv: document.getElementById(`qwebr-output-graph-area-${id}`),
+        id: id,
+    }
+
+    // Disallowing execution of other code cells
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = true;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Emphasize the active code cell
+        elements.runButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i> <span>Run Code</span>';
+    }
+
+    // Evaluate the code and parse the output into the document
+    await qwebrComputeEngine(codeToRun, elements, options);
+
+    // Switch to allowing execution of code
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = false;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Revert to the initial code cell state
+        elements.runButton.innerHTML = '<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>';
+    }
+}
+</script><script type="module">// Function that dispatches the creation request
+globalThis.qwebrCreateHTMLElement = function (insertElement,
+  qwebrCounter, 
+  evalType = EvalTypes.Interactive,
+  options = {}) {
+
+  // Figure out the routine to use to insert the element.
+  let qwebrElement;
+  switch ( evalType ) {
+    case EvalTypes.Interactive: 
+      qwebrElement = qwebrCreateInteractiveElement(qwebrCounter);
+    case EvalTypes.Output: 
+      qwebrElement = qwebrCreateNonInteractiveOutputElement(qwebrCounter);
+    case EvalTypes.Setup: 
+      qwebrElement = qwebrCreateNonInteractiveSetupElement(qwebrCounter);
+    default: 
+      qwebrElement = document.createElement('div');
+      qwebrElement.textContent = 'Error creating element';
+  }
+
+  // Insert the dynamically generated object at the document location.
+  insertElement.appendChild(qwebrElement);
+};
+
+// Function that setups the interactive element creation
+globalThis.qwebrCreateInteractiveElement = function (qwebrCounter) {
+
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-interactive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-interactive-area';
+
+  // Create button element
+  var button = document.createElement('button');
+  button.className = 'btn btn-default qwebr-button-run';
+  button.disabled = true;
+  button.type = 'button';
+  button.id = 'qwebr-button-run-' + qwebrCounter;
+  button.textContent = '🟡 Loading webR...';
+
+  // Create console area div
+  var consoleAreaDiv = document.createElement('div');
+  consoleAreaDiv.id = 'qwebr-console-area-' + qwebrCounter;
+  consoleAreaDiv.className = 'qwebr-console-area';
+
+  // Create editor div
+  var editorDiv = document.createElement('div');
+  editorDiv.id = 'qwebr-editor-' + qwebrCounter;
+  editorDiv.className = 'qwebr-editor';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(button);
+  consoleAreaDiv.appendChild(editorDiv);
+  consoleAreaDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(consoleAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+}
+
+// Function that adds output structure for non-interactive output
+globalThis.qwebrCreateNonInteractiveOutputElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-area';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+};
+
+// Function that adds a stub in the page to indicate a setup cell was used.
+globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-setup-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-setup-area';
+
+  return mainDiv;
+}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 <meta property="og:title" content="The Foundation Series - 📊 Distributions, Densities, Bar Plots, and Boxplots">
 <meta property="og:description" content="Quant and Qual Variable Graphs and their Siblings">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-Distributions/preview.jpg">
@@ -327,6 +951,7 @@ div.csl-indent {
    
   <ul>
 <li><a href="#fa-folder-open-slides-and-tutorials" id="toc-fa-folder-open-slides-and-tutorials" class="nav-link active" data-scroll-target="#fa-folder-open-slides-and-tutorials"><i class="fa-solid fa-folder-open" aria-label="folder-open"></i> Slides and Tutorials</a></li>
+  <li><a href="#iconify-mdi-web-check-using-web-r" id="toc-iconify-mdi-web-check-using-web-r" class="nav-link" data-scroll-target="#iconify-mdi-web-check-using-web-r"><iconify-icon inline="" icon="mdi:web-check"></iconify-icon> Using web-R</a></li>
   <li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
   <li>
 <a href="#iconify-fxemoji-japanesesymbolforbeginner-what-graphs-will-we-see-today" id="toc-iconify-fxemoji-japanesesymbolforbeginner-what-graphs-will-we-see-today" class="nav-link" data-scroll-target="#iconify-fxemoji-japanesesymbolforbeginner-what-graphs-will-we-see-today"><iconify-icon inline="" icon="fxemoji:japanesesymbolforbeginner"></iconify-icon> What graphs will we see today?</a>
@@ -363,7 +988,146 @@ div.csl-indent {
   </ul></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content"><script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js"></script><script type="module" id="qwebr-monaco-editor-init">
+
+  // Configure the Monaco Editor's loader
+  require.config({
+    paths: {
+      'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs'
+    }
+  });
+</script><script type="module">// Global dictionary to store Monaco Editor instances
+const qwebrEditorInstances = {};
+
+// Function that builds and registers a Monaco Editor instance    
+globalThis.qwebrCreateMonacoEditorInstance = function (
+    initialCode, 
+    qwebrCounter) {
+
+  // Retrieve the previously created document elements
+  let runButton = document.getElementById(`qwebr-button-run-${qwebrCounter}`);
+  let editorDiv = document.getElementById(`qwebr-editor-${qwebrCounter}`);
+  
+  // Load the Monaco Editor and create an instance
+  let editor;
+  require(['vs/editor/editor.main'], function () {
+    editor = monaco.editor.create(editorDiv, {
+      value: initialCode,
+      language: 'r',
+      theme: 'vs-light',
+      automaticLayout: true,           // Works wonderfully with RevealJS
+      scrollBeyondLastLine: false,
+      minimap: {
+        enabled: false
+      },
+      fontSize: '17.5pt',              // Bootstrap is 1 rem
+      renderLineHighlight: "none",     // Disable current line highlighting
+      hideCursorInOverviewRuler: true  // Remove cursor indictor in right hand side scroll bar
+    });
+
+    // Store the official counter ID to be used in keyboard shortcuts
+    editor.__qwebrCounter = qwebrCounter;
+
+    // Store the official div container ID
+    editor.__qwebrEditorId = `qwebr-editor-${qwebrCounter}`;
+
+    // Store the initial code value
+    editor.__qwebrinitialCode = initialCode;
+
+    // Dynamically modify the height of the editor window if new lines are added.
+    let ignoreEvent = false;
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      // We're avoiding a width change
+      //editorDiv.style.width = `${width}px`;
+      editorDiv.style.height = `${contentHeight}px`;
+      try {
+        ignoreEvent = true;
+
+        // The key to resizing is this call
+        editor.layout();
+      } finally {
+        ignoreEvent = false;
+      }
+    };
+
+    // Helper function to check if selected text is empty
+    function isEmptyCodeText(selectedCodeText) {
+      return (selectedCodeText === null || selectedCodeText === undefined || selectedCodeText === "");
+    }
+
+    // Registry of keyboard shortcuts that should be re-added to each editor window
+    // when focus changes.
+    const addWebRKeyboardShortCutCommands = () => {
+      // Add a keydown event listener for Shift+Enter to run all code in cell
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => {
+
+        // Retrieve all text inside the editor
+        qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter);
+      });
+
+      // Add a keydown event listener for CMD/Ctrl+Enter to run selected code
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+
+        // Get the selected text from the editor
+        const selectedText = editor.getModel().getValueInRange(editor.getSelection());
+        // Check if no code is selected
+        if (isEmptyCodeText(selectedText)) {
+          // Obtain the current cursor position
+          let currentPosition = editor.getPosition();
+          // Retrieve the current line content
+          let currentLine = editor.getModel().getLineContent(currentPosition.lineNumber);
+
+          // Propose a new position to move the cursor to
+          let newPosition = new monaco.Position(currentPosition.lineNumber + 1, 1);
+
+          // Check if the new position is beyond the last line of the editor
+          if (newPosition.lineNumber > editor.getModel().getLineCount()) {
+            // Add a new line at the end of the editor
+            editor.executeEdits("addNewLine", [{
+            range: new monaco.Range(newPosition.lineNumber, 1, newPosition.lineNumber, 1),
+            text: "\n", 
+            forceMoveMarkers: true,
+            }]);
+          }
+          
+          // Run the entire line of code.
+          qwebrExecuteCode(currentLine, editor.__qwebrCounter,
+            EvalTypes.Interactive);
+
+          // Move cursor to new position
+          editor.setPosition(newPosition);
+        } else {
+          // Code to run when Ctrl+Enter is pressed with selected code
+          qwebrExecuteCode(selectedText, editor.__qwebrCounter, EvalTypes.Interactive);
+        }
+      });
+    }
+
+    // Register an on focus event handler for when a code cell is selected to update
+    // what keyboard shortcut commands should work.
+    // This is a workaround to fix a regression that happened with multiple
+    // editor windows since Monaco 0.32.0 
+    // https://github.com/microsoft/monaco-editor/issues/2947
+    editor.onDidFocusEditorText(addWebRKeyboardShortCutCommands);
+
+    // Register an on change event for when new code is added to the editor window
+    editor.onDidContentSizeChange(updateHeight);
+
+    // Manually re-update height to account for the content we inserted into the call
+    updateHeight();
+
+    // Store the editor instance in the global dictionary
+    qwebrEditorInstances[editor.__qwebrCounter] = editor;
+
+  });
+
+  // Add a click event listener to the run button
+  runButton.onclick = function () {
+    qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter, EvalTypes.Interactive);
+  };
+
+}</script><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
 <h1 class="title">📊 Distributions, Densities, Bar Plots, and Boxplots</h1>
 <p class="subtitle lead">How many of this and that?</p>
   <div class="quarto-categories">
@@ -399,7 +1163,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 24, 2023</p>
+      <p class="date-modified">December 31, 2023</p>
     </div>
   </div>
     
@@ -427,10 +1191,20 @@ div.csl-indent {
 <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>&nbsp;</td>
 <td><a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a></td>
 </tr></tbody>
-</table></section><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
+</table></section><section id="iconify-mdi-web-check-using-web-r" class="level2"><h2 class="anchored" data-anchor-id="iconify-mdi-web-check-using-web-r">
+<iconify-icon inline="" icon="mdi:web-check"></iconify-icon> Using web-R</h2>
+<p>This tutorial uses <code>web-r</code> that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure ( like in an old-fashioned library) with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab “behind” has the <code>web-R</code> code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the <code>web-r</code> tabs and need to compare your code with the original!</p>
+</section><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/setup_e93ae154bcdf0c0a0e148d1651b376ef">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://allisonhorst.github.io/palmerpenguins/">palmerpenguins</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span></span>
@@ -442,6 +1216,47 @@ div.csl-indent {
 <span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="qwebr-insertion-location-1"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-1");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    1
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `#|
+install.packages("tidyverse")
+install.packages("mosaic")
+install.packages("palmerpenguins")
+install.packages("ggformula")
+install.packages("ggridges")
+install.packages("skimr")
+
+# Set graph theme
+ggplot2::theme_set(
+  new = theme_classic(base_size = 14, 
+                      base_family = "sans"))
+
+library(tidyverse)
+library(mosaic)
+library(palmerpenguins)
+library(ggformula)
+library(ggridges)
+library(skimr)`, 
+  1);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
 </div>
 </section><section id="iconify-fxemoji-japanesesymbolforbeginner-what-graphs-will-we-see-today" class="level2"><h2 class="anchored" data-anchor-id="iconify-fxemoji-japanesesymbolforbeginner-what-graphs-will-we-see-today">
 <iconify-icon inline="" icon="fxemoji:japanesesymbolforbeginner"></iconify-icon> What graphs will we see today?</h2>
@@ -508,10 +1323,17 @@ div.csl-indent {
 <section id="iconify-file-icons-influxdata-examine-the-data" class="level3"><h3 class="anchored" data-anchor-id="iconify-file-icons-influxdata-examine-the-data">
 <iconify-icon inline="" icon="file-icons:influxdata"></iconify-icon> Examine the Data</h3>
 <p>As per our Workflow, we will look at the data using all the three methods we have seen.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/using-glimpse_0f6d349e046714ed42b68f762490516b">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 53,940
+<pre data-code-line-numbers=""><code>Rows: 53,940
 Columns: 10
 $ carat   &lt;dbl&gt; 0.23, 0.21, 0.23, 0.29, 0.31, 0.24, 0.24, 0.26, 0.22, 0.23, 0.…
 $ cut     &lt;ord&gt; Ideal, Premium, Good, Premium, Good, Very Good, Very Good, Ver…
@@ -525,8 +1347,8 @@ $ y       &lt;dbl&gt; 3.98, 3.84, 4.07, 4.23, 4.35, 3.96, 3.98, 4.11, 3.78, 4.05
 $ z       &lt;dbl&gt; 2.43, 2.31, 2.31, 2.63, 2.75, 2.48, 2.47, 2.53, 2.49, 2.39, 2.…</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="intro-dist_cache/html/skim-diamonds_7c2659feb8755784a24951343faf941a">
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="intro-dist_cache/html/skim-diamonds_1edc54d141f0deb63719a83c4c332b0e">
+<div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -738,6 +1560,47 @@ $ z       &lt;dbl&gt; 2.43, 2.31, 2.31, 2.63, 2.75, 2.48, 2.47, 2.53, 2.49, 2.39
 </table>
 </div>
 </div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="qwebr-insertion-location-2"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-2");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    2
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `glimpse(diamonds)`, 
+  2);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-3"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-3");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    3
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `skim(diamonds)`, 
+  3);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -762,13 +1625,14 @@ Business Insights on Examining the <code>diamonds</code> dataset
 <p>Let’s plot some histograms.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -794,7 +1658,7 @@ Business Insights on Examining the <code>diamonds</code> dataset
 <span>          subtitle <span class="op">=</span> <span class="st">"Free y-scale"</span>,</span>
 <span>          caption <span class="op">=</span> <span class="st">"ggformula"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/histograms-ggformula_8e40cf3c29afd30f244c5ba80fc51e8c">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/histograms-ggformula_b61b9b2b069c3e1f0f86ecb8eae3f2a4">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/histograms-ggformula-1.png" class="img-fluid" width="2100"></p>
@@ -814,9 +1678,9 @@ Business Insights on Examining the <code>diamonds</code> dataset
 </div>
 </div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -844,7 +1708,7 @@ Business Insights on Examining the <code>diamonds</code> dataset
 <span>       subtitle <span class="op">=</span> <span class="st">"Free y-scale"</span>,</span>
 <span>       caption <span class="op">=</span> <span class="st">"ggplot"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/histograms-ggplot_7980bfabf41274b0e8b80e0589e56a36">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/histograms-ggplot_e484f2d2fba425908a0881ab251e59bf">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/histograms-ggplot-1.png" class="img-fluid" width="2100"></p>
@@ -863,6 +1727,106 @@ Business Insights on Examining the <code>diamonds</code> dataset
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div id="qwebr-insertion-location-4"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-4");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    4
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+gf_histogram(~ price, data = diamonds) %>%
+  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+
+###
+diamonds %>% gf_histogram(~ price, 
+                          fill = ~ cut, 
+                          alpha = 0.3) %>%
+  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+
+###
+diamonds %>% gf_histogram(~ price,
+                          fill = ~ cut) %>%
+  gf_facet_wrap(~ cut) %>%
+  gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+
+###
+diamonds %>% gf_histogram(~ price,
+                          fill = ~ cut, color = "black") %>% 
+  gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
+          subtitle = "Free y-scale",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))`, 
+  4);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-5"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-5");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    5
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+ggplot(data = diamonds) + 
+  geom_histogram(aes(x = price)) +
+  labs(title = "Plot A: Diamond Prices",caption = "ggplot")
+
+###
+diamonds %>% ggplot() + 
+  geom_histogram(aes(x = price, 
+                     fill = cut), 
+                     alpha = 0.3) + 
+  labs(title = "Plot B: Prices by Cut",caption = "ggplot")
+
+###
+diamonds  %>% ggplot() + 
+  geom_histogram(aes(price, fill = cut)) +
+  facet_wrap(facets = vars(cut)) + 
+  labs(title = "Plot C: Prices by Filled and Facetted by Cut",
+       caption = "ggplot") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+###
+diamonds  %>% ggplot() + 
+  geom_histogram(aes(price, fill = cut), color = "black") +
+  facet_wrap(facets = vars(cut), scales = "free_y") +
+  labs(title = "Plot D: Prices by Filled and Facetted by Cut",
+       subtitle = "Free y-scale",
+       caption = "ggplot") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+`, 
+  5);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -901,13 +1865,14 @@ A Hypothesis
 <p>Let’s plot some bar graphs: recall that for bar charts, we need to choose <strong>Qual</strong> variables to count with!</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
 <div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -930,7 +1895,7 @@ A Hypothesis
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Diamonds Counts by Cut filled by Clarity"</span>,</span>
 <span>          subtitle <span class="op">=</span> <span class="st">"Dodged Bar Chart"</span>,</span>
 <span>          caption <span class="op">=</span> <span class="st">"Turbo Palette from Viridis set"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/bar-charts-ggformula_083ab47a5cf6bd999c942dc73e1e2b45">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/bar-charts-ggformula_356fd77d72c4fab8fb3fe8a121917184">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/bar-charts-ggformula-1.png" class="img-fluid" width="2100"></p>
@@ -949,8 +1914,8 @@ A Hypothesis
 </div>
 </div>
 </div>
-<div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-8_bae08f572b093baceb744fcbb7abc9a2">
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
+<div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-8_3b026f1a445a52816d75a85a73c88ac5">
+<div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_bar.html">gf_bar</a></span><span class="op">(</span> <span class="op">~</span> <span class="va">cut</span>, </span>
 <span>                     fill <span class="op">=</span> <span class="op">~</span> <span class="va">clarity</span>, </span>
@@ -967,9 +1932,9 @@ A Hypothesis
 </div>
 </div>
 </div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
 <div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -996,7 +1961,7 @@ A Hypothesis
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Diamonds Counts by Cut filled by Clarity"</span>,</span>
 <span>       subtitle <span class="op">=</span> <span class="st">"Dodged Bar Chart"</span>,</span>
 <span>       caption <span class="op">=</span> <span class="st">"Turbo Palette from Viridis set"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/bar-charts-ggplot_508b665a5ff1fdf6bb3f9a88737d0c99">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/bar-charts-ggplot_e351a3ee1cba6cd212d4ebf4cf898743">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/bar-charts-ggplot-1.png" class="img-fluid" width="2100"></p>
@@ -1015,8 +1980,8 @@ A Hypothesis
 </div>
 </div>
 </div>
-<div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-10_a4faa1f111aa0c48d1c4fe164c27ebdd">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span>, </span>
+<div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-10_7204e48f748c10f5f81e516809361d15">
+<div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -1033,6 +1998,163 @@ A Hypothesis
 <p><img src="intro-dist_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
+</div>
+<div id="tabset-4-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-3-tab">
+<div id="qwebr-insertion-location-6"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-6");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    6
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+gf_bar(~ cut, data = diamonds) %>%
+  gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
+
+
+###
+diamonds %>% gf_bar( ~ cut, fill = ~ cut) %>%
+  gf_labs(title = "Plot B: Diamonds Counts filled by Cut")
+
+
+###
+diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
+                     position = "stack",
+                     alpha = 0.3) %>%
+  gf_labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
+          subtitle = "Stacked Bar Chart")
+
+###
+diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
+                     position = "dodge",
+                     color = "black") %>%
+  gf_refine(scale_fill_viridis_d(option = "turbo")) %>% # inferno, magma, cividis...etc
+  gf_labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
+          subtitle = "Dodged Bar Chart",
+          caption = "Turbo Palette from Viridis set")`, 
+  6);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-7"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-7");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    7
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+diamonds %>% gf_bar( ~ cut, 
+                     fill = ~ clarity, 
+                     position = "dodge", 
+                     colour = "black") %>%
+  gf_facet_wrap(vars(color),scales = "free_y") %>%
+  gf_refine(scale_fill_viridis_d(option = "turbo")) %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1))) %>%
+  gf_labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
+          subtitle = "Dodged Bar Chart Facetted by Color",
+          caption = "Turbo Palette from Viridis set")`, 
+  7);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-8"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-8");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    8
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+ggplot(diamonds)  + 
+  geom_bar(aes(cut)) + 
+  labs(title = "Plot A: Diamonds Counts of different Cuts")
+
+
+###
+diamonds %>% ggplot() + 
+  geom_bar(aes(cut, fill = cut) ) + 
+  labs(title = "Plot B: Diamonds Counts filled by Cut")
+
+
+###
+diamonds %>% ggplot() + 
+  geom_bar(aes(cut, fill = clarity), 
+               position = "stack",
+              alpha = 0.3) + 
+  labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
+       subtitle = "Stacked Bar Chart")
+
+###
+diamonds %>% ggplot() + 
+  geom_bar(aes(cut, fill = clarity), 
+               position = "dodge",
+               color = "black") + 
+  scale_fill_viridis_d(option = "turbo") +  # inferno, magma, cividis...etc
+  labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
+       subtitle = "Dodged Bar Chart",
+       caption = "Turbo Palette from Viridis set")`, 
+  8);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-9"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-9");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    9
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `ggplot2::theme_set(new = theme_classic(base_size = 12, 
+                                       base_family = "sans"))
+
+diamonds %>% ggplot() + 
+  geom_bar(aes(cut, fill = clarity), 
+               position = "dodge", 
+               colour = "black") +
+  facet_wrap(vars(color), scales = "free_y") + 
+  scale_fill_viridis_d(option = "turbo") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1)) + 
+  labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
+       subtitle = "Dodged Bar Chart Facetted by Color",
+       caption = "Turbo Palette from Viridis set")`, 
+  9);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1061,13 +2183,14 @@ Business Insights from <code>diamond</code> Bar Charts
 <p>You might imagine a density chart as a histogram where the buckets are infinitesimally small, i.e.&nbsp;zero width. This may seem counter-intuitive, but densities have their uses in spotting the ranges in the data where there are more frequent values. In this, they serve a similar purpose as do histograms, but may offer insights not readily apparent with histograms, especially with default bucket widths.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-3" role="tab" aria-controls="tabset-5-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
 <div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1094,7 +2217,7 @@ Business Insights from <code>diamond</code> Bar Charts
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Prices Filled and Facetted by Cut"</span>, </span>
 <span>          subtitle <span class="op">=</span> <span class="st">"Free y-scale"</span>, caption <span class="op">=</span> <span class="st">"ggformula"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>,hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/density-charts-ggformula_9e17e7750dc189b3e0f3900e9add222c">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/density-charts-ggformula_ed3660318a1d9c48b82239418e0dd3ca">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/density-charts-ggformula-1.png" class="img-fluid" width="2100"></p>
@@ -1114,9 +2237,9 @@ Business Insights from <code>diamond</code> Bar Charts
 </div>
 </div>
 </div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
 <div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1148,7 +2271,7 @@ Business Insights from <code>diamond</code> Bar Charts
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Prices Filled and Facetted by Cut"</span>, </span>
 <span>          subtitle <span class="op">=</span> <span class="st">"Free y-scale"</span>, caption <span class="op">=</span> <span class="st">"ggplot"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>,hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/density-charts-ggplot_a45158c7ed01736f5e2b141658060406">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/density-charts-ggplot_5ddb58d08007ad26057d490771c91d3a">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/density-charts-ggplot-1.png" class="img-fluid" width="2100"></p>
@@ -1167,6 +2290,111 @@ Business Insights from <code>diamond</code> Bar Charts
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-5-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-3-tab">
+<div id="qwebr-insertion-location-10"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-10");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    10
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+gf_density(~ price, data = diamonds) %>%
+  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+
+###
+diamonds %>% gf_density(~ price, 
+                          fill = ~ cut, 
+                          color = ~ cut,
+                          alpha = 0.3) %>%
+  gf_refine(scale_color_viridis_d(option = "magma",
+                                  aesthetics = c("colour", "fill"))) %>%
+  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+
+###
+diamonds %>% gf_density(~ price,
+                          fill = ~ cut) %>%
+  gf_facet_wrap(vars(cut)) %>%
+  gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",caption = "ggformula") 
+
+###
+diamonds %>% gf_density(~ price,
+                          fill = ~ cut, 
+                        color = "black") %>% 
+  gf_facet_wrap(vars(cut), scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
+          subtitle = "Free y-scale", caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+`, 
+  10);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-11"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-11");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    11
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+diamonds %>% ggplot() + 
+  geom_density(aes(price)) +
+  labs(title = "Plot A: Diamond Prices",caption = "ggplot")
+
+###
+diamonds %>% ggplot() + 
+  geom_density(aes(price, 
+                   fill = cut, 
+                   color = cut),
+                   alpha = 0.3) +
+  scale_color_viridis_d(option = "magma",
+                        aesthetics = c("colour", "fill")) + 
+  labs(title = "Plot B: Prices by Cut",caption = "ggplot")
+
+###
+diamonds %>% ggplot() + 
+  geom_density(aes(price,
+                   fill = cut)) + 
+  facet_wrap(vars(cut)) + 
+  labs(title = "Plot C: Prices by Filled and Facetted by Cut",
+      caption = "ggplot") 
+
+###
+diamonds %>% ggplot() + 
+  geom_density(aes(price,
+                   fill = cut), 
+                   color = "black") + 
+  facet_wrap(vars(cut), scales = "free_y", nrow = 2) + 
+  labs(title = "Plot D: Prices Filled and Facetted by Cut", 
+          subtitle = "Free y-scale", caption = "ggplot") + 
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))
+`, 
+  11);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1187,20 +2415,21 @@ Business Insights from <code>diamond</code> Densities
 <iconify-icon inline="" icon="carbon:box-plot"></iconify-icon> Box Plots</h3>
 <p>Most plots do some internal calculations before creating the plots, such as “counts” in bar charts, and also “buckets + counts” in histograms.</p>
 <p>With boxplots, the <em>values</em> of a Quant variable are ranked in increasing order of magnitude. The <code>median</code> and the <code>interquartile range</code> are also calculated, and so are the <code>outliers</code>. A typical box plot looks like this:</p>
-<div class="cell" data-hash="intro-dist_cache/html/boxplot MKdesc_fee85600890cc09d94078b008058e159">
+<div class="cell" data-hash="intro-dist_cache/html/boxplot MKdesc_c3a8c2bdf07c64affcac5c1ecc0ec766">
 <div class="cell-output-display">
 <p><img src="intro-dist_files/figure-html/boxplot MKdesc-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-3" role="tab" aria-controls="tabset-6-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
 <div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_boxplot.html">gf_boxplot</a></span><span class="op">(</span><span class="va">price</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">diamonds</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_boxplot.html">gf_boxplot</a></span><span class="op">(</span><span class="va">price</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">diamonds</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot A: Boxplot for Diamond Prices"</span><span class="op">)</span></span>
 <span><span class="co">###</span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -1222,7 +2451,7 @@ Business Insights from <code>diamond</code> Densities
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_facet_grid.html">gf_facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">clarity</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Price by Cut facetted by Clarity"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>,hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/Boxplots-ggformula_c9bd80895d7f838b3588a2184e0eedf6">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/Boxplots-ggformula_0458d7154b87280473949b13f56df5ed">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/Boxplots-ggformula-1.png" class="img-fluid" width="2100"></p>
@@ -1242,9 +2471,9 @@ Business Insights from <code>diamond</code> Densities
 </div>
 </div>
 </div>
-<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
 <div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<div class="sourceCode" id="cb14" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html">geom_boxplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">price</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="co"># note: y, not x</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot A: Boxplot for Diamond Prices"</span><span class="op">)</span></span>
 <span><span class="co">###</span></span>
@@ -1265,7 +2494,7 @@ Business Insights from <code>diamond</code> Densities
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">clarity</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot D: Price by Cut facetted by Clarity"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>,hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/Boxplots-ggplots_f765b20d4679fa568ba249e2ea3cee3e">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/Boxplots-ggplots_dca4caba19e15f39000290ae03802e45">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/Boxplots-ggplots-1.png" class="img-fluid" width="2100"></p>
@@ -1284,6 +2513,91 @@ Business Insights from <code>diamond</code> Densities
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-6-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-3-tab">
+<div id="qwebr-insertion-location-12"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-12");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    12
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `gf_boxplot(price ~ ., data = diamonds) %>% 
+  gf_labs(title = "Plot A: Boxplot for Diamond Prices")
+
+###
+diamonds %>% 
+  gf_boxplot(price ~ cut) %>% 
+  gf_labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% 
+  gf_boxplot(price ~ cut, 
+             fill = ~ cut, 
+             color = ~ cut,
+             alpha = 0.3) %>% 
+  gf_labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% 
+  gf_boxplot(price ~ cut, 
+             fill = ~ cut, 
+             colour = ~ cut,             
+             alpha = 0.3) %>% 
+  gf_facet_wrap(vars(clarity)) %>%
+  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))`, 
+  12);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-13"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-13");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    13
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `diamonds %>% ggplot() + 
+  geom_boxplot(aes(y = price)) + # note: y, not x
+  labs(title = "Plot A: Boxplot for Diamond Prices")
+
+###
+diamonds %>% ggplot() + 
+  geom_boxplot(aes(cut, price)) + 
+  labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_boxplot(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), alpha = 0.4) +
+  labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_boxplot(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), alpha = 0.4)  +  
+  facet_wrap(vars(clarity)) +
+  labs(title = "Plot D: Price by Cut facetted by Clarity") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))`, 
+  13);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1307,20 +2621,56 @@ Business Insights from Boxplots
 </div>
 </section><section id="iconify-streamline-nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle-ridge-plots" class="level3"><h3 class="anchored" data-anchor-id="iconify-streamline-nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle-ridge-plots">
 <iconify-icon inline="" icon="streamline:nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle"></iconify-icon> Ridge Plots</h3>
-<p>Sometimes we may wish to show the distribution/density of a Quant variable, against several <em>levels</em> of a Qual variable. For instance, the prices of different items of furniture, based on the furniture “style” variable. Or the <code>sales</code> of a particular line of products, across different shops or cities. We did this with both histograms and densities, by colouring based on a Qual variable, and by facetting using a Qual variable. There is a third way, using what is called a <em>ridge plot</em>. Ridge Plots currently have their own package; neither <code>ggformula</code> nor <code>ggplot</code> supports it directly.</p>
+<p>Sometimes we may wish to show the distribution/density of a Quant variable, against several <em>levels</em> of a Qual variable. For instance, the prices of different items of furniture, based on the furniture “style” variable. Or the <code>sales</code> of a particular line of products, across different shops or cities. We did this with both histograms and densities, by colouring based on a Qual variable, and by facetting using a Qual variable. There is a third way, using what is called a <em>ridge plot</em>. <code>ggformula</code> support this plot by importing/depending upon the <code>ggridges</code> package; however, <code>ggplot</code> itself appears to not have this capability.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-2" role="tab" aria-controls="tabset-7-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
 <div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># library(ggridges)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/ggridges.html">gf_density_ridges</a></span><span class="op">(</span><span class="va">drv</span> <span class="op">~</span> <span class="va">hwy</span>, fill <span class="op">=</span> <span class="op">~</span> <span class="va">drv</span>, </span>
+<div class="sourceCode" id="cb15" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/ggridges.html">gf_density_ridges</a></span><span class="op">(</span><span class="va">drv</span> <span class="op">~</span> <span class="va">hwy</span>, fill <span class="op">=</span> <span class="op">~</span> <span class="va">drv</span>, </span>
 <span>                  alpha <span class="op">=</span> <span class="fl">0.3</span>, </span>
 <span>                  rel_min_height <span class="op">=</span> <span class="fl">0.005</span>, data <span class="op">=</span> <span class="va">mpg</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_y_discrete</a></span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Ridge Plot"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/more-charts_1ec0c7eb2f2f8f831f0008d88a88cbb7">
+<div class="cell quarto-layout-panel" data-hash="intro-dist_cache/html/more-charts_ef45e0b8f60ae4724ea733e2f6e8599b">
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="intro-dist_files/figure-html/more-charts-1.png" class="img-fluid" width="2100"></p>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-2-tab">
+<div id="qwebr-insertion-location-14"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-14");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    14
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+gf_density_ridges(drv ~ hwy, fill = ~ drv, 
+                  alpha = 0.3, 
+                  rel_min_height = 0.005, data = mpg) %>% 
+  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+            scale_x_continuous(expand = c(0.01, 0))) %>% 
+  gf_labs(title = "Ridge Plot")
+`, 
+  14);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1343,13 +2693,14 @@ Business Insights from <code>mpg</code> Ridge Plots
 <p>Yet another plot that allows comparison of multiple densities side by side is a <strong>violin plot</strong>. The violin plot combines the aspects of a <em>boxplot</em>(ranking of values, median, quantiles…) with a superimposed <em>density</em> plot. This allows us to look at medians, means, densities, and quantiles of a <em>Quant</em> variable with respect to another <em>Qual</em> variable. Let us see what this looks like!</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-8-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-1" role="tab" aria-controls="tabset-8-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-8-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-2" role="tab" aria-controls="tabset-8-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-8-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-3" role="tab" aria-controls="tabset-8-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div id="tabset-8-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-8-1-tab">
 <div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_violin.html">gf_violin</a></span><span class="op">(</span><span class="va">price</span> <span class="op">~</span> <span class="st">""</span>, data <span class="op">=</span> <span class="va">diamonds</span>, </span>
+<div class="sourceCode" id="cb16" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_violin.html">gf_violin</a></span><span class="op">(</span><span class="va">price</span> <span class="op">~</span> <span class="st">""</span>, data <span class="op">=</span> <span class="va">diamonds</span>, </span>
 <span>          draw_quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.25</span>,<span class="fl">.50</span>,<span class="fl">.75</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot A: Violin plot for Diamond Prices"</span><span class="op">)</span></span>
 <span><span class="co">###</span></span>
@@ -1394,9 +2745,9 @@ Business Insights from <code>mpg</code> Ridge Plots
 </div>
 </div>
 </div>
-<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div id="tabset-8-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-8-2-tab">
 <div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html">geom_violin</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">price</span>, x <span class="op">=</span> <span class="st">""</span><span class="op">)</span>,</span>
 <span>              draw_quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.25</span>,<span class="fl">.50</span>,<span class="fl">.75</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="co"># note: y, not x</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plot A: violin for Diamond Prices"</span><span class="op">)</span></span>
@@ -1442,6 +2793,100 @@ Business Insights from <code>mpg</code> Ridge Plots
 </div>
 </div>
 </div>
+<div id="tabset-8-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-8-3-tab">
+<div id="qwebr-insertion-location-15"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-15");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    15
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+gf_violin(price ~ "", data = diamonds, 
+          draw_quantiles = c(0,.25,.50,.75)) %>%
+  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             color = ~ cut,
+             alpha = 0.3,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             colour = ~ cut,             
+             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_facet_wrap(vars(clarity)) %>%
+  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))`, 
+  15);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-16"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-16");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    16
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `diamonds %>% ggplot() + 
+  geom_violin(aes(y = price, x = ""),
+              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
+  labs(title = "Plot A: violin for Diamond Prices")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price),
+              draw_quantiles = c(0,.25,.50,.75)) + 
+  labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price, 
+                  color = cut, fill = cut),
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4) +
+  labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), 
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4)  +  
+  facet_wrap(vars(clarity)) +
+  labs(title = "Plot D: Price by Cut facetted by Clarity") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))`, 
+  16);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1462,17 +2907,55 @@ Business Insights from <code>diamond</code> Violin Plots
 <section id="iconify-mdi-database-import-outline-import-data" class="level3"><h3 class="anchored" data-anchor-id="iconify-mdi-database-import-outline-import-data">
 <iconify-icon inline="" icon="mdi:database-import-outline"></iconify-icon> Import data</h3>
 <p>The data come from the <a href="https://github.com/rfordatascience/tidytuesday">TidyTuesday</a>, project, a weekly social learning project dedicated to gaining practical experience with R and data science. In this case the TidyTuesday data are based on <a href="https://itra.run/Races/FindRaceResults">International Trail Running Association (ITRA)</a> data but inspired by Benjamin Nowak. We will use the <a href="https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-10-26">TidyTuesday data that are on GitHub</a>. Nowak’s data are <a href="https://github.com/BjnNowak/UltraTrailRunning">also available on GitHub</a>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-9-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-1" role="tab" aria-controls="tabset-9-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-9-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-2" role="tab" aria-controls="tabset-9-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-9-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-9-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-19_fefb48d9af242f209ac395610c7a376a">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv"</span><span class="op">)</span></span>
 <span><span class="va">rank_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-9-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-9-2-tab">
+<div id="qwebr-insertion-location-17"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-17");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    17
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `race_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
+rank_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")`, 
+  17);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
 </div>
 </section><section id="iconify-file-icons-influxdata-examine-the-race-data" class="level3"><h3 class="anchored" data-anchor-id="iconify-file-icons-influxdata-examine-the-race-data">
 <iconify-icon inline="" icon="file-icons:influxdata"></iconify-icon> Examine the race Data</h3>
 <p>Let us look at the dataset using all our three methods:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-10-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-10-1" role="tab" aria-controls="tabset-10-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-10-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-10-2" role="tab" aria-controls="tabset-10-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-10-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-10-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/glimpse-race-data_8597053e96be0c63de0096fe5f9de845">
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">race_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">race_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 1,207
+<pre data-code-line-numbers=""><code>Rows: 1,207
 Columns: 13
 $ race_year_id   &lt;dbl&gt; 68140, 72496, 69855, 67856, 70469, 66887, 67851, 68241,…
 $ event          &lt;chr&gt; "Peak District Ultras", "UTMB®", "Grand Raid des Pyréné…
@@ -1488,9 +2971,9 @@ $ elevation_loss &lt;dbl&gt; -4520, -9930, -9980, -7500, -100, -9850, -5460, -46
 $ aid_stations   &lt;dbl&gt; 10, 11, 13, 13, 12, 15, 5, 8, 13, 23, 13, 5, 12, 15, 0,…
 $ participants   &lt;dbl&gt; 150, 2300, 600, 150, 0, 300, 0, 200, 120, 100, 300, 50,…</code></pre>
 </div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">rank_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">rank_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 137,803
+<pre data-code-line-numbers=""><code>Rows: 137,803
 Columns: 8
 $ race_year_id    &lt;dbl&gt; 68140, 68140, 68140, 68140, 68140, 68140, 68140, 68140…
 $ rank            &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, NA, NA, NA,…
@@ -1503,7 +2986,7 @@ $ time_in_seconds &lt;dbl&gt; 95725, 97229, 103747, 111217, 117981, 118000, 1206
 </div>
 </div>
 <div class="cell" data-hash="intro-dist_cache/html/glimpse-race-data-1_8ce6808a448705b91dde3a9f0fbedd2f">
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">race_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">race_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -1801,7 +3284,7 @@ $ time_in_seconds &lt;dbl&gt; 95725, 97229, 103747, 111217, 117981, 118000, 1206
 </div>
 </div>
 <div class="cell" data-hash="intro-dist_cache/html/glimpse-race-data-2_42669bab403a49fe27155ec41fceaeba">
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">rank_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">rank_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -1995,10 +3478,10 @@ $ time_in_seconds &lt;dbl&gt; 95725, 97229, 103747, 111217, 117981, 118000, 1206
 </div>
 </div>
 <div class="cell" data-hash="intro-dist_cache/html/inspect-race_cdcaaa1c0e4d05a21a1aecfbe75710e1">
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># inspect(race_df) # does not work with hms and difftime variables</span></span>
+<div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># inspect(race_df) # does not work with hms and difftime variables</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">rank_df</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
+<pre data-code-line-numbers=""><code>
 categorical variables:  
          name     class levels      n missing
 1      runner character  73629 137803       0
@@ -2022,6 +3505,85 @@ quantitative variables:
 2   390.79821 120012   17791
 3    10.11424 137803       0
 4 37234.37552 120012   17791</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-10-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-10-2-tab">
+<div id="qwebr-insertion-location-18"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-18");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    18
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `glimpse(race_df)
+glimpse(rank_df)`, 
+  18);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-19"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-19");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    19
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `skim(race_df)`, 
+  19);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-20"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-20");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    20
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `skim(rank_df)`, 
+  20);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-21"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-21");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    21
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# inspect(race_df) # does not work with hms and difftime variables
+inspect(rank_df)`, 
+  21);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -2052,13 +3614,20 @@ Business Insights from <code>race</code> data
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Questions: Which countries host the maximum number of races? Which countries send the maximum number of participants??</p>
+<p>Which countries host the maximum number of races? Which countries send the maximum number of participants??</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-11-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-1" role="tab" aria-controls="tabset-11-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-11-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-2" role="tab" aria-controls="tabset-11-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-11-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-11-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-24_49b6a335a5a93eb68cd91dbf045db26d">
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">country</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">country</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -2067,13 +3636,37 @@ Note
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">rank_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">nationality</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">rank_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">nationality</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["nationality"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"USA","2":"47259"},{"1":"FRA","2":"28905"},{"1":"GBR","2":"11076"},{"1":"JPN","2":"6729"},{"1":"ESP","2":"5478"},{"1":"CHN","2":"4744"},{"1":"CAN","2":"2822"},{"1":"ITA","2":"2794"},{"1":"SWE","2":"2293"},{"1":"AUS","2":"1683"},{"1":"ARG","2":"1613"},{"1":"POL","2":"1544"},{"1":"GER","2":"1505"},{"1":"RUS","2":"1385"},{"1":"HKG","2":"1170"},{"1":"POR","2":"1092"},{"1":"BEL","2":"1088"},{"1":"GRE","2":"1078"},{"1":"SUI","2":"973"},{"1":"NZL","2":"871"},{"1":"FIN","2":"793"},{"1":"RSA","2":"767"},{"1":"THA","2":"725"},{"1":"NOR","2":"600"},{"1":"CZE","2":"582"},{"1":"PHI","2":"521"},{"1":"BUL","2":"483"},{"1":"CRO","2":"450"},{"1":"HUN","2":"423"},{"1":"MEX","2":"416"},{"1":"SLO","2":"411"},{"1":"DEN","2":"388"},{"1":"MAS","2":"359"},{"1":"AUT","2":"346"},{"1":"NED","2":"324"},{"1":"IRL","2":"317"},{"1":"BRA","2":"290"},{"1":"TUR","2":"258"},{"1":"ROU","2":"245"},{"1":"CHI","2":"243"},{"1":"COL","2":"240"},{"1":"IND","2":"182"},{"1":"SGP","2":"169"},{"1":"ISR","2":"141"},{"1":"SVK","2":"140"},{"1":"INA","2":"136"},{"1":"SRB","2":"111"},{"1":"UKR","2":"105"},{"1":"TPE","2":"91"},{"1":"LAT","2":"89"},{"1":"AND","2":"83"},{"1":"OMA","2":"83"},{"1":"KOR","2":"82"},{"1":"MRI","2":"82"},{"1":"ISL","2":"67"},{"1":"ECU","2":"66"},{"1":"CRC","2":"60"},{"1":"PER","2":"57"},{"1":"NEP","2":"49"},{"1":"PAN","2":"44"},{"1":"VEN","2":"43"},{"1":"URU","2":"42"},{"1":"GUA","2":"41"},{"1":"LUX","2":"40"},{"1":"EST","2":"38"},{"1":"LTU","2":"38"},{"1":"BRU","2":"31"},{"1":"Fra","2":"30"},{"1":"PAR","2":"29"},{"1":"MAR","2":"27"},{"1":"CYP","2":"23"},{"1":"IRI","2":"20"},{"1":"MAC","2":"20"},{"1":"BIH","2":"19"},{"1":"MKD","2":"19"},{"1":"BOL","2":"16"},{"1":"MAD","2":"16"},{"1":"VIE","2":"14"},{"1":"EGY","2":"10"},{"1":"PUR","2":"10"},{"1":"ALG","2":"9"},{"1":"MNE","2":"9"},{"1":"TUN","2":"9"},{"1":"BLR","2":"7"},{"1":"ESA","2":"7"},{"1":"LIE","2":"6"},{"1":"MDA","2":"6"},{"1":"KAZ","2":"5"},{"1":"KEN","2":"5"},{"1":"KGZ","2":"5"},{"1":"MOZ","2":"5"},{"1":"AZE","2":"4"},{"1":"BAH","2":"4"},{"1":"COM","2":"4"},{"1":"DOM","2":"4"},{"1":"FIJ","2":"4"},{"1":"JOR","2":"4"},{"1":"LBN","2":"4"},{"1":"MLT","2":"4"},{"1":"NAM","2":"3"},{"1":"SYR","2":"3"},{"1":"UAE","2":"3"},{"1":"ZAM","2":"3"},{"1":"ARM","2":"2"},{"1":"BAN","2":"2"},{"1":"CAM","2":"2"},{"1":"CUB","2":"2"},{"1":"GEO","2":"2"},{"1":"MDV","2":"2"},{"1":"NCA","2":"2"},{"1":"NGR","2":"2"},{"1":"NIG","2":"2"},{"1":"TAN","2":"2"},{"1":"ANG","2":"1"},{"1":"BAR","2":"1"},{"1":"BOT","2":"1"},{"1":"BRN","2":"1"},{"1":"CMR","2":"1"},{"1":"GUI","2":"1"},{"1":"HON","2":"1"},{"1":"Hun","2":"1"},{"1":"IVB","2":"1"},{"1":"KSA","2":"1"},{"1":"LES","2":"1"},{"1":"MAW","2":"1"},{"1":"MGL","2":"1"},{"1":"MLI","2":"1"},{"1":"MON","2":"1"},{"1":"PAK","2":"1"},{"1":"QAT","2":"1"},{"1":"SMR","2":"1"},{"1":"SPA","2":"1"},{"1":"ZIM","2":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-11-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-11-2-tab">
+<div id="qwebr-insertion-location-22"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-22");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    22
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `race_df %>% count(country) %>% arrange(desc(n))
+rank_df %>% count(nationality) %>% arrange(desc(n))`, 
+  22);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -2086,13 +3679,20 @@ Note
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Questions: Which countries have the maximum number of winners (top 3 ranks)?</p>
+<p>Which countries have the maximum number of winners (top 3 ranks)?</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-12-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-1" role="tab" aria-controls="tabset-12-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-12-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-2" role="tab" aria-controls="tabset-12-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-12-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-12-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-25_1509c3bc7549f6e89e21e02c4c7f8d87">
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">rank_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">rank_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">rank</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">nationality</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -2101,6 +3701,31 @@ Note
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["nationality"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"USA","2":"1240"},{"1":"GBR","2":"347"},{"1":"FRA","2":"210"},{"1":"AUS","2":"140"},{"1":"CAN","2":"132"},{"1":"CHN","2":"128"},{"1":"SWE","2":"124"},{"1":"ESP","2":"113"},{"1":"JPN","2":"94"},{"1":"ITA","2":"79"},{"1":"POL","2":"77"},{"1":"HKG","2":"50"},{"1":"NZL","2":"48"},{"1":"POR","2":"48"},{"1":"GER","2":"47"},{"1":"NOR","2":"45"},{"1":"RSA","2":"44"},{"1":"RUS","2":"44"},{"1":"GRE","2":"37"},{"1":"FIN","2":"34"},{"1":"IND","2":"33"},{"1":"DEN","2":"31"},{"1":"ARG","2":"29"},{"1":"AUT","2":"27"},{"1":"BRA","2":"26"},{"1":"PHI","2":"24"},{"1":"COL","2":"23"},{"1":"SUI","2":"23"},{"1":"TUR","2":"23"},{"1":"BUL","2":"22"},{"1":"HUN","2":"21"},{"1":"BEL","2":"20"},{"1":"ISR","2":"17"},{"1":"MEX","2":"17"},{"1":"SLO","2":"16"},{"1":"CZE","2":"15"},{"1":"INA","2":"15"},{"1":"IRL","2":"15"},{"1":"THA","2":"13"},{"1":"NEP","2":"11"},{"1":"CHI","2":"10"},{"1":"MAS","2":"9"},{"1":"UKR","2":"9"},{"1":"SVK","2":"8"},{"1":"ECU","2":"7"},{"1":"EST","2":"7"},{"1":"LTU","2":"7"},{"1":"CRO","2":"6"},{"1":"MAR","2":"6"},{"1":"ROU","2":"6"},{"1":"SGP","2":"6"},{"1":"LAT","2":"5"},{"1":"NED","2":"5"},{"1":"CRC","2":"4"},{"1":"TPE","2":"4"},{"1":"GUA","2":"3"},{"1":"ISL","2":"3"},{"1":"OMA","2":"3"},{"1":"JOR","2":"2"},{"1":"KOR","2":"2"},{"1":"MAC","2":"2"},{"1":"PAN","2":"2"},{"1":"VEN","2":"2"},{"1":"AND","2":"1"},{"1":"BAN","2":"1"},{"1":"ESA","2":"1"},{"1":"LBN","2":"1"},{"1":"LIE","2":"1"},{"1":"MDA","2":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-12-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-12-2-tab">
+<div id="qwebr-insertion-location-23"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-23");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    23
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `rank_df %>% 
+  filter(rank %in% c(1,2,3)) %>%
+  count(nationality) %>% arrange(desc(n))`, 
+  23);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -2113,14 +3738,21 @@ Note
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Question: Which countries have had the most top-3 finishes in the <strong>longest</strong> distance race?</p>
+<p>Which countries have had the most top-3 finishes in the <strong>longest</strong> distance race?</p>
 <p>Here we see we have ranks in one dataset, and race details in another! How do we do this now? We have to <strong>join</strong> the two data frames into one data frame, using a <em>common variable</em> that uniquely identifies observations in <strong>both</strong> datasets.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-13-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-13-1" role="tab" aria-controls="tabset-13-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-13-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-13-2" role="tab" aria-controls="tabset-13-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-13-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-13-1-tab">
 <div>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">longest_races</span> <span class="op">&lt;-</span> <span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<div class="sourceCode" id="cb30" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">longest_races</span> <span class="op">&lt;-</span> <span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice_max</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">5</span>, order_by <span class="op">=</span> <span class="va">distance</span><span class="op">)</span> <span class="co"># Longest distance races</span></span>
 <span><span class="va">longest_races</span></span>
 <span><span class="va">longest_races</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -2150,7 +3782,38 @@ Note
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-13-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-13-2-tab">
+<div id="qwebr-insertion-location-24"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-24");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    24
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+longest_races <- race_df %>%
+  slice_max(n = 5, order_by = distance) # Longest distance races
+longest_races
+
+longest_races %>%
+  left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
+  filter(rank %in% c(1:10)) %>% # Top 10 ranks
+  count(nationality) %>% arrange(desc(n))`, 
+  24);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <p>Wow….France has one the top 10 positions 26 times in the longest races… which take place in France, Thailand, Chad, Australia, and Portugal. So although the USA has the greatest number of top 10 finishes, when it comes to the <em>longest</em> races, it is <em>vive la France</em>!</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -2159,13 +3822,20 @@ Note
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Question: What is the distribution of the finishing times, across all races and all ranks?</p>
+<p>What is the distribution of the finishing times, across all races and all ranks?</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-14-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-1" role="tab" aria-controls="tabset-14-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-14-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-2" role="tab" aria-controls="tabset-14-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-14-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-14-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-27_8eb32e6eeaf86a0abb8458a60cae1725">
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rank_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -2174,13 +3844,56 @@ Note
 <p><img src="intro-dist_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
+</div>
+<div id="tabset-14-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-14-2-tab">
+<div id="qwebr-insertion-location-25"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-25");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    25
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+rank_df %>%
+  gf_histogram(~ time_in_seconds, bins = 75)`, 
+  25);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <p>So the distribution is (very) roughly bell-shaped, spread over a 2X range. And some people may have dropped out of the race very early and hence we have a small bump close to <em>zero</em> time! The histogram shows three bumps…at least one reason is that the distances to be covered are not the same…but could there be other reasons? Like <code>altitude_gained</code> for example?</p>
 </div>
 </div>
-<div class="callout_note">
-<p>Question: What is the distribution of race distances?</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What is the distribution of race distances?</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-15-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-1" role="tab" aria-controls="tabset-15-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-15-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-2" role="tab" aria-controls="tabset-15-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-15-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-15-1-tab">
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-28_a617f102e85eb4db6a54719482acfd9f">
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -2191,7 +3904,7 @@ Note
 </div>
 <p>Hmm…a closely clumped set of race distances, with some entries in between [0-150], but some are zero? Which are these?</p>
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-29_27c1efa51e0705f773ec98bda5954129">
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<div class="sourceCode" id="cb33" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">distance</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
@@ -2202,7 +3915,55 @@ Note
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-15-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-15-2-tab">
+<div id="qwebr-insertion-location-26"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-26");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    26
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+race_df %>%
+  gf_histogram(~ distance, bins =  50)`, 
+  26);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<p>Hmm…a closely clumped set of race distances, with some entries in between [0-150], but some are zero? Which are these?</p>
+<div id="qwebr-insertion-location-27"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-27");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    27
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `race_df %>%
+  filter(distance == 0)`, 
+  27);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <p>Curious…some of these zero-distance races have had participants too! Perhaps these were cancelled events…all of them are stated to be <code>100 mile</code> events…</p>
+</div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -2210,14 +3971,21 @@ Note
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Question: For all races that have a distance around 150, what is the distribution of finishing times? Can these be split/facetted using <code>start_time</code> of the race (i.e.&nbsp;morning / evening) ?</p>
+<p>For all races that have a distance around 150, what is the distribution of finishing times? Can these be split/facetted using <code>start_time</code> of the race (i.e.&nbsp;morning / evening) ?</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-16-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-16-1" role="tab" aria-controls="tabset-16-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-16-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-16-2" role="tab" aria-controls="tabset-16-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-16-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-16-1-tab">
 <p>Let’s make a count of start times:</p>
 <div class="cell" data-hash="intro-dist_cache/html/unnamed-chunk-30_9fdec1dafbcc0a972528855a4d388ed8">
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_times</span> <span class="op">&lt;-</span> <span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<div class="sourceCode" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">race_times</span> <span class="op">&lt;-</span> <span class="va">race_df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">start_time</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">race_times</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -2231,7 +3999,7 @@ Note
 </div>
 <p>Let’s convert <code>start_time</code> into a <code>factor</code> with levels: early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400), afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)</p>
 <div class="cell" data-hash="intro-dist_cache/html/Slicing_time_to_Qual_220e898744ac0d9ee57e3f2993cb3fe9">
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Demo purposes only!</span></span>
+<div class="sourceCode" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Demo purposes only!</span></span>
 <span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
@@ -2285,6 +4053,100 @@ Note
 <p><img src="intro-dist_files/figure-html/Slicing_time_to_Qual-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
+</div>
+<div id="tabset-16-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-16-2-tab">
+<p>Let’s make a count of start times:</p>
+<div id="qwebr-insertion-location-28"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-28");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    28
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `race_times <- race_df %>%
+  count(start_time) %>% arrange(desc(n))
+race_times`, 
+  28);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<p>Let’s convert <code>start_time</code> into a <code>factor</code> with levels: early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400), afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)</p>
+<div id="qwebr-insertion-location-29"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-29");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    29
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# Demo purposes only!
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+race_start_factor <- race_df %>%
+  mutate(
+    start_day_time =
+      case_when(
+        start_time > hms("02:00:00") &
+          start_time <= hms("06:00:00") ~ "early_morning",
+        
+        start_time > hms("06:00:00") &
+          start_time <= hms("10:00:00") ~ "late_morning",
+        
+        start_time > hms("10:00:00") &
+          start_time <= hms("14:00:00") ~ "mid_day",
+        
+        start_time > hms("14:00:00") &
+          start_time <= hms("18:00:00") ~ "afternoon",
+        
+        start_time > hms("18:00:00") &
+          start_time <= hms("22:00:00") ~ "evening",
+        
+        start_time > hms("22:00:00") &
+          start_time <= hms("23:59:59") ~ "night",
+        
+        start_time >= hms("00:00:0") &
+          start_time <= hms("02:00:00") ~ "postmidnight",
+        
+        TRUE ~ "other"
+      )
+  ) %>%
+  mutate(start_day_time = 
+           as_factor(start_day_time) %>%
+           fct_collapse(.f = ., 
+               night = c("night", "postmidnight")))
+##
+# Join with rank_df
+race_start_factor %>%
+  left_join(rank_df, by = "race_year_id") %>%
+  drop_na(time_in_seconds) %>%
+  gf_histogram(
+    ~ time_in_seconds,
+    bins = 75,
+    fill = ~ start_day_time,
+    color = ~ start_day_time,
+    alpha = 0.5
+  ) %>%
+  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y")`, 
+  29);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <p>We see that finish times tend to be longer for afternoon and evening start races; these are lower for early morning and night time starts. Mid-day starts show a curious double hump in finish times that should be studied.</p>
 </div>
 </div>
@@ -2301,7 +4163,7 @@ Note
       document.body.removeChild(a);
         });"><button class="btn btn-info downloadthis  data-button" id="populations"><i class="bi bi-database-fill-down"></i> Download the Populations data </button></a></p>
 <div class="page-columns page-full">
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/populations.csv"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb36" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/populations.csv"</span><span class="op">)</span></span>
 <span><span class="va">pop</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">pop</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell column-body-outset-right quarto-layout-panel" data-hash="intro-dist_cache/html/unnamed-chunk-32_cd5e8fe2f36d18314cf9490ccd67ccf4">
@@ -2317,7 +4179,7 @@ Note
 </div>
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
-<pre><code>
+<pre data-code-line-numbers=""><code>
 categorical variables:  
           name     class levels     n missing
 1 country_code character    265 16400       0
@@ -2339,7 +4201,7 @@ quantitative variables:
 </div>
 <p>Let us plot densities/histograms for <code>value</code>:</p>
 <div>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb38" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -2359,7 +4221,7 @@ quantitative variables:
 </div>
 <p>These graphs convey very little to us: the data is very heavily skewed to the right and much of the chart is empty. There are many countries with small populations and a few countries with very large populations. Such distributions are also called <strong>“long tailed”</strong> distributions. To develop better insights with this data, we should transform the variable concerned, using say a “log” transformation:</p>
 <div>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb39" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -2771,4 +4633,5 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 <script src="../../../../../../site_libs/quarto-html/zenscroll-min.js"></script>
+<script src="../../../../../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
 </body></html>

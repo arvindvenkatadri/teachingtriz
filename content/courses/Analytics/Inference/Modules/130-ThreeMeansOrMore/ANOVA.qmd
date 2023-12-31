@@ -13,7 +13,6 @@ bibliography:
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
-
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -23,10 +22,11 @@ citation: true
 #| message: true
 #| warning: false
 #| echo: true
-knitr::opts_chunk$set(echo = TRUE,warning = TRUE,message = FALSE, tidy = TRUE)
+knitr::opts_chunk$set(tidy = TRUE)
 library(tidyverse) # Tidy data processing 
 library(ggformula) # Formula based plots
 library(mosaic) # Data inspection and Statistical Inference 
+library(broom) # Tidy outputs from Statistical Analyses
 library(infer) # Statistical Inference
 library(cowplot) # Arranging Plots
 
@@ -44,8 +44,6 @@ library(TeachingDemos)
 library(grateful)
 
 ```
-
-
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -635,8 +633,8 @@ frogs_grouped <- frogs_long %>%
 
 # Checking if we can purrr
 frogs_grouped %>% 
-  pluck("list", 1) %>% 
-  select(Time) %>% 
+  purrr::pluck("list", 1) %>% 
+  dplyr::select(Time) %>% 
   as_vector() %>% 
   shapiro.test(.)
 
@@ -650,12 +648,26 @@ frogs_grouped %>%
                                  as_vector() %>% 
                                  shapiro.test(.)),
          
-         params = map(.x = shaptest,
+         params = 
+           purrr::map(.x = shaptest,
                       .f = \(.x) broom::tidy(.x))) %>% 
   
   select(TempFac, params) %>% 
   unnest(cols = params)
 
+```
+
+```{r}
+#| eval: false
+#| column: margin
+#### Using `dplyr::group_modify()
+frogs_long %>%
+  group_by(TempFac) %>%
+  group_modify( ~ .x %>%
+                  select(Time) %>%
+                  
+                  as_vector() %>% shapiro.test() %>%
+                  broom::tidy())
 ```
 
 The `shapiro.wilk` test makes a NULL Hypothesis that the data **are** normally distributed and estimates the probability that this could have happened by chance. Except for `TempFac = 18` the p-values are less than 0.05 and we can reject the NULL hypothesis that each of these is normally distributed. Perhaps this is a sign that we need more than 20 samples per factor level. Let there be more frogs !!!
@@ -794,6 +806,14 @@ frogs_long %>%
 ```
 
 In both graphs, note the difference in the error-bar heights.
+
+The ANOVA test does not tell us that the "treatments" (i.e. levels of `TempFac`) are equally effective. We need to use a *multiple comparison* procedure to arrive at an answer to that question. We compute the pair-wise differences in effect-size:
+
+```{r}
+frogs_anova %>% stats::TukeyHSD()
+
+```
+We see that **each** of the pairwise differences in effect-size is significant, with `p = 0` !
 
 ### Using other packages
 
@@ -938,6 +958,7 @@ We have discussed ANOVA as a means of modelling the effects of a Categorical var
 ### Two-Way ANOVA
 
 What if we have *two* Categorical variables as predictors? We then need to perform a **Two-Way ANOVA** analysis, where we look at the predictors individually (*main effects*) and together (*interaction effects*). Here too, we need to verify if the number of observations are balanced across all combinations of factors of the two Qualitative predictors. There are three different classical approaches (Type1, Type2 and Type3 ANOVA) for testing hypotheses in ANOVA for unbalanced designs, as they are called. [@langsrud2003].
+
 :::
 
 ::: callout-note
@@ -947,7 +968,7 @@ Note that when we specified our research question, we had no specific hypothesis
 It *is* possible to incorporate these beliefs into the ANOVA model, using what is called as **informative hypothesis testing**, which have certain advantages compared to unconstrained models. The R package called `restriktor` has the capability to develop such models with beliefs.
 :::
 
-## {{< iconify ooui references-rtl >}} References{#sec-references}
+## {{< iconify ooui references-rtl >}} References {#sec-references}
 
 ::: {#refs style="font-size: 60%;"}
 \

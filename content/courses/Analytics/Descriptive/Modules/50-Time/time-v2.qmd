@@ -13,13 +13,16 @@ image: feature.jpg
 bibliography: 
   - grateful-refs.bib
 citation: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-slides-and-tutorials}
 
-|                                                                                                             |                                                                                                              |     |
-|------------------------|-----------------------|-------------------------|
-| <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis-WIP</a>  |     |
+|                                                                                                             |                                                                                                              |
+|------------------------------------|------------------------------------|
+| <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis-WIP</a>  |
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -70,16 +73,16 @@ library(grateful)
 ### `mosaic` and `ggformula` command template
 
 Note the standard method for all commands from the `mosaic` and
-`ggformula` packages: `goal( y ~ x | z, data = _____)`
+`ggformula` packages: goal( y \~ x \| z, data = \_\_\_)
 
 With `ggformula`, one can create any graph/chart using:
-`gf_***(y ~ x | z, data = _____)`
+`gf_***(y ~ x | z, data =`\_\_\_ `)`
 
-In practice, we often use: `dataframe %>%  gf_***(y ~ x | z)` which has
-cool benefits such as "autocompletion" of variable names, as we shall
-see. The "\*\*\*" indicates what kind of graph you desire: histogram,
-bar, scatter, density; the "\_\_\_" is the name of your dataset that you
-want to plot with.
+In practice, we often use: dataframe %\>% gf\_\*\*\*(y \~ x \| z) which
+has cool benefits such as "autocompletion" of variable names, as we
+shall see. The "\*\*\*" indicates what kind of graph you desire:
+histogram, bar, scatter, density; the "\_\_\_" is the name of your
+dataset that you want to plot with.
 :::
 
 ::: callout-tip
@@ -88,7 +91,7 @@ want to plot with.
 The `ggplot`2 template is used to identify the dataframe, identify the x
 and y axis, and define visualized layers:
 
-`ggplot(data = ---, mapping = aes(x = ---, y = ---)) + geom_----()`
+ggplot(data = ---, mapping = aes(x = ---, y = ---)) + geom\_----()
 
 Note: ---- is meant to imply text you supply. e.g. function names, data
 frame names, variable names.
@@ -96,7 +99,7 @@ frame names, variable names.
 It is helpful to see the argument mapping, above. In practice, rather
 than typing the formal arguments, code is typically shorthanded to this:
 
-`dataframe %>%  ggplot(aes(xvar, yvar)) + geom_----()`
+dataframe %\>% ggplot(aes(xvar, yvar)) + geom\_----()
 :::
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
@@ -130,8 +133,8 @@ R. Alongside we will look at the R packages that work with these formats
 and create graphs and measures using those objects. Then we examine
 *data wrangling* of time series, where we look at packages that offer
 `dplyr`-like ability to group and summarize time series using the `time`
-variable. We will finally look at obtaining the components of the time
-series and try our hand at modelling and forecasting.
+variable. We will finally look at obtaining the *components* of the time
+series and try our hand at *modelling and forecasting*.
 
 ## {{< iconify game-icons time-synchronization >}} {{< iconify flat-color-icons line-chart >}} Time Series Formats, Conversion, and Plotting
 
@@ -166,9 +169,11 @@ and work with these.
 
 ![Standards](https://imgs.xkcd.com/comics/standards.png){fig-align="center"}
 
-To start, we will use simple `ts` data first, and then do another with a "vanilla" `tibble` format that we can plot *as is*. We will then look at a `tibble`data that *does have a time-oriented variable*. We will then perform
-conversion to `tsibble` format to plot it, and then a final example with a
-ground-up `tsibble` dataset.
+To start, we will use simple `ts` data first, and then do another with a
+"vanilla" `tibble` format that we can plot *as is*. We will then look at
+a `tibble`data that *does have a time-oriented variable*. We will then
+perform conversion to `tsibble` format to plot it, and then a final
+example with a ground-up `tsibble` dataset.
 
 ### {{< iconify vaadin hourglass-start >}} Base-R `ts` format data
 
@@ -229,7 +234,8 @@ plot(ChickWeight_ts) # Using base-R
 
 ```
 
-We see that the weights of a young chick specimen #1 increases over time.
+We see that the weights of a young chick specimen #1 increases over
+time.
 
 ### {{< iconify mdi table-clock >}} `tibble` data
 
@@ -237,15 +243,17 @@ The `ts` data format can handle *only one time series*; in the above
 example, we could not have plotted the weight of two chicks, if we had
 wanted to. If we want to plot/analyze multiple time series, based on say
 *Qualitative* variables, (e.g. sales figures over time across multiple
-*products* and *locations*) we need other data formats. Using the familiar
-`tibble` structure opens up new possibilities.\
+*products* and *locations*) we need other data formats. Using the
+familiar `tibble` structure opens up new possibilities.\
 
 -   We can have **multiple** **time series** within a tibble (think of
     numerical time-series data like `GDP`, `Population`, `Imports`,
     `Exports` for multiple countries as with the `gapminder`[^1]data we
-    saw earlier).\
+    saw earlier).
 -   It also allows for data processing with `dplyr` such as filtering
     and summarizing.\
+
+[^1]: https://www.gapminder.org/data/
 
 ::: column-margin
 #### `gapminder` data
@@ -655,10 +663,9 @@ PBS %>%
 :::
 
 This basic plot is quite messy. Other than an overall rising trend and
-more vigorous variations pointing to a multiplicative process, we
-cannot say more. There is simply too much happening here and it is now
-time (sic!) for us to look at summaries of the data using `dplyr`-like
-verbs.
+more vigorous variations pointing to a multiplicative process, we cannot
+say more. There is simply too much happening here and it is now time
+(sic!) for us to look at summaries of the data using `dplyr`-like verbs.
 
 We will do that in the @sec-slides-and-tutorials.
 
@@ -749,5 +756,3 @@ cite_packages(
 
 ```
 :::
-
-[^1]: https://www.gapminder.org/data/

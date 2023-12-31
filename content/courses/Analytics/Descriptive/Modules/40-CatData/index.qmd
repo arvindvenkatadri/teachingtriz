@@ -20,6 +20,9 @@ categories:
 bibliography: 
   - grateful-refs.bib
 citation: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages {#sec-setting-up-r-packages}
@@ -54,7 +57,6 @@ theme_set(new = theme_classic())
 
 ```
 
-
 ```{r}
 #| label: Extra Pedagogical Packages
 #| echo: false
@@ -67,7 +69,6 @@ library(epoxy)
 library(grateful)
 
 ```
-
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -158,7 +159,8 @@ Data in frequency form has already been tabulated and *aggregated* by
 **counting** over the (combinations of) categories of the table
 variables. When the data are in **case form**, we can always trace any
 observation back to its individual identifier or data record, since each
-row is a unique observation or *case*; the reverse, with the **Frequency Form** is rarely possible.
+row is a unique observation or *case*; the reverse, with the **Frequency
+Form** is rarely possible.
 
 Frequency Data is usually a data frame, with columns of categorical
 variables and at least one column containing `frequency` or `count`
@@ -266,8 +268,9 @@ HairEyeColor %>%
 ## {{< iconify grommet-icons table-add >}} Creating Contingency Tables {#sec-creating-contingency-tables}
 
 Most plots for Categorical Data ( as we shall see ) require that the
-data be converted into a ***Contingency Table*** ; the Statistical
-tests for Proportions ( the $\chi^2$ test ) also needs Contingency Tables. The *Frequency Table* we encountered earlier is very close to being a
+data be converted into a ***Contingency Table*** ; the Statistical tests
+for Proportions ( the $\chi^2$ test ) also needs Contingency Tables. The
+*Frequency Table* we encountered earlier is very close to being a
 full-fledged Contingency Table.
 
 From [Wolfram
@@ -382,8 +385,7 @@ vcd::structable(HairEyeColor)
 But it is a **set** of (two-way) Contingency Tables:
 
 ```{r}
-#| layout-ncol: 3
-#| column: body-outset-right
+#| layout-ncol: 2
 UCBAdmissions
 vcd::structable(UCBAdmissions)
 
@@ -401,7 +403,7 @@ Contingency Tables:
 
 ```{r}
 #| label: using-mosaic
-#| layout-ncol: 3
+#| layout-ncol: 2
 # One Way Table
 mosaicCore::tally( ~ substance, data = HELPrct, margins = TRUE)
 
@@ -413,8 +415,10 @@ tally(~ sex | substance, data = HELPrct, margins = TRUE)
 
 ```
 
-So far these packages give Contingency Tables that are **easy to see for humans**; some of these structures are also capable being passed directly
-to commands such as `stats::chisq.test()` or `janitor::chisq.test()`.
+So far these packages give Contingency Tables that are **easy to see for
+humans**; some of these structures are also capable being passed
+directly to commands such as `stats::chisq.test()` or
+`janitor::chisq.test()`.
 
 Often we need Contingency Tables that are in `tibble` form and we need
 to perform some data processing using `dplyr` to get there.
@@ -429,8 +433,7 @@ First we develop the counts:
 
 ```{r}
 #| label: tidyverse-for-Contingency-Tables
-#| layout-ncol: 3
-#| column: page-inset-right
+#| layout-ncol: 2
 #| message: false
 diamonds %>% count(cut)
 diamonds %>% count(clarity)
@@ -673,10 +676,11 @@ In many business situations, we perform say *customer surveys* to get
 [Likert Scale](https://www.simplypsychology.org/likert-scale.html) data,
 where several respondents rate a product or a service on a scale of
 `Very much like`, `somewhat like`, `neutral`, `Dislike` and
-`Very much dislike,` for example. 
+`Very much dislike,` for example.
 
-:::callout-note
+::: callout-note
 ## A fictitious QuickEZ app
+
 We are a start-up that has an app called **QuickEZ** for delivery of
 groceries. We conduct a survey of 200 people at a local store.
 
@@ -687,7 +691,6 @@ groceries. We conduct a survey of 200 people at a local store.
 
 each to be answered on a scale of : "always", "often", "never",
 "sometimes".
-
 :::
 
 Such data may look for example as follows:
@@ -732,9 +735,9 @@ str(quickez_data)
 
 ```
 
-Such data is also a form of *Categorical data* and we need to count
-and plot counts for each of the survey questions. Such a plot is called
-a **Likert plot** and it looks like this:
+Such data is also a form of *Categorical data* and we need to count and
+plot counts for each of the survey questions. Such a plot is called a
+**Likert plot** and it looks like this:
 
 ```{r}
 #| label: Likert-Plot-1
@@ -747,7 +750,6 @@ plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
             )
 
 ```
-
 
 Based on this chart, since it looks like about half the survey
 respondents have not heard of our app, we need more publicity, and many
@@ -870,6 +872,12 @@ situation[^1] that we have survey data and then have to label the
 variables and the values before plotting. We will use the R package
 `sjlabelled` to label our data.[^2].
 
+[^1]: Piping Hot Data: Leveraging Labelled Data in R,
+    https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
+
+[^2]: Label Support in
+    R:<https://cran.r-project.org/web/packages/sjlabelled/index.html>
+
 ```{r}
 #| label: Creating_labelled_data
 #| layout-nrow: 2
@@ -957,26 +965,25 @@ data:
 
 ::: {#refs style="font-size: 60%;"}
 \
-Chapter 4,
-    <https://openintro-ims.netlify.app/explore-categorical.html> from
-    *An Introduction to Modern Statistics by Mine Cetinkaya-Rundel and
-    Johanna Hardin*. \
+Chapter 4, <https://openintro-ims.netlify.app/explore-categorical.html>
+from *An Introduction to Modern Statistics by Mine Cetinkaya-Rundel and
+Johanna Hardin*.\
 
 Using the `strcplot` command from `vcd`,
-    <https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf> \
+<https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf>\
 
 Creating Frequency Tables with `vcd`,
-    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html> \
+<https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html>\
 
 Creating mosaic plots with `vcd`,
-    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html> \
+<https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html>\
 
 Michael Friendly, *Corrgrams: Exploratory displays for correlation
-    matrices*. The American Statistician August 19, 2002 (v1.5).
-    <https://www.datavis.ca/papers/corrgram.pdf> \
+matrices*. The American Statistician August 19, 2002 (v1.5).
+<https://www.datavis.ca/papers/corrgram.pdf>\
 
 [Visualizing Categorical Data in
-    R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html) \
+R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
 
 ###### {{< iconify lucide package-check >}} R Package Citations
 
@@ -992,15 +999,4 @@ cite_packages(
   knitr::kable(format = "simple")
 
 ```
-
 :::
-
-
-[^1]: Piping Hot Data: Leveraging Labelled Data in R,
-    https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
-
-[^2]: Label Support in
-    R:<https://cran.r-project.org/web/packages/sjlabelled/index.html>
-    
-
-

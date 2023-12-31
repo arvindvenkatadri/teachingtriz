@@ -15,6 +15,9 @@ categories:
   - Exponential Smoothing
   - ARIMA models
   - Forecasting
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ![](featured.jpg){fig-align="center" width="235"}
@@ -51,7 +54,7 @@ library(tsibbledata) # Time Series Demo Datasets
 
 ```
 
-# Introduction to Time Series: Data Formats
+## Introduction to Time Series: Data Formats
 
 There are multiple formats for time series data.
 
@@ -193,7 +196,8 @@ Let us plot `Weekly_Sales`, colouring the time series by `Dept`:
 walmart_tsibble %>% 
   gf_line(Weekly_Sales ~ Date, 
           colour = ~ as_factor(Dept), data = .) %>% 
-  gf_point() %>% 
+  gf_point() %>%
+  gf_theme(theme_minimal()) %>% 
   labs(title = "Weekly Sales by Dept at Walmart")
 
 ```
@@ -206,7 +210,9 @@ is also not interactive.
 ```{r}
 walmart_tsibble %>% 
   dplyr::group_by(Dept) %>% 
-  autoplot(Weekly_Sales)
+  autoplot(Weekly_Sales) %>% 
+  gf_theme(theme_minimal())
+
 ```
 :::
 
@@ -221,10 +227,27 @@ hh_budget
 ```
 
 There are 4 keys ( id variables ) here, one for each country. Six other
-*quantitative* columns are the individual series. Let us plot the
-timeseries:
+*quantitative* columns are the individual series. Let us plot (some of)
+the timeseries:
 
 ```{r}
+#| layout-ncol: 2
+ggplot2::theme_set(theme_classic())
+hh_budget %>% 
+  gf_path(Debt ~ Year, colour = ~ Country,
+          title = "Debt over Time")
+##
+hh_budget %>% 
+  gf_path(Savings ~ Year, colour = ~ Country,
+          title = "Savings over Time")
+##
+hh_budget %>% 
+  gf_path(Expenditure ~ Year, colour = ~ Country,
+          title = "Expenditure over Time")
+##
+hh_budget %>% 
+  gf_path(Wealth ~ Year, colour = ~ Country,
+          title = "Wealth over Time")
 
 ```
 
@@ -280,16 +303,20 @@ prison_tsibble %>%
   group_by(Indigenous, State) %>% 
   #filter(State == "NSW") %>% 
   summarise(Total = sum(Count))  %>%
-  ggplot(aes(x = quarter, y = Total, colour = Indigenous, 
-             shape = Indigenous)) + 
-  geom_point() +
-  geom_line()  + 
-  facet_wrap(~ State)
+  gf_point(Total ~quarter, colour = ~ Indigenous, 
+             shape = ~ Indigenous) %>% 
+  gf_line() %>% 
+  
+  # Note that the y-axes are all. different!!
+  gf_facet_wrap(vars(State), scale = "free_y") %>% 
+  
+  gf_theme(theme_minimal())
 
 ```
 
 Hmm...looks like New South Wales(NSW) as something different going on
-compared to the rest of the states in Aus.
+compared to the rest of the states in Aus. Because of the large cities
+there...
 
 ## Decomposing Time Series
 
@@ -307,7 +334,9 @@ walmart_decomposed_season <- walmart_tsibble %>%
   # 
   fabletools::model(
     season = STL(Weekly_Sales ~ season(window = "periodic"))) 
+walmart_decomposed_season %>% fabletools::components()
 
+###
 walmart_decomposed_ets <- walmart_tsibble %>% 
   dplyr::filter(Dept == "95") %>% # filter for Dept 95
   #
@@ -315,13 +344,14 @@ walmart_decomposed_ets <- walmart_tsibble %>%
   # 
   fabletools::model(
     ets = ETS(box_cox(Weekly_Sales, 0.3)))
-
-walmart_decomposed_season %>% fabletools::components()
+###
 walmart_decomposed_ets %>% fabletools::components()
 
-# walmart_decomposed_arima <- walmart_tsibble %>% 
-#   dplyr::filter(Dept == "95") %>% # filter for Dept 95
-#     arima = ARIMA(log(Weekly_Sales))
+###
+walmart_decomposed_arima <- walmart_tsibble %>%
+  dplyr::filter(Dept == "95") %>% # filter for Dept 95
+  fabletools::model(arima = ARIMA(log(Weekly_Sales)))
+walmart_decomposed_arima %>% broom::tidy()
 
 ```
 
