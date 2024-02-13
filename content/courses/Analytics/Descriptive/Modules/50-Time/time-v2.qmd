@@ -16,6 +16,8 @@ citation: true
 editor: 
   markdown: 
     wrap: 72
+webr:
+  packages: ['readr', 'dplyr','lubridate', 'fable', 'fabletools', 'feasts', 'mosaic', 'skimr', 'timetk', 'tsibble', 'tsibbledata','TSstudio', 'ggformula']
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-slides-and-tutorials}
@@ -23,6 +25,16 @@ editor:
 |                                                                                                             |                                                                                                              |
 |------------------------------------|------------------------------------|
 | <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis-WIP</a>  |
+
+## {{< iconify mdi web-check >}} Using web-R
+This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure (like in an old-fashioned library), with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
+
+#### Keyboard Shortcuts
+
+- Run selected code using either:
+  - macOS: <kbd>⌘</kbd> + <kbd>↩/Return</kbd>
+  - Windows/Linux: <kbd>Ctrl</kbd> + <kbd>↩/Enter</kbd>
+- Run the entire code by clicking the "Run code" button or pressing <kbd>Shift</kbd>+<kbd>↩</kbd>. 
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -44,7 +56,7 @@ library(fpp3)
 # devtools::install_github("FinYang/tsdl")
 library(tsdl)
 library(TSstudio)
-
+library(timetk)
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
                                        base_family = "sans"))
@@ -68,6 +80,7 @@ library(checkdown)
 library(epoxy)
 library(grateful)
 ```
+
 
 ::: callout-tip
 ### `mosaic` and `ggformula` command template
@@ -179,6 +192,9 @@ example with a ground-up `tsibble` dataset.
 
 There are a few datasets in base R that are in `ts` format already.
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
 ```{r ts-data}
 
 AirPassengers
@@ -186,8 +202,25 @@ str(AirPassengers)
 
 ```
 
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: str-webr
+AirPassengers
+str(AirPassengers)
+
+```
+
+
+:::
+
+
+
 This can be easily plotted using base R:
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
 ```{r}
 #| label: base-R-ts-plot
 #| message: false
@@ -196,6 +229,16 @@ This can be easily plotted using base R:
 plot(AirPassengers)
 
 ```
+### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+#| label: ts-plot-webr
+#| message: false
+plot(AirPassengers)
+
+```
+
+:::
+
 
 One can see that there is an upward *trend* and also *seasonal
 variations* that also increase over time. This is an example of a
@@ -216,6 +259,10 @@ Syntax: `objectName <- ts(data, start, end, frequency)`, where,
 We will pick simple **numerical vector data** ( i.e. not a time series )
 `ChickWeight`:
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
 ```{r}
 #| label: ts using stats-ts
 
@@ -227,12 +274,40 @@ ChickWeight_ts <- ChickWeight %>%
   dplyr::select(weight, Time)
 
 # stats::ts does not accept pipe format
-ChickWeight_ts <- stats::ts(ChickWeight_ts$weight, frequency = 2) 
+ChickWeight_ts <- stats::ts(ChickWeight_ts$weight, 
+                            frequency = 2) 
 str(ChickWeight_ts)
 
 plot(ChickWeight_ts) # Using base-R
 
 ```
+
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: ts-using-stats-ts-webr
+
+ChickWeight %>% head()
+
+# Filter for Chick #1 and for Diet #1
+ChickWeight_ts <- ChickWeight %>% 
+  dplyr::filter(Chick == 1, Diet ==1) %>% 
+  dplyr::select(weight, Time)
+
+# stats::ts does not accept pipe format
+ChickWeight_ts <- stats::ts(ChickWeight_ts$weight, 
+                            frequency = 2) 
+str(ChickWeight_ts)
+
+plot(ChickWeight_ts) # Using base-R
+
+```
+
+
+:::
+
+
 
 We see that the weights of a young chick specimen #1 increases over
 time.
@@ -261,7 +336,8 @@ familiar `tibble` structure opens up new possibilities.\
 ```{r}
 #| echo: false
 library(gapminder)
-gapminder %>% select(country, year, gdpPercap, pop, lifeExp, everything())
+gapminder %>% select(country, year, gdpPercap, 
+                     pop, lifeExp, everything())
 
 ```
 :::
@@ -274,6 +350,9 @@ downloaded file in a sub-folder called `data` inside your project.
 
 Read this data in and inspect it.
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
 ```{r}
 #| label: using-tibble-data-1
 #| message: false
@@ -285,6 +364,21 @@ skim(births_2000_2014)
 births_2000_2014
 
 ```
+
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+births_2000_2014 <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_2000-2014_SSA.csv")
+glimpse(births_2000_2014)
+inspect(births_2000_2014)
+skim(births_2000_2014)
+head(births_2000_2014)
+
+```
+
+:::
+
 
 This is just a `tibble` containing a single data variable `births` that
 varies over time. All other variables, although depicting time, are

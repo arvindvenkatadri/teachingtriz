@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2022-11-21">
@@ -21,7 +21,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -77,7 +77,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -86,31 +92,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <meta property="og:title" content="The Foundation Series - Permutation Tests">
 <meta property="og:description" content="A bunch of case studies with Permutation Tests">
-<meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/70-PermTest/files/perm-tutorial_files/figure-html/unnamed-chunk-5-1.png">
-<meta property="og:site-name" content="The Foundation Series">
-<meta property="og:image:height" content="3000">
-<meta property="og:image:width" content="4200">
+<meta property="og:site_name" content="The Foundation Series">
 <meta name="twitter:title" content="The Foundation Series - Permutation Tests">
 <meta name="twitter:description" content="A bunch of case studies with Permutation Tests">
-<meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/70-PermTest/files/perm-tutorial_files/figure-html/unnamed-chunk-5-1.png">
-<meta name="twitter:image-height" content="3000">
-<meta name="twitter:image-width" content="4200">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 </head>
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
@@ -122,55 +148,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../../../../../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../../www.linkedin.com/in/arvindvenkatadri"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com" rel="" target=""><i class="bi bi-envelope" role="img">
+    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com"> <i class="bi bi-envelope" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
+</div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Permutation Tests</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Permutation Tests</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
@@ -300,7 +326,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
@@ -355,16 +381,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 <div>
   <div class="abstract">
-    <div class="abstract-title">Abstract</div>
+    <div class="block-title">Abstract</div>
     A bunch of case studies with Permutation Tests
   </div>
 </div>
+
 
 </header><section id="permutations-tests-using-mosaicshuffle" class="level3"><h3 class="anchored" data-anchor-id="permutations-tests-using-mosaicshuffle">Permutations tests using mosaic::<code>shuffle()</code>
 </h3>
 <p>The <code>mosaic</code> package provides the <code>shuffle()</code> function as a synonym for <code><a href="https://rdrr.io/r/base/sample.html">sample()</a></code>. When used without additional arguments, this will permute its first argument.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-1_0269a7111a43573d5cd10f28d73b250d">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># library(mosaic)</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># library(mosaic)</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">shuffle</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> [1]  8  6  9  7  1  3  4 10  2  5</code></pre>
@@ -381,7 +408,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="case-study-1-hot-wings-orders-vs-gender" class="level3"><h3 class="anchored" data-anchor-id="case-study-1-hot-wings-orders-vs-gender">Case Study-1: Hot Wings Orders vs Gender</h3>
 <p>A student conducted a study of hot wings and beer consumption at a Bar. She asked patrons at the bar to record their consumption of hot wings and beer over the course of several hours. She wanted to know if people who ate more hot wings would then drink more beer. In addition, she investigated whether or not gender had an impact on hot wings or beer consumption.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-3_b6ccaae291255bbb903eade6c1058823">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>Beerwings <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Beerwings.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>Beerwings <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Beerwings.csv"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">inspect</span>(Beerwings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
@@ -400,12 +427,12 @@ quantitative variables:
 </div>
 <p>Let us calculate the observed difference in <code>Hotwings</code> consumption between Males and Females ( <code>Gender</code>)</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-4_cd4484aa98f9332b0b66ea916f54a4ff">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">mean</span>(Hotwings <span class="sc">~</span> Gender, <span class="at">data =</span> Beerwings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">mean</span>(Hotwings <span class="sc">~</span> Gender, <span class="at">data =</span> Beerwings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>        F         M 
  9.333333 14.533333 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>obs_diff_wings <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">diffmean</span>(<span class="at">data =</span> Beerwings, Hotwings <span class="sc">~</span> Gender)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>obs_diff_wings <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">diffmean</span>(<span class="at">data =</span> Beerwings, Hotwings <span class="sc">~</span> Gender)</span>
 <span id="cb7-2"><a href="#cb7-2"></a>obs_diff_wings </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>diffmean 
@@ -413,10 +440,10 @@ quantitative variables:
 </div>
 </div>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-5_75a3716bcb5f46d9d6581a7466f4cafc">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">gf_boxplot</span>(<span class="at">data =</span> Beerwings, Hotwings <span class="sc">~</span> Gender, <span class="at">title =</span> <span class="st">"Hotwings Consumption by Gender"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">gf_boxplot</span>(<span class="at">data =</span> Beerwings, Hotwings <span class="sc">~</span> Gender, <span class="at">title =</span> <span class="st">"Hotwings Consumption by Gender"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-5-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-5-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
@@ -429,25 +456,24 @@ H_a =&gt;Significant\ difference\ between\ the\ means\
 \]</span></p>
 <p>So we perform a Permutation Test to check:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-6_e7421d87f3b1078be01219dca65a7c7a">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>null_dist_wings <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>(Hotwings <span class="sc">~</span> <span class="fu">shuffle</span>(Gender), <span class="at">data =</span> Beerwings)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>null_dist_wings <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>(Hotwings <span class="sc">~</span> <span class="fu">shuffle</span>(Gender), <span class="at">data =</span> Beerwings)</span>
 <span id="cb10-2"><a href="#cb10-2"></a>null_dist_wings <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["diffmean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-1.7333333","_rn_":"1"},{"1":"-4.1333333","_rn_":"2"},{"1":"-0.6666667","_rn_":"3"},{"1":"1.6000000","_rn_":"4"},{"1":"-0.5333333","_rn_":"5"},{"1":"-1.2000000","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_wings, <span class="sc">~</span> diffmean) <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_wings, <span class="sc">~</span> diffmean) <span class="sc">%&gt;%</span> </span>
 <span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_wings, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-6-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> diffmean <span class="sc">&gt;=</span> obs_diff_wings, <span class="at">data =</span> null_dist_wings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> diffmean <span class="sc">&gt;=</span> obs_diff_wings, <span class="at">data =</span> null_dist_wings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>  prop_TRUE 
 0.000999001 </code></pre>
@@ -456,7 +482,7 @@ H_a =&gt;Significant\ difference\ between\ the\ means\
 <p>The <span class="math inline">\(\color{red}{red\ line}\)</span> shows the actual measured mean difference in Hot Wings consumption. The probability that our Permutation distribution is able to equal or exceed that number is <span class="math inline">\(0.001998002\)</span> and we have to reject the Null Hypothesis that the means are identical.</p>
 <p>To test whether eating more hotwings would lead to increased beer consumption, we need a regression model, which we can again test with a permutation test.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-7_18e24d287f333624b87150b31f433eca">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">lm</span>(Beer <span class="sc">~</span> Hotwings, <span class="at">data =</span> Beerwings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">lm</span>(Beer <span class="sc">~</span> Hotwings, <span class="at">data =</span> Beerwings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 Call:
@@ -470,7 +496,7 @@ Coefficients:
 </section><section id="case-study-2-verizon" class="level3"><h3 class="anchored" data-anchor-id="case-study-2-verizon">Case Study-2: Verizon</h3>
 <p>The following example is used throughout this article. Verizon was an Incumbent Local Exchange Carrier (ILEC), responsible for maintaining land-line phone service in certain areas. Verizon also sold long-distance service, as did a number of competitors, termed Competitive Local Exchange Carriers (CLEC). When something went wrong, Verizon was responsible for repairs, and was supposed to make repairs as quickly for CLEC long-distance customers as for their own. The New York Public Utilities Commission (PUC) monitored fairness by comparing repair times for Verizon and different CLECs, for different classes of repairs and time periods. In each case a hypothesis test was performed at the 1% significance level, to determine whether repairs for CLEC’s customers were significantly slower than for Verizon’s customers. There were hundreds of such tests. If substantially more than 1% of the tests were significant, then Verizon would pay large penalties. These tests were performed using t tests; Verizon proposed using permutation tests instead.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-8_86b43660dda09e6289d50c2033cd999f">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>verizon <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Verizon.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>verizon <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Verizon.csv"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2"></a><span class="fu">inspect</span>(verizon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
@@ -486,12 +512,12 @@ quantitative variables:
 </div>
 </div>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-9_a3fda5bdafd0dbef1b01c8c895d6ba26">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">mean</span>(Time <span class="sc">~</span> Group, <span class="at">data =</span> verizon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">mean</span>(Time <span class="sc">~</span> Group, <span class="at">data =</span> verizon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>     CLEC      ILEC 
 16.509130  8.411611 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>obs_diff_verizon <span class="ot">&lt;-</span> <span class="fu">diffmean</span>(Time <span class="sc">~</span> Group, <span class="at">data =</span> verizon)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>obs_diff_verizon <span class="ot">&lt;-</span> <span class="fu">diffmean</span>(Time <span class="sc">~</span> Group, <span class="at">data =</span> verizon)</span>
 <span id="cb20-2"><a href="#cb20-2"></a>obs_diff_verizon</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>diffmean 
@@ -499,16 +525,16 @@ quantitative variables:
 </div>
 </div>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-10_cde152a908037ef1bc418adc0b576c15">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>null_dist_verizon <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>(Time <span class="sc">~</span> <span class="fu">shuffle</span>(Group), <span class="at">data =</span> verizon)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>null_dist_verizon <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>(Time <span class="sc">~</span> <span class="fu">shuffle</span>(Group), <span class="at">data =</span> verizon)</span>
 <span id="cb22-2"><a href="#cb22-2"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_verizon, <span class="sc">~</span> diffmean) <span class="sc">%&gt;%</span> </span>
 <span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_wings, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-10-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> diffmean <span class="sc">&gt;=</span> obs_diff_wings, <span class="at">data =</span> null_dist_verizon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">prop1</span>(<span class="sc">~</span> diffmean <span class="sc">&gt;=</span> obs_diff_wings, <span class="at">data =</span> null_dist_verizon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> prop_TRUE 
 0.00999001 </code></pre>
@@ -517,7 +543,7 @@ quantitative variables:
 </section><section id="case-story-3-recidivism" class="level3"><h3 class="anchored" data-anchor-id="case-story-3-recidivism">Case Story-3: Recidivism</h3>
 <p>Do criminals released after a jail term commit crimes again?</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-11_c245cc4d2692cbfab22ea558fd54daae">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>recidivism <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Recidivism.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>recidivism <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Recidivism.csv"</span>)</span>
 <span id="cb25-2"><a href="#cb25-2"></a><span class="fu">inspect</span>(recidivism)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
@@ -544,12 +570,12 @@ quantitative variables:
 </div>
 <p>There are some missing values in the variable <tt> <code>Age25</code></tt>. The <tt> <code>complete.cases</code></tt> command gives the row numbers where values are not missing. We create a new data frame omitting the rows where there is a missing value in the <tt> ‘Age25’ </tt> variable.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-12_a6ac7cb8bb278754eaae71c438b9d5aa">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>recidivism_na <span class="ot">&lt;-</span> recidivism <span class="sc">%&gt;%</span> tidyr<span class="sc">::</span><span class="fu">drop_na</span>(Age25)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>recidivism_na <span class="ot">&lt;-</span> recidivism <span class="sc">%&gt;%</span> tidyr<span class="sc">::</span><span class="fu">drop_na</span>(Age25)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Also, the variable <tt><code>Recid</code></tt> is a factor variable coded “Yes” or “No”. We convert it to a numeric variable of 1’s and 0’s.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-13_8a7b43d41761cdfd3b1dc20fd0741d64">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>recidivism_na <span class="ot">&lt;-</span> recidivism_na <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Recid2 =</span> <span class="fu">ifelse</span>(Recid<span class="sc">==</span><span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>recidivism_na <span class="ot">&lt;-</span> recidivism_na <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Recid2 =</span> <span class="fu">ifelse</span>(Recid<span class="sc">==</span><span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
 <span id="cb28-2"><a href="#cb28-2"></a></span>
 <span id="cb28-3"><a href="#cb28-3"></a>obs_diff_recid <span class="ot">&lt;-</span> <span class="fu">diffmean</span>( Recid2 <span class="sc">~</span> Age25, <span class="at">data =</span> recidivism_na)</span>
 <span id="cb28-4"><a href="#cb28-4"></a>obs_diff_recid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -557,30 +583,29 @@ quantitative variables:
 <pre data-code-line-numbers=""><code>  diffmean 
 0.05919913 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>null_dist_recid <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>( Recid2 <span class="sc">~</span> <span class="fu">shuffle</span>(Age25), <span class="at">data =</span> recidivism_na)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>null_dist_recid <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">1000</span>) <span class="sc">*</span> <span class="fu">diffmean</span>( Recid2 <span class="sc">~</span> <span class="fu">shuffle</span>(Age25), <span class="at">data =</span> recidivism_na)</span>
 <span id="cb30-2"><a href="#cb30-2"></a></span>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> diffmean, <span class="at">data =</span> null_dist_recid) <span class="sc">%&gt;%</span> </span>
 <span id="cb30-4"><a href="#cb30-4"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_recid, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-13-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-13-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 </section><section id="case-study-4-matched-pairs-results-from-a-diving-championship." class="level3"><h3 class="anchored" data-anchor-id="case-study-4-matched-pairs-results-from-a-diving-championship.">Case Study-4: Matched Pairs: Results from a diving championship.</h3>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-14_af825ac9fda34443b16150ef8dc61ffc">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>Diving2017 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Diving2017.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>Diving2017 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Diving2017.csv"</span>)</span>
 <span id="cb31-2"><a href="#cb31-2"></a><span class="fu">head</span>(Diving2017)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Country"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Semifinal"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Final"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"CHEONG Jun Hoong","2":"Malaysia","3":"325.50","4":"397.50","_rn_":"1"},{"1":"SI Yajie","2":"China","3":"382.80","4":"396.00","_rn_":"2"},{"1":"REN Qian","2":"China","3":"367.50","4":"391.95","_rn_":"3"},{"1":"KIM Mi Rae","2":"North Korea","3":"346.00","4":"385.55","_rn_":"4"},{"1":"WU Melissa","2":"Australia","3":"318.70","4":"370.20","_rn_":"5"},{"1":"KIM Kuk Hyang","2":"North Korea","3":"360.85","4":"360.00","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">inspect</span>(Diving2017)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">inspect</span>(Diving2017)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 categorical variables:  
@@ -602,51 +627,49 @@ quantitative variables:
 </div>
 <p>The data is made up of <strong>paired</strong> observations per swimmer. So we need to take the difference between the two swim records for <em>each</em> swimmer and then shuffle the differences to either polarity. Another way to look at this is to shuffle the records between <code>Semifinal</code> and <code>Final</code> on a per Swimmer basis.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-15_51797eeee3b6b5e950734f0d92da23f9">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>Diving2017</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>Diving2017</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Country"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Semifinal"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Final"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"CHEONG Jun Hoong","2":"Malaysia","3":"325.50","4":"397.50"},{"1":"SI Yajie","2":"China","3":"382.80","4":"396.00"},{"1":"REN Qian","2":"China","3":"367.50","4":"391.95"},{"1":"KIM Mi Rae","2":"North Korea","3":"346.00","4":"385.55"},{"1":"WU Melissa","2":"Australia","3":"318.70","4":"370.20"},{"1":"KIM Kuk Hyang","2":"North Korea","3":"360.85","4":"360.00"},{"1":"ITAHASHI Minami","2":"Japan","3":"313.70","4":"357.85"},{"1":"BENFEITO Meaghan","2":"Canada","3":"355.15","4":"331.40"},{"1":"PAMG Pandelela","2":"Malaysia","3":"322.75","4":"322.40"},{"1":"CHAMANDY Olivia","2":"Canada","3":"320.55","4":"307.15"},{"1":"PARRATTO Jessica","2":"USA","3":"322.75","4":"302.35"},{"1":"MURILLO URREA Carolina","2":"Colombia","3":"325.75","4":"283.35"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>Diving2017 <span class="sc">%&gt;%</span> <span class="fu">diffmean</span>(<span class="at">data =</span> ., Final <span class="sc">~</span> Semifinal, <span class="at">only.2 =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>Diving2017 <span class="sc">%&gt;%</span> <span class="fu">diffmean</span>(<span class="at">data =</span> ., Final <span class="sc">~</span> Semifinal, <span class="at">only.2 =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>  318.7-313.7  320.55-318.7 322.75-320.55  325.5-322.75  325.75-325.5 
        12.350       -63.050         5.225        85.125      -114.150 
    346-325.75    355.15-346 360.85-355.15  367.5-360.85   382.8-367.5 
       102.200       -54.150        28.600        31.950         4.050 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>obs_diff_swim <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="sc">~</span> Final <span class="sc">-</span> Semifinal, <span class="at">data =</span> Diving2017)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>obs_diff_swim <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="sc">~</span> Final <span class="sc">-</span> Semifinal, <span class="at">data =</span> Diving2017)</span>
 <span id="cb37-2"><a href="#cb37-2"></a>obs_diff_swim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 11.975</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-16_fe9bce0f229086c378cc814666dc8144">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>polarity <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">6</span>))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>polarity <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">6</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">6</span>))</span>
 <span id="cb39-2"><a href="#cb39-2"></a>polarity</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> [1]  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>null_dist_swim <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">100000</span>) <span class="sc">*</span> <span class="fu">mean</span>(<span class="at">data =</span> Diving2017, </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>null_dist_swim <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">100000</span>) <span class="sc">*</span> <span class="fu">mean</span>(<span class="at">data =</span> Diving2017, </span>
 <span id="cb41-2"><a href="#cb41-2"></a>                                    <span class="sc">~</span>(Final <span class="sc">-</span> Semifinal) <span class="sc">*</span> <span class="fu">resample</span>(polarity,</span>
 <span id="cb41-3"><a href="#cb41-3"></a>                                                    <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
 <span id="cb41-4"><a href="#cb41-4"></a>null_dist_swim <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.566667","_rn_":"1"},{"1":"0.500000","_rn_":"2"},{"1":"-12.750000","_rn_":"3"},{"1":"-10.133333","_rn_":"4"},{"1":"-0.400000","_rn_":"5"},{"1":"-19.216667","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb42" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_swim, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb42" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_swim, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
 <span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_swim, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-16-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-16-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
@@ -654,7 +677,7 @@ quantitative variables:
 </section><section id="case-study-5-flight-delays" class="level3"><h3 class="anchored" data-anchor-id="case-study-5-flight-delays">Case Study #5: Flight Delays</h3>
 <p>LaGuardia Airport (LGA) is one of three major airports that serves the New York City metropolitan area. In 2008, over 23 million passengers and over 375 000 planes flew in or out of LGA. United Airlines and America Airlines are two major airlines that schedule services at LGA. The data set <code>FlightDelays</code> contains information on all 4029 departures of these two airlines from LGA during May and June 2009.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-17_ea2f573e99fe761badb24463740c3594">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb43" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>flightDelays <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/FlightDelays.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb43" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>flightDelays <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/FlightDelays.csv"</span>)</span>
 <span id="cb43-2"><a href="#cb43-2"></a></span>
 <span id="cb43-3"><a href="#cb43-3"></a><span class="fu">inspect</span>(flightDelays)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
@@ -742,12 +765,12 @@ quantitative variables:
 <li>Let us compute the proportion of times that each carrier’s flights was delayed more than 20 min. We will conduct a two-sided test to see if the difference in these proportions is statistically significant.</li>
 </ol>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/flightDelays-a_e382751f5d60116f01dd38bec5780cfe">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb45" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">prop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb45" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">prop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>prop_TRUE.AA prop_TRUE.UA 
    0.1713696    0.2226180 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb47" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>obs_diff_delay <span class="ot">&lt;-</span> <span class="fu">diffprop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb47" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>obs_diff_delay <span class="ot">&lt;-</span> <span class="fu">diffprop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span>
 <span id="cb47-2"><a href="#cb47-2"></a>obs_diff_delay</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>  diffprop 
@@ -756,27 +779,26 @@ quantitative variables:
 </div>
 <p>We see carrier AA has a 17.13% chance of delays&gt;= 20, while UA has 22.26% chance. The difference is 5.12%. Is this statistically significant? We take the Delays for both Carriers and perform a permutation test by <code>shuffle</code> on the <code>carrier</code> variable:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-18_db392dcd967c605d7c704504f46794c5">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb49" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>null_dist_delay <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diffprop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> <span class="fu">shuffle</span>(Carrier))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb49" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>null_dist_delay <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diffprop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> <span class="fu">shuffle</span>(Carrier))</span>
 <span id="cb49-2"><a href="#cb49-2"></a>null_dist_delay <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["diffprop"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.001838858","_rn_":"1"},{"1":"0.025322068","_rn_":"2"},{"1":"0.010507017","_rn_":"3"},{"1":"0.003099492","_rn_":"4"},{"1":"-0.001838858","_rn_":"5"},{"1":"0.005568667","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb50" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_delay, <span class="sc">~</span> diffprop) <span class="sc">%&gt;%</span> <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_delay, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb50" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_delay, <span class="sc">~</span> diffprop) <span class="sc">%&gt;%</span> <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_delay, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-18-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>It appears that the difference indelay times is significant. We can compute the <code>p-value</code> based on this test:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-19_3049f33fabf9b2fdac790174e433237e">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb51" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="dv">2</span><span class="sc">*</span> <span class="fu">mean</span>(null_dist_delay <span class="sc">&gt;=</span> obs_diff_delay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb51" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="dv">2</span><span class="sc">*</span> <span class="fu">mean</span>(null_dist_delay <span class="sc">&gt;=</span> obs_diff_delay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 2e-04</code></pre>
 </div>
@@ -786,12 +808,12 @@ quantitative variables:
 <li>Compute the variance in the flight delay lengths for each carrier. Conduct a test to see if the variance for United Airlines differs from that of American Airlines.</li>
 </ol>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-20_bdda010f80187cff625841387b25b998">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> Carrier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> Carrier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>      AA       UA 
 1606.457 2037.525 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb55" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="co"># There is no readymade function in mosaic called `diffvar`...so...we construct one</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb55" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="co"># There is no readymade function in mosaic called `diffvar`...so...we construct one</span></span>
 <span id="cb55-2"><a href="#cb55-2"></a>obs_diff_var <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> Carrier))</span>
 <span id="cb55-3"><a href="#cb55-3"></a>obs_diff_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
@@ -801,27 +823,26 @@ quantitative variables:
 </div>
 <p>The difference in variances in <code>Delay</code> between the two <code>carrier</code>s is <span class="math inline">\(-431.0677\)</span>. In our Permutation Test, we <code>shuffle</code> the <code>Carrier</code> variable:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-21_6461f294fe2b1a59d3d8aedb27b927ff">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb57" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>obs_diff_var <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> Carrier))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb57" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>obs_diff_var <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> Carrier))</span>
 <span id="cb57-2"><a href="#cb57-2"></a>null_dist_var <span class="ot">&lt;-</span></span>
 <span id="cb57-3"><a href="#cb57-3"></a>  <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">diff</span>(<span class="fu">var</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">~</span> <span class="fu">shuffle</span>(Carrier)))</span>
 <span id="cb57-4"><a href="#cb57-4"></a>null_dist_var <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["UA"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-211.9825","_rn_":"1"},{"1":"382.9703","_rn_":"2"},{"1":"195.1984","_rn_":"3"},{"1":"364.0235","_rn_":"4"},{"1":"-415.2722","_rn_":"5"},{"1":"-276.1944","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb58" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="co"># The null distribution variable is called `UA`</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb58" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="co"># The null distribution variable is called `UA`</span></span>
 <span id="cb58-2"><a href="#cb58-2"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_var, <span class="sc">~</span> UA) <span class="sc">%&gt;%</span> <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_delay, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-21-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-21-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb59" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(null_dist_var <span class="sc">&gt;=</span> obs_diff_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb59" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(null_dist_var <span class="sc">&gt;=</span> obs_diff_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 0.2896</code></pre>
 </div>
@@ -837,17 +858,16 @@ quantitative variables:
 <li>Redo the hypothesis test without this observation. Do you reach the same conclusion?</li>
 </ol>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-22_f6792b005229999ca5f35c06a7f394bd">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb61" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>groceries <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Groceries.csv"</span>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Product =</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>(Product))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb61" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>groceries <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/Groceries.csv"</span>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Product =</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>(Product))</span>
 <span id="cb61-2"><a href="#cb61-2"></a><span class="fu">head</span>(groceries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Product"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Size"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Target"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Walmart"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Kellogg NutriGrain Bars","2":"8 bars","3":"2.50","4":"2.78","_rn_":"1"},{"1":"Quaker Oats Life Cereal Original","2":"18oz","3":"3.19","4":"6.01","_rn_":"2"},{"1":"General Mills Lucky Charms","2":"11.50z","3":"3.19","4":"2.98","_rn_":"3"},{"1":"Quaker Oats Old Fashioned","2":"18oz","3":"2.82","4":"2.68","_rn_":"4"},{"1":"Nabisco Oreo Cookies","2":"14.3oz","3":"2.99","4":"2.98","_rn_":"5"},{"1":"Nabisco Chips Ahoy","2":"13oz","3":"2.64","4":"1.98","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb62" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="fu">inspect</span>(groceries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb62" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="fu">inspect</span>(groceries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 categorical variables:  
@@ -866,7 +886,7 @@ quantitative variables:
 </div>
 <p>We see that the comparison is to be made between two prices for the <em>same</em> product, and hence this is one more example of <code>paired data</code>, as in Case Study #4. Let us plot the prices for the products:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-23_157a40a73a91786012f3477bb1fe47b9">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb64" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="fu">gf_col</span>(<span class="at">data =</span> groceries,</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb64" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="fu">gf_col</span>(<span class="at">data =</span> groceries,</span>
 <span id="cb64-2"><a href="#cb64-2"></a>       Target <span class="sc">~</span> Product,</span>
 <span id="cb64-3"><a href="#cb64-3"></a>       <span class="at">fill =</span> <span class="st">"#0073C299"</span>,</span>
 <span id="cb64-4"><a href="#cb64-4"></a>       <span class="at">width =</span> <span class="fl">0.5</span> ) <span class="sc">%&gt;%</span> </span>
@@ -889,14 +909,14 @@ quantitative variables:
 <span id="cb64-21"><a href="#cb64-21"></a>  ))) <span class="sc">%&gt;%</span> <span class="fu">gf_theme</span>(ggplot2<span class="sc">::</span><span class="fu">coord_flip</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-23-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-23-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We see that the price difference between Walmart and Target prices is highest for the <code>Product</code> named <code>Quaker Oats Life Cereal Original</code>. Let us check the mean difference in prices:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-24_076dbaff1be5e040016f4f50b670913e">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb65" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="fu">diffmean</span>(<span class="at">data =</span> groceries, Walmart <span class="sc">~</span> Target, <span class="at">only.2 =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb65" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="fu">diffmean</span>(<span class="at">data =</span> groceries, Walmart <span class="sc">~</span> Target, <span class="at">only.2 =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>   1-0.99    1.22-1 1.42-1.22 1.49-1.42 1.59-1.49 1.62-1.59 1.79-1.62 1.94-1.79 
 -0.580000  0.170000  0.210000 -0.100000  0.190000  0.070000  0.180000  0.160000 
@@ -905,7 +925,7 @@ quantitative variables:
 2.99-2.82 3.19-2.99 3.49-3.19 3.99-3.49 4.79-3.99 7.19-4.79 7.99-7.19 
  0.220000  1.263333 -1.183333 -0.480000  2.290000  2.190000  0.000000 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb67" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>obs_diff_price <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> Walmart <span class="sc">-</span> Target, <span class="at">data =</span> groceries)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb67" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>obs_diff_price <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> Walmart <span class="sc">-</span> Target, <span class="at">data =</span> groceries)</span>
 <span id="cb67-2"><a href="#cb67-2"></a>obs_diff_price</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] -0.05666667</code></pre>
@@ -913,33 +933,32 @@ quantitative variables:
 </div>
 <p>Let us perform the pair-wise permutation test on prices, by shuffling the two store names:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-25_ce25ce3877642c4b1b91cf4037bd2918">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb69" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>polarity <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">15</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">15</span>))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb69" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>polarity <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">15</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">15</span>))</span>
 <span id="cb69-2"><a href="#cb69-2"></a>polarity</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> [1]  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [26] -1 -1 -1 -1 -1</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb71" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>null_dist_price <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">100000</span>) <span class="sc">*</span> <span class="fu">mean</span>(<span class="at">data =</span> groceries, </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb71" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>null_dist_price <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">100000</span>) <span class="sc">*</span> <span class="fu">mean</span>(<span class="at">data =</span> groceries, </span>
 <span id="cb71-2"><a href="#cb71-2"></a>                                    <span class="sc">~</span>(Walmart<span class="sc">-</span>Target) <span class="sc">*</span> <span class="fu">resample</span>(polarity,</span>
 <span id="cb71-3"><a href="#cb71-3"></a>                                                    <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
 <span id="cb71-4"><a href="#cb71-4"></a>null_dist_price <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.12333333","_rn_":"1"},{"1":"0.08800000","_rn_":"2"},{"1":"0.01533333","_rn_":"3"},{"1":"0.17466667","_rn_":"4"},{"1":"0.10066667","_rn_":"5"},{"1":"0.18333333","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb72" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_price, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb72" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_price, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
 <span id="cb72-2"><a href="#cb72-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_price, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-25-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-25-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb73" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="dv">2</span><span class="sc">*</span>(<span class="fu">sum</span>(null_dist_price <span class="sc">&gt;=</span> obs_diff_price <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">/</span>(<span class="dv">100000</span><span class="sc">+</span><span class="dv">1</span>)) <span class="co">#P-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb73" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="dv">2</span><span class="sc">*</span>(<span class="fu">sum</span>(null_dist_price <span class="sc">&gt;=</span> obs_diff_price <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">/</span>(<span class="dv">100000</span><span class="sc">+</span><span class="dv">1</span>)) <span class="co">#P-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 0</code></pre>
 </div>
@@ -947,47 +966,45 @@ quantitative variables:
 <p>Does not seem to be aby significant difference in prices…</p>
 <p>Suppose we knock off the Quaker Cereal data item…</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-26_7e26bd84f672ca0c62d037184d0fa4cb">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb75" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="fu">which</span>(groceries<span class="sc">$</span>Product <span class="sc">==</span> <span class="st">"Quaker Oats Life Cereal Original"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb75" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="fu">which</span>(groceries<span class="sc">$</span>Product <span class="sc">==</span> <span class="st">"Quaker Oats Life Cereal Original"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 2</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb77" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>groceries_less <span class="ot">&lt;-</span> groceries[<span class="sc">-</span><span class="dv">2</span>,]</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb77" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>groceries_less <span class="ot">&lt;-</span> groceries[<span class="sc">-</span><span class="dv">2</span>,]</span>
 <span id="cb77-2"><a href="#cb77-2"></a>groceries_less</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Product"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Size"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Target"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Walmart"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Kellogg NutriGrain Bars","2":"8 bars","3":"2.50","4":"2.78","_rn_":"1"},{"1":"General Mills Lucky Charms","2":"11.50z","3":"3.19","4":"2.98","_rn_":"3"},{"1":"Quaker Oats Old Fashioned","2":"18oz","3":"2.82","4":"2.68","_rn_":"4"},{"1":"Nabisco Oreo Cookies","2":"14.3oz","3":"2.99","4":"2.98","_rn_":"5"},{"1":"Nabisco Chips Ahoy","2":"13oz","3":"2.64","4":"1.98","_rn_":"6"},{"1":"Doritos Nacho Cheese Chips","2":"10oz","3":"3.99","4":"2.50","_rn_":"7"},{"1":"Cheez-it Original Baked","2":"21oz","3":"4.79","4":"4.79","_rn_":"8"},{"1":"Swiss Miss Hot Chocolate","2":"10 count","3":"1.49","4":"1.28","_rn_":"9"},{"1":"Tazo Chai Classic Latte Black Tea","2":"32 oz","3":"3.49","4":"2.98","_rn_":"10"},{"1":"Annie's Macaroni & Cheese","2":"6oz","3":"1.79","4":"1.72","_rn_":"11"},{"1":"Rice A Roni Chicken","2":"6.9oz","3":"1.00","4":"1.00","_rn_":"12"},{"1":"Zatarain's Jambalaya Rice Mix","2":"8oz","3":"1.62","4":"1.54","_rn_":"13"},{"1":"SPAM Original Lunch Meat","2":"12oz","3":"2.79","4":"2.64","_rn_":"14"},{"1":"Campbell's Chicken Noodle Soup","2":"10.75oz","3":"0.99","4":"1.58","_rn_":"15"},{"1":"Dinty Moore Hearty Meals Beef Stew","2":"15oz","3":"1.99","4":"1.98","_rn_":"16"},{"1":"Hormel Chili with Beans","2":"15oz","3":"1.94","4":"1.88","_rn_":"17"},{"1":"Dole Pineapple Chunks","2":"20 oz","3":"1.59","4":"1.47","_rn_":"18"},{"1":"Skippy Creamy Peanut Butter","2":"16.3oz","3":"2.59","4":"2.58","_rn_":"19"},{"1":"Smucker's Strawberry Preserve","2":"18oz","3":"2.99","4":"2.84","_rn_":"20"},{"1":"Heinz Tomato Ketchup","2":"32oz","3":"2.99","4":"2.88","_rn_":"21"},{"1":"Near East Couscous Toasted Pine Nuts mix","2":"5.6oz","3":"2.12","4":"1.98","_rn_":"22"},{"1":"Barilla Angel Hair Pasta","2":"16oz","3":"1.42","4":"1.38","_rn_":"23"},{"1":"Betty Crocker Super Moist Chocolate Fudge Cake Mix","2":"15.25oz","3":"1.22","4":"1.17","_rn_":"24"},{"1":"Kraft Jet-Puffed Marshmllows","2":"16oz","3":"1.99","4":"1.96","_rn_":"25"},{"1":"Dunkin' Donuts Original Blend Medium Roast Ground Coffee","2":"12oz","3":"7.19","4":"6.98","_rn_":"26"},{"1":"Dove Promises Milk Chocolate","2":"8.87oz","3":"3.19","4":"3.50","_rn_":"27"},{"1":"Skittles","2":"41oz","3":"7.99","4":"6.98","_rn_":"28"},{"1":"Vlasic Kosher Dill Pickle Spears","2":"24oz","3":"2.39","4":"2.18","_rn_":"29"},{"1":"Vlasic Old Fashioned Sauerkraut","2":"32oz","3":"1.99","4":"1.97","_rn_":"30"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb78" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>obs_diff_price_less <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> Walmart <span class="sc">-</span> Target, <span class="at">data =</span> groceries_less)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb78" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>obs_diff_price_less <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> Walmart <span class="sc">-</span> Target, <span class="at">data =</span> groceries_less)</span>
 <span id="cb78-2"><a href="#cb78-2"></a>obs_diff_price_less</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] -0.1558621</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb80" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a>polarity_less <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">15</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">14</span>)) <span class="co"># Due to resampling this small bias makes no difference</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb80" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a>polarity_less <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">15</span>), <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">14</span>)) <span class="co"># Due to resampling this small bias makes no difference</span></span>
 <span id="cb80-2"><a href="#cb80-2"></a>null_dist_price_less <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">100000</span>) <span class="sc">*</span> <span class="fu">mean</span>(<span class="at">data =</span> groceries_less, </span>
 <span id="cb80-3"><a href="#cb80-3"></a>                                    <span class="sc">~</span>(Walmart<span class="sc">-</span>Target) <span class="sc">*</span> <span class="fu">resample</span>(polarity_less,</span>
 <span id="cb80-4"><a href="#cb80-4"></a>                                                    <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
 <span id="cb80-5"><a href="#cb80-5"></a>null_dist_price_less <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.006896552","_rn_":"1"},{"1":"0.035172414","_rn_":"2"},{"1":"0.025517241","_rn_":"3"},{"1":"-0.076551724","_rn_":"4"},{"1":"-0.040000000","_rn_":"5"},{"1":"-0.063448276","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb81" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_price_less, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb81" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="fu">gf_histogram</span>(<span class="at">data =</span> null_dist_price_less, <span class="sc">~</span>mean) <span class="sc">%&gt;%</span> </span>
 <span id="cb81-2"><a href="#cb81-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_price_less, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-26-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-26-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb82" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a><span class="dv">1</span><span class="sc">-</span> <span class="fu">mean</span>(null_dist_price_less <span class="sc">&gt;=</span> obs_diff_price_less) <span class="co">#P-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb82" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a><span class="dv">1</span><span class="sc">-</span> <span class="fu">mean</span>(null_dist_price_less <span class="sc">&gt;=</span> obs_diff_price_less) <span class="co">#P-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 0.01545</code></pre>
 </div>
@@ -996,7 +1013,7 @@ quantitative variables:
 <p>Let us try a dataset with Qualitative / Categorical data. This is a General Social Survey dataset, and we have people with different levels of <code>Education</code> stating their opinion on the <code>Death Penalty</code>. We want to know if these two Categorical variables have a correlation, i.e.&nbsp;can the opinions in favour of the Death Penalty be explained by the Education level?</p>
 <p>Since data is Categorical, we need to take <code>counts</code> in a table, and then implement a <code>chi-square test</code>. In the test, we will permute the <code>Education</code> variable to see if we can see how significant its <em>effect size</em> is.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-27_796d16fa68862d1214a34bf7a2c33a75">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb84" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1"></a>GSS2002 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/GSS2002.csv"</span>)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb84" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1"></a>GSS2002 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../../../../../../materials/data/resampling/GSS2002.csv"</span>)</span>
 <span id="cb84-2"><a href="#cb84-2"></a><span class="fu">inspect</span>(GSS2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
@@ -1051,18 +1068,16 @@ quantitative variables:
 </div>
 <p>Note how <em>all</em> variables are Categorical !! <code>Education</code> has five <code>levels</code>:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-28_2903c7ab03db2227ebb43501fe95a75d">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb86" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Education)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb86" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Education)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Education"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Bachelors","2":"443"},{"1":"Graduate","2":"230"},{"1":"HS","2":"1485"},{"1":"Jr Col","2":"202"},{"1":"Left HS","2":"400"},{"1":"NA","2":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb87" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(DeathPenalty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb87" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>GSS2002 <span class="sc">%&gt;%</span> <span class="fu">count</span>(DeathPenalty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["DeathPenalty"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Favor","2":"899"},{"1":"Oppose","2":"409"},{"1":"NA","2":"1457"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1072,14 +1087,14 @@ quantitative variables:
 </div>
 <p>Let us drop NA entries in Education and Death Penalty. And set up a table for the chi-square test.</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-29_d0c1933fe8ed099821fd1ea783d571a1">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb88" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb88" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
 <span id="cb88-2"><a href="#cb88-2"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span> </span>
 <span id="cb88-3"><a href="#cb88-3"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>(., <span class="fu">c</span>(Education, DeathPenalty))</span>
 <span id="cb88-4"><a href="#cb88-4"></a><span class="fu">dim</span>(gss2002)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 1307    2</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb90" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb90" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
 <span id="cb90-2"><a href="#cb90-2"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb90-3"><a href="#cb90-3"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(</span>
 <span id="cb90-4"><a href="#cb90-4"></a>      Education,</span>
@@ -1099,14 +1114,13 @@ quantitative variables:
 <span id="cb90-18"><a href="#cb90-18"></a></span>
 <span id="cb90-19"><a href="#cb90-19"></a>gss_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Education"],"name":[1],"type":["fct"],"align":["left"]},{"label":["DeathPenalty"],"name":[2],"type":["fct"],"align":["left"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]},{"label":["edu_count"],"name":[4],"type":["int"],"align":["right"]},{"label":["edu_prop"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"Bachelors","2":"Favor","3":"135","4":"206","5":"0.6553398"},{"1":"Bachelors","2":"Oppose","3":"71","4":"206","5":"0.3446602"},{"1":"Graduate","2":"Favor","3":"64","4":"114","5":"0.5614035"},{"1":"Graduate","2":"Oppose","3":"50","4":"114","5":"0.4385965"},{"1":"Jr Col","2":"Favor","3":"71","4":"87","5":"0.8160920"},{"1":"Jr Col","2":"Oppose","3":"16","4":"87","5":"0.1839080"},{"1":"HS","2":"Favor","3":"511","4":"711","5":"0.7187060"},{"1":"HS","2":"Oppose","3":"200","4":"711","5":"0.2812940"},{"1":"Left HS","2":"Favor","3":"117","4":"189","5":"0.6190476"},{"1":"Left HS","2":"Oppose","3":"72","4":"189","5":"0.3809524"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb91" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a><span class="co"># We can plot a heatmap-like `mosaic chart` for this table, using `ggplot`:</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb91" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a><span class="co"># We can plot a heatmap-like `mosaic chart` for this table, using `ggplot`:</span></span>
 <span id="cb91-2"><a href="#cb91-2"></a><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
 <span id="cb91-3"><a href="#cb91-3"></a></span>
 <span id="cb91-4"><a href="#cb91-4"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss_summary, <span class="fu">aes</span>( <span class="at">x =</span> Education, <span class="at">y =</span> edu_prop)) <span class="sc">+</span></span>
@@ -1121,14 +1135,14 @@ quantitative variables:
 <span id="cb91-13"><a href="#cb91-13"></a>  <span class="fu">theme_void</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-29-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-29-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Let us now perform the base <code>chisq test</code>: We need a <code>table</code> and then the <code>chisq</code> test:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-30_e0d40772cf0b2de6cdeea459070bb6f7">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb92" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>gss_table <span class="ot">&lt;-</span> <span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002)</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb92" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>gss_table <span class="ot">&lt;-</span> <span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002)</span>
 <span id="cb92-2"><a href="#cb92-2"></a>gss_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>            Education
@@ -1136,14 +1150,14 @@ DeathPenalty Bachelors Graduate  HS Jr Col Left HS
       Favor        135       64 511     71     117
       Oppose        71       50 200     16      72</code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb94" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a><span class="co"># Get the observed chi-square statistic</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb94" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a><span class="co"># Get the observed chi-square statistic</span></span>
 <span id="cb94-2"><a href="#cb94-2"></a>observedChi2 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">chisq</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span>
 <span id="cb94-3"><a href="#cb94-3"></a>observedChi2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>X.squared 
  23.45093 </code></pre>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb96" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a><span class="co"># Actual chi-square test</span></span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb96" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a><span class="co"># Actual chi-square test</span></span>
 <span id="cb96-2"><a href="#cb96-2"></a>stats<span class="sc">::</span><span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> Education, <span class="at">data =</span> gss2002))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
@@ -1155,29 +1169,28 @@ X-squared = 23.451, df = 4, p-value = 0.0001029</code></pre>
 </div>
 <p>We should now repeat the test with permutations on <code>Education</code>:</p>
 <div class="cell" data-layout-align="center" data-hash="perm-tutorial_cache/html/unnamed-chunk-31_71d22f281a4892e7512872105463bf10">
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb98" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a>null_chisq <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> <span class="fu">shuffle</span>(Education), <span class="at">data =</span> gss2002))</span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb98" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a>null_chisq <span class="ot">&lt;-</span> <span class="fu">do</span>(<span class="dv">10000</span>) <span class="sc">*</span> <span class="fu">chisq.test</span>(<span class="fu">tally</span>(DeathPenalty <span class="sc">~</span> <span class="fu">shuffle</span>(Education), <span class="at">data =</span> gss2002))</span>
 <span id="cb98-2"><a href="#cb98-2"></a></span>
 <span id="cb98-3"><a href="#cb98-3"></a><span class="fu">head</span>(null_chisq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["X.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]},{"label":["alternative"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["data"],"name":[6],"type":["chr"],"align":["left"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.6742538","2":"4","3":"0.7953890","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"1","_rn_":"X-squared...1"},{"1":"2.9586382","2":"4","3":"0.5647709","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"2","_rn_":"X-squared...2"},{"1":"1.9006035","2":"4","3":"0.7540341","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"3","_rn_":"X-squared...3"},{"1":"1.1736448","2":"4","3":"0.8824185","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"4","_rn_":"X-squared...4"},{"1":"0.2951945","2":"4","3":"0.9901223","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"5","_rn_":"X-squared...5"},{"1":"2.7512555","2":"4","3":"0.6002758","4":"Pearson's Chi-squared test","5":"NA","6":"tally(DeathPenalty ~ shuffle(Education), data = gss2002)","7":"1","8":"6","_rn_":"X-squared...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb99" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> X.squared, <span class="at">data =</span> null_chisq) <span class="sc">%&gt;%</span> </span>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb99" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> X.squared, <span class="at">data =</span> null_chisq) <span class="sc">%&gt;%</span> </span>
 <span id="cb99-2"><a href="#cb99-2"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> observedChi2, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-31-1.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-31-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
-<details><summary>Code</summary><div class="sourceCode cell-code" id="cb100" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> p.value, <span class="at">data =</span> null_chisq, <span class="at">binwidth =</span> <span class="fl">0.1</span>, <span class="at">center =</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode cell-code" id="cb100" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a><span class="fu">gf_histogram</span>( <span class="sc">~</span> p.value, <span class="at">data =</span> null_chisq, <span class="at">binwidth =</span> <span class="fl">0.1</span>, <span class="at">center =</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-31-2.png" style="width:50.0%;height:50.0%" class="figure-img"></p>
+<figure class="figure"><p><img src="perm-tutorial_files/figure-html/unnamed-chunk-31-2.png" class="quarto-figure quarto-figure-center figure-img" style="width:50.0%;height:50.0%"></p>
 </figure>
 </div>
 </div>
@@ -1317,10 +1330,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
-  function tippyHover(el, contentFn) {
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1330,8 +1362,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1344,6 +1385,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1387,6 +1547,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1412,6 +1573,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1469,22 +1656,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       });
     }
   }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-          // target, if specified
-          link.setAttribute("target", "_blank");
-          // default icon
-          link.classList.add("external");
-      }
-    }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb101" data-shortcodes="false" data-code-line-numbers=""><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb101-1"><a href="#cb101-1"></a><span class="co">---</span></span>
@@ -1505,12 +1676,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb101-16"><a href="#cb101-16"></a></span>
 <span id="cb101-17"><a href="#cb101-17"></a><span class="in">```{r setup, include=FALSE}</span></span>
 <span id="cb101-18"><a href="#cb101-18"></a></span>
-<span id="cb101-19"><a href="#cb101-19"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">out.width=</span><span class="st">"50%"</span>, <span class="at">out.height =</span> <span class="st">"50%"</span>, <span class="at">fig.align =</span> <span class="st">"center"</span>)</span>
-<span id="cb101-20"><a href="#cb101-20"></a><span class="fu">library</span>(ggformula)</span>
-<span id="cb101-21"><a href="#cb101-21"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb101-22"><a href="#cb101-22"></a><span class="fu">library</span>(mosaic)</span>
-<span id="cb101-23"><a href="#cb101-23"></a><span class="fu">library</span>(resampledata3)</span>
-<span id="cb101-24"><a href="#cb101-24"></a><span class="fu">library</span>(openintro)</span>
+<span id="cb101-19"><a href="#cb101-19"></a><span class="in">knitr::opts_chunk$set(echo = TRUE, out.width="50%", out.height = "50%", fig.align = "center")</span></span>
+<span id="cb101-20"><a href="#cb101-20"></a><span class="in">library(ggformula)</span></span>
+<span id="cb101-21"><a href="#cb101-21"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb101-22"><a href="#cb101-22"></a><span class="in">library(mosaic)</span></span>
+<span id="cb101-23"><a href="#cb101-23"></a><span class="in">library(resampledata3)</span></span>
+<span id="cb101-24"><a href="#cb101-24"></a><span class="in">library(openintro)</span></span>
 <span id="cb101-25"><a href="#cb101-25"></a><span class="in">```</span></span>
 <span id="cb101-26"><a href="#cb101-26"></a></span>
 <span id="cb101-27"><a href="#cb101-27"></a><span class="fu">### Permutations tests using mosaic::`shuffle()`</span></span>
@@ -1520,8 +1691,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb101-31"><a href="#cb101-31"></a>its first argument.</span>
 <span id="cb101-32"><a href="#cb101-32"></a></span>
 <span id="cb101-33"><a href="#cb101-33"></a><span class="in">```{r, echo=TRUE}</span></span>
-<span id="cb101-34"><a href="#cb101-34"></a><span class="co"># library(mosaic)</span></span>
-<span id="cb101-35"><a href="#cb101-35"></a><span class="fu">shuffle</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
+<span id="cb101-34"><a href="#cb101-34"></a><span class="in"># library(mosaic)</span></span>
+<span id="cb101-35"><a href="#cb101-35"></a><span class="in">shuffle(1:10)</span></span>
 <span id="cb101-36"><a href="#cb101-36"></a></span>
 <span id="cb101-37"><a href="#cb101-37"></a><span class="in">```</span></span>
 <span id="cb101-38"><a href="#cb101-38"></a></span>
@@ -1662,17 +1833,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb101-193"><a href="#cb101-193"></a></span>
 <span id="cb101-194"><a href="#cb101-194"></a><span class="in">```</span></span>
 <span id="cb101-195"><a href="#cb101-195"></a></span>
-<span id="cb101-196"><a href="#cb101-196"></a>There are some missing values in the variable <span class="kw">&lt;tt&gt;</span> <span class="in">`Age25`</span><span class="kw">&lt;/tt&gt;</span>. The</span>
-<span id="cb101-197"><a href="#cb101-197"></a><span class="kw">&lt;tt&gt;</span> <span class="in">`complete.cases`</span><span class="kw">&lt;/tt&gt;</span> command gives the row numbers where values</span>
+<span id="cb101-196"><a href="#cb101-196"></a>There are some missing values in the variable &lt;tt&gt; <span class="in">`Age25`</span>&lt;/tt&gt;. The</span>
+<span id="cb101-197"><a href="#cb101-197"></a>&lt;tt&gt; <span class="in">`complete.cases`</span>&lt;/tt&gt; command gives the row numbers where values</span>
 <span id="cb101-198"><a href="#cb101-198"></a>are not missing. We create a new data frame omitting the rows where</span>
-<span id="cb101-199"><a href="#cb101-199"></a>there is a missing value in the <span class="kw">&lt;tt&gt;</span> 'Age25' <span class="kw">&lt;/tt&gt;</span> variable.</span>
+<span id="cb101-199"><a href="#cb101-199"></a>there is a missing value in the &lt;tt&gt; 'Age25' &lt;/tt&gt; variable.</span>
 <span id="cb101-200"><a href="#cb101-200"></a></span>
 <span id="cb101-203"><a href="#cb101-203"></a><span class="in">```{r}</span></span>
 <span id="cb101-204"><a href="#cb101-204"></a>recidivism_na <span class="ot">&lt;-</span> recidivism <span class="sc">%&gt;%</span> tidyr<span class="sc">::</span><span class="fu">drop_na</span>(Age25)</span>
 <span id="cb101-205"><a href="#cb101-205"></a></span>
 <span id="cb101-206"><a href="#cb101-206"></a><span class="in">```</span></span>
 <span id="cb101-207"><a href="#cb101-207"></a></span>
-<span id="cb101-208"><a href="#cb101-208"></a>Also, the variable <span class="kw">&lt;tt&gt;</span><span class="in">`Recid`</span><span class="kw">&lt;/tt&gt;</span> is a factor variable coded "Yes" or</span>
+<span id="cb101-208"><a href="#cb101-208"></a>Also, the variable &lt;tt&gt;<span class="in">`Recid`</span>&lt;/tt&gt; is a factor variable coded "Yes" or</span>
 <span id="cb101-209"><a href="#cb101-209"></a>"No". We convert it to a numeric variable of 1's and 0's.</span>
 <span id="cb101-210"><a href="#cb101-210"></a></span>
 <span id="cb101-213"><a href="#cb101-213"></a><span class="in">```{r}</span></span>
@@ -1763,9 +1934,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb101-306"><a href="#cb101-306"></a></span>
 <span id="cb101-307"><a href="#cb101-307"></a><span class="in">```{r flightDelays-a}</span></span>
 <span id="cb101-308"><a href="#cb101-308"></a></span>
-<span id="cb101-309"><a href="#cb101-309"></a><span class="fu">prop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span>
-<span id="cb101-310"><a href="#cb101-310"></a>obs_diff_delay <span class="ot">&lt;-</span> <span class="fu">diffprop</span>(<span class="at">data =</span> flightDelays, Delay <span class="sc">&gt;=</span> <span class="dv">20</span> <span class="sc">~</span> Carrier)</span>
-<span id="cb101-311"><a href="#cb101-311"></a>obs_diff_delay</span>
+<span id="cb101-309"><a href="#cb101-309"></a><span class="in">prop(data = flightDelays, Delay &gt;= 20 ~ Carrier)</span></span>
+<span id="cb101-310"><a href="#cb101-310"></a><span class="in">obs_diff_delay &lt;- diffprop(data = flightDelays, Delay &gt;= 20 ~ Carrier)</span></span>
+<span id="cb101-311"><a href="#cb101-311"></a><span class="in">obs_diff_delay</span></span>
 <span id="cb101-312"><a href="#cb101-312"></a></span>
 <span id="cb101-313"><a href="#cb101-313"></a><span class="in">```</span></span>
 <span id="cb101-314"><a href="#cb101-314"></a></span>
@@ -1962,44 +2133,44 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb101-527"><a href="#cb101-527"></a></span>
 <span id="cb101-528"><a href="#cb101-528"></a><span class="in">```{r,warning=FALSE,message=FALSE}</span></span>
 <span id="cb101-529"><a href="#cb101-529"></a></span>
-<span id="cb101-530"><a href="#cb101-530"></a>gss2002 <span class="ot">&lt;-</span> GSS2002 <span class="sc">%&gt;%</span> </span>
-<span id="cb101-531"><a href="#cb101-531"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span> </span>
-<span id="cb101-532"><a href="#cb101-532"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>(., <span class="fu">c</span>(Education, DeathPenalty))</span>
-<span id="cb101-533"><a href="#cb101-533"></a><span class="fu">dim</span>(gss2002)</span>
+<span id="cb101-530"><a href="#cb101-530"></a><span class="in">gss2002 &lt;- GSS2002 %&gt;% </span></span>
+<span id="cb101-531"><a href="#cb101-531"></a><span class="in">  dplyr::select(Education, DeathPenalty) %&gt;% </span></span>
+<span id="cb101-532"><a href="#cb101-532"></a><span class="in">  tidyr::drop_na(., c(Education, DeathPenalty))</span></span>
+<span id="cb101-533"><a href="#cb101-533"></a><span class="in">dim(gss2002)</span></span>
 <span id="cb101-534"><a href="#cb101-534"></a></span>
-<span id="cb101-535"><a href="#cb101-535"></a>gss_summary <span class="ot">&lt;-</span> gss2002 <span class="sc">%&gt;%</span></span>
-<span id="cb101-536"><a href="#cb101-536"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb101-537"><a href="#cb101-537"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(</span>
-<span id="cb101-538"><a href="#cb101-538"></a>      Education,</span>
-<span id="cb101-539"><a href="#cb101-539"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>),</span>
-<span id="cb101-540"><a href="#cb101-540"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Bachelors"</span>, <span class="st">"Graduate"</span>, <span class="st">"Jr Col"</span>, <span class="st">"HS"</span>, <span class="st">"Left HS"</span>)</span>
-<span id="cb101-541"><a href="#cb101-541"></a>    ),</span>
-<span id="cb101-542"><a href="#cb101-542"></a>    <span class="at">DeathPenalty =</span> <span class="fu">as.factor</span>(DeathPenalty)</span>
-<span id="cb101-543"><a href="#cb101-543"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb101-544"><a href="#cb101-544"></a>  <span class="fu">group_by</span>(Education, DeathPenalty) <span class="sc">%&gt;%</span></span>
-<span id="cb101-545"><a href="#cb101-545"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="co"># This is good for a chisq test</span></span>
-<span id="cb101-546"><a href="#cb101-546"></a>  </span>
-<span id="cb101-547"><a href="#cb101-547"></a>  <span class="co"># Add two more columns to faciltate mosaic/Marrimekko Plot</span></span>
-<span id="cb101-548"><a href="#cb101-548"></a>  <span class="co"># </span></span>
-<span id="cb101-549"><a href="#cb101-549"></a>  <span class="fu">mutate</span>(<span class="at">edu_count =</span> <span class="fu">sum</span>(count), </span>
-<span id="cb101-550"><a href="#cb101-550"></a>         <span class="at">edu_prop =</span> count <span class="sc">/</span> <span class="fu">sum</span>(count)) <span class="sc">%&gt;%</span></span>
-<span id="cb101-551"><a href="#cb101-551"></a>  <span class="fu">ungroup</span>() </span>
+<span id="cb101-535"><a href="#cb101-535"></a><span class="in">gss_summary &lt;- gss2002 %&gt;%</span></span>
+<span id="cb101-536"><a href="#cb101-536"></a><span class="in">  mutate(</span></span>
+<span id="cb101-537"><a href="#cb101-537"></a><span class="in">    Education = factor(</span></span>
+<span id="cb101-538"><a href="#cb101-538"></a><span class="in">      Education,</span></span>
+<span id="cb101-539"><a href="#cb101-539"></a><span class="in">      levels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS"),</span></span>
+<span id="cb101-540"><a href="#cb101-540"></a><span class="in">      labels = c("Bachelors", "Graduate", "Jr Col", "HS", "Left HS")</span></span>
+<span id="cb101-541"><a href="#cb101-541"></a><span class="in">    ),</span></span>
+<span id="cb101-542"><a href="#cb101-542"></a><span class="in">    DeathPenalty = as.factor(DeathPenalty)</span></span>
+<span id="cb101-543"><a href="#cb101-543"></a><span class="in">  ) %&gt;%</span></span>
+<span id="cb101-544"><a href="#cb101-544"></a><span class="in">  group_by(Education, DeathPenalty) %&gt;%</span></span>
+<span id="cb101-545"><a href="#cb101-545"></a><span class="in">  summarise(count = n()) %&gt;% # This is good for a chisq test</span></span>
+<span id="cb101-546"><a href="#cb101-546"></a><span class="in">  </span></span>
+<span id="cb101-547"><a href="#cb101-547"></a><span class="in">  # Add two more columns to faciltate mosaic/Marrimekko Plot</span></span>
+<span id="cb101-548"><a href="#cb101-548"></a><span class="in">  # </span></span>
+<span id="cb101-549"><a href="#cb101-549"></a><span class="in">  mutate(edu_count = sum(count), </span></span>
+<span id="cb101-550"><a href="#cb101-550"></a><span class="in">         edu_prop = count / sum(count)) %&gt;%</span></span>
+<span id="cb101-551"><a href="#cb101-551"></a><span class="in">  ungroup() </span></span>
 <span id="cb101-552"><a href="#cb101-552"></a></span>
-<span id="cb101-553"><a href="#cb101-553"></a>gss_summary</span>
+<span id="cb101-553"><a href="#cb101-553"></a><span class="in">gss_summary</span></span>
 <span id="cb101-554"><a href="#cb101-554"></a></span>
-<span id="cb101-555"><a href="#cb101-555"></a><span class="co"># We can plot a heatmap-like `mosaic chart` for this table, using `ggplot`:</span></span>
-<span id="cb101-556"><a href="#cb101-556"></a><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
+<span id="cb101-555"><a href="#cb101-555"></a><span class="in"># We can plot a heatmap-like `mosaic chart` for this table, using `ggplot`:</span></span>
+<span id="cb101-556"><a href="#cb101-556"></a><span class="in"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
 <span id="cb101-557"><a href="#cb101-557"></a></span>
-<span id="cb101-558"><a href="#cb101-558"></a><span class="fu">ggplot</span>(<span class="at">data =</span> gss_summary, <span class="fu">aes</span>( <span class="at">x =</span> Education, <span class="at">y =</span> edu_prop)) <span class="sc">+</span></span>
-<span id="cb101-559"><a href="#cb101-559"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">width =</span> edu_count, <span class="at">fill =</span> DeathPenalty), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"fill"</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb101-560"><a href="#cb101-560"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> scales<span class="sc">::</span><span class="fu">percent</span>(edu_prop)), <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb101-558"><a href="#cb101-558"></a><span class="in">ggplot(data = gss_summary, aes( x = Education, y = edu_prop)) +</span></span>
+<span id="cb101-559"><a href="#cb101-559"></a><span class="in">  geom_bar(aes(width = edu_count, fill = DeathPenalty), stat = "identity", position = "fill", colour = "black") +</span></span>
+<span id="cb101-560"><a href="#cb101-560"></a><span class="in">  geom_text(aes(label = scales::percent(edu_prop)), position = position_stack(vjust = 0.5)) +</span></span>
 <span id="cb101-561"><a href="#cb101-561"></a></span>
 <span id="cb101-562"><a href="#cb101-562"></a></span>
-<span id="cb101-563"><a href="#cb101-563"></a><span class="co"># if labels are desired</span></span>
-<span id="cb101-564"><a href="#cb101-564"></a> <span class="fu">facet_grid</span>(<span class="sc">~</span> Education, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>) <span class="sc">+</span> </span>
-<span id="cb101-565"><a href="#cb101-565"></a>  <span class="fu">theme</span>(<span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"RdYlGn"</span>)) <span class="sc">+</span> </span>
-<span id="cb101-566"><a href="#cb101-566"></a>  <span class="co"># theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
-<span id="cb101-567"><a href="#cb101-567"></a>  <span class="fu">theme_void</span>() </span>
+<span id="cb101-563"><a href="#cb101-563"></a><span class="in"># if labels are desired</span></span>
+<span id="cb101-564"><a href="#cb101-564"></a><span class="in"> facet_grid(~ Education, scales = "free_x", space = "free_x") + </span></span>
+<span id="cb101-565"><a href="#cb101-565"></a><span class="in">  theme(scale_fill_brewer(palette = "RdYlGn")) + </span></span>
+<span id="cb101-566"><a href="#cb101-566"></a><span class="in">  # theme(panel.spacing.x = unit(0, "npc")) + # if no spacing preferred between bars</span></span>
+<span id="cb101-567"><a href="#cb101-567"></a><span class="in">  theme_void() </span></span>
 <span id="cb101-568"><a href="#cb101-568"></a></span>
 <span id="cb101-569"><a href="#cb101-569"></a><span class="in">```</span></span>
 <span id="cb101-570"><a href="#cb101-570"></a></span>
@@ -2041,7 +2212,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>
+    <div class="nav-footer-center">
+<p>Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

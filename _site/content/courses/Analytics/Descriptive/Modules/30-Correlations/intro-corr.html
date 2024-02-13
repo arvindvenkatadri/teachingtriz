@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind V.">
 <meta name="dcterms.date" content="2022-11-22">
@@ -21,7 +21,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -57,6 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -99,7 +100,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -108,17 +115,666 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style type="text/css">.monaco-editor pre {
+  background-color: unset !important;
+}
+
+.qwebr-icon-status-spinner {
+  color: #7894c4;
+}
+
+.qwebr-icon-run-code {
+  color: #0d9c29
+}
+
+.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+.qwebr-editor {
+  border: 1px solid #EEEEEE;
+}
+
+.qwebr-button-run {
+  background-color: #EEEEEE;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; /* Extra styling for consistency */
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #000;
+  text-align: center;
+  text-decoration: none;
+  -webkit-text-decoration: none;
+  -moz-text-decoration: none;
+  -ms-text-decoration: none;
+  -o-text-decoration: none;
+  /* vertical-align: middle; */ /* Prevents a space from appearing between the code cell and button */
+  -webkit-user-select: none;
+  border-color: #dee2e6;
+  border: 1px solid rgba(0,0,0,0);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.qwebr-button-run:hover {
+  color: #000;
+  background-color: #e3e6ea;
+  border-color: #e1e5e9;
+}
+
+.qwebr-button-run:disabled,.qwebr-button-run.disabled,fieldset:disabled .qwebr-button-run {
+  pointer-events: none;
+  opacity: .65
+}
+
+/* Custom styling for RevealJS Presentations*/
+
+/* Reset the style of the interactive area */
+.reveal div.qwebr-interactive-area {
+  display: block;
+  box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+} 
+
+/* Provide space to entries */
+.reveal div.qwebr-output-code-area pre div {
+  margin: 1px 2px 1px 10px;
+}
+
+/* Collapse the inside code tags to avoid extra space between line outputs */
+.reveal pre div code.qwebr-output-code-stdout, .reveal pre div code.qwebr-output-code-stderr {
+  padding: 0;
+  display: contents;
+}
+
+.reveal pre div code.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.reveal pre div code.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+
+/* Create a border around console and output (does not effect graphs) */
+.reveal div.qwebr-console-area {
+  border: 1px solid #EEEEEE;
+  box-shadow: 2px 2px 10px #EEEEEE;
+}
+
+/* Cap output height and allow text to scroll */
+/* TODO: Is there a better way to fit contents/max it parallel to the monaco editor size? */
+.reveal div.qwebr-output-code-area pre {
+  max-height: 400px;
+  overflow: scroll;
+}
+</style>
+<script type="module">// Start a timer
+const initializeWebRTimerStart = performance.now();
+
+// Determine if we need to install R packages
+var installRPackagesList = ['readr', 'dplyr', 'mosaic', 'skimr', 'ggformula', 'palmerpenguins', 'correlation', 'GGally', 'corrplot', 'ggExtra', 'Lock5withR'];
+// Check to see if we have an empty array, if we do set to skip the installation.
+var setupRPackages = !(installRPackagesList.indexOf("") !== -1);
+var autoloadRPackages = true;
+
+// Display a startup message?
+var showStartupMessage = true;
+var showHeaderMessage = false;
+if (showStartupMessage) {
+
+  // Get references to header elements
+  const headerHTML = document.getElementById("title-block-header");
+  const headerRevealJS = document.getElementById("title-slide");
+
+  // Create the outermost div element for metadata
+  const quartoTitleMeta = document.createElement("div");
+  quartoTitleMeta.classList.add("quarto-title-meta");
+
+  // Create the first inner div element
+  const firstInnerDiv = document.createElement("div");
+  firstInnerDiv.setAttribute("id", "qwebr-status-message-area");
+
+  // Create the second inner div element for "WebR Status" heading and contents
+  const secondInnerDiv = document.createElement("div");
+  secondInnerDiv.setAttribute("id", "qwebr-status-message-title");
+  secondInnerDiv.classList.add("quarto-title-meta-heading");
+  secondInnerDiv.innerText = "WebR Status";
+
+  // Create another inner div for contents
+  const secondInnerDivContents = document.createElement("div");
+  secondInnerDivContents.setAttribute("id", "qwebr-status-message-body");
+  secondInnerDivContents.classList.add("quarto-title-meta-contents");
+
+  // Describe the WebR state
+  var startupMessageWebR = document.createElement("p");
+  startupMessageWebR.innerText = "🟡 Loading...";
+  startupMessageWebR.setAttribute("id", "qwebr-status-message-text");
+  // Add `aria-live` to auto-announce the startup status to screen readers
+  startupMessageWebR.setAttribute("aria-live", "assertive");
+
+  // Append the startup message to the contents
+  secondInnerDivContents.appendChild(startupMessageWebR);
+
+  // Add a status indicator for COOP and COEP Headers if needed
+  if (showHeaderMessage) {
+    const crossOriginMessage = document.createElement("p");
+    crossOriginMessage.innerText = `${crossOriginIsolated ? '🟢' : '🟡'} COOP & COEP Headers`;
+    crossOriginMessage.setAttribute("id", "qwebr-coop-coep-header");
+    secondInnerDivContents.appendChild(crossOriginMessage);
+  }
+
+  // Combine the inner divs and contents
+  firstInnerDiv.appendChild(secondInnerDiv);
+  firstInnerDiv.appendChild(secondInnerDivContents);
+  quartoTitleMeta.appendChild(firstInnerDiv);
+
+  // Determine where to insert the quartoTitleMeta element
+  if (headerHTML) {
+    // Append to the existing "title-block-header" element
+    headerHTML.appendChild(quartoTitleMeta);
+  } else if (headerRevealJS) {
+    // If using RevealJS, add to the "title-slide" div
+    headerRevealJS.appendChild(firstInnerDiv);
+  } else {
+    // If neither headerHTML nor headerRevealJS is found, insert after "webr-monaco-editor-init" script
+    const monacoScript = document.getElementById("qwebr-monaco-editor-init");
+    const header = document.createElement("header");
+    header.setAttribute("id", "title-block-header");
+    header.appendChild(quartoTitleMeta);
+    monacoScript.after(header);
+  }
+}
+
+// Retrieve the webr.mjs
+import { WebR, ChannelType } from "https://webr.r-wasm.org/v0.2.2/webr.mjs";
+
+// Populate WebR options with defaults or new values based on 
+// webr meta
+globalThis.webR = new WebR({
+  "baseURL": "https://webr.r-wasm.org/v0.2.2/",
+  "serviceWorkerUrl": "",
+  "homedir": "/home/web_user", 
+  "channelType": ChannelType.Automatic
+});
+
+// Initialization WebR
+await webR.init();
+
+// Setup a shelter
+globalThis.webRCodeShelter = await new webR.Shelter();
+
+// Setup a pager to allow processing help documentation 
+await webR.evalRVoid('webr::pager_install()'); 
+
+// Function to set the button text
+function qwebrSetInteractiveButtonState(buttonText, enableCodeButton = true) {
+  document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+    btn.innerHTML = buttonText;
+    btn.disabled = !enableCodeButton;
+  });
+}
+
+// Function to update the status message
+function qwebrUpdateStatusHeader(message) {
+  startupMessageWebR.innerHTML = `
+    <i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i>
+    <span>${message}</span>`;
+}
+
+// Function to install a single package
+async function qwebrInstallRPackage(packageName) {
+  await globalThis.webR.installPackages([packageName]);
+}
+
+// Function to load a single package
+async function qwebrLoadRPackage(packageName) {
+  await globalThis.webR.evalRVoid(`library(${packageName});`);
+}
+
+// Generic function to process R packages
+async function qwebrProcessRPackagesWithStatus(packages, processType, displayStatusMessageUpdate = true) {
+  // Switch between contexts
+  const messagePrefix = processType === 'install' ? 'Installing' : 'Loading';
+
+  // Modify button state
+  qwebrSetInteractiveButtonState(`🟡 ${messagePrefix} package ...`, false);
+
+  // Iterate over packages
+  for (let i = 0; i < packages.length; i++) {
+    const activePackage = packages[i];
+    const formattedMessage = `${messagePrefix} package ${i + 1} out of ${packages.length}: ${activePackage}`;
+    
+    // Display the update
+    if (displayStatusMessageUpdate) {
+      qwebrUpdateStatusHeader(formattedMessage);
+    }
+
+    // Run package installation
+    if (processType === 'install') {
+      await qwebrInstallRPackage(activePackage);
+    } else {
+      await qwebrLoadRPackage(activePackage);
+    }
+  }
+
+  // Clean slate
+  if (processType === 'load') {
+    await globalThis.webR.flush();
+  }
+}
+
+
+// Check to see if any packages need to be installed
+if (setupRPackages) {
+  // Obtain only a unique list of packages
+  const uniqueRPackageList = Array.from(new Set(installRPackagesList));
+
+  // Install R packages one at a time (either silently or with a status update)
+  await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'install', showStartupMessage);
+
+  if(autoloadRPackages) {
+    // Load R packages one at a time (either silently or with a status update)
+    await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'load', showStartupMessage);
+  }
+}
+
+// Stop timer
+const initializeWebRTimerEnd = performance.now();
+
+// Release document status as ready
+if (showStartupMessage) {
+  startupMessageWebR.innerText = "🟢 Ready!"
+}
+
+qwebrSetInteractiveButtonState(
+  `<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>`, 
+  true
+);
+
+// Global version of the Escape HTML function that converts HTML 
+// characters to their HTML entities.
+globalThis.qwebrEscapeHTMLCharacters = function(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};</script><script type="module">// Supported Evaluation Types for Context
+globalThis.EvalTypes = Object.freeze({
+    Interactive: 'interactive',
+    Setup: 'setup',
+    Output: 'output',
+});
+
+// Function to verify a given JavaScript Object is empty
+globalThis.qwebrIsObjectEmpty = function (arr) {
+    return Object.keys(arr).length === 0;
+}
+
+// Function to parse the pager results
+globalThis.qwebrParseTypePager = async function (msg) { 
+
+    // Split out the event data
+    const { path, title, deleteFile } = msg.data; 
+
+    // Process the pager data by reading the information from disk
+    const paged_data = await webR.FS.readFile(path).then((data) => {
+        // Obtain the file content
+        let content = new TextDecoder().decode(data);
+
+        // Remove excessive backspace characters until none remain
+        while(content.match(/.[\b]/)){
+        content = content.replace(/.[\b]/g, '');
+        }
+
+        // Returned cleaned data
+        return content;
+    });
+
+    // Unlink file if needed
+    if (deleteFile) { 
+        await webR.FS.unlink(path); 
+    } 
+
+    // Return extracted data with spaces
+    return paged_data;
+} 
+
+// Function to run the code using webR and parse the output
+globalThis.qwebrComputeEngine = async function(
+    codeToRun, 
+    elements, 
+    options) {
+
+    // Call into the R compute engine that persists within the document scope.
+    // To be prepared for all scenarios, the following happens: 
+    // 1. We setup a canvas device to write to by making a namespace call into the {webr} package
+    // 2. We use values inside of the options array to set the figure size.
+    // 3. We capture the output stream information (STDOUT and STERR)
+    // 4. While parsing the results, we disable image creation.
+
+    // Create a canvas variable for graphics
+    let canvas = undefined;
+
+    // Create a pager variable for help/file contents
+    let pager = [];
+
+    // ---- 
+
+    // Initialize webR
+    await webR.init();
+
+    // Setup a webR canvas by making a namespace call into the {webr} package
+    await webR.evalRVoid(`webr::canvas(width=${options["fig-width"]}, height=${options["fig-height"]})`);
+
+    const result = await webRCodeShelter.captureR(codeToRun, {
+        withAutoprint: true,
+        captureStreams: true,
+        captureConditions: false//,
+        // env: webR.objs.emptyEnv, // maintain a global environment for webR v0.2.0
+    });
+
+    // -----
+
+    // Start attempting to parse the result data
+    try {
+
+        // Stop creating images
+        await webR.evalRVoid("dev.off()");
+
+        // Merge output streams of STDOUT and STDErr (messages and errors are combined.)
+        const out = result.output
+        .filter(evt => evt.type === "stdout" || evt.type === "stderr")
+        .map((evt, index) => {
+            const className = `qwebr-output-code-${evt.type}`;
+            return `<code id="${className}-editor-${elements.id}-result-${index + 1}" class="${className}">${qwebrEscapeHTMLCharacters(evt.data)}</code>`;
+        })
+        .join("\n");
+
+
+        // Clean the state
+        // We're now able to process both graphics and pager events.
+        // As a result, we cannot maintain a true 1-to-1 output order 
+        // without individually feeding each line
+        const msgs = await webR.flush();
+
+        // Output each image event stored
+        msgs.forEach((msg) => {
+        // Determine if old canvas can be used or a new canvas is required.
+        if (msg.type === 'canvas'){
+            // Add image to the current canvas
+            if (msg.data.event === 'canvasImage') {
+                canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
+            } else if (msg.data.event === 'canvasNewPage') {
+                // Generate a new canvas element
+                canvas = document.createElement("canvas");
+                canvas.setAttribute("width", 2 * options["fig-width"]);
+                canvas.setAttribute("height", 2 * options["fig-height"]);
+                canvas.style.width = "700px";
+                canvas.style.display = "block";
+                canvas.style.margin = "auto";
+            }
+        } 
+        });
+
+        // Use `map` to process the filtered "pager" events asynchronously
+        const pager = await Promise.all(
+            msgs.filter(msg => msg.type === 'pager').map(
+                async (msg) => {
+                    return await qwebrParseTypePager(msg);
+                }
+            )
+        );
+
+        // Nullify the output area of content
+        elements.outputCodeDiv.innerHTML = "";
+        elements.outputGraphDiv.innerHTML = "";
+
+        // Design an output object for messages
+        const pre = document.createElement("pre");
+        if (/\S/.test(out)) {
+            // Display results as HTML elements to retain output styling
+            const div = document.createElement("div");
+            div.innerHTML = out;
+            pre.appendChild(div);
+        } else {
+            // If nothing is present, hide the element.
+            pre.style.visibility = "hidden";
+        }
+
+        elements.outputCodeDiv.appendChild(pre);
+
+        // Place the graphics on the canvas
+        if (canvas) {
+            elements.outputGraphDiv.appendChild(canvas);
+        }
+
+        // Display the pager data
+        if (pager) {
+        // Use the `pre` element to preserve whitespace.
+        pager.forEach((paged_data, index) => {
+            let pre_pager = document.createElement("pre");
+            pre_pager.innerText = paged_data;
+            pre_pager.classList.add("qwebr-output-code-pager");
+            pre_pager.setAttribute("id", `qwebr-output-code-pager-editor-${elements.id}-result-${index + 1}`);
+            elements.outputCodeDiv.appendChild(pre_pager);
+        });
+        }
+    } finally {
+        // Clean up the remaining code
+        webRCodeShelter.purge();
+    }
+}
+
+// Function to execute the code (accepts code as an argument)
+globalThis.qwebrExecuteCode = async function (
+    codeToRun,
+    id,
+    evalType = EvalTypes.Interactive,
+    options = {}) {
+
+    // If options are not passed, we fall back on the bare minimum to handle the computation
+    if (qwebrIsObjectEmpty(options)) {
+        options = { "fig-width": 504, "fig-height": 360 };
+    }
+
+    // Next, we access the compute areas values
+    const elements = {
+        runButton: document.getElementById(`qwebr-button-run-${id}`),
+        outputCodeDiv: document.getElementById(`qwebr-output-code-area-${id}`),
+        outputGraphDiv: document.getElementById(`qwebr-output-graph-area-${id}`),
+        id: id,
+    }
+
+    // Disallowing execution of other code cells
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = true;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Emphasize the active code cell
+        elements.runButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i> <span>Run Code</span>';
+    }
+
+    // Evaluate the code and parse the output into the document
+    await qwebrComputeEngine(codeToRun, elements, options);
+
+    // Switch to allowing execution of code
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = false;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Revert to the initial code cell state
+        elements.runButton.innerHTML = '<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>';
+    }
+}
+</script><script type="module">// Function that dispatches the creation request
+globalThis.qwebrCreateHTMLElement = function (insertElement,
+  qwebrCounter, 
+  evalType = EvalTypes.Interactive,
+  options = {}) {
+
+  // Figure out the routine to use to insert the element.
+  let qwebrElement;
+  switch ( evalType ) {
+    case EvalTypes.Interactive: 
+      qwebrElement = qwebrCreateInteractiveElement(qwebrCounter);
+    case EvalTypes.Output: 
+      qwebrElement = qwebrCreateNonInteractiveOutputElement(qwebrCounter);
+    case EvalTypes.Setup: 
+      qwebrElement = qwebrCreateNonInteractiveSetupElement(qwebrCounter);
+    default: 
+      qwebrElement = document.createElement('div');
+      qwebrElement.textContent = 'Error creating element';
+  }
+
+  // Insert the dynamically generated object at the document location.
+  insertElement.appendChild(qwebrElement);
+};
+
+// Function that setups the interactive element creation
+globalThis.qwebrCreateInteractiveElement = function (qwebrCounter) {
+
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-interactive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-interactive-area';
+
+  // Create button element
+  var button = document.createElement('button');
+  button.className = 'btn btn-default qwebr-button-run';
+  button.disabled = true;
+  button.type = 'button';
+  button.id = 'qwebr-button-run-' + qwebrCounter;
+  button.textContent = '🟡 Loading webR...';
+
+  // Create console area div
+  var consoleAreaDiv = document.createElement('div');
+  consoleAreaDiv.id = 'qwebr-console-area-' + qwebrCounter;
+  consoleAreaDiv.className = 'qwebr-console-area';
+
+  // Create editor div
+  var editorDiv = document.createElement('div');
+  editorDiv.id = 'qwebr-editor-' + qwebrCounter;
+  editorDiv.className = 'qwebr-editor';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(button);
+  consoleAreaDiv.appendChild(editorDiv);
+  consoleAreaDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(consoleAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+}
+
+// Function that adds output structure for non-interactive output
+globalThis.qwebrCreateNonInteractiveOutputElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-area';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+};
+
+// Function that adds a stub in the page to indicate a setup cell was used.
+globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-setup-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-setup-area';
+
+  return mainDiv;
+}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <meta property="og:title" content="The Foundation Series - 📎 Correlations">
 <meta property="og:description" content="How one variable changes with another">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/30-Correlations/preview.jpg">
-<meta property="og:site-name" content="The Foundation Series">
+<meta property="og:site_name" content="The Foundation Series">
 <meta property="og:image:alt" content="image from rawpixel.com">
 <meta name="twitter:title" content="The Foundation Series - 📎 Correlations">
 <meta name="twitter:description" content="How one variable changes with another">
@@ -129,8 +785,8 @@ div.csl-indent {
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
@@ -142,55 +798,55 @@ div.csl-indent {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../../../../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com" rel="" target=""><i class="bi bi-envelope" role="img">
+    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com"> <i class="bi bi-envelope" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
+</div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">📎 Correlations</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">📎 Correlations</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
@@ -320,34 +976,173 @@ div.csl-indent {
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
 <li><a href="#sec-slides-and-tutorials" id="toc-sec-slides-and-tutorials" class="nav-link active" data-scroll-target="#sec-slides-and-tutorials"><i class="fa-solid fa-folder-open" aria-label="folder-open"></i> Slides and Tutorials</a></li>
-  <li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
-  <li><a href="#iconify-tabler-exchange-what-is-correlation" id="toc-iconify-tabler-exchange-what-is-correlation" class="nav-link" data-scroll-target="#iconify-tabler-exchange-what-is-correlation"><iconify-icon inline="" icon="tabler:exchange"></iconify-icon> What is Correlation?</a></li>
-  <li><a href="#iconify-arcticons-tapemeasure-pearson-correlation-coefficient" id="toc-iconify-arcticons-tapemeasure-pearson-correlation-coefficient" class="nav-link" data-scroll-target="#iconify-arcticons-tapemeasure-pearson-correlation-coefficient"><iconify-icon inline="" icon="arcticons:tapemeasure"></iconify-icon> Pearson Correlation coefficient</a></li>
-  <li><a href="#iconify-grommet-icons-test-case-study-1-hollywoodmovies2011-dataset" id="toc-iconify-grommet-icons-test-case-study-1-hollywoodmovies2011-dataset" class="nav-link" data-scroll-target="#iconify-grommet-icons-test-case-study-1-hollywoodmovies2011-dataset"><iconify-icon inline="" icon="grommet-icons:test"></iconify-icon> Case Study-1: <code>HollywoodMovies2011</code> dataset</a></li>
-  <li><a href="#iconify-carbon-chart-3d-inspecting-the-data" id="toc-iconify-carbon-chart-3d-inspecting-the-data" class="nav-link" data-scroll-target="#iconify-carbon-chart-3d-inspecting-the-data"><iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Inspecting the Data</a></li>
-  <li><a href="#iconify-material-symbols-add-chart-outline-what-graphs-will-we-see-today" id="toc-iconify-material-symbols-add-chart-outline-what-graphs-will-we-see-today" class="nav-link" data-scroll-target="#iconify-material-symbols-add-chart-outline-what-graphs-will-we-see-today"><iconify-icon inline="" icon="material-symbols:add-chart-outline"></iconify-icon> What graphs will we see today?</a></li>
-  <li><a href="#iconify-ph-chart-scatter-bold-scatter-plots" id="toc-iconify-ph-chart-scatter-bold-scatter-plots" class="nav-link" data-scroll-target="#iconify-ph-chart-scatter-bold-scatter-plots"><iconify-icon inline="" icon="ph:chart-scatter-bold"></iconify-icon> Scatter Plots</a></li>
-  <li><a href="#iconify-gis-contour-map-2d-density-plot" id="toc-iconify-gis-contour-map-2d-density-plot" class="nav-link" data-scroll-target="#iconify-gis-contour-map-2d-density-plot"><iconify-icon inline="" icon="gis:contour-map"></iconify-icon> 2D Density Plot</a></li>
+  <li><a href="#setting-up-r-packages" id="toc-setting-up-r-packages" class="nav-link" data-scroll-target="#setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
+  <li><a href="#what-is-correlation" id="toc-what-is-correlation" class="nav-link" data-scroll-target="#what-is-correlation"><iconify-icon inline="" icon="tabler:exchange"></iconify-icon> What is Correlation?</a></li>
+  <li><a href="#pearson-correlation-coefficient" id="toc-pearson-correlation-coefficient" class="nav-link" data-scroll-target="#pearson-correlation-coefficient"><iconify-icon inline="" icon="arcticons:tapemeasure"></iconify-icon> Pearson Correlation coefficient</a></li>
+  <li><a href="#case-study-1-hollywoodmovies2011-dataset" id="toc-case-study-1-hollywoodmovies2011-dataset" class="nav-link" data-scroll-target="#case-study-1-hollywoodmovies2011-dataset"><iconify-icon inline="" icon="grommet-icons:test"></iconify-icon> Case Study-1: <code>HollywoodMovies2011</code> dataset</a></li>
+  <li><a href="#inspecting-the-data" id="toc-inspecting-the-data" class="nav-link" data-scroll-target="#inspecting-the-data"><iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Inspecting the Data</a></li>
+  <li><a href="#what-graphs-will-we-see-today" id="toc-what-graphs-will-we-see-today" class="nav-link" data-scroll-target="#what-graphs-will-we-see-today"><iconify-icon inline="" icon="material-symbols:add-chart-outline"></iconify-icon> What graphs will we see today?</a></li>
+  <li><a href="#scatter-plots" id="toc-scatter-plots" class="nav-link" data-scroll-target="#scatter-plots"><iconify-icon inline="" icon="ph:chart-scatter-bold"></iconify-icon> Scatter Plots</a></li>
+  <li><a href="#d-density-plot" id="toc-d-density-plot" class="nav-link" data-scroll-target="#d-density-plot"><iconify-icon inline="" icon="gis:contour-map"></iconify-icon> 2D Density Plot</a></li>
   <li>
-<a href="#iconify-flat-color-icons-workflow-quantizing-correlation" id="toc-iconify-flat-color-icons-workflow-quantizing-correlation" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-quantizing-correlation"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Quantizing Correlation</a>
+<a href="#quantizing-correlation" id="toc-quantizing-correlation" class="nav-link" data-scroll-target="#quantizing-correlation"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Quantizing Correlation</a>
   <ul class="collapse">
 <li><a href="#doing-a-correlation-test" id="toc-doing-a-correlation-test" class="nav-link" data-scroll-target="#doing-a-correlation-test">Doing a Correlation Test</a></li>
   </ul>
 </li>
   <li><a href="#a-new-combination-plot" id="toc-a-new-combination-plot" class="nav-link" data-scroll-target="#a-new-combination-plot">A New Combination Plot…</a></li>
-  <li><a href="#iconify-fluent-mdl2-decision-solid-conclusions" id="toc-iconify-fluent-mdl2-decision-solid-conclusions" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-decision-solid-conclusions"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</a></li>
-  <li><a href="#iconify-ooui-references-ltr-references" id="toc-iconify-ooui-references-ltr-references" class="nav-link" data-scroll-target="#iconify-ooui-references-ltr-references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
   </ul></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content"><script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js"></script><script type="module" id="qwebr-monaco-editor-init">
+
+  // Configure the Monaco Editor's loader
+  require.config({
+    paths: {
+      'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs'
+    }
+  });
+</script><script type="module">// Global dictionary to store Monaco Editor instances
+const qwebrEditorInstances = {};
+
+// Function that builds and registers a Monaco Editor instance    
+globalThis.qwebrCreateMonacoEditorInstance = function (
+    initialCode, 
+    qwebrCounter) {
+
+  // Retrieve the previously created document elements
+  let runButton = document.getElementById(`qwebr-button-run-${qwebrCounter}`);
+  let editorDiv = document.getElementById(`qwebr-editor-${qwebrCounter}`);
+  
+  // Load the Monaco Editor and create an instance
+  let editor;
+  require(['vs/editor/editor.main'], function () {
+    editor = monaco.editor.create(editorDiv, {
+      value: initialCode,
+      language: 'r',
+      theme: 'vs-light',
+      automaticLayout: true,           // Works wonderfully with RevealJS
+      scrollBeyondLastLine: false,
+      minimap: {
+        enabled: false
+      },
+      fontSize: '17.5pt',              // Bootstrap is 1 rem
+      renderLineHighlight: "none",     // Disable current line highlighting
+      hideCursorInOverviewRuler: true  // Remove cursor indictor in right hand side scroll bar
+    });
+
+    // Store the official counter ID to be used in keyboard shortcuts
+    editor.__qwebrCounter = qwebrCounter;
+
+    // Store the official div container ID
+    editor.__qwebrEditorId = `qwebr-editor-${qwebrCounter}`;
+
+    // Store the initial code value
+    editor.__qwebrinitialCode = initialCode;
+
+    // Dynamically modify the height of the editor window if new lines are added.
+    let ignoreEvent = false;
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      // We're avoiding a width change
+      //editorDiv.style.width = `${width}px`;
+      editorDiv.style.height = `${contentHeight}px`;
+      try {
+        ignoreEvent = true;
+
+        // The key to resizing is this call
+        editor.layout();
+      } finally {
+        ignoreEvent = false;
+      }
+    };
+
+    // Helper function to check if selected text is empty
+    function isEmptyCodeText(selectedCodeText) {
+      return (selectedCodeText === null || selectedCodeText === undefined || selectedCodeText === "");
+    }
+
+    // Registry of keyboard shortcuts that should be re-added to each editor window
+    // when focus changes.
+    const addWebRKeyboardShortCutCommands = () => {
+      // Add a keydown event listener for Shift+Enter to run all code in cell
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => {
+
+        // Retrieve all text inside the editor
+        qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter);
+      });
+
+      // Add a keydown event listener for CMD/Ctrl+Enter to run selected code
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+
+        // Get the selected text from the editor
+        const selectedText = editor.getModel().getValueInRange(editor.getSelection());
+        // Check if no code is selected
+        if (isEmptyCodeText(selectedText)) {
+          // Obtain the current cursor position
+          let currentPosition = editor.getPosition();
+          // Retrieve the current line content
+          let currentLine = editor.getModel().getLineContent(currentPosition.lineNumber);
+
+          // Propose a new position to move the cursor to
+          let newPosition = new monaco.Position(currentPosition.lineNumber + 1, 1);
+
+          // Check if the new position is beyond the last line of the editor
+          if (newPosition.lineNumber > editor.getModel().getLineCount()) {
+            // Add a new line at the end of the editor
+            editor.executeEdits("addNewLine", [{
+            range: new monaco.Range(newPosition.lineNumber, 1, newPosition.lineNumber, 1),
+            text: "\n", 
+            forceMoveMarkers: true,
+            }]);
+          }
+          
+          // Run the entire line of code.
+          qwebrExecuteCode(currentLine, editor.__qwebrCounter,
+            EvalTypes.Interactive);
+
+          // Move cursor to new position
+          editor.setPosition(newPosition);
+        } else {
+          // Code to run when Ctrl+Enter is pressed with selected code
+          qwebrExecuteCode(selectedText, editor.__qwebrCounter, EvalTypes.Interactive);
+        }
+      });
+    }
+
+    // Register an on focus event handler for when a code cell is selected to update
+    // what keyboard shortcut commands should work.
+    // This is a workaround to fix a regression that happened with multiple
+    // editor windows since Monaco 0.32.0 
+    // https://github.com/microsoft/monaco-editor/issues/2947
+    editor.onDidFocusEditorText(addWebRKeyboardShortCutCommands);
+
+    // Register an on change event for when new code is added to the editor window
+    editor.onDidContentSizeChange(updateHeight);
+
+    // Manually re-update height to account for the content we inserted into the call
+    updateHeight();
+
+    // Store the editor instance in the global dictionary
+    qwebrEditorInstances[editor.__qwebrCounter] = editor;
+
+  });
+
+  // Add a click event listener to the run button
+  runButton.onclick = function () {
+    qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter, EvalTypes.Interactive);
+  };
+
+}</script><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
 <h1 class="title">📎 Correlations</h1>
 <p class="subtitle lead">Correlations</p>
   <div class="quarto-categories">
@@ -381,7 +1176,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 30, 2023</p>
+      <p class="date-modified">January 6, 2024</p>
     </div>
   </div>
     
@@ -389,10 +1184,11 @@ div.csl-indent {
   
 <div>
   <div class="abstract">
-    <div class="abstract-title">Abstract</div>
+    <div class="block-title">Abstract</div>
     How one variable changes with another
   </div>
 </div>
+
 
 </header><section id="sec-slides-and-tutorials" class="level2"><h2 class="anchored" data-anchor-id="sec-slides-and-tutorials">
 <i class="fa-solid fa-folder-open" aria-label="folder-open"></i> Slides and Tutorials</h2>
@@ -406,10 +1202,10 @@ div.csl-indent {
 <a href="../../../../../../content/courses/Analytics/Descriptive/Modules/30-Correlations/files/correlations.html"><i class="fa-brands fa-r-project"></i> Tutorial </a>&nbsp;&nbsp;</td>
 <td><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/30-Correlations/files/correlations-interactive.html"> <i class="fa-brands fa-r-project"></i> R (Interactive Graphs</a></td>
 </tr></tbody>
-</table></section><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
+</table></section><section id="setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
 <div class="cell" data-hash="intro-corr_cache/html/setup_d726f2d80586d869e95c569b5c22c64b">
-<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Tidy data processing and plotting</span></span>
+<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Tidy data processing and plotting</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span> <span class="co"># Formula based plots</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span> <span class="co"># Our go-to package</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/skimr/">skimr</a></span><span class="op">)</span> <span class="co"># Another Data inspection package</span></span>
@@ -425,13 +1221,13 @@ div.csl-indent {
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://allisonhorst.github.io/palmerpenguins/">palmerpenguins</a></span><span class="op">)</span> <span class="co"># A famous dataset</span></span>
 <span></span>
 <span><span class="co"># Set plot theme</span></span>
-<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section id="iconify-tabler-exchange-what-is-correlation" class="level2"><h2 class="anchored" data-anchor-id="iconify-tabler-exchange-what-is-correlation">
+</section><section id="what-is-correlation" class="level2"><h2 class="anchored" data-anchor-id="what-is-correlation">
 <iconify-icon inline="" icon="tabler:exchange"></iconify-icon> What is Correlation?</h2>
 <p>One of the basic Questions we would have of our data is: Does some variable depend upon another in some way? Does <span class="math inline">\(y\)</span> vary with <span class="math inline">\(x\)</span>? A <strong>Correlation Test</strong> is designed to exactly answer this question.</p>
 <p>The word <strong>correlation</strong> is used in everyday life to denote some form of association. We might say that we have noticed a correlation between rainy days and reduced sales at supermarkets. However, in statistical terms we use correlation to denote association between two quantitative variables. We also assume that the association is <strong>linear</strong>, that one variable increases or decreases a fixed amount for a unit increase or decrease in the other. The other technique that is often used in these circumstances is <strong>regression</strong>, which involves estimating the best straight line to summarise the association.</p>
-</section><section id="iconify-arcticons-tapemeasure-pearson-correlation-coefficient" class="level2"><h2 class="anchored" data-anchor-id="iconify-arcticons-tapemeasure-pearson-correlation-coefficient">
+</section><section id="pearson-correlation-coefficient" class="level2"><h2 class="anchored" data-anchor-id="pearson-correlation-coefficient">
 <iconify-icon inline="" icon="arcticons:tapemeasure"></iconify-icon> Pearson Correlation coefficient</h2>
 <p>The degree of association is measured by a <em>correlation coefficient</em>, denoted by r. It is sometimes called <em>Pearson’s correlation coefficient</em> after its originator and is a measure of linear association. (<em>If a curved line is needed to express the relationship, other and more complicated measures of the correlation must be used.</em>)</p>
 <p>The correlation coefficient is measured on a scale that varies from + 1 through 0 to – 1. Complete correlation between two variables is expressed by either + 1 or -1. When one variable increases as the other increases the correlation is positive; when one decreases as the other increases it is negative.</p>
@@ -488,14 +1284,21 @@ Pearson Correlation uses z-scores
 <p><code>dataframe %&gt;%  ggplot(aes(xvar, yvar)) + geom_----()</code></p>
 </div>
 </div>
-</section><section id="iconify-grommet-icons-test-case-study-1-hollywoodmovies2011-dataset" class="level2"><h2 class="anchored" data-anchor-id="iconify-grommet-icons-test-case-study-1-hollywoodmovies2011-dataset">
+</section><section id="case-study-1-hollywoodmovies2011-dataset" class="level2"><h2 class="anchored" data-anchor-id="case-study-1-hollywoodmovies2011-dataset">
 <iconify-icon inline="" icon="grommet-icons:test"></iconify-icon> Case Study-1: <code>HollywoodMovies2011</code> dataset</h2>
 <p>Let us look at the <code>HollywoodMovies2011</code> dataset from the <code>Lock5withR</code> package.</p>
-</section><section id="iconify-carbon-chart-3d-inspecting-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-carbon-chart-3d-inspecting-the-data">
+</section><section id="inspecting-the-data" class="level2"><h2 class="anchored" data-anchor-id="inspecting-the-data">
 <iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Inspecting the Data</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell" data-hash="intro-corr_cache/html/glimpse-movies_c4a923c46ba5e5e19b2eeb20fec57132">
-<div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">HollywoodMovies2011</span><span class="op">-&gt;</span> <span class="va">movies</span></span>
-<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">HollywoodMovies2011</span><span class="op">-&gt;</span> <span class="va">movies</span></span>
+<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>Rows: 136
 Columns: 14
@@ -515,8 +1318,8 @@ $ Profitability     &lt;dbl&gt; 64.672667, 40.379400, 10.809800, 10.624888, 8.87
 $ OpeningWeekend    &lt;dbl&gt; 13.27, 52.57, 31.60, 169.19, 26.25, 5.83, 26.04, 85.…</code></pre>
 </div>
 </div>
-<div class="cell" data-hash="intro-corr_cache/html/skim-movies_8b8c8da8522aa2983bf673834af01e8c">
-<div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">skimr</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="intro-corr_cache/html/skim-movies_22cf45fde4fe3325ea5670b2dfa2d9ea">
+<div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">skimr</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -775,24 +1578,85 @@ $ OpeningWeekend    &lt;dbl&gt; 13.27, 52.57, 31.60, 169.19, 26.25, 5.83, 26.04,
 </table>
 </div>
 </div>
-<div class="cell" data-hash="intro-corr_cache/html/inspect-movies_6ab47358eb32d26ce94f3bd67876d291">
-<div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">movies_describe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span>
-<span><span class="va">movies_describe</span><span class="op">$</span><span class="va">categorical</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="intro-corr_cache/html/inspect-movies_b8d34e8020a8daea471e051f243cf002">
+<div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">movies_describe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">movies</span><span class="op">)</span></span>
+<span><span class="va">movies_describe</span><span class="op">$</span><span class="va">categorical</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["levels"],"name":[3],"type":["int"],"align":["right"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["missing"],"name":[5],"type":["int"],"align":["right"]},{"label":["distribution"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"Movie","2":"factor","3":"136","4":"136","5":"0","6":"30 Minutes or Less (0.7%) ..."},{"1":"LeadStudio","2":"factor","3":"34","4":"136","5":"0","6":"Independent (23.5%) ..."},{"1":"Story","2":"factor","3":"22","4":"136","5":"0","6":"Monster Force (14%), Comedy (10.3%) ..."},{"1":"Genre","2":"factor","3":"9","4":"136","5":"0","6":"Action (23.5%), Comedy (19.9%) ..."}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">movies_describe</span><span class="op">$</span><span class="va">quantitative</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">movies_describe</span><span class="op">$</span><span class="va">quantitative</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["min"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Q1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Q3"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[10],"type":["int"],"align":["right"]},{"label":["missing"],"name":[11],"type":["int"],"align":["right"]}],"data":[{"1":"RottenTomatoes","2":"integer","3":"4.000","4":"29.250000","5":"53.500000","6":"78.00000","7":"97.00000","8":"53.194030","9":"26.984673","10":"134","11":"2","_rn_":"1"},{"1":"AudienceScore","2":"integer","3":"24.000","4":"49.500000","5":"61.000000","6":"76.50000","7":"93.00000","8":"61.600000","9":"17.033856","10":"135","11":"1","_rn_":"2"},{"1":"TheatersOpenWeek","2":"integer","3":"3.000","4":"2550.000000","5":"2995.000000","6":"3400.50000","7":"4375.00000","8":"2828.475000","9":"932.702579","10":"120","11":"16","_rn_":"3"},{"1":"BOAverageOpenWeek","2":"integer","3":"1513.000","4":"3778.750000","5":"5685.500000","6":"8923.00000","7":"93230.00000","8":"8338.825000","9":"10284.468976","10":"120","11":"16","_rn_":"4"},{"1":"DomesticGross","2":"numeric","3":"0.020","4":"19.032500","5":"37.355000","6":"80.45750","7":"381.01000","8":"63.222761","9":"69.417994","10":"134","11":"2","_rn_":"5"},{"1":"ForeignGross","2":"numeric","3":"0.240","4":"14.250000","5":"47.000000","6":"102.00000","7":"947.10000","8":"96.923388","9":"156.437778","10":"121","11":"15","_rn_":"6"},{"1":"WorldGross","2":"numeric","3":"0.025","4":"30.706000","5":"76.658500","6":"173.69100","7":"1328.11100","8":"150.742343","9":"215.018634","10":"134","11":"2","_rn_":"7"},{"1":"Budget","2":"numeric","3":"0.200","4":"20.250000","5":"36.500000","6":"70.00000","7":"250.00000","8":"53.481343","9":"49.171503","10":"134","11":"2","_rn_":"8"},{"1":"Profitability","2":"numeric","3":"0.000","4":"1.064754","5":"2.198864","6":"3.66705","7":"64.67267","8":"3.314521","9":"6.616088","10":"134","11":"2","_rn_":"9"},{"1":"OpeningWeekend","2":"numeric","3":"0.000","4":"7.710000","5":"13.100000","6":"25.00000","7":"169.19000","8":"20.343308","9":"24.805660","10":"133","11":"3","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="qwebr-insertion-location-1"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-1");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    1
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `HollywoodMovies2011-> movies
+glimpse(movies)`, 
+  1);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-2"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-2");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    2
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `skimr::skim(movies)`, 
+  2);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<div id="qwebr-insertion-location-3"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-3");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    3
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+movies_describe <- inspect(movies)
+movies_describe$categorical
+movies_describe$quantitative`, 
+  3);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -827,7 +1691,7 @@ Business Insights from Data Inspection
 </div>
 </div>
 <p>Let us look at the <em>Quant</em> variables: are these related in anyway? Could the relationship between any two Quant variables also depend upon the level of a <em>Qual</em> variable?</p>
-</section><section id="iconify-material-symbols-add-chart-outline-what-graphs-will-we-see-today" class="level2"><h2 class="anchored" data-anchor-id="iconify-material-symbols-add-chart-outline-what-graphs-will-we-see-today">
+</section><section id="what-graphs-will-we-see-today" class="level2"><h2 class="anchored" data-anchor-id="what-graphs-will-we-see-today">
 <iconify-icon inline="" icon="material-symbols:add-chart-outline"></iconify-icon> What graphs will we see today?</h2>
 <p>Some of the very basic and commonly used plots for data are:</p>
 <ul>
@@ -836,16 +1700,22 @@ Business Insights from Data Inspection
 <li>Pairwise Correlation Plots</li>
 <li>Correlogram</li>
 <li>Heatmap</li>
-</ul></section><section id="iconify-ph-chart-scatter-bold-scatter-plots" class="level2"><h2 class="anchored" data-anchor-id="iconify-ph-chart-scatter-bold-scatter-plots">
+</ul></section><section id="scatter-plots" class="level2"><h2 class="anchored" data-anchor-id="scatter-plots">
 <iconify-icon inline="" icon="ph:chart-scatter-bold"></iconify-icon> Scatter Plots</h2>
 <p>Which are the numeric variables in <code>movies</code>?</p>
-<div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-6_eebfe16bd626098f343b4ced85ec80ae">
-<div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">movies_quant</span> <span class="op">&lt;-</span> <span class="va">movies</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-6_ecddf156df0213b9969aa4f507a4d04b">
+<div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">movies_quant</span> <span class="op">&lt;-</span> <span class="va">movies</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">movies_quant</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">movies_quant</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["RottenTomatoes"],"name":[1],"type":["int"],"align":["right"]},{"label":["AudienceScore"],"name":[2],"type":["int"],"align":["right"]},{"label":["TheatersOpenWeek"],"name":[3],"type":["int"],"align":["right"]},{"label":["BOAverageOpenWeek"],"name":[4],"type":["int"],"align":["right"]},{"label":["DomesticGross"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["ForeignGross"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["WorldGross"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Budget"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["Profitability"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["OpeningWeekend"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"67","2":"65","3":"2408","4":"5511","5":"54.01","6":"43.00","7":"97.009","8":"1.5","9":"64.6726667","10":"13.27"},{"1":"68","2":"58","3":"3321","4":"15829","5":"103.66","6":"98.24","7":"201.897","8":"5.0","9":"40.3794000","10":"52.57"},{"1":"44","2":"38","3":"3049","4":"10365","5":"100.29","6":"115.90","7":"216.196","8":"20.0","9":"10.8098000","10":"31.60"},{"1":"96","2":"92","3":"4375","4":"38672","5":"381.01","6":"947.10","7":"1328.111","8":"125.0","9":"10.6248880","10":"169.19"},{"1":"90","2":"77","3":"2918","4":"8995","5":"169.11","6":"119.28","7":"288.382","8":"32.5","9":"8.8732923","10":"26.25"},{"1":"93","2":"84","3":"944","4":"6177","5":"56.18","6":"83.00","7":"139.177","8":"17.0","9":"8.1868824","10":"5.83"},{"1":"75","2":"91","3":"2534","4":"10278","5":"169.22","6":"30.10","7":"199.324","8":"25.0","9":"7.9729600","10":"26.04"},{"1":"35","2":"58","3":"3615","4":"23775","5":"254.46","6":"327.00","7":"581.464","8":"80.0","9":"7.2683000","10":"85.95"},{"1":"69","2":"73","3":"2756","4":"6860","5":"79.25","6":"82.60","7":"161.849","8":"27.0","9":"5.9944074","10":"18.91"},{"1":"69","2":"72","3":"3040","4":"9310","5":"117.54","6":"92.10","7":"209.638","8":"35.0","9":"5.9896571","10":"28.30"},{"1":"49","2":"57","3":"3018","4":"6512","5":"70.60","6":"77.10","7":"147.700","8":"25.0","9":"5.9080000","10":"19.70"},{"1":"26","2":"68","3":"4061","4":"34012","5":"260.80","6":"374.00","7":"634.800","8":"110.0","9":"5.7709091","10":"138.12"},{"1":"35","2":"67","3":"4088","4":"23937","5":"352.39","6":"770.81","7":"1123.195","8":"195.0","9":"5.7599744","10":"97.85"},{"1":"56","2":"52","3":"2994","4":"8469","5":"99.97","6":"94.00","7":"193.967","8":"36.0","9":"5.3879722","10":"25.36"},{"1":"71","2":"73","3":"3826","4":"10252","5":"143.62","6":"341.02","7":"484.634","8":"90.0","9":"5.3848222","10":"39.23"},{"1":"82","2":"78","3":"3379","4":"10492","5":"127.00","6":"132.71","7":"259.713","8":"50.0","9":"5.1942600","10":"35.45"},{"1":"83","2":"87","3":"3648","4":"15024","5":"176.70","6":"304.52","7":"481.226","8":"93.0","9":"5.1744731","10":"54.81"},{"1":"23","2":"31","3":"3328","4":"2615","5":"17.69","6":"7.88","7":"25.562","8":"5.0","9":"5.1124000","10":"8.70"},{"1":"23","2":"50","3":"3395","4":"10489","5":"142.61","6":"419.54","7":"562.158","8":"110.0","9":"5.1105273","10":"35.61"},{"1":"93","2":"93","3":"2458","4":"3517","5":"34.90","6":"1.62","7":"36.511","8":"8.0","9":"4.5638750","10":"8.64"},{"1":"93","2":"79","3":"2886","4":"3929","5":"34.68","6":"32.33","7":"67.007","8":"15.0","9":"4.4671333","10":"11.34"},{"1":"82","2":"80","3":"3925","4":"12142","5":"165.25","6":"497.78","7":"663.024","8":"150.0","9":"4.4201600","10":"47.66"},{"1":"55","2":"57","3":"3043","4":"7183","5":"63.69","6":"67.10","7":"130.786","8":"30.0","9":"4.3595333","10":"21.86"},{"1":"85","2":"76","3":"2199","4":"4761","5":"40.49","6":"13.70","7":"54.194","8":"12.5","9":"4.3355200","10":"10.47"},{"1":"71","2":"68","3":"2926","4":"6364","5":"55.80","6":"93.74","7":"149.541","8":"35.0","9":"4.2726000","10":"18.62"},{"1":"34","2":"61","3":"4155","4":"21697","5":"241.07","6":"802.80","7":"1043.871","8":"250.0","9":"4.1754840","10":"90.15"},{"1":"61","2":"56","3":"3155","4":"5715","5":"42.59","6":"115.30","7":"157.887","8":"40.0","9":"3.9471750","10":"18.03"},{"1":"92","2":"81","3":"2961","4":"5002","5":"54.71","6":"68.57","7":"123.278","8":"32.0","9":"3.8524375","10":"14.81"},{"1":"93","2":"86","3":"3448","4":"8672","5":"197.80","6":"336.70","7":"534.500","8":"145.0","9":"3.6862069","10":"29.55"},{"1":"37","2":"54","3":"1719","4":"2955","5":"13.84","6":"41.40","7":"55.241","8":"15.0","9":"3.6827333","10":"5.08"},{"1":"30","2":"39","3":"2787","4":"3390","5":"23.20","6":"85.40","7":"108.600","8":"30.0","9":"3.6200000","10":"9.40"},{"1":"60","2":"79","3":"3703","4":"10704","5":"179.04","6":"261.00","7":"440.040","8":"125.0","9":"3.5203200","10":"39.63"},{"1":"38","2":"55","3":"1552","4":"2470","5":"8.31","6":"149.63","7":"157.939","8":"45.0","9":"3.5097556","10":"3.83"},{"1":"47","2":"63","3":"3167","4":"7500","5":"52.70","6":"19.72","7":"72.416","8":"21.0","9":"3.4483810","10":"23.75"},{"1":"47","2":"54","3":"3339","4":"5524","5":"68.22","6":"119.14","7":"187.355","8":"55.0","9":"3.4064545","10":"18.45"},{"1":"38","2":"55","3":"3122","4":"3860","5":"36.49","6":"90.90","7":"127.393","8":"40.0","9":"3.1848250","10":"12.05"},{"1":"60","2":"72","3":"2817","4":"5979","5":"58.71","6":"58.39","7":"117.094","8":"38.0","9":"3.0814211","10":"16.84"},{"1":"35","2":"50","3":"3417","4":"10411","5":"83.55","6":"128.27","7":"211.818","8":"70.0","9":"3.0259714","10":"35.57"},{"1":"77","2":"80","3":"3955","4":"16618","5":"181.03","6":"267.48","7":"448.512","8":"150.0","9":"2.9900800","10":"65.72"},{"1":"26","2":"50","3":"3579","4":"10490","5":"108.09","6":"75.87","7":"183.953","8":"63.0","9":"2.9198889","10":"37.54"},{"1":"78","2":"81","3":"3020","4":"6326","5":"84.34","6":"58.50","7":"142.841","8":"50.0","9":"2.8568200","10":"19.10"},{"1":"38","2":"56","3":"4115","4":"16072","5":"191.45","6":"360.40","7":"551.850","8":"200.0","9":"2.7592500","10":"66.14"},{"1":"22","2":"40","3":"3295","4":"3534","5":"38.54","6":"35.54","7":"74.080","8":"27.0","9":"2.7437037","10":"11.64"},{"1":"19","2":"63","3":"3548","4":"8601","5":"103.03","6":"111.92","7":"214.945","8":"80.0","9":"2.6868125","10":"30.51"},{"1":"78","2":"75","3":"3715","4":"17512","5":"176.65","6":"191.75","7":"368.404","8":"140.0","9":"2.6314571","10":"65.06"},{"1":"20","2":"43","3":"2985","4":"4955","5":"33.00","6":"63.00","7":"96.000","8":"37.0","9":"2.5945946","10":"14.80"},{"1":"71","2":"71","3":"3549","4":"4383","5":"51.16","6":"10.90","7":"62.053","8":"24.0","9":"2.5855417","10":"15.56"},{"1":"72","2":"67","3":"2840","4":"7450","5":"62.50","6":"65.37","7":"127.868","8":"50.2","9":"2.5471713","10":"21.16"},{"1":"4","2":"29","3":"2534","4":"5921","5":"37.30","6":"3.19","7":"40.492","8":"16.0","9":"2.5307500","10":"15.00"},{"1":"46","2":"79","3":"2214","4":"4789","5":"43.85","6":"0.41","7":"44.267","8":"18.0","9":"2.4592778","10":"10.60"},{"1":"58","2":"81","3":"3440","4":"7942","5":"83.61","6":"186.20","7":"269.811","8":"110.0","9":"2.4528273","10":"27.32"},{"1":"72","2":"70","3":"2802","4":"4655","5":"37.41","6":"60.57","7":"97.983","8":"40.0","9":"2.4495750","10":"13.04"},{"1":"36","2":"59","3":"3112","4":"10349","5":"80.49","6":"102.00","7":"182.485","8":"75.0","9":"2.4331333","10":"32.21"},{"1":"58","2":"57","3":"3305","4":"5656","5":"38.18","6":"58.96","7":"97.137","8":"40.0","9":"2.4284250","10":"18.69"},{"1":"32","2":"57","3":"3154","4":"6167","5":"55.10","6":"89.40","7":"144.500","8":"60.0","9":"2.4083333","10":"19.45"},{"1":"84","2":"81","3":"3507","4":"5461","5":"71.08","6":"16.86","7":"87.947","8":"37.0","9":"2.3769459","10":"19.15"},{"1":"4","2":"46","3":"3118","4":"3504","5":"28.07","6":"54.00","7":"82.069","8":"35.0","9":"2.3448286","10":"10.93"},{"1":"35","2":"44","3":"2950","4":"4588","5":"45.06","6":"38.10","7":"83.160","8":"36.0","9":"2.3100000","10":"13.54"},{"1":"10","2":"32","3":"2816","4":"3769","5":"24.80","6":"66.80","7":"91.600","8":"40.0","9":"2.2900000","10":"10.60"},{"1":"76","2":"70","3":"1826","4":"5427","5":"31.18","6":"14.25","7":"45.429","8":"20.0","9":"2.2714500","10":"9.91"},{"1":"84","2":"63","3":"3222","4":"6935","5":"75.64","6":"59.80","7":"135.443","8":"60.0","9":"2.2573833","10":"22.40"},{"1":"87","2":"88","3":"3641","4":"15134","5":"146.41","6":"207.22","7":"353.623","8":"160.0","9":"2.2101437","10":"55.10"},{"1":"83","2":"76","3":"3952","4":"8623","5":"142.09","6":"142.30","7":"284.386","8":"130.0","9":"2.1875846","10":"34.08"},{"1":"14","2":"42","3":"3482","4":"5763","5":"80.36","6":"89.94","7":"170.301","8":"80.0","9":"2.1287625","10":"20.07"},{"1":"71","2":"67","3":"2535","4":"4880","5":"40.26","6":"23.52","7":"63.781","8":"30.0","9":"2.1260333","10":"12.37"},{"1":"11","2":"41","3":"3030","4":"4622","5":"37.66","6":"51.50","7":"89.162","8":"42.0","9":"2.1229048","10":"14.01"},{"1":"95","2":"89","3":"2993","4":"6516","5":"74.21","6":"27.90","7":"102.109","8":"50.0","9":"2.0421800","10":"19.50"},{"1":"38","2":"50","3":"2473","4":"3014","5":"23.18","6":"16.48","7":"39.664","8":"20.0","9":"1.9832000","10":"7.45"},{"1":"44","2":"47","3":"3584","4":"9335","5":"98.80","6":"129.00","7":"227.800","8":"120.0","9":"1.8983333","10":"33.50"},{"1":"84","2":"82","3":"2707","4":"4879","5":"58.01","6":"17.00","7":"75.009","8":"40.0","9":"1.8752250","10":"13.21"},{"1":"88","2":"69","3":"3917","4":"9722","5":"123.26","6":"121.90","7":"245.154","8":"135.0","9":"1.8159556","10":"38.08"},{"1":"24","2":"48","3":"3017","4":"2875","5":"20.25","6":"111.90","7":"132.147","8":"75.0","9":"1.7619600","10":"8.67"},{"1":"34","2":"46","3":"2973","4":"4405","5":"35.61","6":"16.80","7":"52.408","8":"30.0","9":"1.7469333","10":"13.10"},{"1":"84","2":"61","3":"4","4":"93230","5":"13.30","6":"41.00","7":"54.303","8":"32.0","9":"1.6969687","10":"0.37"},{"1":"19","2":"50","3":"1952","4":"5047","5":"27.87","6":"0.97","7":"28.833","8":"17.0","9":"1.6960588","10":"9.85"},{"1":"68","2":"61","3":"3367","4":"7135","5":"74.50","6":"47.00","7":"121.504","8":"75.0","9":"1.6200533","10":"24.03"},{"1":"97","2":"87","3":"3440","4":"8500","5":"66.63","6":"5.80","7":"72.426","8":"45.0","9":"1.6094667","10":"29.24"},{"1":"16","2":"25","3":"2806","4":"2995","5":"18.88","6":"19.83","7":"38.702","8":"25.0","9":"1.5480800","10":"8.40"},{"1":"28","2":"55","3":"2614","4":"3982","5":"36.67","6":"24.30","7":"60.965","8":"40.0","9":"1.5241250","10":"10.41"},{"1":"24","2":"50","3":"3002","4":"1806","5":"14.01","6":"16.42","7":"30.426","8":"20.0","9":"1.5213000","10":"5.42"},{"1":"43","2":"48","3":"2888","4":"4616","5":"37.05","6":"3.49","7":"40.546","8":"28.0","9":"1.4480714","10":"13.33"},{"1":"24","2":"53","3":"2913","4":"4645","5":"37.08","6":"33.75","7":"70.833","8":"52.0","9":"1.3621731","10":"13.53"},{"1":"17","2":"37","3":"2864","4":"5221","5":"29.14","6":"49.17","7":"78.308","8":"60.0","9":"1.3051333","10":"14.95"},{"1":"53","2":"52","3":"2703","4":"4226","5":"29.20","6":"22.00","7":"51.200","8":"40.0","9":"1.2800000","10":"11.40"},{"1":"59","2":"37","3":"2760","4":"3089","5":"24.05","6":"7.50","7":"31.546","8":"25.0","9":"1.2618400","10":"8.53"},{"1":"75","2":"68","3":"3114","4":"2477","5":"18.30","6":"18.80","7":"37.102","8":"30.0","9":"1.2367333","10":"7.71"},{"1":"26","2":"49","3":"3276","4":"3731","5":"33.04","6":"12.70","7":"45.735","8":"40.0","9":"1.1433750","10":"12.22"},{"1":"91","2":"79","3":"2405","4":"3267","5":"26.69","6":"6.46","7":"33.152","8":"30.0","9":"1.1050667","10":"7.86"},{"1":"27","2":"48","3":"3816","4":"13935","5":"116.60","6":"103.25","7":"219.851","8":"200.0","9":"1.0992550","10":"53.17"},{"1":"23","2":"48","3":"3033","4":"6284","5":"36.39","6":"53.40","7":"89.792","8":"82.0","9":"1.0950244","10":"19.06"},{"1":"39","2":"43","3":"2296","4":"3782","5":"19.49","6":"7.63","7":"27.121","8":"25.0","9":"1.0848400","10":"8.68"},{"1":"44","2":"50","3":"3750","4":"9715","5":"100.24","6":"74.58","7":"174.821","8":"163.0","9":"1.0725215","10":"36.43"},{"1":"4","2":"59","3":"3438","4":"7273","5":"68.91","6":"15.00","7":"83.911","8":"79.0","9":"1.0621646","10":"25.00"},{"1":"23","2":"31","3":"2940","4":"6060","5":"48.50","6":"21.20","7":"69.700","8":"70.0","9":"0.9957143","10":"17.80"},{"1":"83","2":"93","3":"1869","4":"2805","5":"13.66","6":"9.40","7":"23.057","8":"25.0","9":"0.9222800","10":"5.24"},{"1":"83","2":"84","3":"247","4":"7174","5":"5.31","6":"2.95","7":"8.258","8":"10.0","9":"0.8258000","10":"1.75"},{"1":"41","2":"59","3":"3606","4":"5889","5":"57.31","6":"49.20","7":"106.507","8":"135.0","9":"0.7889407","10":"21.24"},{"1":"7","2":"38","3":"2661","4":"3055","5":"21.30","6":"17.20","7":"38.502","8":"50.0","9":"0.7700400","10":"8.13"},{"1":"25","2":"48","3":"2986","4":"3132","5":"25.12","6":"27.84","7":"52.961","8":"70.0","9":"0.7565857","10":"9.35"},{"1":"36","2":"52","3":"2996","4":"2835","5":"16.93","6":"10.50","7":"27.428","8":"38.0","9":"0.7217895","10":"8.49"},{"1":"45","2":"38","3":"2290","4":"2265","5":"10.72","6":"18.21","7":"28.931","8":"45.0","9":"0.6429111","10":"5.19"},{"1":"92","2":"82","3":"3376","4":"3537","5":"33.70","6":"57.50","7":"91.203","8":"150.0","9":"0.6080200","10":"12.07"},{"1":"56","2":"65","3":"707","4":"4960","5":"11.54","6":"2.67","7":"14.211","8":"25.0","9":"0.5684400","10":"3.51"},{"1":"22","2":"34","3":"3015","4":"3324","5":"21.30","6":"27.50","7":"48.795","8":"90.0","9":"0.5421667","10":"10.02"},{"1":"26","2":"36","3":"2769","4":"3380","5":"21.60","6":"3.26","7":"24.856","8":"49.9","9":"0.4981162","10":"9.36"},{"1":"50","2":"48","3":"2273","4":"2259","5":"13.07","6":"8.48","7":"21.552","8":"45.0","9":"0.4789333","10":"5.14"},{"1":"46","2":"66","3":"265","4":"3856","5":"4.46","6":"9.73","7":"14.190","8":"30.0","9":"0.4730000","10":"1.02"},{"1":"66","2":"55","3":"106","4":"6111","5":"4.40","6":"0.40","7":"4.800","8":"15.0","9":"0.3200000","10":"0.64"},{"1":"62","2":"57","3":"22","4":"4890","5":"0.97","6":"5.40","7":"6.370","8":"21.0","9":"0.3033333","10":"0.11"},{"1":"36","2":"43","3":"3117","4":"2218","5":"21.39","6":"17.60","7":"38.992","8":"150.0","9":"0.2599467","10":"6.91"},{"1":"38","2":"62","3":"2150","4":"1513","5":"7.17","6":"0.24","7":"7.410","8":"41.0","9":"0.1807317","10":"3.25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -853,16 +1723,43 @@ Business Insights from Data Inspection
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="qwebr-insertion-location-4"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-4");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    4
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+movies_quant <- movies %>%
+  drop_na() %>%
+  select(where(is.numeric))
+movies_quant`, 
+  4);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <p>Now let us plot their relationships.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div>
-<div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">##</span></span>
@@ -889,30 +1786,28 @@ Business Insights from Data Inspection
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">RottenTomatoes</span> <span class="op">~</span> <span class="va">AudienceScore</span>, </span>
 <span>           color <span class="op">=</span> <span class="op">~</span> <span class="va">Genre</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span> <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_smooth.html">gf_lm</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/scatter-plot-ggformula_3d7fa3f81a185ac3f2e37ab2d180bb9d">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span> <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_smooth.html">gf_lm</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/scatter-plot-ggformula_3d7fa3f81a185ac3f2e37ab2d180bb9d" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggformula-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggformula-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggformula-3.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggformula-4.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div>
-<div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -935,26 +1830,75 @@ Business Insights from Data Inspection
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">RottenTomatoes</span>, <span class="va">AudienceScore</span>, color <span class="op">=</span> <span class="va">Genre</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/scatter-plot-ggplot_64b64a543f78493667030deaa9a30ec0">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/scatter-plot-ggplot_64b64a543f78493667030deaa9a30ec0" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggplot-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggplot-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggplot-3.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/scatter-plot-ggplot-4.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
 </div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div id="qwebr-insertion-location-5"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-5");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    5
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+
+##
+movies %>% 
+  gf_point(DomesticGross ~ WorldGross) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movie Gross Earnings: Domestics vs World")
+
+##
+movies %>% 
+  gf_point(Profitability ~ OpeningWeekend) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+
+##
+movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movie Ratings: Tomatoes vs Audience")
+
+##
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+##
+## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
+movies %>%
+  drop_na() %>%
+  gf_point(RottenTomatoes ~ AudienceScore, 
+           color = ~ Genre) %>%
+ gf_lm()`, 
+  5);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -980,17 +1924,16 @@ Business Insight from <code>movies</code> scatter plots
 </ul>
 </div>
 </div>
-</section><section id="iconify-gis-contour-map-2d-density-plot" class="level2"><h2 class="anchored" data-anchor-id="iconify-gis-contour-map-2d-density-plot">
+</section><section id="d-density-plot" class="level2"><h2 class="anchored" data-anchor-id="d-density-plot">
 <iconify-icon inline="" icon="gis:contour-map"></iconify-icon> 2D Density Plot</h2>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Using ggformula</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Using ggplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Using ggplot</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
-<div>
-<div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -1006,20 +1949,19 @@ Business Insight from <code>movies</code> scatter plots
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_density_2d.html">gf_density_2d</a></span><span class="op">(</span><span class="va">Profitability</span> <span class="op">~</span> <span class="va">OpeningWeekend</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_smooth.html">gf_lm</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Scatter Plot"</span>,</span>
-<span>            subtitle <span class="op">=</span> <span class="st">"Movies: Does Opening Week Earnings indicate Profitability?"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/unnamed-chunk-9_724f84382211d3795b569c74b64f5e35">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>            subtitle <span class="op">=</span> <span class="st">"Movies: Does Opening Week Earnings indicate Profitability?"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/unnamed-chunk-9_724f84382211d3795b569c74b64f5e35" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
-</div>
 <div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-10_bcfbecfd2eab642608efb076e5ba36a6">
-<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">movies</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -1027,15 +1969,17 @@ Business Insight from <code>movies</code> scatter plots
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_density_2d.html">gf_density_2d</a></span><span class="op">(</span><span class="va">RottenTomatoes</span> <span class="op">~</span> <span class="va">AudienceScore</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_smooth.html">gf_lm</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Scatter Plot"</span>,</span>
-<span>            subtitle <span class="op">=</span> <span class="st">"Movie Ratings: Tomatoes vs Audience"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>            subtitle <span class="op">=</span> <span class="st">"Movie Ratings: Tomatoes vs Audience"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-corr_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="2100"></p>
-</div>
-</div>
-</div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div>
-<div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<figure class="figure"><p><img src="intro-corr_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -1053,20 +1997,19 @@ Business Insight from <code>movies</code> scatter plots
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/geom_lm.html">geom_lm</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Scatter Plot"</span>,</span>
-<span>            subtitle <span class="op">=</span> <span class="st">"Movies: Does Opening Week Earnings indicate Profitability?"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/unnamed-chunk-11_326789e573a0b2710a1eab956a9c99cb">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>            subtitle <span class="op">=</span> <span class="st">"Movies: Does Opening Week Earnings indicate Profitability?"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/unnamed-chunk-11_326789e573a0b2710a1eab956a9c99cb" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
-</div>
 <div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-12_d8ae54c8283d04edc4f95fff1c51cd1f">
-<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
+<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Set graph theme</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span>, </span>
 <span>                                       base_family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">##</span></span>
@@ -1076,9 +2019,12 @@ Business Insight from <code>movies</code> scatter plots
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/geom_lm.html">geom_lm</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Scatter Plot"</span>,</span>
-<span>            subtitle <span class="op">=</span> <span class="st">"Movie Ratings: Tomatoes vs Audience"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>            subtitle <span class="op">=</span> <span class="st">"Movie Ratings: Tomatoes vs Audience"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-corr_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="intro-corr_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 </div>
@@ -1111,17 +2057,17 @@ Independent and Dependent Variables
 <p>Note that we have rather <em>arbitrarily</em> taken <code>AudienceScore</code> as the independent variable, to be plotted on the <code>x-axis</code>, and <code>RottenTomatoes</code> on the <code>y-axis</code>. It could easily have been the other way around, based on our Research Question. Datasets are gathered with specific Research Hypotheses in mind, so check the help file and also with the person who gathered the data about what variable they are interested in!</p>
 </div>
 </div>
-</section><section id="iconify-flat-color-icons-workflow-quantizing-correlation" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-quantizing-correlation">
+</section><section id="quantizing-correlation" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="quantizing-correlation">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Quantizing Correlation</h2>
 <p>So we see that there are visible relationships between Quant variables. How do we <strong>quantize</strong> this relationship, into a <strong>correlation score</strong>?</p>
 <p>There are two ways: using the <code>GGally</code> and <code>corplot</code> packages, and doing a formal <strong>correlation test</strong> with the <code>mosaic</code> package.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Using GGally</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Using corrplot</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Using GGally</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Using corrplot</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
 <p>By default,&nbsp;<a href="https://ggobi.github.io/ggally/reference/ggpairs.html"><code>GGally::ggpairs()</code></a>&nbsp;provides:<br></p>
 <ul>
 <li>two different comparisons of each pair of columns</li>
@@ -1130,16 +2076,16 @@ Independent and Dependent Variables
 </li>
 </ul>
 <div class="cell" data-hash="intro-corr_cache/html/pairs chart_634fffca00f3e94b9c661c2a80fab92c">
-<div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="co"># Works better for ggpairs</span></span>
+<div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="co"># Works better for ggpairs</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">movies_quant</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">movies_quant</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> [1] "RottenTomatoes"    "AudienceScore"     "TheatersOpenWeek" 
  [4] "BOAverageOpenWeek" "DomesticGross"     "ForeignGross"     
  [7] "WorldGross"        "Budget"            "Profitability"    
 [10] "OpeningWeekend"   </code></pre>
 </div>
-<div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
 <span>  <span class="va">movies</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="co"># Select Quant variables only for now</span></span>
 <span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
@@ -1161,9 +2107,12 @@ Independent and Dependent Variables
 <span>  title <span class="op">=</span> <span class="st">"Movies Data Correlations Plot #1"</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-corr_files/figure-html/pairs chart-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="intro-corr_files/figure-html/pairs chart-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1189,7 +2138,7 @@ Business Insight from Pairs Plot#1
 </div>
 <p>Let us also try a few other variables, related to budget and profits. For instance, it would be interesting to see the relationship between <code>Budget</code> and <code>Profitability</code> and even either of the “gross” earnings and <code>Profitability</code>.</p>
 <div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-14_c719c1fa789dca3122c1020da900ef40">
-<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">GGally</span><span class="fu">::</span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
 <span>  <span class="va">movies</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="co"># Select Quant variables only for now</span></span>
 <span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
@@ -1211,9 +2160,12 @@ Business Insight from Pairs Plot#1
 <span>  title <span class="op">=</span> <span class="st">"Movies Data Correlations Plot #2"</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-corr_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="intro-corr_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1235,7 +2187,7 @@ Business Insight from Pairs Plot #2
 </div>
 </div>
 </div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
 <p>In this chart, the correlation between pairs of variables is shown <em>symbolically</em> as coloured shapes or colours. Circles, Squares, and Ellipse for example.</p>
 <ul>
 <li>The size, colour, and “orientation” of the shapes in question symbolically represent the strength and polarity of the correlation scores.</li>
@@ -1269,8 +2221,7 @@ Tip
 <p>R package <code>corrplot</code> provides a visual exploratory tool on correlation matrix that supports <strong>automatic variable reordering</strong> to help detect hidden patterns among variables. <code>corrplot</code> is very easy to use and provides a rich array of plotting options in visualization method, graphic layout, color, legend, text labels, etc. It also provides <code>p-values</code> and <code>confidence intervals</code> to help users determine the <strong>statistical significance</strong> of the correlations.</p>
 </div>
 </div>
-<div>
-<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># library(corrplot)</span></span>
+<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># library(corrplot)</span></span>
 <span></span>
 <span></span>
 <span><span class="va">mydata_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">cor</a></span><span class="op">(</span><span class="va">movies_quant</span><span class="op">)</span></span>
@@ -1297,10 +2248,10 @@ Tip
 <span>         cl.cex <span class="op">=</span> <span class="fl">0.6</span>, tl.cex <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>               upper <span class="op">=</span> <span class="st">"number"</span>,</span>
 <span>               tl.pos <span class="op">=</span> <span class="st">"l"</span>,</span>
-<span>               main <span class="op">=</span> <span class="st">"Heatmap?"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/cor-plot_f6fd74971820970b4444ff988003a5d0">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<span>               main <span class="op">=</span> <span class="st">"Heatmap?"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="intro-corr_cache/html/cor-plot_f6fd74971820970b4444ff988003a5d0" data-layout-ncol="3">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <table class="table table-sm table-striped small">
 <caption>Correlation Scores Matrix</caption>
 <colgroup>
@@ -1463,23 +2414,22 @@ Tip
 </tbody>
 </table>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/cor-plot-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/cor-plot-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/cor-plot-3.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/cor-plot-4.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="intro-corr_files/figure-html/cor-plot-5.png" class="img-fluid" width="2100"></p>
-</div>
 </div>
 </div>
 </div>
@@ -1504,10 +2454,10 @@ Business Insights from corplots
 <section id="doing-a-correlation-test" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="doing-a-correlation-test">Doing a Correlation Test</h3>
 <p>Correlations scores can be obtained by conducting a formal test in R. We will use the <code>mosaic</code> function <code>cor_test</code> to get these results:</p>
 <div class="cell page-columns page-full" data-hash="intro-corr_cache/html/unnamed-chunk-16_76e9acd05ee0d5f33cc92fe423459645">
-<div class="sourceCode" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">Profitability</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">Profitability</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>               caption <span class="op">=</span> <span class="st">"Movie Profitability vs Budget"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>               caption <span class="op">=</span> <span class="st">"Movie Profitability vs Budget"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display column-body-outset-right">
 <table class="table table-sm table-striped small">
 <caption>Movie Profitability vs Budget</caption>
@@ -1543,10 +2493,10 @@ Business Insights from corplots
 </tr></tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">DomesticGross</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">DomesticGross</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>               caption <span class="op">=</span> <span class="st">"Movie Domestic Gross vs Budget"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>               caption <span class="op">=</span> <span class="st">"Movie Domestic Gross vs Budget"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display column-body-outset-right">
 <table class="table table-sm table-striped small">
 <caption>Movie Domestic Gross vs Budget</caption>
@@ -1582,10 +2532,10 @@ Business Insights from corplots
 </tr></tbody>
 </table>
 </div>
-<div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">ForeignGross</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/cor.test.html">cor_test</a></span><span class="op">(</span><span class="va">ForeignGross</span> <span class="op">~</span> <span class="va">Budget</span>, data <span class="op">=</span> <span class="va">movies</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>               caption <span class="op">=</span> <span class="st">"Movie Foreign Gross vs Budget"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>               caption <span class="op">=</span> <span class="st">"Movie Foreign Gross vs Budget"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display column-body-outset-right">
 <table class="table table-sm table-striped small">
 <caption>Movie Foreign Gross vs Budget</caption>
@@ -1639,27 +2589,30 @@ Business Insights from Correlation Tests
 </section></section><section id="a-new-combination-plot" class="level2"><h2 class="anchored" data-anchor-id="a-new-combination-plot">A New Combination Plot…</h2>
 <p>Sometimes, a simple scatter, or density alone, or viewed next to one another is not adequate to develop, or convey, our insight. We might just need a combination density + scatter plot. Such a plot can be be constructed from the ground up using <code>ggformula</code> or <code>ggplot</code>; however, there is a nice package called <code>ggExtra</code> that allows the creation of a powerful combination plot:</p>
 <div class="cell" data-hash="intro-corr_cache/html/Scatter-Plot with Marginal Densities_7d937113e048511b5776e3bf097b4545">
-<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/daattali/ggExtra">ggExtra</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/daattali/ggExtra">ggExtra</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">penguins</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_point.html">gf_point</a></span><span class="op">(</span><span class="va">body_mass_g</span>  <span class="op">~</span> <span class="va">flipper_length_mm</span>, colour <span class="op">=</span> <span class="op">~</span> <span class="va">species</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_smooth.html">gf_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">ggExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ggExtra/man/ggMarginal.html">ggMarginal</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"density"</span>, groupColour <span class="op">=</span> <span class="cn">TRUE</span>, groupFill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu">ggExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ggExtra/man/ggMarginal.html">ggMarginal</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"density"</span>, groupColour <span class="op">=</span> <span class="cn">TRUE</span>, groupFill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-corr_files/figure-html/Scatter-Plot with Marginal Densities-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="intro-corr_files/figure-html/Scatter-Plot with Marginal Densities-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
 </div>
 </div>
-</section><section id="iconify-fluent-mdl2-decision-solid-conclusions" class="level2"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-decision-solid-conclusions">
+</div>
+</section><section id="conclusions" class="level2"><h2 class="anchored" data-anchor-id="conclusions">
 <iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</h2>
-<p>Our workflow for evaluating correlations between target variable and other predictor variables uses several packages such as <code>GGally</code>, <code>corrplot</code>, and of course <code>mosaic</code> for correlation tests. We will explore more R code for these in the tutorials <a href="#sec-slides-and-tutorials">Section&nbsp;1</a>.</p>
-</section><section id="iconify-ooui-references-ltr-references" class="level2"><h2 class="anchored" data-anchor-id="iconify-ooui-references-ltr-references">
+<p>Our workflow for evaluating correlations between target variable and other predictor variables uses several packages such as <code>GGally</code>, <code>corrplot</code>, and of course <code>mosaic</code> for correlation tests. We will explore more R code for these in the tutorials <a href="#sec-slides-and-tutorials" class="quarto-xref">Section&nbsp;1</a>.</p>
+</section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">
 <iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" data-entry-spacing="0" role="list">
 <p><br>
 Minimal R using <code>mosaic</code>. <a href="https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf" class="uri">https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf</a><br>
 Antoine Soetewey. <em>Pearson, Spearman and Kendall correlation coefficients by hand</em> <a href="https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/" class="uri">https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/</a><br></p>
-<section id="iconify-lucide-package-check-r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="iconify-lucide-package-check-r-package-citations">
+<section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check"></iconify-icon> R Package Citations</h6>
 <div class="cell" data-hash="intro-corr_cache/html/unnamed-chunk-18_7e0c0bf6c5dfe042e7b08f36d550677c">
 <div class="cell-output-display">
@@ -1702,7 +2655,7 @@ Wei, Taiyun, and Viliam Simko. 2021. <em>R Package <span>“<span class="nocase"
 </div>
 
 
-</section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2022,
+</section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2022,
   author = {V., Arvind},
   title = {📎 {Correlations}},
   date = {2022-11-22},
@@ -1739,62 +2692,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
       }
     }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1804,8 +2724,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1818,6 +2747,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1861,6 +2909,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1886,6 +2935,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1943,22 +3018,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       });
     }
   }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-          // target, if specified
-          link.setAttribute("target", "_blank");
-          // default icon
-          link.classList.add("external");
-      }
-    }
 });
 </script>
 </div> <!-- /content -->
@@ -1966,7 +3025,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>
+    <div class="nav-footer-center">
+<p>Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

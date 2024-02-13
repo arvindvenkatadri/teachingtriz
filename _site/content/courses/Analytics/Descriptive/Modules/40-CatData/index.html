@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind V.">
 <meta name="dcterms.date" content="2022-12-27">
@@ -21,7 +21,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -57,6 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -97,7 +98,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -106,6 +113,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -113,21 +121,667 @@ div.csl-indent {
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <script src="../../../../../../site_libs/kePrint-0.0.1/kePrint.js"></script><link href="../../../../../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style type="text/css">.monaco-editor pre {
+  background-color: unset !important;
+}
+
+.qwebr-icon-status-spinner {
+  color: #7894c4;
+}
+
+.qwebr-icon-run-code {
+  color: #0d9c29
+}
+
+.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+.qwebr-editor {
+  border: 1px solid #EEEEEE;
+}
+
+.qwebr-button-run {
+  background-color: #EEEEEE;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; /* Extra styling for consistency */
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #000;
+  text-align: center;
+  text-decoration: none;
+  -webkit-text-decoration: none;
+  -moz-text-decoration: none;
+  -ms-text-decoration: none;
+  -o-text-decoration: none;
+  /* vertical-align: middle; */ /* Prevents a space from appearing between the code cell and button */
+  -webkit-user-select: none;
+  border-color: #dee2e6;
+  border: 1px solid rgba(0,0,0,0);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.qwebr-button-run:hover {
+  color: #000;
+  background-color: #e3e6ea;
+  border-color: #e1e5e9;
+}
+
+.qwebr-button-run:disabled,.qwebr-button-run.disabled,fieldset:disabled .qwebr-button-run {
+  pointer-events: none;
+  opacity: .65
+}
+
+/* Custom styling for RevealJS Presentations*/
+
+/* Reset the style of the interactive area */
+.reveal div.qwebr-interactive-area {
+  display: block;
+  box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+} 
+
+/* Provide space to entries */
+.reveal div.qwebr-output-code-area pre div {
+  margin: 1px 2px 1px 10px;
+}
+
+/* Collapse the inside code tags to avoid extra space between line outputs */
+.reveal pre div code.qwebr-output-code-stdout, .reveal pre div code.qwebr-output-code-stderr {
+  padding: 0;
+  display: contents;
+}
+
+.reveal pre div code.qwebr-output-code-stdout {
+  color: #111;
+}
+
+.reveal pre div code.qwebr-output-code-stderr {
+  color: #db4133;
+}
+
+
+/* Create a border around console and output (does not effect graphs) */
+.reveal div.qwebr-console-area {
+  border: 1px solid #EEEEEE;
+  box-shadow: 2px 2px 10px #EEEEEE;
+}
+
+/* Cap output height and allow text to scroll */
+/* TODO: Is there a better way to fit contents/max it parallel to the monaco editor size? */
+.reveal div.qwebr-output-code-area pre {
+  max-height: 400px;
+  overflow: scroll;
+}
+</style>
+<script type="module">// Start a timer
+const initializeWebRTimerStart = performance.now();
+
+// Determine if we need to install R packages
+var installRPackagesList = ['readr', 'dplyr', 'mosaic', 'skimr', 'ggformula', 'GGally', 'kableExtra', 'vcd', 'vcdExtra', 'ggmosaic', 'resampledata', 'sjPlot', 'sjlabelled', 'ggpubr'];
+// Check to see if we have an empty array, if we do set to skip the installation.
+var setupRPackages = !(installRPackagesList.indexOf("") !== -1);
+var autoloadRPackages = true;
+
+// Display a startup message?
+var showStartupMessage = true;
+var showHeaderMessage = false;
+if (showStartupMessage) {
+
+  // Get references to header elements
+  const headerHTML = document.getElementById("title-block-header");
+  const headerRevealJS = document.getElementById("title-slide");
+
+  // Create the outermost div element for metadata
+  const quartoTitleMeta = document.createElement("div");
+  quartoTitleMeta.classList.add("quarto-title-meta");
+
+  // Create the first inner div element
+  const firstInnerDiv = document.createElement("div");
+  firstInnerDiv.setAttribute("id", "qwebr-status-message-area");
+
+  // Create the second inner div element for "WebR Status" heading and contents
+  const secondInnerDiv = document.createElement("div");
+  secondInnerDiv.setAttribute("id", "qwebr-status-message-title");
+  secondInnerDiv.classList.add("quarto-title-meta-heading");
+  secondInnerDiv.innerText = "WebR Status";
+
+  // Create another inner div for contents
+  const secondInnerDivContents = document.createElement("div");
+  secondInnerDivContents.setAttribute("id", "qwebr-status-message-body");
+  secondInnerDivContents.classList.add("quarto-title-meta-contents");
+
+  // Describe the WebR state
+  var startupMessageWebR = document.createElement("p");
+  startupMessageWebR.innerText = "🟡 Loading...";
+  startupMessageWebR.setAttribute("id", "qwebr-status-message-text");
+  // Add `aria-live` to auto-announce the startup status to screen readers
+  startupMessageWebR.setAttribute("aria-live", "assertive");
+
+  // Append the startup message to the contents
+  secondInnerDivContents.appendChild(startupMessageWebR);
+
+  // Add a status indicator for COOP and COEP Headers if needed
+  if (showHeaderMessage) {
+    const crossOriginMessage = document.createElement("p");
+    crossOriginMessage.innerText = `${crossOriginIsolated ? '🟢' : '🟡'} COOP & COEP Headers`;
+    crossOriginMessage.setAttribute("id", "qwebr-coop-coep-header");
+    secondInnerDivContents.appendChild(crossOriginMessage);
+  }
+
+  // Combine the inner divs and contents
+  firstInnerDiv.appendChild(secondInnerDiv);
+  firstInnerDiv.appendChild(secondInnerDivContents);
+  quartoTitleMeta.appendChild(firstInnerDiv);
+
+  // Determine where to insert the quartoTitleMeta element
+  if (headerHTML) {
+    // Append to the existing "title-block-header" element
+    headerHTML.appendChild(quartoTitleMeta);
+  } else if (headerRevealJS) {
+    // If using RevealJS, add to the "title-slide" div
+    headerRevealJS.appendChild(firstInnerDiv);
+  } else {
+    // If neither headerHTML nor headerRevealJS is found, insert after "webr-monaco-editor-init" script
+    const monacoScript = document.getElementById("qwebr-monaco-editor-init");
+    const header = document.createElement("header");
+    header.setAttribute("id", "title-block-header");
+    header.appendChild(quartoTitleMeta);
+    monacoScript.after(header);
+  }
+}
+
+// Retrieve the webr.mjs
+import { WebR, ChannelType } from "https://webr.r-wasm.org/v0.2.2/webr.mjs";
+
+// Populate WebR options with defaults or new values based on 
+// webr meta
+globalThis.webR = new WebR({
+  "baseURL": "https://webr.r-wasm.org/v0.2.2/",
+  "serviceWorkerUrl": "",
+  "homedir": "/home/web_user", 
+  "channelType": ChannelType.Automatic
+});
+
+// Initialization WebR
+await webR.init();
+
+// Setup a shelter
+globalThis.webRCodeShelter = await new webR.Shelter();
+
+// Setup a pager to allow processing help documentation 
+await webR.evalRVoid('webr::pager_install()'); 
+
+// Function to set the button text
+function qwebrSetInteractiveButtonState(buttonText, enableCodeButton = true) {
+  document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+    btn.innerHTML = buttonText;
+    btn.disabled = !enableCodeButton;
+  });
+}
+
+// Function to update the status message
+function qwebrUpdateStatusHeader(message) {
+  startupMessageWebR.innerHTML = `
+    <i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i>
+    <span>${message}</span>`;
+}
+
+// Function to install a single package
+async function qwebrInstallRPackage(packageName) {
+  await globalThis.webR.installPackages([packageName]);
+}
+
+// Function to load a single package
+async function qwebrLoadRPackage(packageName) {
+  await globalThis.webR.evalRVoid(`library(${packageName});`);
+}
+
+// Generic function to process R packages
+async function qwebrProcessRPackagesWithStatus(packages, processType, displayStatusMessageUpdate = true) {
+  // Switch between contexts
+  const messagePrefix = processType === 'install' ? 'Installing' : 'Loading';
+
+  // Modify button state
+  qwebrSetInteractiveButtonState(`🟡 ${messagePrefix} package ...`, false);
+
+  // Iterate over packages
+  for (let i = 0; i < packages.length; i++) {
+    const activePackage = packages[i];
+    const formattedMessage = `${messagePrefix} package ${i + 1} out of ${packages.length}: ${activePackage}`;
+    
+    // Display the update
+    if (displayStatusMessageUpdate) {
+      qwebrUpdateStatusHeader(formattedMessage);
+    }
+
+    // Run package installation
+    if (processType === 'install') {
+      await qwebrInstallRPackage(activePackage);
+    } else {
+      await qwebrLoadRPackage(activePackage);
+    }
+  }
+
+  // Clean slate
+  if (processType === 'load') {
+    await globalThis.webR.flush();
+  }
+}
+
+
+// Check to see if any packages need to be installed
+if (setupRPackages) {
+  // Obtain only a unique list of packages
+  const uniqueRPackageList = Array.from(new Set(installRPackagesList));
+
+  // Install R packages one at a time (either silently or with a status update)
+  await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'install', showStartupMessage);
+
+  if(autoloadRPackages) {
+    // Load R packages one at a time (either silently or with a status update)
+    await qwebrProcessRPackagesWithStatus(uniqueRPackageList, 'load', showStartupMessage);
+  }
+}
+
+// Stop timer
+const initializeWebRTimerEnd = performance.now();
+
+// Release document status as ready
+if (showStartupMessage) {
+  startupMessageWebR.innerText = "🟢 Ready!"
+}
+
+qwebrSetInteractiveButtonState(
+  `<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>`, 
+  true
+);
+
+// Global version of the Escape HTML function that converts HTML 
+// characters to their HTML entities.
+globalThis.qwebrEscapeHTMLCharacters = function(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};</script><script type="module">// Supported Evaluation Types for Context
+globalThis.EvalTypes = Object.freeze({
+    Interactive: 'interactive',
+    Setup: 'setup',
+    Output: 'output',
+});
+
+// Function to verify a given JavaScript Object is empty
+globalThis.qwebrIsObjectEmpty = function (arr) {
+    return Object.keys(arr).length === 0;
+}
+
+// Function to parse the pager results
+globalThis.qwebrParseTypePager = async function (msg) { 
+
+    // Split out the event data
+    const { path, title, deleteFile } = msg.data; 
+
+    // Process the pager data by reading the information from disk
+    const paged_data = await webR.FS.readFile(path).then((data) => {
+        // Obtain the file content
+        let content = new TextDecoder().decode(data);
+
+        // Remove excessive backspace characters until none remain
+        while(content.match(/.[\b]/)){
+        content = content.replace(/.[\b]/g, '');
+        }
+
+        // Returned cleaned data
+        return content;
+    });
+
+    // Unlink file if needed
+    if (deleteFile) { 
+        await webR.FS.unlink(path); 
+    } 
+
+    // Return extracted data with spaces
+    return paged_data;
+} 
+
+// Function to run the code using webR and parse the output
+globalThis.qwebrComputeEngine = async function(
+    codeToRun, 
+    elements, 
+    options) {
+
+    // Call into the R compute engine that persists within the document scope.
+    // To be prepared for all scenarios, the following happens: 
+    // 1. We setup a canvas device to write to by making a namespace call into the {webr} package
+    // 2. We use values inside of the options array to set the figure size.
+    // 3. We capture the output stream information (STDOUT and STERR)
+    // 4. While parsing the results, we disable image creation.
+
+    // Create a canvas variable for graphics
+    let canvas = undefined;
+
+    // Create a pager variable for help/file contents
+    let pager = [];
+
+    // ---- 
+
+    // Initialize webR
+    await webR.init();
+
+    // Setup a webR canvas by making a namespace call into the {webr} package
+    await webR.evalRVoid(`webr::canvas(width=${options["fig-width"]}, height=${options["fig-height"]})`);
+
+    const result = await webRCodeShelter.captureR(codeToRun, {
+        withAutoprint: true,
+        captureStreams: true,
+        captureConditions: false//,
+        // env: webR.objs.emptyEnv, // maintain a global environment for webR v0.2.0
+    });
+
+    // -----
+
+    // Start attempting to parse the result data
+    try {
+
+        // Stop creating images
+        await webR.evalRVoid("dev.off()");
+
+        // Merge output streams of STDOUT and STDErr (messages and errors are combined.)
+        const out = result.output
+        .filter(evt => evt.type === "stdout" || evt.type === "stderr")
+        .map((evt, index) => {
+            const className = `qwebr-output-code-${evt.type}`;
+            return `<code id="${className}-editor-${elements.id}-result-${index + 1}" class="${className}">${qwebrEscapeHTMLCharacters(evt.data)}</code>`;
+        })
+        .join("\n");
+
+
+        // Clean the state
+        // We're now able to process both graphics and pager events.
+        // As a result, we cannot maintain a true 1-to-1 output order 
+        // without individually feeding each line
+        const msgs = await webR.flush();
+
+        // Output each image event stored
+        msgs.forEach((msg) => {
+        // Determine if old canvas can be used or a new canvas is required.
+        if (msg.type === 'canvas'){
+            // Add image to the current canvas
+            if (msg.data.event === 'canvasImage') {
+                canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
+            } else if (msg.data.event === 'canvasNewPage') {
+                // Generate a new canvas element
+                canvas = document.createElement("canvas");
+                canvas.setAttribute("width", 2 * options["fig-width"]);
+                canvas.setAttribute("height", 2 * options["fig-height"]);
+                canvas.style.width = "700px";
+                canvas.style.display = "block";
+                canvas.style.margin = "auto";
+            }
+        } 
+        });
+
+        // Use `map` to process the filtered "pager" events asynchronously
+        const pager = await Promise.all(
+            msgs.filter(msg => msg.type === 'pager').map(
+                async (msg) => {
+                    return await qwebrParseTypePager(msg);
+                }
+            )
+        );
+
+        // Nullify the output area of content
+        elements.outputCodeDiv.innerHTML = "";
+        elements.outputGraphDiv.innerHTML = "";
+
+        // Design an output object for messages
+        const pre = document.createElement("pre");
+        if (/\S/.test(out)) {
+            // Display results as HTML elements to retain output styling
+            const div = document.createElement("div");
+            div.innerHTML = out;
+            pre.appendChild(div);
+        } else {
+            // If nothing is present, hide the element.
+            pre.style.visibility = "hidden";
+        }
+
+        elements.outputCodeDiv.appendChild(pre);
+
+        // Place the graphics on the canvas
+        if (canvas) {
+            elements.outputGraphDiv.appendChild(canvas);
+        }
+
+        // Display the pager data
+        if (pager) {
+        // Use the `pre` element to preserve whitespace.
+        pager.forEach((paged_data, index) => {
+            let pre_pager = document.createElement("pre");
+            pre_pager.innerText = paged_data;
+            pre_pager.classList.add("qwebr-output-code-pager");
+            pre_pager.setAttribute("id", `qwebr-output-code-pager-editor-${elements.id}-result-${index + 1}`);
+            elements.outputCodeDiv.appendChild(pre_pager);
+        });
+        }
+    } finally {
+        // Clean up the remaining code
+        webRCodeShelter.purge();
+    }
+}
+
+// Function to execute the code (accepts code as an argument)
+globalThis.qwebrExecuteCode = async function (
+    codeToRun,
+    id,
+    evalType = EvalTypes.Interactive,
+    options = {}) {
+
+    // If options are not passed, we fall back on the bare minimum to handle the computation
+    if (qwebrIsObjectEmpty(options)) {
+        options = { "fig-width": 504, "fig-height": 360 };
+    }
+
+    // Next, we access the compute areas values
+    const elements = {
+        runButton: document.getElementById(`qwebr-button-run-${id}`),
+        outputCodeDiv: document.getElementById(`qwebr-output-code-area-${id}`),
+        outputGraphDiv: document.getElementById(`qwebr-output-graph-area-${id}`),
+        id: id,
+    }
+
+    // Disallowing execution of other code cells
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = true;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Emphasize the active code cell
+        elements.runButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin qwebr-icon-status-spinner"></i> <span>Run Code</span>';
+    }
+
+    // Evaluate the code and parse the output into the document
+    await qwebrComputeEngine(codeToRun, elements, options);
+
+    // Switch to allowing execution of code
+    document.querySelectorAll(".qwebr-button-run").forEach((btn) => {
+        btn.disabled = false;
+    });
+
+    if (evalType == EvalTypes.Interactive) {
+        // Revert to the initial code cell state
+        elements.runButton.innerHTML = '<i class="fa-solid fa-play qwebr-icon-run-code"></i> <span>Run Code</span>';
+    }
+}
+</script><script type="module">// Function that dispatches the creation request
+globalThis.qwebrCreateHTMLElement = function (insertElement,
+  qwebrCounter, 
+  evalType = EvalTypes.Interactive,
+  options = {}) {
+
+  // Figure out the routine to use to insert the element.
+  let qwebrElement;
+  switch ( evalType ) {
+    case EvalTypes.Interactive: 
+      qwebrElement = qwebrCreateInteractiveElement(qwebrCounter);
+    case EvalTypes.Output: 
+      qwebrElement = qwebrCreateNonInteractiveOutputElement(qwebrCounter);
+    case EvalTypes.Setup: 
+      qwebrElement = qwebrCreateNonInteractiveSetupElement(qwebrCounter);
+    default: 
+      qwebrElement = document.createElement('div');
+      qwebrElement.textContent = 'Error creating element';
+  }
+
+  // Insert the dynamically generated object at the document location.
+  insertElement.appendChild(qwebrElement);
+};
+
+// Function that setups the interactive element creation
+globalThis.qwebrCreateInteractiveElement = function (qwebrCounter) {
+
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-interactive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-interactive-area';
+
+  // Create button element
+  var button = document.createElement('button');
+  button.className = 'btn btn-default qwebr-button-run';
+  button.disabled = true;
+  button.type = 'button';
+  button.id = 'qwebr-button-run-' + qwebrCounter;
+  button.textContent = '🟡 Loading webR...';
+
+  // Create console area div
+  var consoleAreaDiv = document.createElement('div');
+  consoleAreaDiv.id = 'qwebr-console-area-' + qwebrCounter;
+  consoleAreaDiv.className = 'qwebr-console-area';
+
+  // Create editor div
+  var editorDiv = document.createElement('div');
+  editorDiv.id = 'qwebr-editor-' + qwebrCounter;
+  editorDiv.className = 'qwebr-editor';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(button);
+  consoleAreaDiv.appendChild(editorDiv);
+  consoleAreaDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(consoleAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+}
+
+// Function that adds output structure for non-interactive output
+globalThis.qwebrCreateNonInteractiveOutputElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-area';
+
+  // Create output code area div
+  var outputCodeAreaDiv = document.createElement('div');
+  outputCodeAreaDiv.id = 'qwebr-output-code-area-' + qwebrCounter;
+  outputCodeAreaDiv.className = 'qwebr-output-code-area';
+  outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+  // Create pre element inside output code area
+  var preElement = document.createElement('pre');
+  preElement.style.visibility = 'hidden';
+  outputCodeAreaDiv.appendChild(preElement);
+
+  // Create output graph area div
+  var outputGraphAreaDiv = document.createElement('div');
+  outputGraphAreaDiv.id = 'qwebr-output-graph-area-' + qwebrCounter;
+  outputGraphAreaDiv.className = 'qwebr-output-graph-area';
+
+  // Append all elements to the main div
+  mainDiv.appendChild(outputCodeAreaDiv);
+  mainDiv.appendChild(outputGraphAreaDiv);
+
+  return mainDiv;
+};
+
+// Function that adds a stub in the page to indicate a setup cell was used.
+globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
+  // Create main div element
+  var mainDiv = document.createElement('div');
+  mainDiv.id = 'qwebr-noninteractive-setup-area-' + qwebrCounter;
+  mainDiv.className = 'qwebr-noninteractive-setup-area';
+
+  return mainDiv;
+}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <meta property="og:title" content="The Foundation Series - 🐉 Visualizing Categorical Data">
 <meta property="og:description" content="Types, Categories, and Counts">
-<meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/40-CatData/cube.jpg">
-<meta property="og:site-name" content="The Foundation Series">
+<meta property="og:site_name" content="The Foundation Series">
 <meta name="twitter:title" content="The Foundation Series - 🐉 Visualizing Categorical Data">
 <meta name="twitter:description" content="Types, Categories, and Counts">
-<meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/40-CatData/cube.jpg">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 </head>
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
@@ -139,55 +793,55 @@ div.csl-indent {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../../../../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com" rel="" target=""><i class="bi bi-envelope" role="img">
+    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com"> <i class="bi bi-envelope" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
+</div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🐉 Visualizing Categorical Data</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🐉 Visualizing Categorical Data</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
@@ -317,32 +971,171 @@ div.csl-indent {
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
 <li><a href="#sec-setting-up-r-packages" id="toc-sec-setting-up-r-packages" class="nav-link active" data-scroll-target="#sec-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
-  <li><a href="#iconify-openmoji-japanese-symbol-for-beginner-introduction" id="toc-iconify-openmoji-japanese-symbol-for-beginner-introduction" class="nav-link" data-scroll-target="#iconify-openmoji-japanese-symbol-for-beginner-introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
-  <li><a href="#iconify-mdi-category-plus-outline-categorical-data" id="toc-iconify-mdi-category-plus-outline-categorical-data" class="nav-link" data-scroll-target="#iconify-mdi-category-plus-outline-categorical-data"><iconify-icon inline="" icon="mdi:category-plus-outline"></iconify-icon> Categorical Data</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
+  <li><a href="#categorical-data" id="toc-categorical-data" class="nav-link" data-scroll-target="#categorical-data"><iconify-icon inline="" icon="mdi:category-plus-outline"></iconify-icon> Categorical Data</a></li>
   <li><a href="#sec-creating-contingency-tables" id="toc-sec-creating-contingency-tables" class="nav-link" data-scroll-target="#sec-creating-contingency-tables"><iconify-icon inline="" icon="grommet-icons:table-add"></iconify-icon> Creating Contingency Tables</a></li>
   <li>
-<a href="#iconify-carbon-chart-3d-plots-for-categorical-data" id="toc-iconify-carbon-chart-3d-plots-for-categorical-data" class="nav-link" data-scroll-target="#iconify-carbon-chart-3d-plots-for-categorical-data"><iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Plots for Categorical Data</a>
+<a href="#plots-for-categorical-data" id="toc-plots-for-categorical-data" class="nav-link" data-scroll-target="#plots-for-categorical-data"><iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Plots for Categorical Data</a>
   <ul class="collapse">
 <li><a href="#simple-bar-plots" id="toc-simple-bar-plots" class="nav-link" data-scroll-target="#simple-bar-plots">Simple Bar Plots</a></li>
-  <li><a href="#iconify-material-symbols-auto-awesome-mosaic-outline-sharp-plotting-contingency-tables-with-mosaic-plots" id="toc-iconify-material-symbols-auto-awesome-mosaic-outline-sharp-plotting-contingency-tables-with-mosaic-plots" class="nav-link" data-scroll-target="#iconify-material-symbols-auto-awesome-mosaic-outline-sharp-plotting-contingency-tables-with-mosaic-plots"><iconify-icon inline="" icon="material-symbols:auto-awesome-mosaic-outline-sharp"></iconify-icon> Plotting Contingency Tables with Mosaic Plots</a></li>
+  <li><a href="#plotting-contingency-tables-with-mosaic-plots" id="toc-plotting-contingency-tables-with-mosaic-plots" class="nav-link" data-scroll-target="#plotting-contingency-tables-with-mosaic-plots"><iconify-icon inline="" icon="material-symbols:auto-awesome-mosaic-outline-sharp"></iconify-icon> Plotting Contingency Tables with Mosaic Plots</a></li>
   </ul>
 </li>
-  <li><a href="#iconify-fluent-mdl2-balloons-balloon-plots" id="toc-iconify-fluent-mdl2-balloons-balloon-plots" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-balloons-balloon-plots"><iconify-icon inline="" icon="fluent-mdl2:balloons"></iconify-icon> Balloon Plots</a></li>
-  <li><a href="#iconify-fluent-likert-16-regular-plots-for-survey-data" id="toc-iconify-fluent-likert-16-regular-plots-for-survey-data" class="nav-link" data-scroll-target="#iconify-fluent-likert-16-regular-plots-for-survey-data"><iconify-icon inline="" icon="fluent:likert-16-regular"></iconify-icon> Plots for Survey Data</a></li>
-  <li><a href="#iconify-fluent-mdl2-decision-solid-conclusion" id="toc-iconify-fluent-mdl2-decision-solid-conclusion" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-decision-solid-conclusion"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</a></li>
-  <li><a href="#iconify-openmoji-person-your-turn" id="toc-iconify-openmoji-person-your-turn" class="nav-link" data-scroll-target="#iconify-openmoji-person-your-turn"><iconify-icon inline="" icon="openmoji:person"></iconify-icon> Your Turn</a></li>
-  <li><a href="#iconify-ooui-references-ltr-references" id="toc-iconify-ooui-references-ltr-references" class="nav-link" data-scroll-target="#iconify-ooui-references-ltr-references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
+  <li><a href="#balloon-plots" id="toc-balloon-plots" class="nav-link" data-scroll-target="#balloon-plots"><iconify-icon inline="" icon="fluent-mdl2:balloons"></iconify-icon> Balloon Plots</a></li>
+  <li><a href="#plots-for-survey-data" id="toc-plots-for-survey-data" class="nav-link" data-scroll-target="#plots-for-survey-data"><iconify-icon inline="" icon="fluent:likert-16-regular"></iconify-icon> Plots for Survey Data</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</a></li>
+  <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn"><iconify-icon inline="" icon="openmoji:person"></iconify-icon> Your Turn</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
   </ul></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content"><script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js"></script><script type="module" id="qwebr-monaco-editor-init">
+
+  // Configure the Monaco Editor's loader
+  require.config({
+    paths: {
+      'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs'
+    }
+  });
+</script><script type="module">// Global dictionary to store Monaco Editor instances
+const qwebrEditorInstances = {};
+
+// Function that builds and registers a Monaco Editor instance    
+globalThis.qwebrCreateMonacoEditorInstance = function (
+    initialCode, 
+    qwebrCounter) {
+
+  // Retrieve the previously created document elements
+  let runButton = document.getElementById(`qwebr-button-run-${qwebrCounter}`);
+  let editorDiv = document.getElementById(`qwebr-editor-${qwebrCounter}`);
+  
+  // Load the Monaco Editor and create an instance
+  let editor;
+  require(['vs/editor/editor.main'], function () {
+    editor = monaco.editor.create(editorDiv, {
+      value: initialCode,
+      language: 'r',
+      theme: 'vs-light',
+      automaticLayout: true,           // Works wonderfully with RevealJS
+      scrollBeyondLastLine: false,
+      minimap: {
+        enabled: false
+      },
+      fontSize: '17.5pt',              // Bootstrap is 1 rem
+      renderLineHighlight: "none",     // Disable current line highlighting
+      hideCursorInOverviewRuler: true  // Remove cursor indictor in right hand side scroll bar
+    });
+
+    // Store the official counter ID to be used in keyboard shortcuts
+    editor.__qwebrCounter = qwebrCounter;
+
+    // Store the official div container ID
+    editor.__qwebrEditorId = `qwebr-editor-${qwebrCounter}`;
+
+    // Store the initial code value
+    editor.__qwebrinitialCode = initialCode;
+
+    // Dynamically modify the height of the editor window if new lines are added.
+    let ignoreEvent = false;
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      // We're avoiding a width change
+      //editorDiv.style.width = `${width}px`;
+      editorDiv.style.height = `${contentHeight}px`;
+      try {
+        ignoreEvent = true;
+
+        // The key to resizing is this call
+        editor.layout();
+      } finally {
+        ignoreEvent = false;
+      }
+    };
+
+    // Helper function to check if selected text is empty
+    function isEmptyCodeText(selectedCodeText) {
+      return (selectedCodeText === null || selectedCodeText === undefined || selectedCodeText === "");
+    }
+
+    // Registry of keyboard shortcuts that should be re-added to each editor window
+    // when focus changes.
+    const addWebRKeyboardShortCutCommands = () => {
+      // Add a keydown event listener for Shift+Enter to run all code in cell
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => {
+
+        // Retrieve all text inside the editor
+        qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter);
+      });
+
+      // Add a keydown event listener for CMD/Ctrl+Enter to run selected code
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+
+        // Get the selected text from the editor
+        const selectedText = editor.getModel().getValueInRange(editor.getSelection());
+        // Check if no code is selected
+        if (isEmptyCodeText(selectedText)) {
+          // Obtain the current cursor position
+          let currentPosition = editor.getPosition();
+          // Retrieve the current line content
+          let currentLine = editor.getModel().getLineContent(currentPosition.lineNumber);
+
+          // Propose a new position to move the cursor to
+          let newPosition = new monaco.Position(currentPosition.lineNumber + 1, 1);
+
+          // Check if the new position is beyond the last line of the editor
+          if (newPosition.lineNumber > editor.getModel().getLineCount()) {
+            // Add a new line at the end of the editor
+            editor.executeEdits("addNewLine", [{
+            range: new monaco.Range(newPosition.lineNumber, 1, newPosition.lineNumber, 1),
+            text: "\n", 
+            forceMoveMarkers: true,
+            }]);
+          }
+          
+          // Run the entire line of code.
+          qwebrExecuteCode(currentLine, editor.__qwebrCounter,
+            EvalTypes.Interactive);
+
+          // Move cursor to new position
+          editor.setPosition(newPosition);
+        } else {
+          // Code to run when Ctrl+Enter is pressed with selected code
+          qwebrExecuteCode(selectedText, editor.__qwebrCounter, EvalTypes.Interactive);
+        }
+      });
+    }
+
+    // Register an on focus event handler for when a code cell is selected to update
+    // what keyboard shortcut commands should work.
+    // This is a workaround to fix a regression that happened with multiple
+    // editor windows since Monaco 0.32.0 
+    // https://github.com/microsoft/monaco-editor/issues/2947
+    editor.onDidFocusEditorText(addWebRKeyboardShortCutCommands);
+
+    // Register an on change event for when new code is added to the editor window
+    editor.onDidContentSizeChange(updateHeight);
+
+    // Manually re-update height to account for the content we inserted into the call
+    updateHeight();
+
+    // Store the editor instance in the global dictionary
+    qwebrEditorInstances[editor.__qwebrCounter] = editor;
+
+  });
+
+  // Add a click event listener to the run button
+  runButton.onclick = function () {
+    qwebrExecuteCode(editor.getValue(), editor.__qwebrCounter, EvalTypes.Interactive);
+  };
+
+}</script><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
 <h1 class="title">🐉 Visualizing Categorical Data</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Proportions</div>
@@ -388,15 +1181,16 @@ div.csl-indent {
   
 <div>
   <div class="abstract">
-    <div class="abstract-title">Abstract</div>
+    <div class="block-title">Abstract</div>
     Types, Categories, and Counts
   </div>
 </div>
 
+
 </header><section id="sec-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="sec-setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
 <div class="cell" data-hash="index_cache/html/setup_5694031dd756795e400454a3831db9f4">
-<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span> <span class="co"># Our trusted friend</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggobi.github.io/ggally/">GGally</a></span><span class="op">)</span> </span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/skimr/">skimr</a></span><span class="op">)</span></span>
@@ -417,9 +1211,9 @@ div.csl-indent {
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span> <span class="co"># To arrange plots on a grid and other things</span></span>
 <span></span>
 <span><span class="co">## Plot Theme</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span>new <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section id="iconify-openmoji-japanese-symbol-for-beginner-introduction" class="level2"><h2 class="anchored" data-anchor-id="iconify-openmoji-japanese-symbol-for-beginner-introduction">
+</section><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">
 <iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</h2>
 <p>To recall, a categorical <strong>variable</strong> is one for which the possible measured or assigned values consist of a discrete set of categories, which may be <code>ordered</code> or <code>unordered</code>. Some typical examples are:</p>
 <ul>
@@ -435,7 +1229,7 @@ div.csl-indent {
 </ul>
 <p>As these examples suggest, categorical variables differ in the number of categories: we often distinguish binary variables (or dichotomous variables) such as Gender from those with more than two categories (called <em>polytomous</em> variables).</p>
 <div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/7NhNeADL8fA" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
-</section><section id="iconify-mdi-category-plus-outline-categorical-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-mdi-category-plus-outline-categorical-data">
+</section><section id="categorical-data" class="level2"><h2 class="anchored" data-anchor-id="categorical-data">
 <iconify-icon inline="" icon="mdi:category-plus-outline"></iconify-icon> Categorical Data</h2>
 <p>From the <code>{vcd package}</code> vignette:</p>
 <blockquote class="blockquote">
@@ -449,26 +1243,32 @@ div.csl-indent {
 <p>Let us first see examples of each.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Case Form</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Frequency Data Form</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Table form</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" aria-current="page">Case Form</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Frequency Data Form</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Table form</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <p>From Michael Friendly <a href="http://ddar.datavis.ca/pages/home">Discrete Data Analysis and Visualization</a> :</p>
 <blockquote class="blockquote">
 <p>In many circumstances, data is recorded on each individual or experimental unit. Data in this form is called case data, or data in case form. Containing <em>individual observations</em> with one or more <strong>categorical</strong> factors, used as classifying variables. The total number of observations is <code>nrow(X)</code>, and the number of variables is <code>ncol(X)</code>.</p>
 </blockquote>
-<div>
-<div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">)</span></span>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb2" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">)</span></span>
 <span><span class="co"># Tibble as HTML for presentation</span></span>
 <span><span class="va">Arthritis</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html">kbl</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Arthritis Treatments and Effects&lt;br&gt; First 10 Observations"</span>,centering <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/case-form-data_9af66556a2cbf3d07efb436954a646b4">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/case-form-data_9af66556a2cbf3d07efb436954a646b4">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>[1] "data.frame"</code></pre>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -557,15 +1357,44 @@ First 10 Observations</caption>
 </table>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 
 
 </div>
 </div>
 </div>
 </div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="qwebr-insertion-location-1"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-1");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    1
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+class(Arthritis)
+
+# Tibble as HTML for presentation
+Arthritis %>%  
+  head(10) %>% 
+  kbl(caption = "Arthritis Treatments and Effects<br> First 10 Observations",centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F)`, 
+  1);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <hr>
+</div>
+</div>
+</div>
 <p>The <code>Arthritis</code> data set has three factors and two <em>integer</em> variables. One of the three factors <code>Improved</code> is an <strong>ordered factor</strong>.</p>
 <ol type="1">
 <li>ID</li>
@@ -576,21 +1405,28 @@ First 10 Observations</caption>
 </ol>
 <p>Each row in the <code>Arthritis</code> dataset is a separate case or observation.</p>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <p>Data in frequency form has already been tabulated and <em>aggregated</em> by <strong>counting</strong> over the (combinations of) categories of the table variables. When the data are in <strong>case form</strong>, we can always trace any observation back to its individual identifier or data record, since each row is a unique observation or <em>case</em>; the reverse, with the <strong>Frequency Form</strong> is rarely possible.</p>
 <p>Frequency Data is usually a data frame, with columns of categorical variables and at least one column containing <code>frequency</code> or <code>count</code> information.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true"><iconify-icon inline="" icon="la:r-project"></iconify-icon> R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills" style="background: whitesmoke;">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-4_8773f04b02f7e77d8a27735cb626c2c0">
-<div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">GSS</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">GSS</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>'data.frame':   6 obs. of  3 variables:
  $ sex  : Factor w/ 2 levels "female","male": 1 2 1 2 1 2
  $ party: Factor w/ 3 levels "dem","indep",..: 1 1 2 2 3 3
  $ count: num  279 165 73 47 225 191</code></pre>
 </div>
-<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Tibble as HTML for presentation</span></span>
+<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Tibble as HTML for presentation</span></span>
 <span><span class="va">GSS</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html">kbl</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"General Social Survey"</span>,centering <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <table class="lightable-classic-2 table table-sm table-striped small" data-quarto-postprocess="true">
 <caption>General Social Survey</caption>
@@ -635,12 +1471,41 @@ First 10 Observations</caption>
 </div>
 </div>
 <hr>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="qwebr-insertion-location-2"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-2");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    2
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `
+str(GSS)
+
+# Tibble as HTML for presentation
+GSS %>%
+  kbl(caption = "General Social Survey",centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F)`, 
+  2);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 <p>Respondents in the GSS survey were classified by <code>sex</code> and <code>party</code> identification. As can be seen, there is a <strong>count</strong> for every combination of the two <em>categorical</em> variables, <code>sex</code> and <code>party</code>.</p>
 </div>
-<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
 <p>Table Form Data can be a <code>matrix</code>, <code>array</code> or <code>table object</code>, whose elements are the frequencies in an <strong>n-way table</strong>. The variable names (factors) and their levels are given by <code>dimnames(X)</code>.</p>
 <div class="cell" data-hash="index_cache/html/Table-Form_295978b2658432c26dd7d97c8236be47">
-<div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">HairEyeColor</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">HairEyeColor</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>, , Sex = Male
 
@@ -660,18 +1525,18 @@ Hair    Brown Blue Hazel Green
   Red      16    7     7     7
   Blond     4   64     5     8</code></pre>
 </div>
-<div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] "table"</code></pre>
 </div>
 </div>
 <p><code>HairEyeColor</code> is a “two-way” table, consisting of <strong>two tables</strong>, one for <code>Sex = Female</code> and the other for <code>Sex = Male</code>. The total number of observations is <code>sum(X)</code>. The number of dimensions of the table is <code>length(dimnames(X))</code>, and the table sizes are given by <code>sapply(dimnames(X), length)</code>. The data looks like a n-dimensional cube and needs n-way tables to represent.</p>
 <div class="cell" data-hash="index_cache/html/exploring-tables_a603345f40f83cc22b0de457c7c5fefc">
-<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 592</code></pre>
 </div>
-<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>$Hair
 [1] "Black" "Brown" "Red"   "Blond"
@@ -682,7 +1547,7 @@ $Eye
 $Sex
 [1] "Male"   "Female"</code></pre>
 </div>
-<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span>, <span class="va">length</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span>, <span class="va">length</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>Hair  Eye  Sex 
    4    4    2 </code></pre>
@@ -690,8 +1555,8 @@ $Sex
 </div>
 <p>A good way to think of <strong>tabular data</strong> is to think of a Rubik’s Cube.</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="cube.jpg" class="img-fluid figure-img" alt="Rubik's Cube model for Multi-Table Data" width="352"></p>
-<figcaption class="figure-caption">Rubik’s Cube model for Multi-Table Data</figcaption></figure>
+<figure class="figure"><p><img src="cube.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Rubik's Cube model for Multi-Table Data" width="352"></p>
+<figcaption>Rubik’s Cube model for Multi-Table Data</figcaption></figure>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -709,7 +1574,7 @@ Rubik’s Cube and Categorical Data Tables
 <p>Since we can only print 2D tables, we hold one face in front and the image we see is a 2-Way Table. Turning the Cube by 90 degrees gives us another face with 2 variables, with one variable in common with the previous face. If we consider two faces together, we get two 2-way tables, effectively allowing us to contemplate 3 categorical variables.</p>
 <p>Multiple 2-Way tables can be <strong>flattened</strong> into a single long table that contains all counts for all combinations of categorical variables. This can be visualized as “opening up” and laying flat the Rubik’s cube, as with a cardboard model of it.</p>
 <div class="cell" data-hash="index_cache/html/flattened-table_080db9ec37814e504ceb5f838f68819d">
-<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>            Sex Male Female
 Hair  Eye                  
@@ -732,19 +1597,17 @@ Blond Brown        3      4
 </div>
 </div>
 <p>Finally, we may need to convert the (multiple) tables into a data frame or tibble:</p>
-<div>
-<div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">## Convert the two tables into a data frame</span></span>
+<div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">## Convert the two tables into a data frame</span></span>
 <span><span class="va">HairEyeColor</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="co"># Tibble as HTML for presentation</span></span>
 <span><span class="va">HairEyeColor</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  <span class="co"># Convert</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html">kbl</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Hair Eye and Color"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/tables-to-data-frame_d7c96b1777c60d34f9bff1b152676aef">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_classic.html">kable_classic_2</a></span><span class="op">(</span>html_font <span class="op">=</span> <span class="st">"Cambria"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/tables-to-data-frame_d7c96b1777c60d34f9bff1b152676aef">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Hair"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Eye"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Black","2":"Brown","3":"Male","4":"32"},{"1":"Brown","2":"Brown","3":"Male","4":"53"},{"1":"Red","2":"Brown","3":"Male","4":"10"},{"1":"Blond","2":"Brown","3":"Male","4":"3"},{"1":"Black","2":"Blue","3":"Male","4":"11"},{"1":"Brown","2":"Blue","3":"Male","4":"50"},{"1":"Red","2":"Blue","3":"Male","4":"10"},{"1":"Blond","2":"Blue","3":"Male","4":"30"},{"1":"Black","2":"Hazel","3":"Male","4":"10"},{"1":"Brown","2":"Hazel","3":"Male","4":"25"},{"1":"Red","2":"Hazel","3":"Male","4":"7"},{"1":"Blond","2":"Hazel","3":"Male","4":"5"},{"1":"Black","2":"Green","3":"Male","4":"3"},{"1":"Brown","2":"Green","3":"Male","4":"15"},{"1":"Red","2":"Green","3":"Male","4":"7"},{"1":"Blond","2":"Green","3":"Male","4":"8"},{"1":"Black","2":"Brown","3":"Female","4":"36"},{"1":"Brown","2":"Brown","3":"Female","4":"66"},{"1":"Red","2":"Brown","3":"Female","4":"16"},{"1":"Blond","2":"Brown","3":"Female","4":"4"},{"1":"Black","2":"Blue","3":"Female","4":"9"},{"1":"Brown","2":"Blue","3":"Female","4":"34"},{"1":"Red","2":"Blue","3":"Female","4":"7"},{"1":"Blond","2":"Blue","3":"Female","4":"64"},{"1":"Black","2":"Hazel","3":"Female","4":"5"},{"1":"Brown","2":"Hazel","3":"Female","4":"29"},{"1":"Red","2":"Hazel","3":"Female","4":"7"},{"1":"Blond","2":"Hazel","3":"Female","4":"5"},{"1":"Black","2":"Green","3":"Female","4":"2"},{"1":"Brown","2":"Green","3":"Female","4":"14"},{"1":"Red","2":"Green","3":"Female","4":"7"},{"1":"Blond","2":"Green","3":"Female","4":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -957,11 +1820,10 @@ Blond Brown        3      4
 </table>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 
 
-</div>
 </div>
 </div>
 </div>
@@ -978,33 +1840,33 @@ Blond Brown        3      4
 <p>In this section we understand how to make Contingency Tables from each of the three forms. We will use <code>vcd</code>, <code>mosaic</code> and the <code>tidyverse</code> packages for our purposes. Then we will see how it can be visualized.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills page-columns page-full" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Using base R</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Using the vcd package</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Using the mosaic package</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-4" role="tab" aria-controls="tabset-2-4" aria-selected="false">Using the tidyverse</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Using base R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Using the vcd package</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false">Using the mosaic package</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-4" role="tab" aria-controls="tabset-4-4" aria-selected="false">Using the tidyverse</a></li>
 </ul>
 <div class="tab-content nav-pills page-columns page-full" style="background: whitesmoke;">
-<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
 <div class="cell" data-hash="index_cache/html/base-R-one-way-two-way_4ca017e5ac8d82353316c7f31242f04a">
-<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># One Way Table ( one variable )</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span><span class="op">)</span> <span class="co"># Contingency Table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># One Way Table ( one variable )</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span><span class="op">)</span> <span class="co"># Contingency Table</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 Placebo Treated 
      43      41 </code></pre>
 </div>
-<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># 1-way Contingency Table</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Contingency Table with margins</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># 1-way Contingency Table</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Contingency Table with margins</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 Placebo Treated     Sum 
      43      41      84 </code></pre>
 </div>
-<div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">###</span></span>
+<div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">###</span></span>
 <span></span>
 <span><span class="co"># 2-Way Contingency Tables</span></span>
 <span><span class="co"># Choosing Treatment and Improved</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>         
           None Some Marked Sum
@@ -1012,8 +1874,8 @@ Placebo Treated     Sum
   Treated   13    7     21  41
   Sum       42   14     28  84</code></pre>
 </div>
-<div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Choosing Treatment and Sex</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Sex</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Choosing Treatment and Sex</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Sex</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>        
          None Some Marked Sum
@@ -1024,8 +1886,8 @@ Placebo Treated     Sum
 </div>
 <p>We can use <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> ( and also <code><a href="https://rdrr.io/r/stats/xtabs.html">xtabs()</a></code> ) to generate multi-dimensional tables too (More than 2-way) These will be printed out as a series of 2D tables, one for each value of the “third” parameter. We can then <em>flatten</em> this set of tables using <strong>ftable()</strong> and add margins to convert into a Contingency Table:</p>
 <div class="cell" data-hash="index_cache/html/r-base-three-way-table_3a1283038fc4d4166dccf3756a9ca69b">
-<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mytable</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Sex</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span></span>
-<span><span class="va">mytable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">mytable</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">Arthritis</span><span class="op">$</span><span class="va">Treatment</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Sex</span>, <span class="va">Arthritis</span><span class="op">$</span><span class="va">Improved</span><span class="op">)</span></span>
+<span><span class="va">mytable</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>, ,  = None
 
@@ -1048,8 +1910,8 @@ Placebo Treated     Sum
   Placebo      6    1
   Treated     16    5</code></pre>
 </div>
-<div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Now flatten </span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">mytable</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Now flatten </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">mytable</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>                None Some Marked
                                 
@@ -1058,7 +1920,7 @@ Placebo Female    19    7      6
 Treated Female     6    5     16
         Male       7    2      5</code></pre>
 </div>
-<div class="sourceCode" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">mytable</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ftable.html">ftable</a></span><span class="op">(</span><span class="va">mytable</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>             Sum
     19  7  6  32
@@ -1070,7 +1932,7 @@ Sum 42 14 28  84</code></pre>
 </div>
 <p>A bit strange that the column labels disappear in the <code>ftable</code> when margins are added…</p>
 </div>
-<div id="tabset-2-2" class="tab-pane page-columns page-full" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="tabset-4-2" class="tab-pane page-columns page-full" role="tabpanel" aria-labelledby="tabset-4-2-tab">
 <p>The <code>vcd</code> ( Visualize Categorical Data ) package by Michael Friendly has a convenient function to create Contingency Tables: <code><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable()</a></code>; this function produces a ‘flat’ representation of a high-dimensional contingency table constructed by recursive splits (similar to the construction of mosaic charts/graphs). <code>structable</code> tends to render flat tables, of the kind that can be thought of as a “text representation” of the <code><a href="https://rdrr.io/pkg/vcd/man/mosaic.html">vcd::mosaic</a></code> plot:</p>
 <p>The arguments of <code>structable</code> are:</p>
 <ul>
@@ -1078,14 +1940,13 @@ Sum 42 14 28  84</code></pre>
 <li>a <code>data</code> argument, which can indicate a <code>data frame</code>
 </li>
 </ul>
-<div>
-<div class="sourceCode" id="cb34" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Three Way!!</span></span>
+<div class="sourceCode" id="cb34" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Three Way!!</span></span>
 <span><span class="va">arth_vcd</span> <span class="op">&lt;-</span> <span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Arthritis</span>, <span class="va">Treatment</span> <span class="op">~</span> <span class="va">Improved</span> <span class="op">+</span> <span class="va">Sex</span><span class="op">)</span></span>
 <span><span class="va">arth_vcd</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">arth_vcd</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/vcd-data-frame-to-contingency-table_dce8c47c769b660ae31d2846de3f185d">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">arth_vcd</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/vcd-data-frame-to-contingency-table_dce8c47c769b660ae31d2846de3f185d">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>                Treatment Placebo Treated
 Improved Sex                             
 None     Female                19       6
@@ -1098,16 +1959,14 @@ Marked   Female                 6      16
 </div>
 </div>
 </div>
-</div>
-<div>
-<div class="sourceCode" id="cb36" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># With Margins</span></span>
+<div class="sourceCode" id="cb36" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># With Margins</span></span>
 <span><span class="va">arth_vcd</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We can convert this to a tibble, unlike the `table` earlier!</span></span>
-<span><span class="va">arth_vcd</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/unnamed-chunk-12_e6240b7c82febb9930e4e6e0bc5aa6d0">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="va">arth_vcd</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/unnamed-chunk-12_062af18ee485f3bbf16c4d25e6c073a8">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>               Treatment
 Improved_Sex    Placebo Treated Sum
   None_Female        19       6  25
@@ -1118,8 +1977,7 @@ Improved_Sex    Placebo Treated Sum
   Marked_Male         1       5   6
   Sum                43      41  84</code></pre>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Placebo"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Treated"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Sum"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"19","2":"6","3":"25"},{"1":"10","2":"7","3":"17"},{"1":"7","2":"5","3":"12"},{"1":"0","2":"2","3":"2"},{"1":"6","2":"16","3":"22"},{"1":"1","2":"5","3":"6"},{"1":"43","2":"41","3":"84"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1128,16 +1986,14 @@ Improved_Sex    Placebo Treated Sum
 </div>
 </div>
 </div>
-</div>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb38" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># HairEyeColor is in multiple table form</span></span>
+<div class="sourceCode" id="cb38" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># HairEyeColor is in multiple table form</span></span>
 <span><span class="co"># structable flattens these into one, as for a mosaic chart</span></span>
 <span></span>
 <span><span class="va">HairEyeColor</span></span>
-<span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-body-outset-right quarto-layout-panel" data-hash="index_cache/html/vcd-multitable-to-contingency-table_94c65ce89b56949bc17d705c24a2d23f">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span></code></pre></div>
+<div class="cell column-body-outset-right quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/vcd-multitable-to-contingency-table_94c65ce89b56949bc17d705c24a2d23f">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>, , Sex = Male
 
        Eye
@@ -1156,7 +2012,7 @@ Hair    Brown Blue Hazel Green
   Red      16    7     7     7
   Blond     4   64     5     8</code></pre>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>             Eye Brown Blue Hazel Green
 Hair  Sex                              
 Black Male          32   11    10     3
@@ -1170,15 +2026,13 @@ Blond Male           3   30     5     8
 </div>
 </div>
 </div>
-</div>
 <p><code>UCBAdmissions</code> is already in Frequency Form i.e.&nbsp;a Contingency Table. But it is a <strong>set</strong> of (two-way) Contingency Tables:</p>
-<div>
-<div class="sourceCode" id="cb41" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">UCBAdmissions</span></span>
+<div class="sourceCode" id="cb41" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">UCBAdmissions</span></span>
 <span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="va">UCBAdmissions</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="va">UCBAdmissions</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/unnamed-chunk-14_67253cb59102683c228e9199f6dea7dc">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="va">UCBAdmissions</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/unnamed-chunk-14_67253cb59102683c228e9199f6dea7dc">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>, , Dept = A
 
           Gender
@@ -1221,7 +2075,7 @@ Admit      Male Female
   Admitted   22     24
   Rejected  351    317</code></pre>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>              Gender Male Female
 Admit    Dept                   
 Admitted A            512     89
@@ -1238,8 +2092,8 @@ Rejected A            313     19
          F            351    317</code></pre>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>            Gender
 Admit_Dept   Male Female  Sum
   Admitted_A  512     89  601
@@ -1258,26 +2112,24 @@ Admit_Dept   Male Female  Sum
 </div>
 </div>
 </div>
-</div>
 <p>Note that <code>structable</code> does not permit the adding of margins directly; it needs to be converted to a matrix for <code><a href="https://rdrr.io/r/stats/addmargins.html">addmargins()</a></code> to do its work.</p>
 </div>
-<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<div id="tabset-4-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-3-tab">
 <p>I think this is the <strong>simplest and most elegant way</strong> of obtaining Contingency Tables:</p>
-<div>
-<div class="sourceCode" id="cb45" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># One Way Table</span></span>
+<div class="sourceCode" id="cb45" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># One Way Table</span></span>
 <span><span class="fu">mosaicCore</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span> <span class="op">~</span> <span class="va">substance</span>, data <span class="op">=</span> <span class="va">HELPrct</span>, margins <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># Two-Way Tables</span></span>
 <span><span class="co"># Two ways of producing the same result</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">substance</span>, data <span class="op">=</span> <span class="va">HELPrct</span>, margins <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="op">~</span> <span class="va">sex</span> <span class="op">|</span> <span class="va">substance</span>, data <span class="op">=</span> <span class="va">HELPrct</span>, margins <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/using-mosaic_6321bbf6f734901faf7c4cbd610f26db">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="op">~</span> <span class="va">sex</span> <span class="op">|</span> <span class="va">substance</span>, data <span class="op">=</span> <span class="va">HELPrct</span>, margins <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/using-mosaic_6321bbf6f734901faf7c4cbd610f26db">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>substance
 alcohol cocaine  heroin   Total 
     177     152     124     453 </code></pre>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>        substance
 sex      alcohol cocaine heroin
   female      36      41     30
@@ -1285,41 +2137,37 @@ sex      alcohol cocaine heroin
   Total      177     152    124</code></pre>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>        substance
 sex      alcohol cocaine heroin
   female      36      41     30
   male       141     111     94
   Total      177     152    124</code></pre>
-</div>
 </div>
 </div>
 </div>
 <p>So far these packages give Contingency Tables that are <strong>easy to see for humans</strong>; some of these structures are also capable being passed directly to commands such as <code><a href="https://rdrr.io/r/stats/chisq.test.html">stats::chisq.test()</a></code> or <code><a href="https://sfirke.github.io/janitor/reference/chisq.test.html">janitor::chisq.test()</a></code>.</p>
 <p>Often we need Contingency Tables that are in <code>tibble</code> form and we need to perform some data processing using <code>dplyr</code> to get there.</p>
 </div>
-<div id="tabset-2-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-4-tab">
+<div id="tabset-4-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-4-tab">
 <p>Doing this with the <code>tidyverse</code> set of packages may seem counter-intuitively long-winded, but the workflow is easily understandable.</p>
 <p>First we develop the counts:</p>
-<div>
-<div class="sourceCode" id="cb49" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">cut</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb49" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">cut</span><span class="op">)</span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">clarity</span><span class="op">)</span></span>
 <span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">cut</span>, <span class="va">clarity</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span> count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/tidyverse-for-Contingency-Tables_d557eb575f243babe62b1eeca8223f85">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span> count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/tidyverse-for-Contingency-Tables_d557eb575f243babe62b1eeca8223f85">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["cut"],"name":[1],"type":["ord"],"align":["right"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Fair","2":"1610"},{"1":"Good","2":"4906"},{"1":"Very Good","2":"12082"},{"1":"Premium","2":"13791"},{"1":"Ideal","2":"21551"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["clarity"],"name":[1],"type":["ord"],"align":["right"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"I1","2":"741"},{"1":"SI2","2":"9194"},{"1":"SI1","2":"13065"},{"1":"VS2","2":"12258"},{"1":"VS1","2":"8171"},{"1":"VVS2","2":"5066"},{"1":"VVS1","2":"3655"},{"1":"IF","2":"1790"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1327,9 +2175,8 @@ sex      alcohol cocaine heroin
 </div>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["cut"],"name":[1],"type":["ord"],"align":["right"]},{"label":["clarity"],"name":[2],"type":["ord"],"align":["right"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Fair","2":"I1","3":"210"},{"1":"Fair","2":"SI2","3":"466"},{"1":"Fair","2":"SI1","3":"408"},{"1":"Fair","2":"VS2","3":"261"},{"1":"Fair","2":"VS1","3":"170"},{"1":"Fair","2":"VVS2","3":"69"},{"1":"Fair","2":"VVS1","3":"17"},{"1":"Fair","2":"IF","3":"9"},{"1":"Good","2":"I1","3":"96"},{"1":"Good","2":"SI2","3":"1081"},{"1":"Good","2":"SI1","3":"1560"},{"1":"Good","2":"VS2","3":"978"},{"1":"Good","2":"VS1","3":"648"},{"1":"Good","2":"VVS2","3":"286"},{"1":"Good","2":"VVS1","3":"186"},{"1":"Good","2":"IF","3":"71"},{"1":"Very Good","2":"I1","3":"84"},{"1":"Very Good","2":"SI2","3":"2100"},{"1":"Very Good","2":"SI1","3":"3240"},{"1":"Very Good","2":"VS2","3":"2591"},{"1":"Very Good","2":"VS1","3":"1775"},{"1":"Very Good","2":"VVS2","3":"1235"},{"1":"Very Good","2":"VVS1","3":"789"},{"1":"Very Good","2":"IF","3":"268"},{"1":"Premium","2":"I1","3":"205"},{"1":"Premium","2":"SI2","3":"2949"},{"1":"Premium","2":"SI1","3":"3575"},{"1":"Premium","2":"VS2","3":"3357"},{"1":"Premium","2":"VS1","3":"1989"},{"1":"Premium","2":"VVS2","3":"870"},{"1":"Premium","2":"VVS1","3":"616"},{"1":"Premium","2":"IF","3":"230"},{"1":"Ideal","2":"I1","3":"146"},{"1":"Ideal","2":"SI2","3":"2598"},{"1":"Ideal","2":"SI1","3":"4282"},{"1":"Ideal","2":"VS2","3":"5071"},{"1":"Ideal","2":"VS1","3":"3589"},{"1":"Ideal","2":"VVS2","3":"2606"},{"1":"Ideal","2":"VVS1","3":"2047"},{"1":"Ideal","2":"IF","3":"1212"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1338,10 +2185,9 @@ sex      alcohol cocaine heroin
 </div>
 </div>
 </div>
-</div>
 <p>We need to have the individual levels of <code>cut</code> as rows and the individual levels of <code>clarity</code> as columns. This means that we need to pivot this from “long” to wide” to obtain a Contingency Table:</p>
 <div class="cell" data-hash="index_cache/html/pivoting-long-to-wide_810b620085c5b4ca635f66a582c90ea9">
-<div class="sourceCode" id="cb50" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb50" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">diamonds</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">cut</span>, <span class="va">clarity</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span> count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  </span>
@@ -1353,9 +2199,8 @@ sex      alcohol cocaine heroin
 <span>  <span class="fu">janitor</span><span class="fu">::</span><span class="fu"><a href="https://sfirke.github.io/janitor/reference/adorn_totals.html">adorn_totals</a></span><span class="op">(</span>where <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"row"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  </span>
 <span>  <span class="co"># Recover to tibble since janitor gives a "tabyl" format ( which can be useful too !)</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["cut"],"name":[1],"type":["ord"],"align":["right"]},{"label":["I1"],"name":[2],"type":["int"],"align":["right"]},{"label":["SI2"],"name":[3],"type":["int"],"align":["right"]},{"label":["SI1"],"name":[4],"type":["int"],"align":["right"]},{"label":["VS2"],"name":[5],"type":["int"],"align":["right"]},{"label":["VS1"],"name":[6],"type":["int"],"align":["right"]},{"label":["VVS2"],"name":[7],"type":["int"],"align":["right"]},{"label":["VVS1"],"name":[8],"type":["int"],"align":["right"]},{"label":["IF"],"name":[9],"type":["int"],"align":["right"]},{"label":["Total"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Fair","2":"210","3":"466","4":"408","5":"261","6":"170","7":"69","8":"17","9":"9","10":"1610"},{"1":"Good","2":"96","3":"1081","4":"1560","5":"978","6":"648","7":"286","8":"186","9":"71","10":"4906"},{"1":"Very Good","2":"84","3":"2100","4":"3240","5":"2591","6":"1775","7":"1235","8":"789","9":"268","10":"12082"},{"1":"Premium","2":"205","3":"2949","4":"3575","5":"3357","6":"1989","7":"870","8":"616","9":"230","10":"13791"},{"1":"Ideal","2":"146","3":"2598","4":"4282","5":"5071","6":"3589","7":"2606","8":"2047","9":"1212","10":"21551"},{"1":"Total","2":"741","3":"9194","4":"13065","5":"12258","6":"8171","7":"5066","8":"3655","9":"1790","10":"53940"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1366,11 +2211,11 @@ sex      alcohol cocaine heroin
 </div>
 </div>
 </div>
-</section><section id="iconify-carbon-chart-3d-plots-for-categorical-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-carbon-chart-3d-plots-for-categorical-data">
+</section><section id="plots-for-categorical-data" class="level2"><h2 class="anchored" data-anchor-id="plots-for-categorical-data">
 <iconify-icon inline="" icon="carbon:chart-3d"></iconify-icon> Plots for Categorical Data</h2>
 <p>Let us now examine the various kinds of plots we can make with Categorical Data. We will start with simple Bar plots, then move to plotting entire Contingency Tables, and then look Balloon Plots as an alternative. Finally we will look at a special case of <strong>survey data</strong> and look at Likert Plots.</p>
 <section id="simple-bar-plots" class="level3"><h3 class="anchored" data-anchor-id="simple-bar-plots">Simple Bar Plots</h3>
-</section><section id="iconify-material-symbols-auto-awesome-mosaic-outline-sharp-plotting-contingency-tables-with-mosaic-plots" class="level3"><h3 class="anchored" data-anchor-id="iconify-material-symbols-auto-awesome-mosaic-outline-sharp-plotting-contingency-tables-with-mosaic-plots">
+</section><section id="plotting-contingency-tables-with-mosaic-plots" class="level3"><h3 class="anchored" data-anchor-id="plotting-contingency-tables-with-mosaic-plots">
 <iconify-icon inline="" icon="material-symbols:auto-awesome-mosaic-outline-sharp"></iconify-icon> Plotting Contingency Tables with Mosaic Plots</h3>
 <p>We have already seen <strong>bar plots</strong>, which allow us to plot counts of categorical data. These can be used for say 2 or 3 Categorical variables, with not too many <em>levels</em>. However, for more complex data, if there are a large number of categorical variables, or if the categorical variables have many levels, the bar plot is not adequate. Now that we know how to create Contingency Tables, we can use these to create plots for such complex data.</p>
 <p>From Michael Friendly:</p>
@@ -1387,35 +2232,33 @@ sex      alcohol cocaine heroin
 <p>Let us not look at some sample plots that embody this <em>area-frequency</em> principle. A <strong>mosaic plot</strong> is basically an area-proportional visualization of (typically observed) frequencies, consisting of tiles (corresponding to the cells) created by vertically and horizontally splitting a rectangle recursively. Thus, the area of each tile is proportional to the corresponding cell entry given the dimensions of previous splits.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
-<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Using vcd</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Using ggmosaic</a></li>
-<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Using ggformula</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Using vcd</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Using ggmosaic</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-3" role="tab" aria-controls="tabset-5-3" aria-selected="false">Using ggformula</a></li>
 </ul>
 <div class="tab-content nav-pills" style="background: whitesmoke;">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
 <p>The <code><a href="https://rdrr.io/pkg/vcd/man/mosaic.html">vcd::mosaic()</a></code> function needs the data in <em>contingency table</em> form. We will use our <code><a href="https://rdrr.io/pkg/vcd/man/structable.html">vcd::structable()</a></code> function to construct one:</p>
-<div>
-<div class="sourceCode" id="cb51" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">arthritis_table</span> <span class="op">&lt;-</span> <span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Treatment</span> <span class="op">+</span> <span class="va">Improved</span>, data <span class="op">=</span> <span class="va">Arthritis</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb51" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">arthritis_table</span> <span class="op">&lt;-</span> <span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/structable.html">structable</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Treatment</span> <span class="op">+</span> <span class="va">Improved</span>, data <span class="op">=</span> <span class="va">Arthritis</span><span class="op">)</span></span>
 <span><span class="va">arthritis_table</span></span>
 <span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/mosaic.html">mosaic</a></span><span class="op">(</span><span class="va">arthritis_table</span>, </span>
 <span>            gp <span class="op">=</span> <span class="va">shading_max</span>, </span>
-<span>            main <span class="op">=</span> <span class="st">"Arthritis Treatment Dataset"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/mosaic-plot-using-vcd_71470bbca0aac797fcd41c0652b5c6b2">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>            main <span class="op">=</span> <span class="st">"Arthritis Treatment Dataset"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/mosaic-plot-using-vcd_71470bbca0aac797fcd41c0652b5c6b2">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>          Improved None Some Marked
 Treatment                          
 Placebo              29    7      7
 Treated              13    7     21</code></pre>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="index_files/figure-html/mosaic-plot-using-vcd-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
-</div>
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-19_2d53279afde0b3c2364934608ea385b1">
-<div class="sourceCode" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"GSS2002"</span>, package <span class="op">=</span> <span class="st">"resampledata"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"GSS2002"</span>, package <span class="op">=</span> <span class="st">"resampledata"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gss2002</span> <span class="op">&lt;-</span> <span class="va">GSS2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># select two categorical variables from the dataset</span></span>
@@ -1423,7 +2266,7 @@ Treated              13    7     21</code></pre>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="va">Education</span>, <span class="va">DeathPenalty</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gss_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/tally.html">tally</a></span><span class="op">(</span><span class="va">DeathPenalty</span> <span class="op">~</span> <span class="va">Education</span>, data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span></span>
-<span><span class="va">gss_table</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">gss_table</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/addmargins.html">addmargins</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>            Education
 DeathPenalty Left HS   HS Jr Col Bachelors Graduate  Sum
@@ -1431,29 +2274,35 @@ DeathPenalty Left HS   HS Jr Col Bachelors Graduate  Sum
       Oppose      72  200     16        71       50  409
       Sum        189  711     87       206      114 1307</code></pre>
 </div>
-<div class="sourceCode" id="cb55" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/mosaic.html">mosaic</a></span><span class="op">(</span><span class="va">gss_table</span>, gp <span class="op">=</span> <span class="va">shading_hsv</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb55" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">vcd</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vcd/man/mosaic.html">mosaic</a></span><span class="op">(</span><span class="va">gss_table</span>, gp <span class="op">=</span> <span class="va">shading_hsv</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
 </div>
 </div>
 </div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
 <p>This is perhaps the simplest way, but does use a different package and also does <em>not</em> use the formula notation: there is no <code>gf_mosaic</code> command yet!</p>
 <div class="cell" data-hash="index_cache/html/mosaic-plot_616094667e3bce520d5abd90f52f09b8">
-<div class="sourceCode" id="cb56" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#library(ggmosaic)</span></span>
+<div class="sourceCode" id="cb56" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#library(ggmosaic)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gss2002</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggmosaic/man/geom_mosaic.html">geom_mosaic</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ggmosaic/man/product.html">product</a></span><span class="op">(</span><span class="va">DeathPenalty</span>, <span class="va">Education</span><span class="op">)</span>, </span>
-<span>                  fill <span class="op">=</span> <span class="va">DeathPenalty</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>                  fill <span class="op">=</span> <span class="va">DeathPenalty</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/mosaic-plot-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/mosaic-plot-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
 </div>
 </div>
 </div>
-<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+</div>
+<div id="tabset-5-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-3-tab">
 <p>This needs quite some work, to convert the Contingency Table into a mosaic plot; perhaps not the most intuitive of methods either. This code has been developed using this <a href="https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2">Stackoverflow post</a>.</p>
 <div class="cell" data-hash="index_cache/html/marimekko_2ac6839860e3c0321f00e86964dc0fd6">
-<div class="sourceCode" id="cb57" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Reference</span></span>
+<div class="sourceCode" id="cb57" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Reference</span></span>
 <span><span class="co"># https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2</span></span>
 <span></span>
 <span><span class="va">gss_summary</span> <span class="op">&lt;-</span> <span class="va">gss2002</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -1466,16 +2315,15 @@ DeathPenalty Left HS   HS Jr Col Bachelors Graduate  Sum
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>edu_count <span class="op">=</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span>, </span>
 <span>         edu_prop <span class="op">=</span> <span class="va">count</span> <span class="op">/</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">gss_summary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">gss_summary</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Education"],"name":[1],"type":["fct"],"align":["left"]},{"label":["DeathPenalty"],"name":[2],"type":["fct"],"align":["left"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]},{"label":["edu_count"],"name":[4],"type":["int"],"align":["right"]},{"label":["edu_prop"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"Left HS","2":"Favor","3":"117","4":"189","5":"0.6190476"},{"1":"Left HS","2":"Oppose","3":"72","4":"189","5":"0.3809524"},{"1":"HS","2":"Favor","3":"511","4":"711","5":"0.7187060"},{"1":"HS","2":"Oppose","3":"200","4":"711","5":"0.2812940"},{"1":"Jr Col","2":"Favor","3":"71","4":"87","5":"0.8160920"},{"1":"Jr Col","2":"Oppose","3":"16","4":"87","5":"0.1839080"},{"1":"Bachelors","2":"Favor","3":"135","4":"206","5":"0.6553398"},{"1":"Bachelors","2":"Oppose","3":"71","4":"206","5":"0.3446602"},{"1":"Graduate","2":"Favor","3":"64","4":"114","5":"0.5614035"},{"1":"Graduate","2":"Oppose","3":"50","4":"114","5":"0.4385965"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb58" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># This works but is not very intuitive...</span></span>
+<div class="sourceCode" id="cb58" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># This works but is not very intuitive...</span></span>
 <span><span class="fu">gf_col</span><span class="op">(</span><span class="va">edu_prop</span> <span class="op">~</span> <span class="va">Education</span>, data <span class="op">=</span> <span class="va">gss_summary</span>,</span>
 <span>       width <span class="op">=</span> <span class="op">~</span> <span class="va">edu_count</span>, <span class="co"># Not typically used in a column chart</span></span>
 <span>       fill <span class="op">=</span> <span class="op">~</span> <span class="va">DeathPenalty</span>,</span>
@@ -1492,44 +2340,43 @@ DeathPenalty Left HS   HS Jr Col Bachelors Graduate  Sum
 <span>                space <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  </span>
 <span>  <span class="fu">gf_theme</span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"orangered"</span>, <span class="st">"palegreen3"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">gf_theme</span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu">gf_theme</span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/marimekko-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/marimekko-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
 </div>
 </div>
 </div>
 </div>
 </div>
-</section></section><section id="iconify-fluent-mdl2-balloons-balloon-plots" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-balloons-balloon-plots">
+</div>
+</section></section><section id="balloon-plots" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="balloon-plots">
 <iconify-icon inline="" icon="fluent-mdl2:balloons"></iconify-icon> Balloon Plots</h2>
 <p>There is another visualization of Categorical Data, called a Balloon Plot. We will use the <code>housetasks</code> dataset from the package <code>ggpubr</code>. This data is already in Contingency Table form (without the margin totals)!</p>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb59" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">housetasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.delim</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb59" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">housetasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.delim</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"demo-data/housetasks.txt"</span>, </span>
 <span>              package <span class="op">=</span> <span class="st">"ggpubr"</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">housetasks</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu">ggpubr</span><span class="fu">::</span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggballoonplot.html">ggballoonplot</a></span><span class="op">(</span><span class="va">housetasks</span>, fill <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"A Balloon Plot for Categorical Data"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-page-inset-right quarto-layout-panel" data-hash="index_cache/html/balloon-plot-using-ggpubr_ba9e2311e698389b42e368931173fabb">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"A Balloon Plot for Categorical Data"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell column-page-inset-right quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/balloon-plot-using-ggpubr_ba9e2311e698389b42e368931173fabb">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Wife"],"name":[1],"type":["int"],"align":["right"]},{"label":["Alternating"],"name":[2],"type":["int"],"align":["right"]},{"label":["Husband"],"name":[3],"type":["int"],"align":["right"]},{"label":["Jointly"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"156","2":"14","3":"2","4":"4","_rn_":"Laundry"},{"1":"124","2":"20","3":"5","4":"4","_rn_":"Main_meal"},{"1":"77","2":"11","3":"7","4":"13","_rn_":"Dinner"},{"1":"82","2":"36","3":"15","4":"7","_rn_":"Breakfeast"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="index_files/figure-html/balloon-plot-using-ggpubr-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
-</div>
 <p>And repeat with the familiar <code>HairEyeColor</code> dataset:</p>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb60" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb60" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="va">HairEyeColor</span><span class="op">)</span></span>
 <span><span class="va">df</span></span>
 <span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggballoonplot.html">ggballoonplot</a></span><span class="op">(</span><span class="va">df</span>, x <span class="op">=</span> <span class="st">"Hair"</span>, y <span class="op">=</span> <span class="st">"Eye"</span>, size <span class="op">=</span> <span class="st">"n"</span>,</span>
 <span>              fill <span class="op">=</span> <span class="st">"n"</span>,</span>
@@ -1542,29 +2389,27 @@ DeathPenalty Left HS   HS Jr Col Bachelors Graduate  Sum
 <span>              ggtheme <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Balloon Plot with Facetting"</span>, </span>
-<span>       subtitle <span class="op">=</span> <span class="st">"Hair and Eye Color"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-page-inset-right quarto-layout-panel" data-hash="index_cache/html/Balloon-Plots-2_34651ec3b8c40406b0d8fd4274d1e013">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
-
+<span>       subtitle <span class="op">=</span> <span class="st">"Hair and Eye Color"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell column-page-inset-right quarto-layout-panel" data-layout-ncol="3" data-hash="index_cache/html/Balloon-Plots-2_34651ec3b8c40406b0d8fd4274d1e013">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Hair"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Eye"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Black","2":"Brown","3":"Male","4":"32"},{"1":"Brown","2":"Brown","3":"Male","4":"53"},{"1":"Red","2":"Brown","3":"Male","4":"10"},{"1":"Blond","2":"Brown","3":"Male","4":"3"},{"1":"Black","2":"Blue","3":"Male","4":"11"},{"1":"Brown","2":"Blue","3":"Male","4":"50"},{"1":"Red","2":"Blue","3":"Male","4":"10"},{"1":"Blond","2":"Blue","3":"Male","4":"30"},{"1":"Black","2":"Hazel","3":"Male","4":"10"},{"1":"Brown","2":"Hazel","3":"Male","4":"25"},{"1":"Red","2":"Hazel","3":"Male","4":"7"},{"1":"Blond","2":"Hazel","3":"Male","4":"5"},{"1":"Black","2":"Green","3":"Male","4":"3"},{"1":"Brown","2":"Green","3":"Male","4":"15"},{"1":"Red","2":"Green","3":"Male","4":"7"},{"1":"Blond","2":"Green","3":"Male","4":"8"},{"1":"Black","2":"Brown","3":"Female","4":"36"},{"1":"Brown","2":"Brown","3":"Female","4":"66"},{"1":"Red","2":"Brown","3":"Female","4":"16"},{"1":"Blond","2":"Brown","3":"Female","4":"4"},{"1":"Black","2":"Blue","3":"Female","4":"9"},{"1":"Brown","2":"Blue","3":"Female","4":"34"},{"1":"Red","2":"Blue","3":"Female","4":"7"},{"1":"Blond","2":"Blue","3":"Female","4":"64"},{"1":"Black","2":"Hazel","3":"Female","4":"5"},{"1":"Brown","2":"Hazel","3":"Female","4":"29"},{"1":"Red","2":"Hazel","3":"Female","4":"7"},{"1":"Blond","2":"Hazel","3":"Female","4":"5"},{"1":"Black","2":"Green","3":"Female","4":"2"},{"1":"Brown","2":"Green","3":"Female","4":"14"},{"1":"Red","2":"Green","3":"Female","4":"7"},{"1":"Blond","2":"Green","3":"Female","4":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="index_files/figure-html/Balloon-Plots-2-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="index_files/figure-html/Balloon-Plots-2-2.png" class="img-fluid" width="2100"></p>
-</div>
 </div>
 </div>
 </div>
 <p>Note the somewhat different syntax with <code>ggballoonplot</code>: the variable names are enclosed in quotes.</p>
 <p>Balloon Plots work because they use color and size aesthetics to represent categories and counts respectively.</p>
-</section><section id="iconify-fluent-likert-16-regular-plots-for-survey-data" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-fluent-likert-16-regular-plots-for-survey-data">
+</section><section id="plots-for-survey-data" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="plots-for-survey-data">
 <iconify-icon inline="" icon="fluent:likert-16-regular"></iconify-icon> Plots for Survey Data</h2>
 <p>In many business situations, we perform say <em>customer surveys</em> to get <a href="https://www.simplypsychology.org/likert-scale.html">Likert Scale</a> data, where several respondents rate a product or a service on a scale of <code>Very much like</code>, <code>somewhat like</code>, <code>neutral</code>, <code>Dislike</code> and <code>Very much dislike,</code> for example.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1588,17 +2433,19 @@ A fictitious QuickEZ app
 </div>
 </div>
 <p>Such data may look for example as follows:</p>
-<div class="cell column-body-outset-right quarto-layout-panel" data-hash="index_cache/html/Demoing_labelled_data_2477bc83eab76adb85e9160bdbbf8608">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div>
 
+</div>
+<div class="cell column-body-outset-right quarto-layout-panel" data-layout-ncol="2" data-hash="index_cache/html/Demoing_labelled_data_2477bc83eab76adb85e9160bdbbf8608">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["q1"],"name":[1],"type":["int"],"align":["right"]},{"label":["q2"],"name":[2],"type":["int"],"align":["right"]},{"label":["q3"],"name":[3],"type":["int"],"align":["right"]},{"label":["q4"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"4","2":"2","3":"4","4":"4"},{"1":"4","2":"3","3":"4","4":"1"},{"1":"3","2":"2","3":"1","4":"2"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"1","2":"1","3":"3","4":"4"},{"1":"1","2":"3","3":"4","4":"4"},{"1":"2","2":"4","3":"2","4":"2"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"1","2":"1","3":"4","4":"4"},{"1":"2","2":"1","3":"4","4":"4"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"2","2":"2","3":"4","4":"4"},{"1":"4","2":"3","3":"4","4":"4"},{"1":"3","2":"1","3":"1","4":"1"},{"1":"3","2":"3","3":"4","4":"2"},{"1":"4","2":"2","3":"4","4":"3"},{"1":"4","2":"3","3":"4","4":"1"},{"1":"3","2":"3","3":"1","4":"1"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"1","2":"2","3":"4","4":"1"},{"1":"4","2":"3","3":"4","4":"4"},{"1":"3","2":"1","3":"4","4":"4"},{"1":"4","2":"3","3":"2","4":"1"},{"1":"4","2":"4","3":"3","4":"2"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"1","2":"2","3":"4","4":"4"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"4","2":"1","3":"4","4":"4"},{"1":"3","2":"1","3":"1","4":"2"},{"1":"2","2":"1","3":"4","4":"4"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"2","2":"1","3":"4","4":"1"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"1","2":"1","3":"4","4":"1"},{"1":"3","2":"4","3":"2","4":"4"},{"1":"2","2":"2","3":"4","4":"2"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"2","3":"4","4":"4"},{"1":"4","2":"3","3":"4","4":"2"},{"1":"1","2":"3","3":"4","4":"2"},{"1":"3","2":"1","3":"1","4":"1"},{"1":"3","2":"3","3":"2","4":"1"},{"1":"3","2":"1","3":"4","4":"4"},{"1":"4","2":"1","3":"3","4":"2"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"4","2":"3","3":"4","4":"4"},{"1":"2","2":"1","3":"4","4":"4"},{"1":"1","2":"1","3":"3","4":"1"},{"1":"4","2":"3","3":"1","4":"3"},{"1":"1","2":"4","3":"4","4":"3"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"3","2":"1","3":"4","4":"3"},{"1":"3","2":"1","3":"1","4":"2"},{"1":"2","2":"3","3":"1","4":"4"},{"1":"3","2":"1","3":"4","4":"4"},{"1":"2","2":"2","3":"4","4":"4"},{"1":"1","2":"1","3":"4","4":"1"},{"1":"3","2":"3","3":"1","4":"1"},{"1":"3","2":"3","3":"3","4":"4"},{"1":"1","2":"2","3":"3","4":"1"},{"1":"1","2":"2","3":"4","4":"2"},{"1":"4","2":"1","3":"4","4":"3"},{"1":"2","2":"3","3":"3","4":"1"},{"1":"1","2":"4","3":"4","4":"2"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"3","2":"1","3":"1","4":"2"},{"1":"3","2":"2","3":"4","4":"4"},{"1":"2","2":"1","3":"4","4":"4"},{"1":"1","2":"4","3":"4","4":"2"},{"1":"3","2":"2","3":"3","4":"1"},{"1":"3","2":"1","3":"4","4":"4"},{"1":"3","2":"2","3":"4","4":"2"},{"1":"3","2":"3","3":"2","4":"1"},{"1":"3","2":"1","3":"2","4":"1"},{"1":"3","2":"2","3":"4","4":"1"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"3","2":"3","3":"2","4":"1"},{"1":"1","2":"3","3":"4","4":"1"},{"1":"3","2":"3","3":"1","4":"1"},{"1":"1","2":"3","3":"4","4":"4"},{"1":"3","2":"1","3":"4","4":"2"},{"1":"3","2":"1","3":"3","4":"2"},{"1":"1","2":"4","3":"4","4":"3"},{"1":"2","2":"3","3":"3","4":"1"},{"1":"1","2":"1","3":"4","4":"2"},{"1":"3","2":"3","3":"3","4":"1"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"3","3":"4","4":"2"},{"1":"3","2":"1","3":"4","4":"4"},{"1":"1","2":"2","3":"2","4":"4"},{"1":"3","2":"2","3":"4","4":"1"},{"1":"3","2":"3","3":"3","4":"2"},{"1":"4","2":"3","3":"4","4":"2"},{"1":"4","2":"3","3":"4","4":"1"},{"1":"2","2":"1","3":"4","4":"2"},{"1":"3","2":"2","3":"1","4":"4"},{"1":"1","2":"2","3":"4","4":"3"},{"1":"2","2":"1","3":"4","4":"3"},{"1":"1","2":"1","3":"4","4":"4"},{"1":"1","2":"3","3":"4","4":"2"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"3","3":"3","4":"2"},{"1":"4","2":"2","3":"4","4":"2"},{"1":"4","2":"4","3":"3","4":"2"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"2","2":"1","3":"4","4":"1"},{"1":"1","2":"3","3":"2","4":"1"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"1","2":"1","3":"4","4":"2"},{"1":"2","2":"4","3":"1","4":"2"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"3","2":"1","3":"4","4":"2"},{"1":"1","2":"1","3":"4","4":"2"},{"1":"1","2":"4","3":"4","4":"2"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"2","3":"4","4":"1"},{"1":"1","2":"4","3":"4","4":"1"},{"1":"2","2":"4","3":"4","4":"4"},{"1":"3","2":"3","3":"3","4":"1"},{"1":"3","2":"3","3":"2","4":"4"},{"1":"1","2":"1","3":"3","4":"1"},{"1":"1","2":"1","3":"4","4":"1"},{"1":"2","2":"3","3":"1","4":"1"},{"1":"3","2":"4","3":"1","4":"2"},{"1":"4","2":"3","3":"4","4":"1"},{"1":"4","2":"2","3":"2","4":"4"},{"1":"3","2":"2","3":"4","4":"4"},{"1":"2","2":"2","3":"4","4":"4"},{"1":"4","2":"4","3":"3","4":"4"},{"1":"1","2":"1","3":"4","4":"3"},{"1":"1","2":"1","3":"1","4":"3"},{"1":"4","2":"3","3":"1","4":"3"},{"1":"2","2":"2","3":"4","4":"1"},{"1":"1","2":"3","3":"4","4":"4"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"2","2":"2","3":"4","4":"4"},{"1":"1","2":"1","3":"4","4":"2"},{"1":"3","2":"3","3":"1","4":"3"},{"1":"3","2":"1","3":"2","4":"4"},{"1":"3","2":"2","3":"4","4":"4"},{"1":"2","2":"3","3":"4","4":"3"},{"1":"2","2":"1","3":"4","4":"2"},{"1":"2","2":"1","3":"1","4":"4"},{"1":"3","2":"4","3":"1","4":"1"},{"1":"4","2":"3","3":"4","4":"2"},{"1":"3","2":"2","3":"4","4":"3"},{"1":"3","2":"4","3":"4","4":"1"},{"1":"2","2":"3","3":"2","4":"1"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"2","2":"1","3":"1","4":"1"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"1","2":"2","3":"4","4":"1"},{"1":"2","2":"3","3":"4","4":"1"},{"1":"3","2":"2","3":"2","4":"4"},{"1":"3","2":"4","3":"4","4":"1"},{"1":"3","2":"3","3":"3","4":"3"},{"1":"1","2":"3","3":"1","4":"3"},{"1":"4","2":"3","3":"1","4":"3"},{"1":"1","2":"2","3":"4","4":"2"},{"1":"1","2":"1","3":"4","4":"1"},{"1":"3","2":"4","3":"4","4":"1"},{"1":"1","2":"2","3":"4","4":"4"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"3","2":"2","3":"1","4":"3"},{"1":"3","2":"4","3":"4","4":"4"},{"1":"3","2":"3","3":"4","4":"4"},{"1":"3","2":"1","3":"1","4":"4"},{"1":"2","2":"1","3":"1","4":"4"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"3","2":"2","3":"2","4":"1"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"2","3":"4","4":"2"},{"1":"3","2":"4","3":"1","4":"1"},{"1":"2","2":"1","3":"4","4":"3"},{"1":"1","2":"1","3":"4","4":"3"},{"1":"2","2":"1","3":"1","4":"2"},{"1":"2","2":"2","3":"4","4":"3"},{"1":"4","2":"3","3":"4","4":"4"},{"1":"2","2":"3","3":"2","4":"4"},{"1":"3","2":"3","3":"1","4":"1"},{"1":"3","2":"1","3":"1","4":"1"},{"1":"2","2":"3","3":"4","4":"4"},{"1":"2","2":"2","3":"4","4":"1"},{"1":"4","2":"1","3":"2","4":"1"},{"1":"2","2":"4","3":"2","4":"4"},{"1":"3","2":"1","3":"4","4":"1"},{"1":"3","2":"1","3":"1","4":"1"},{"1":"3","2":"2","3":"4","4":"2"},{"1":"2","2":"3","3":"3","4":"1"},{"1":"3","2":"2","3":"4","4":"4"},{"1":"3","2":"1","3":"2","4":"1"},{"1":"3","2":"2","3":"3","4":"4"},{"1":"3","2":"3","3":"4","4":"1"},{"1":"1","2":"4","3":"4","4":"1"},{"1":"3","2":"4","3":"4","4":"1"},{"1":"2","2":"3","3":"4","4":"2"},{"1":"2","2":"1","3":"4","4":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>tibble [200 × 4] (S3: tbl_df/tbl/data.frame)
  $ q1: int [1:200] 4 4 3 2 1 1 2 3 1 2 ...
   ..- attr(*, "label")= Named chr "Have your heard of the QuickEZ app?"
@@ -1626,7 +2473,10 @@ A fictitious QuickEZ app
 <p>Such data is also a form of <em>Categorical data</em> and we need to count and plot counts for each of the survey questions. Such a plot is called a <strong>Likert plot</strong> and it looks like this:</p>
 <div class="cell" data-hash="index_cache/html/Likert-Plot-1_7ce1c5e54db7b0a974c361bb10a8e0e3">
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/Likert-Plot-1-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/Likert-Plot-1-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Based on this chart, since it looks like about half the survey respondents have not heard of our app, we need more publicity, and many do not find it easy to use 😿, so we have serious re-design and user testing to do !! But at least those who have managed to get past the hurdles are stating they will continue to use the app, so it does the job, but we can make it easier to use.</p>
@@ -1641,24 +2491,22 @@ A fictitious QuickEZ app
 </ol>
 </blockquote>
 <p>We will select the variables from the <code>efc</code> data set that related to <em>coping</em> (on part of care-givers) and plot their responses after inspecting them:</p>
-<div class="page-columns page-full">
-<div class="sourceCode cell-code" id="cb62" data-code-line-numbers=""><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: efc_data</span></span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| layout-nrow: 2</span></span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| column: body-outset-right</span></span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(efc,<span class="at">package =</span> <span class="st">"sjPlot"</span>)</span>
+<div class="sourceCode cell-code" id="cb62" data-code-line-numbers=""><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="in">#| label: efc_data</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="in">#| layout-nrow: 2</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="in">#| column: body-outset-right</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="in">data(efc,package = "sjPlot")</span></span>
 <span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>efc <span class="sc">%&gt;%</span> </span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">contains</span>(<span class="st">"cop"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">20</span>)</span>
-<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>efc <span class="sc">%&gt;%</span> </span>
-<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">contains</span>(<span class="st">"cop"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str</span>()</span>
-<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-body-outset-right quarto-layout-panel" data-hash="index_cache/html/efc_data_599330b03e20f224dcd171d0f59bd272">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
-
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="in">efc %&gt;% </span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dplyr::contains("cop")) %&gt;% </span></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="in">  head(20)</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a><span class="in">efc %&gt;% </span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a><span class="in">  select(dplyr::contains("cop")) %&gt;% </span></span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a><span class="in">  str()</span></span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="cell column-body-outset-right quarto-layout-panel" data-layout-nrow="2" data-hash="index_cache/html/efc_data_599330b03e20f224dcd171d0f59bd272">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["c82cop1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["c83cop2"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["c84cop3"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["c85cop4"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["c86cop5"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["c87cop6"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["c88cop7"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["c89cop8"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["c90cop9"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"3","2":"2","3":"2","4":"2","5":"1","6":"1","7":"2","8":"3","9":"3","_rn_":"1"},{"1":"3","2":"3","3":"3","4":"3","5":"4","6":"1","7":"3","8":"2","9":"2","_rn_":"2"},{"1":"2","2":"2","3":"1","4":"4","5":"1","6":"1","7":"1","8":"4","9":"3","_rn_":"3"},{"1":"4","2":"1","3":"3","4":"1","5":"1","6":"1","7":"1","8":"2","9":"4","_rn_":"4"},{"1":"3","2":"2","3":"1","4":"2","5":"2","6":"2","7":"1","8":"4","9":"4","_rn_":"5"},{"1":"2","2":"2","3":"3","4":"3","5":"3","6":"2","7":"2","8":"1","9":"1","_rn_":"6"},{"1":"4","2":"2","3":"4","4":"1","5":"1","6":"2","7":"4","8":"1","9":"4","_rn_":"7"},{"1":"3","2":"2","3":"2","4":"1","5":"1","6":"1","7":"2","8":"3","9":"3","_rn_":"8"},{"1":"3","2":"2","3":"3","4":"2","5":"2","6":"1","7":"3","8":"1","9":"3","_rn_":"9"},{"1":"3","2":"2","3":"1","4":"2","5":"1","6":"1","7":"1","8":"1","9":"3","_rn_":"10"},{"1":"3","2":"4","3":"4","4":"4","5":"4","6":"4","7":"4","8":"1","9":"1","_rn_":"11"},{"1":"3","2":"3","3":"3","4":"1","5":"3","6":"1","7":"4","8":"3","9":"1","_rn_":"12"},{"1":"3","2":"2","3":"2","4":"2","5":"2","6":"1","7":"2","8":"4","9":"4","_rn_":"13"},{"1":"3","2":"2","3":"4","4":"4","5":"1","6":"1","7":"2","8":"4","9":"4","_rn_":"14"},{"1":"2","2":"3","3":"3","4":"3","5":"2","6":"2","7":"1","8":"1","9":"1","_rn_":"15"},{"1":"4","2":"2","3":"1","4":"3","5":"3","6":"1","7":"2","8":"1","9":"3","_rn_":"16"},{"1":"3","2":"2","3":"1","4":"2","5":"1","6":"1","7":"2","8":"4","9":"4","_rn_":"17"},{"1":"4","2":"2","3":"1","4":"2","5":"1","6":"1","7":"2","8":"3","9":"3","_rn_":"18"},{"1":"3","2":"2","3":"1","4":"2","5":"2","6":"1","7":"3","8":"1","9":"4","_rn_":"19"},{"1":"3","2":"2","3":"4","4":"2","5":"1","6":"3","7":"3","8":"2","9":"2","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1666,8 +2514,8 @@ A fictitious QuickEZ app
 </div>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>'data.frame':   908 obs. of  9 variables:
  $ c82cop1: num  3 3 2 4 3 2 4 3 3 3 ...
   ..- attr(*, "label")= chr "do you feel you cope well as caregiver?"
@@ -1708,14 +2556,16 @@ A fictitious QuickEZ app
 </div>
 </div>
 </div>
-</div>
 <p>The <code>cop</code>ing related variables have responses on the Likert Scale <code>(1,2,3,4)</code> which correspond to <code>(never, sometimes, often, always)</code>, <strong>and</strong> each variable also has a <code>label</code> defining each variable. The labels are actually ( and perhaps usually ) the <em>questions</em> in the survey.</p>
 <p>We can plot this data using the <code>plot_likert</code> function from package <code>sjPlot</code>:</p>
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-26_e4df0ca32813e859d260226b37705ff7">
-<div class="sourceCode" id="cb64" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">efc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html">contains</a></span><span class="op">(</span><span class="st">"cop"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">sjPlot</span><span class="fu">::</span><span class="fu"><a href="https://strengejacke.github.io/sjPlot/reference/plot_likert.html">plot_likert</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Caregiver Survey from EUROFAM"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb64" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">efc</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html">contains</a></span><span class="op">(</span><span class="st">"cop"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">sjPlot</span><span class="fu">::</span><span class="fu"><a href="https://strengejacke.github.io/sjPlot/reference/plot_likert.html">plot_likert</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Caregiver Survey from EUROFAM"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="index_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Many questions here have strong <em>negative</em> responses. This may indicate that policy and publicity related efforts may be required.</p>
@@ -1736,7 +2586,7 @@ Colours and Orientation in the Likert Plot
 <p>Try these options now in your Console! (Note the American spelling <code>color</code>)</p>
 </div>
 </div>
-<section id="iconify-fluent-emoji-label-labelled-data" class="level4"><h4 class="anchored" data-anchor-id="iconify-fluent-emoji-label-labelled-data">
+<section id="labelled-data" class="level4"><h4 class="anchored" data-anchor-id="labelled-data">
 <iconify-icon inline="" icon="fluent-emoji:label"></iconify-icon> Labelled Data</h4>
 <p>Note how the y-axis has been populated with <strong>Survey Questions</strong>: this is an example of a <em>labelled dataset</em>, where not only do the variables have <em>names</em> i.e.&nbsp;column names, but also have longish text <strong>labels</strong> that add information to the data variables. The <strong>data values</strong> ( i.e scores) in the columns is also <strong>labelled</strong> as per the the Likert scale (<code>Like/Dislike/Strongly Dislike</code> OR <code>never/sometimes/often/always</code>) etc. These <strong>Likert scores</strong> are usually a set of contiguous integers.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1753,8 +2603,7 @@ Variable Labels and Value Labels
 </div>
 </div>
 <p>Let us manually create one such dataset, since this is a common-enough situation<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> that we have survey data and then have to label the variables and the values before plotting. We will use the R package <code>sjlabelled</code> to label our data.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
-<div>
-<div class="sourceCode" id="cb65" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#library(sjlabelled)</span></span>
+<div class="sourceCode" id="cb65" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#library(sjlabelled)</span></span>
 <span></span>
 <span><span class="va">variable_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Do you practice Analytics?"</span>,</span>
 <span>                     <span class="st">"Do you code in R?"</span>,</span>
@@ -1793,10 +2642,10 @@ Variable Labels and Value Labels
 <span>            reverse.scale <span class="op">=</span> <span class="cn">TRUE</span>,<span class="co"># Reverse score values on plot</span></span>
 <span>            reverse.colors <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co"># let the colors be</span></span>
 <span>            show.prc.sign <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Show percentage sign</span></span>
-<span>            legend.pos <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="index_cache/html/Creating_labelled_data_e7de45f50e5f75cb69dd9e4fbf0849d8">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<span>            legend.pos <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-layout-nrow="2" data-hash="index_cache/html/Creating_labelled_data_e7de45f50e5f75cb69dd9e4fbf0849d8">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>tibble [200 × 5] (S3: tbl_df/tbl/data.frame)
  $ q1: int [1:200] 4 3 3 1 3 1 3 3 3 4 ...
   ..- attr(*, "label")= Named chr "Do you practice Analytics?"
@@ -1825,17 +2674,16 @@ Variable Labels and Value Labels
   .. ..- attr(*, "names")= chr [1:4] "never" "sometimes" "often" "always"</code></pre>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/Creating_labelled_data-1.png" class="img-fluid" width="2100"></p>
-</div>
 </div>
 </div>
 </div>
 <p>It seems many people in the survey plan to use R at work!! And have published R code as well. But Quarto seems to have mixed results! But of course this is a toy dataset!!</p>
 <p>So there we are with Categorical data analysis and plots!</p>
 <p>There are a few other plots with this type of data, which are useful in very specialized circumstances. One example of this is the <code>agreement plot</code> which captures the agreement between two (sets) of evaluators, on ratings given on a shared ordinal scale to a set of items. An example from the field of medical diagnosis is the opinions of two specialists on a common set of patients. However, that is for a more advanced course!</p>
-</section></section><section id="iconify-fluent-mdl2-decision-solid-conclusion" class="level2"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-decision-solid-conclusion">
+</section></section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">
 <iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</h2>
 <p>How are the bar plots for categorical data different from histograms? Why don’t “regular” scatter plots simply work for Categorical data? Discuss!</p>
 <p>There are quite a few things we can do with Qualitative/Categorical data:</p>
@@ -1846,13 +2694,13 @@ Variable Labels and Value Labels
 <li>Make Balloon Charts as an alternative</li>
 <li>Make Likert Charts for Survey Questionnaire Data</li>
 <li>Then, draw your inferences and tell the story!</li>
-</ol></section><section id="iconify-openmoji-person-your-turn" class="level2"><h2 class="anchored" data-anchor-id="iconify-openmoji-person-your-turn">
+</ol></section><section id="your-turn" class="level2"><h2 class="anchored" data-anchor-id="your-turn">
 <iconify-icon inline="" icon="openmoji:person"></iconify-icon> Your Turn</h2>
 <ol type="1">
 <li>Take some of the categorical datasets from the <code>vcd</code> and <code>vcdExtra</code> packages and recreate the plots from this module.</li>
-</ol></section><section id="iconify-ooui-references-ltr-references" class="level2"><h2 class="anchored" data-anchor-id="iconify-ooui-references-ltr-references">
+</ol></section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">
 <iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" data-entry-spacing="0" role="list">
 <p><br>
 Chapter 4, <a href="https://openintro-ims.netlify.app/explore-categorical.html" class="uri">https://openintro-ims.netlify.app/explore-categorical.html</a> from <em>An Introduction to Modern Statistics by Mine Cetinkaya-Rundel and Johanna Hardin</em>.<br></p>
 <p>Using the <code>strcplot</code> command from <code>vcd</code>, <a href="https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf" class="uri">https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf</a><br></p>
@@ -1860,7 +2708,7 @@ Chapter 4, <a href="https://openintro-ims.netlify.app/explore-categorical.html" 
 <p>Creating mosaic plots with <code>vcd</code>, <a href="https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html" class="uri">https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html</a><br></p>
 <p>Michael Friendly, <em>Corrgrams: Exploratory displays for correlation matrices</em>. The American Statistician August 19, 2002 (v1.5). <a href="https://www.datavis.ca/papers/corrgram.pdf" class="uri">https://www.datavis.ca/papers/corrgram.pdf</a><br></p>
 <p><a href="https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html">Visualizing Categorical Data in R</a><br></p>
-<section id="iconify-lucide-package-check-r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="iconify-lucide-package-check-r-package-citations">
+<section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check"></iconify-icon> R Package Citations</h6>
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-28_d83ed2ab760a52398c4cb2b1737fc148">
 <div class="cell-output-display">
@@ -1963,7 +2811,7 @@ Zhu, Hao. 2021. <em><span class="nocase">kableExtra</span>: Construct Complex Ta
 <ol>
 <li id="fn1"><p>Piping Hot Data: Leveraging Labelled Data in R, https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/&gt;<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>Label Support in R:<a href="https://cran.r-project.org/web/packages/sjlabelled/index.html" class="uri">https://cran.r-project.org/web/packages/sjlabelled/index.html</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2022,
+</ol></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2022,
   author = {V., Arvind},
   title = {🐉 {Visualizing} {Categorical} {Data}},
   date = {2022-12-27},
@@ -2001,62 +2849,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
       }
     }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -2066,8 +2881,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -2080,6 +2904,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -2123,6 +3066,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -2148,6 +3092,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -2205,22 +3175,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       });
     }
   }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-          // target, if specified
-          link.setAttribute("target", "_blank");
-          // default icon
-          link.classList.add("external");
-      }
-    }
 });
 </script>
 </div> <!-- /content -->
@@ -2228,7 +3182,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>
+    <div class="nav-footer-center">
+<p>Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

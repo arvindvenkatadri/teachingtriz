@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind V.">
 <meta name="dcterms.date" content="2023-03-28">
@@ -21,7 +21,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -57,6 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -98,7 +99,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -107,17 +114,43 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script><style>html{ scroll-behavior: smooth; }</style>
 <link href="../../../../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="../../../../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <meta property="og:title" content="The Foundation Series - Comparing Multiple Means with ANOVA">
 <meta property="og:description" content="ANOVA to investigate how frogspawn hatching time varies with temperature.">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/130-ThreeMeansOrMore/preview.jpg">
-<meta property="og:site-name" content="The Foundation Series">
+<meta property="og:site_name" content="The Foundation Series">
 <meta name="twitter:title" content="The Foundation Series - Comparing Multiple Means with ANOVA">
 <meta name="twitter:description" content="ANOVA to investigate how frogspawn hatching time varies with temperature.">
 <meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Inference/Modules/130-ThreeMeansOrMore/preview.jpg">
@@ -126,8 +159,8 @@ div.csl-indent {
 <body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
@@ -139,55 +172,55 @@ div.csl-indent {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../../../../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com" rel="" target=""><i class="bi bi-envelope" role="img">
+    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com"> <i class="bi bi-envelope" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
+</div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Comparing Multiple Means with ANOVA</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Comparing Multiple Means with ANOVA</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
@@ -317,34 +350,34 @@ div.csl-indent {
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
-<li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link active" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
-  <li><a href="#iconify-openmoji-japanese-symbol-for-beginner-introduction" id="toc-iconify-openmoji-japanese-symbol-for-beginner-introduction" class="nav-link" data-scroll-target="#iconify-openmoji-japanese-symbol-for-beginner-introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
-  <li><a href="#iconify-flat-color-icons-workflow-workflow-read-the-data" id="toc-iconify-flat-color-icons-workflow-workflow-read-the-data" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-read-the-data"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</a></li>
-  <li><a href="#iconify-material-symbols-pivot-table-chart-workflow-clean-the-data" id="toc-iconify-material-symbols-pivot-table-chart-workflow-clean-the-data" class="nav-link" data-scroll-target="#iconify-material-symbols-pivot-table-chart-workflow-clean-the-data"><iconify-icon inline="" icon="material-symbols:pivot-table-chart"></iconify-icon> Workflow: Clean the Data</a></li>
-  <li><a href="#iconify-flat-color-icons-workflow-workflow-eda" id="toc-iconify-flat-color-icons-workflow-workflow-eda" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-eda"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: EDA</a></li>
-  <li><a href="#iconify-flat-color-icons-workflow-workflow-anova" id="toc-iconify-flat-color-icons-workflow-workflow-anova" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-anova"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA</a></li>
+<li><a href="#setting-up-r-packages" id="toc-setting-up-r-packages" class="nav-link active" data-scroll-target="#setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</a></li>
+  <li><a href="#workflow-read-the-data" id="toc-workflow-read-the-data" class="nav-link" data-scroll-target="#workflow-read-the-data"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</a></li>
+  <li><a href="#workflow-clean-the-data" id="toc-workflow-clean-the-data" class="nav-link" data-scroll-target="#workflow-clean-the-data"><iconify-icon inline="" icon="material-symbols:pivot-table-chart"></iconify-icon> Workflow: Clean the Data</a></li>
+  <li><a href="#workflow-eda" id="toc-workflow-eda" class="nav-link" data-scroll-target="#workflow-eda"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: EDA</a></li>
+  <li><a href="#workflow-anova" id="toc-workflow-anova" class="nav-link" data-scroll-target="#workflow-anova"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA</a></li>
   <li>
-<a href="#iconify-flat-color-icons-workflow-workflow-checking-anova-assumptions" id="toc-iconify-flat-color-icons-workflow-workflow-checking-anova-assumptions" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-checking-anova-assumptions"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Checking ANOVA Assumptions</a>
+<a href="#workflow-checking-anova-assumptions" id="toc-workflow-checking-anova-assumptions" class="nav-link" data-scroll-target="#workflow-checking-anova-assumptions"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Checking ANOVA Assumptions</a>
   <ul class="collapse">
-<li><a href="#iconify-ic-twotone-rule-checks-for-normality" id="toc-iconify-ic-twotone-rule-checks-for-normality" class="nav-link" data-scroll-target="#iconify-ic-twotone-rule-checks-for-normality"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Checks for Normality</a></li>
-  <li><a href="#iconify-ic-twotone-rule-check-for-similar-variance" id="toc-iconify-ic-twotone-rule-check-for-similar-variance" class="nav-link" data-scroll-target="#iconify-ic-twotone-rule-check-for-similar-variance"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Check for Similar Variance</a></li>
-  <li><a href="#iconify-ic-twotone-rule-independent-observations" id="toc-iconify-ic-twotone-rule-independent-observations" class="nav-link" data-scroll-target="#iconify-ic-twotone-rule-independent-observations"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Independent Observations</a></li>
+<li><a href="#checks-for-normality" id="toc-checks-for-normality" class="nav-link" data-scroll-target="#checks-for-normality"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Checks for Normality</a></li>
+  <li><a href="#check-for-similar-variance" id="toc-check-for-similar-variance" class="nav-link" data-scroll-target="#check-for-similar-variance"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Check for Similar Variance</a></li>
+  <li><a href="#independent-observations" id="toc-independent-observations" class="nav-link" data-scroll-target="#independent-observations"><iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Independent Observations</a></li>
   </ul>
 </li>
   <li>
-<a href="#iconify-flat-color-icons-workflow-workflow-effect-size" id="toc-iconify-flat-color-icons-workflow-workflow-effect-size" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-effect-size"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Effect Size</a>
+<a href="#workflow-effect-size" id="toc-workflow-effect-size" class="nav-link" data-scroll-target="#workflow-effect-size"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Effect Size</a>
   <ul class="collapse">
 <li><a href="#using-other-packages" id="toc-using-other-packages" class="nav-link" data-scroll-target="#using-other-packages">Using other packages</a></li>
   </ul>
 </li>
-  <li><a href="#iconify-flat-color-icons-workflow-workflow-anova-using-permutation-tests" id="toc-iconify-flat-color-icons-workflow-workflow-anova-using-permutation-tests" class="nav-link" data-scroll-target="#iconify-flat-color-icons-workflow-workflow-anova-using-permutation-tests"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA using Permutation Tests</a></li>
-  <li><a href="#iconify-fluent-mdl2-decision-solid-conclusions" id="toc-iconify-fluent-mdl2-decision-solid-conclusions" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-decision-solid-conclusions"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</a></li>
+  <li><a href="#workflow-anova-using-permutation-tests" id="toc-workflow-anova-using-permutation-tests" class="nav-link" data-scroll-target="#workflow-anova-using-permutation-tests"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA using Permutation Tests</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</a></li>
   <li><a href="#sec-references" id="toc-sec-references" class="nav-link" data-scroll-target="#sec-references"><iconify-icon inline="" icon="ooui:references-rtl"></iconify-icon> References</a></li>
   </ul></nav>
     </div>
@@ -382,23 +415,24 @@ div.csl-indent {
   
 <div>
   <div class="abstract">
-    <div class="abstract-title">Abstract</div>
+    <div class="block-title">Abstract</div>
     ANOVA to investigate how frogspawn hatching time varies with temperature.
   </div>
 </div>
 
-</header><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
+
+</header><section id="setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
 <div class="cell" data-hash="ANOVA_cache/html/setup_660f844030431f8b44f8508d420f50bd">
-<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Tidy data processing </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span> <span class="co"># Formula based plots</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span> <span class="co"># Data inspection and Statistical Inference </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://broom.tidymodels.org/">broom</a></span><span class="op">)</span> <span class="co"># Tidy outputs from Statistical Analyses</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/infer">infer</a></span><span class="op">)</span> <span class="co"># Statistical Inference</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/">cowplot</a></span><span class="op">)</span> <span class="co"># Arranging Plots</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/">cowplot</a></span><span class="op">)</span> <span class="co"># Arranging Plots</span></span></code></pre></div>
 </div>
-</section><section id="iconify-openmoji-japanese-symbol-for-beginner-introduction" class="level2"><h2 class="anchored" data-anchor-id="iconify-openmoji-japanese-symbol-for-beginner-introduction">
+</section><section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">
 <iconify-icon inline="" icon="openmoji:japanese-symbol-for-beginner"></iconify-icon> Introduction</h2>
 <p>Suppose we have three sales strategies on our website, to sell a certain product, say men’s shirts. We have observations of customer website interactions over several months. How do we know which strategy makes people buy the fastest ?</p>
 <p>If there is a University course that is offered in parallel in three different classrooms, is there a difference between the average marks obtained by students in each of the classrooms?</p>
@@ -418,10 +452,10 @@ Research Question
 <p>How does frogspawn hatching time vary with different temperature settings?</p>
 </div>
 </div>
-</section><section id="iconify-flat-color-icons-workflow-workflow-read-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-read-the-data">
+</section><section id="workflow-read-the-data" class="level2"><h2 class="anchored" data-anchor-id="workflow-read-the-data">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Read the Data</h2>
 <p>Download the data by clicking the button below.</p>
-<p><a href="#dnldts61227" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQoxLDI0LCwKMiwsMjEsCjMsLCwxOAo0LDI2LCwKNSwsMjIsCjYsLCwxNAo3LDI3LCwKOCwsMjIsCjksLCwxNQoxMCwyNywsCjExLCwyMSwKMTIsLCwxNQoxMywyNiwsCjE0LCwyMCwKMTUsLCwxNgoxNiwyNywsCjE3LCwyMCwKMTgsLCwxNgoxOSwyNywsCjIwLCwxOSwKMjEsLCwxNwoyMiwyNSwsCjIzLCwyMSwKMjQsLCwxNwoyNSwyNiwsCjI2LCwyMywKMjcsLCwxNwoyOCwyOCwsCjI5LCwyMSwKMzAsLCwxNwozMSwyNCwsCjMyLCwyMSwKMzMsLCwxOAozNCwyNiwsCjM1LCwyMiwKMzYsLCwxNAozNywyNywsCjM4LCwyMiwKMzksLCwxNQo0MCwyNywsCjQxLCwyMSwKNDIsLCwxNQo0MywyNiwsCjQ0LCwyMCwKNDUsLCwxNgo0NiwyNywsCjQ3LCwyMCwKNDgsLCwxNgo0OSwyNywsCjUwLCwxOSwKNTEsLCwxNwo1MiwyNSwsCjUzLCwyMSwKNTQsLCwxNwo1NSwyNiwsCjU2LCwyMywKNTcsLCwxNwo1OCwyOCwsCjU5LCwyMSwKNjAsLCwxNwo=').then(res => res.blob()).then(blob => {
+<p><a href="#dnldts61340" onclick="fetch('data:text/csv;base64,RnJvZ3NwYXduIHNhbXBsZSBpZCxUZW1wZXJhdHVyZTEzLFRlbXBlcmF0dXJlMTgsVGVtcGVyYXR1cmUyNQoxLDI0LCwKMiwsMjEsCjMsLCwxOAo0LDI2LCwKNSwsMjIsCjYsLCwxNAo3LDI3LCwKOCwsMjIsCjksLCwxNQoxMCwyNywsCjExLCwyMSwKMTIsLCwxNQoxMywyNiwsCjE0LCwyMCwKMTUsLCwxNgoxNiwyNywsCjE3LCwyMCwKMTgsLCwxNgoxOSwyNywsCjIwLCwxOSwKMjEsLCwxNwoyMiwyNSwsCjIzLCwyMSwKMjQsLCwxNwoyNSwyNiwsCjI2LCwyMywKMjcsLCwxNwoyOCwyOCwsCjI5LCwyMSwKMzAsLCwxNwozMSwyNCwsCjMyLCwyMSwKMzMsLCwxOAozNCwyNiwsCjM1LCwyMiwKMzYsLCwxNAozNywyNywsCjM4LCwyMiwKMzksLCwxNQo0MCwyNywsCjQxLCwyMSwKNDIsLCwxNQo0MywyNiwsCjQ0LCwyMCwKNDUsLCwxNgo0NiwyNywsCjQ3LCwyMCwKNDgsLCwxNgo0OSwyNywsCjUwLCwxOSwKNTEsLCwxNwo1MiwyNSwsCjUzLCwyMSwKNTQsLCwxNwo1NSwyNiwsCjU2LCwyMywKNTcsLCwxNwo1OCwyOCwsCjU5LCwyMSwKNjAsLCwxNwo=').then(res => res.blob()).then(blob => {
       const downloadURL = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       document.body.appendChild(a);
@@ -429,7 +463,7 @@ Research Question
       a.download = 'frogs.csv'; a.click();
       window.URL.revokeObjectURL(downloadURL);
       document.body.removeChild(a);
-        });"><button class="btn btn-info downloadthis  " id="dnldts61227"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
+        });"><button class="btn btn-info downloadthis  " id="dnldts61340"><i class="bi bi-database-fill-down"></i> Download the frogs data </button></a></p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -444,10 +478,9 @@ Data Folder
 </div>
 </div>
 <div class="cell" data-hash="ANOVA_cache/html/chunk-1_5c23ff286a2fed071f375d26cf3101ad">
-<div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_orig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/frogs.csv"</span><span class="op">)</span></span>
-<span><span class="va">frogs_orig</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_orig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/frogs.csv"</span><span class="op">)</span></span>
+<span><span class="va">frogs_orig</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Frogspawn sample id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Temperature13"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Temperature18"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Temperature25"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"24","3":"NA","4":"NA"},{"1":"2","2":"NA","3":"21","4":"NA"},{"1":"3","2":"NA","3":"NA","4":"18"},{"1":"4","2":"26","3":"NA","4":"NA"},{"1":"5","2":"NA","3":"22","4":"NA"},{"1":"6","2":"NA","3":"NA","4":"14"},{"1":"7","2":"27","3":"NA","4":"NA"},{"1":"8","2":"NA","3":"22","4":"NA"},{"1":"9","2":"NA","3":"NA","4":"15"},{"1":"10","2":"27","3":"NA","4":"NA"},{"1":"11","2":"NA","3":"21","4":"NA"},{"1":"12","2":"NA","3":"NA","4":"15"},{"1":"13","2":"26","3":"NA","4":"NA"},{"1":"14","2":"NA","3":"20","4":"NA"},{"1":"15","2":"NA","3":"NA","4":"16"},{"1":"16","2":"27","3":"NA","4":"NA"},{"1":"17","2":"NA","3":"20","4":"NA"},{"1":"18","2":"NA","3":"NA","4":"16"},{"1":"19","2":"27","3":"NA","4":"NA"},{"1":"20","2":"NA","3":"19","4":"NA"},{"1":"21","2":"NA","3":"NA","4":"17"},{"1":"22","2":"25","3":"NA","4":"NA"},{"1":"23","2":"NA","3":"21","4":"NA"},{"1":"24","2":"NA","3":"NA","4":"17"},{"1":"25","2":"26","3":"NA","4":"NA"},{"1":"26","2":"NA","3":"23","4":"NA"},{"1":"27","2":"NA","3":"NA","4":"17"},{"1":"28","2":"28","3":"NA","4":"NA"},{"1":"29","2":"NA","3":"21","4":"NA"},{"1":"30","2":"NA","3":"NA","4":"17"},{"1":"31","2":"24","3":"NA","4":"NA"},{"1":"32","2":"NA","3":"21","4":"NA"},{"1":"33","2":"NA","3":"NA","4":"18"},{"1":"34","2":"26","3":"NA","4":"NA"},{"1":"35","2":"NA","3":"22","4":"NA"},{"1":"36","2":"NA","3":"NA","4":"14"},{"1":"37","2":"27","3":"NA","4":"NA"},{"1":"38","2":"NA","3":"22","4":"NA"},{"1":"39","2":"NA","3":"NA","4":"15"},{"1":"40","2":"27","3":"NA","4":"NA"},{"1":"41","2":"NA","3":"21","4":"NA"},{"1":"42","2":"NA","3":"NA","4":"15"},{"1":"43","2":"26","3":"NA","4":"NA"},{"1":"44","2":"NA","3":"20","4":"NA"},{"1":"45","2":"NA","3":"NA","4":"16"},{"1":"46","2":"27","3":"NA","4":"NA"},{"1":"47","2":"NA","3":"20","4":"NA"},{"1":"48","2":"NA","3":"NA","4":"16"},{"1":"49","2":"27","3":"NA","4":"NA"},{"1":"50","2":"NA","3":"19","4":"NA"},{"1":"51","2":"NA","3":"NA","4":"17"},{"1":"52","2":"25","3":"NA","4":"NA"},{"1":"53","2":"NA","3":"21","4":"NA"},{"1":"54","2":"NA","3":"NA","4":"17"},{"1":"55","2":"26","3":"NA","4":"NA"},{"1":"56","2":"NA","3":"23","4":"NA"},{"1":"57","2":"NA","3":"NA","4":"17"},{"1":"58","2":"28","3":"NA","4":"NA"},{"1":"59","2":"NA","3":"21","4":"NA"},{"1":"60","2":"NA","3":"NA","4":"17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -456,13 +489,12 @@ Data Folder
 </div>
 </div>
 <p>Our response variable is the hatching <code>Time</code>. Our explanatory variable is a <em>factor</em>, <code>Temperature</code>, with 3 levels: 13°C, 18°C and 25°C. Different samples of spawn were subject to each of these temperatures respectively.</p>
-</section><section id="iconify-material-symbols-pivot-table-chart-workflow-clean-the-data" class="level2"><h2 class="anchored" data-anchor-id="iconify-material-symbols-pivot-table-chart-workflow-clean-the-data">
+</section><section id="workflow-clean-the-data" class="level2"><h2 class="anchored" data-anchor-id="workflow-clean-the-data">
 <iconify-icon inline="" icon="material-symbols:pivot-table-chart"></iconify-icon> Workflow: Clean the Data</h2>
 <p>The data is badly organized, with a separate column for each Temperature, and a common column for Sample ID. There are NA entries since not all samples of spawn can be subject to all temperatures. (E.g. Sample ID #1 was maintained at 13°C).</p>
 <p>We will first stack up the <code>Temperature**</code> columns into a single column, separate that into pieces and then retain just the number part (13, 18, 25), getting rid of the <em>word</em> <code>Temperature</code> from the column titles. Then the remaining <strong>numerical</strong> column with temperatures (13, 18, 25) will be converted into a factor.</p>
 <p>We will use <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer()</a></code>and <code><a href="https://tidyr.tidyverse.org/reference/separate_wider_delim.html">separate_wider_regex()</a></code> to achieve this. [See this animation for pivot_longer(): <a href="https://haswal.github.io/pivot/" class="uri">https://haswal.github.io/pivot/</a> ]</p>
-<div>
-<div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_orig</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<div class="sourceCode" id="cb3" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_orig</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span></span>
 <span>    <span class="va">.</span>,</span>
 <span>    cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html">starts_with</a></span><span class="op">(</span><span class="st">"Temperature"</span><span class="op">)</span>,</span>
@@ -491,19 +523,17 @@ Data Folder
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span><span class="st">"Id"</span> <span class="op">=</span> <span class="va">`Frogspawn sample id`</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">frogs_long</span></span>
 <span></span>
 <span><span class="va">frogs_long</span></span>
-<span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-4_8f0c0819212180e4900cc18914f7c043">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-4_8f0c0819212180e4900cc18914f7c043" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["TempFac"],"name":[2],"type":["fct"],"align":["left"]},{"label":["Time"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"13","3":"24"},{"1":"2","2":"18","3":"21"},{"1":"3","2":"25","3":"18"},{"1":"4","2":"13","3":"26"},{"1":"5","2":"18","3":"22"},{"1":"6","2":"25","3":"14"},{"1":"7","2":"13","3":"27"},{"1":"8","2":"18","3":"22"},{"1":"9","2":"25","3":"15"},{"1":"10","2":"13","3":"27"},{"1":"11","2":"18","3":"21"},{"1":"12","2":"25","3":"15"},{"1":"13","2":"13","3":"26"},{"1":"14","2":"18","3":"20"},{"1":"15","2":"25","3":"16"},{"1":"16","2":"13","3":"27"},{"1":"17","2":"18","3":"20"},{"1":"18","2":"25","3":"16"},{"1":"19","2":"13","3":"27"},{"1":"20","2":"18","3":"19"},{"1":"21","2":"25","3":"17"},{"1":"22","2":"13","3":"25"},{"1":"23","2":"18","3":"21"},{"1":"24","2":"25","3":"17"},{"1":"25","2":"13","3":"26"},{"1":"26","2":"18","3":"23"},{"1":"27","2":"25","3":"17"},{"1":"28","2":"13","3":"28"},{"1":"29","2":"18","3":"21"},{"1":"30","2":"25","3":"17"},{"1":"31","2":"13","3":"24"},{"1":"32","2":"18","3":"21"},{"1":"33","2":"25","3":"18"},{"1":"34","2":"13","3":"26"},{"1":"35","2":"18","3":"22"},{"1":"36","2":"25","3":"14"},{"1":"37","2":"13","3":"27"},{"1":"38","2":"18","3":"22"},{"1":"39","2":"25","3":"15"},{"1":"40","2":"13","3":"27"},{"1":"41","2":"18","3":"21"},{"1":"42","2":"25","3":"15"},{"1":"43","2":"13","3":"26"},{"1":"44","2":"18","3":"20"},{"1":"45","2":"25","3":"16"},{"1":"46","2":"13","3":"27"},{"1":"47","2":"18","3":"20"},{"1":"48","2":"25","3":"16"},{"1":"49","2":"13","3":"27"},{"1":"50","2":"18","3":"19"},{"1":"51","2":"25","3":"17"},{"1":"52","2":"13","3":"25"},{"1":"53","2":"18","3":"21"},{"1":"54","2":"25","3":"17"},{"1":"55","2":"13","3":"26"},{"1":"56","2":"18","3":"23"},{"1":"57","2":"25","3":"17"},{"1":"58","2":"13","3":"28"},{"1":"59","2":"18","3":"21"},{"1":"60","2":"25","3":"17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["TempFac"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"13","2":"20"},{"1":"18","2":"20"},{"1":"25","2":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -512,13 +542,11 @@ Data Folder
 </div>
 </div>
 </div>
-</div>
 <p>So we have cleaned up our data and have <code>20</code> samples for Hatching <code>Time</code> per <code>TempFac</code> setting.</p>
-</section><section id="iconify-flat-color-icons-workflow-workflow-eda" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-eda">
+</section><section id="workflow-eda" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="workflow-eda">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: EDA</h2>
 <p>Let us plot some histograms and boxplots of Hatching Time:</p>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb4" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">frogs_long</span>,</span>
 <span>  <span class="op">~</span> <span class="va">Time</span>,</span>
 <span>  fill <span class="op">=</span> <span class="op">~</span> <span class="va">TempFac</span>,</span>
@@ -541,22 +569,21 @@ Data Folder
 <span>          caption <span class="op">=</span> <span class="st">"X-axis is reversed"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="va">rev</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Temperature level (°C)"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-5_a2543928c9a1530a4e850973f59b2031">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Temperature level (°C)"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
+<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-5_a2543928c9a1530a4e850973f59b2031" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid" width="2100"></p>
-</div>
 </div>
 </div>
 </div>
 <p>The histograms look well separated and the box plots also show very little overlap. So we can reasonably hypothesize that Temperature has a significant effect on Hatching Time.</p>
 <p>One more slightly esoteric plot: Jitter/Scatter with a new <em>categorical x-axis</em> offered by the <code>ggprism</code> package:</p>
 <div class="cell" data-hash="ANOVA_cache/html/using ggprism_caa3d5f59c66a921ef83ffc3b4ed7408">
-<div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://csdaw.github.io/ggprism/">ggprism</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://csdaw.github.io/ggprism/">ggprism</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_jitter.html">gf_jitter</a></span><span class="op">(</span></span>
 <span>  <span class="va">frogs_long</span>,</span>
 <span>  <span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>,</span>
@@ -567,13 +594,16 @@ Data Folder
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://csdaw.github.io/ggprism/reference/theme_prism.html">theme_prism</a></span><span class="op">(</span>base_family <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">font</span><span class="op">$</span><span class="va">family</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"prism_bracket"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"prism_bracket"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/using ggprism-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/using ggprism-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Let’s go ahead with our ANOVA test.</p>
-</section><section id="iconify-flat-color-icons-workflow-workflow-anova" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-anova">
+</section><section id="workflow-anova" class="level2"><h2 class="anchored" data-anchor-id="workflow-anova">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA</h2>
 <p>We will first execute the ANOVA test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
@@ -587,8 +617,8 @@ Data Folder
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>R offers a very simple command to execute an ANOVA test: Note the familiar <code>formula</code> of stating the variables:</p>
 <div class="cell" data-hash="ANOVA_cache/html/ANOVA with code_89e10003726b55aeb08acd187deb91db">
-<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aov.html">aov</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>, data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aov.html">aov</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>, data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)    
 TempFac      2 1020.9   510.5   385.9 &lt;2e-16 ***
@@ -596,27 +626,24 @@ Residuals   57   75.4     1.3
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
-<div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["sumsq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["meansq"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"TempFac","2":"2","3":"1020.933","4":"510.466667","5":"385.8966","6":"7.357304e-34"},{"1":"Residuals","2":"57","3":"75.400","4":"1.322807","5":"NA","6":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"26.3","3":"0.2571777","4":"102.26394","5":"2.781059e-66"},{"1":"TempFac18","2":"-5.3","3":"0.3637041","4":"-14.57228","5":"7.081214e-21"},{"1":"TempFac25","2":"-10.1","3":"0.3637041","4":"-27.76982","5":"8.187867e-35"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html">glance</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html">glance</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["logLik"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["deviance"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["nobs"],"name":[5],"type":["int"],"align":["right"]},{"label":["r.squared"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"-91.99019","2":"191.9804","3":"200.3578","4":"75.4","5":"60","6":"0.9312253"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -630,17 +657,19 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>All that is very well, but what is happening under the hood of the <code><a href="https://rdrr.io/r/stats/aov.html">aov()</a></code> command?</p>
 <p>Consider a data set with a single Quant and a single Qual variable. The Qual variable has two levels, the Quant data has 20 observations per Qual level.</p>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Anova Intuitive_f58c73ed5d25308d0f1d9bb5fccfc7c4">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div>
 
+</div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Anova Intuitive_f58c73ed5d25308d0f1d9bb5fccfc7c4" data-layout-nrow="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["index"],"name":[1],"type":["int"],"align":["right"]},{"label":["qual"],"name":[2],"type":["chr"],"align":["left"]},{"label":["quant"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"A","3":"2.7419169"},{"1":"2","2":"A","3":"-1.1293963"},{"1":"3","2":"A","3":"0.7262568"},{"1":"4","2":"A","3":"1.2657252"},{"1":"5","2":"A","3":"0.8085366"},{"1":"6","2":"A","3":"-0.2122490"},{"1":"7","2":"A","3":"3.0230440"},{"1":"8","2":"A","3":"-0.1893181"},{"1":"9","2":"A","3":"4.0368474"},{"1":"10","2":"A","3":"-0.1254282"},{"1":"11","2":"A","3":"2.6097393"},{"1":"12","2":"A","3":"4.5732908"},{"1":"13","2":"A","3":"-2.7777214"},{"1":"14","2":"A","3":"-0.5575775"},{"1":"15","2":"A","3":"-0.2666427"},{"1":"16","2":"A","3":"1.2719008"},{"1":"17","2":"A","3":"-0.5685058"},{"1":"18","2":"A","3":"-5.3129108"},{"1":"19","2":"A","3":"-4.8809339"},{"1":"20","2":"A","3":"2.6402267"},{"1":"21","2":"B","3":"9.3867228"},{"1":"22","2":"B","3":"6.4373831"},{"1":"23","2":"B","3":"9.6561653"},{"1":"24","2":"B","3":"12.4293494"},{"1":"25","2":"B","3":"13.7903869"},{"1":"26","2":"B","3":"9.1390617"},{"1":"27","2":"B","3":"9.4854612"},{"1":"28","2":"B","3":"6.4736738"},{"1":"29","2":"B","3":"10.9201947"},{"1":"30","2":"B","3":"8.7200102"},{"1":"31","2":"B","3":"10.9109002"},{"1":"32","2":"B","3":"11.4096747"},{"1":"33","2":"B","3":"12.0702070"},{"1":"34","2":"B","3":"8.7821472"},{"1":"35","2":"B","3":"11.0099102"},{"1":"36","2":"B","3":"6.5659826"},{"1":"37","2":"B","3":"8.4310820"},{"1":"38","2":"B","3":"8.2981848"},{"1":"39","2":"B","3":"5.1715847"},{"1":"40","2":"B","3":"10.0722452"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/Anova Intuitive-1.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
@@ -705,19 +734,22 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <p>Now that we understand what <code><a href="https://rdrr.io/r/stats/aov.html">aov()</a></code> is doing, let us hand-calculate the numbers for our <code>frogs</code> dataset and check. Let us visualize our calculations first.</p>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Frogs SST and SSE Graphs_6abdde8b4d0408b9b68fc18fa9134a0c">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div>
+
+</div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/Frogs SST and SSE Graphs_6abdde8b4d0408b9b68fc18fa9134a0c" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/Frogs SST and SSE Graphs-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/Frogs SST and SSE Graphs-2.png" class="img-fluid" width="2100"></p>
 </div>
 </div>
 </div>
 <p>Here is the SST:</p>
 <div class="cell" data-hash="ANOVA_cache/html/SST Total Sum of Squares_7dbdcd048c499739cfe5521840a36ce8">
-<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Calculate overall sum squares SST</span></span>
+<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Calculate overall sum squares SST</span></span>
 <span></span>
 <span></span>
 <span><span class="va">frogs_overall</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -730,9 +762,8 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span><span class="va">frogs_overall</span></span>
 <span></span>
 <span><span class="va">SST</span> <span class="op">&lt;-</span> <span class="va">frogs_overall</span><span class="op">$</span><span class="va">SST</span></span>
-<span><span class="va">SST</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">SST</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["mean_time"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["SST"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"21.16667","2":"1096.333","3":"60"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -745,7 +776,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 <p>And here is the SSE:</p>
 <div class="cell" data-hash="ANOVA_cache/html/SSE Within Group Sum of Squares_0260954506f23ecc4b955659cf3c81e8">
-<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Calculate sums of square errors *within* each group</span></span>
+<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Calculate sums of square errors *within* each group</span></span>
 <span><span class="co"># with respect to individual group means</span></span>
 <span></span>
 <span><span class="va">frogs_within_groups</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -760,9 +791,8 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>SSE <span class="op">=</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">sum</a></span><span class="op">(</span><span class="va">group_error_squares</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">SSE</span> <span class="op">&lt;-</span> <span class="va">frogs_SSE</span><span class="op">$</span><span class="va">SSE</span></span>
-<span><span class="va">SSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">SSE</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["TempFac"],"name":[1],"type":["fct"],"align":["left"]},{"label":["mean_time"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["variance_time"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["group_error_squares"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"13","2":"26.3","3":"1.273684","4":"24.2","5":"20"},{"1":"18","2":"21.0","3":"1.263158","4":"24.0","5":"20"},{"1":"25","2":"16.2","3":"1.431579","4":"27.2","5":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -775,10 +805,10 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 <p>OK, we have <span class="math inline">\(SST\)</span> and <span class="math inline">\(SSE\)</span>, so let’s get <span class="math inline">\(SSA\)</span>:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-12_3a42a94c69d85a81b73124a8495268a6">
-<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">SST</span></span>
+<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">SST</span></span>
 <span><span class="va">SSE</span></span>
 <span><span class="va">SSA</span> <span class="op">&lt;-</span> <span class="va">SST</span> <span class="op">-</span> <span class="va">SSE</span></span>
-<span><span class="va">SSA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">SSA</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 1096.333
 [1] 75.4
@@ -797,7 +827,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <p>And therefore <span class="math inline">\(SSA\)</span>, being their difference, has <span class="math inline">\(k-1\)</span> degrees of freedom.</p>
 <p>We can still calculate these in R, for the sake of method and clarity:</p>
 <div class="cell" data-hash="ANOVA_cache/html/Degrees of Freedom_7f9c57bcd608ea05e68b2c78031aab53">
-<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Error Sum of Squares SSE</span></span>
+<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Error Sum of Squares SSE</span></span>
 <span><span class="va">df_SSE</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  </span>
 <span>  <span class="co"># Takes into account "unbalanced" situations</span></span>
@@ -813,26 +843,24 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span></span>
 <span><span class="co"># Treatment Sum of Squares SSA</span></span>
 <span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">frogs_long</span><span class="op">$</span><span class="va">TempFac</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">df_SSA</span> <span class="op">&lt;-</span> <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">df_SSA</span> <span class="op">&lt;-</span> <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span></span></code></pre></div>
 </div>
 <p>The degrees of freedom for the quantities are:</p>
-<div>
-<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">df_SST</span></span>
+<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">df_SST</span></span>
 <span><span class="va">df_SSE</span></span>
-<span><span class="va">df_SSA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-14_0d5dbf52307431240592d02b60251c35">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<span><span class="va">df_SSA</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-14_0d5dbf52307431240592d02b60251c35" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>[1] 59
 [1] 57
 [1] 2</code></pre>
 </div>
 </div>
 </div>
-</div>
 <p>Now we are ready to compute the F-statistic: dividing each sum-of-squares byt its degrees of freedom gives us <em>variances</em> which we will compare, using the <em>F-statistic</em> as a ratio:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-15_669c1059f43d42e4e307d81f94bdf26d">
-<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Finally F_Stat!</span></span>
+<div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Finally F_Stat!</span></span>
 <span><span class="co"># Combine the sum-square_error for each level of the factor</span></span>
 <span><span class="co"># Weighted by degrees of freedom **per level**</span></span>
 <span><span class="co"># Which are of course equal here ;-D</span></span>
@@ -846,7 +874,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span><span class="va">MSA</span></span>
 <span></span>
 <span><span class="va">F_stat</span> <span class="op">&lt;-</span> <span class="va">MSA</span><span class="op">/</span><span class="va">MSE</span></span>
-<span><span class="va">F_stat</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">F_stat</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 1.322807
 [1] 510.4667
@@ -855,21 +883,20 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 <p>The <code>F-stat</code> is compared with a <strong>critical value</strong> of the F-statistic,<code>F_crit</code> which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to <span class="math inline">\(\alpha = 0.95\)</span>, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to <code><a href="https://rdrr.io/r/stats/Fdist.html">qf()</a></code> which computes the critical F value as a <strong>quartile</strong>:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-16_94c14e4a4b434a55a026e30398c5fc9f">
-<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">F_crit</span> <span class="op">&lt;-</span>  </span>
+<div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">F_crit</span> <span class="op">&lt;-</span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/Fdist.html">qf</a></span><span class="op">(</span>p <span class="op">=</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fl">0.05</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span>,  <span class="co"># Significance level is 5% + Bonferroni Correction</span></span>
 <span>          df1 <span class="op">=</span> <span class="va">df_SSA</span>, <span class="co"># Numerator degrees of freedom </span></span>
 <span>          df2 <span class="op">=</span> <span class="va">df_SSE</span>  <span class="co"># Denominator degrees of freedom</span></span>
 <span>     <span class="op">)</span> </span>
 <span><span class="va">F_crit</span></span>
-<span><span class="va">F_stat</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">F_stat</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 4.403048
 [1] 385.8966</code></pre>
 </div>
 </div>
 <p>The <code>F_crit</code> value can also be seen in a plot<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>,<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>:</p>
-<div>
-<div class="sourceCode" id="cb24" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_dist.html">gf_dist</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="st">"f"</span>,</span>
+<div class="sourceCode" id="cb24" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_dist.html">gf_dist</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="st">"f"</span>,</span>
 <span>        params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>df1 <span class="op">=</span> <span class="va">df_SSA</span>, df2 <span class="op">=</span> <span class="va">df_SSE</span><span class="op">)</span>, </span>
 <span>        <span class="co"># linewidth  = 1,</span></span>
 <span>        <span class="co">#xlim = c(0, 400),</span></span>
@@ -884,18 +911,17 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/pdist.html">xpf</a></span><span class="op">(</span>q <span class="op">=</span> <span class="va">F_crit</span>, </span>
 <span>            df1 <span class="op">=</span> <span class="va">df_SSA</span>, df2 <span class="op">=</span> <span class="va">df_SSE</span>,</span>
-<span>            log.p <span class="op">=</span> <span class="cn">FALSE</span>,lower.tail <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-17_08501ebd88c50bb28bb973f780c19c82">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
+<span>            log.p <span class="op">=</span> <span class="cn">FALSE</span>,lower.tail <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-17_08501ebd88c50bb28bb973f780c19c82" data-layout="[[45,45,10]]">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 45.0%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 10.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 10.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>[1] 0.9833333</code></pre>
-</div>
 </div>
 </div>
 </div>
@@ -904,7 +930,7 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 </div>
 </div>
 </div>
-</section><section id="iconify-flat-color-icons-workflow-workflow-checking-anova-assumptions" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-checking-anova-assumptions">
+</section><section id="workflow-checking-anova-assumptions" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="workflow-checking-anova-assumptions">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Checking ANOVA Assumptions</h2>
 <p>ANOVA makes 3 fundamental assumptions:</p>
 <ol type="a">
@@ -913,11 +939,11 @@ F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
 <li>Observations are independent.</li>
 </ol>
 <p>We can check these using checks and graphs.</p>
-<section id="iconify-ic-twotone-rule-checks-for-normality" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="iconify-ic-twotone-rule-checks-for-normality">
+<section id="checks-for-normality" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="checks-for-normality">
 <iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Checks for Normality</h3>
 <p>The <code>shapiro.wilk</code> test tests if a vector of numeric data is normally distributed and rejects the hypothesis of normality when the <a href="https://variation.com/wp-content/distribution_analyzer_help/hs132.htm">p-value</a> is less than or equal to 0.05.&nbsp;</p>
 <div class="cell" data-hash="ANOVA_cache/html/Check for Normality_e0a83700945b27059f9f154b49929efd">
-<div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">frogs_long</span><span class="op">$</span><span class="va">Time</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">frogs_long</span><span class="op">$</span><span class="va">Time</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
     Shapiro-Wilk normality test
@@ -928,7 +954,7 @@ W = 0.92752, p-value = 0.001561</code></pre>
 </div>
 <p>The p-value is very low and we cannot reject the (alternative) hypothesis that the overall data is <strong>not</strong> normal. How about normality at each level of the factor?</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-19_a622f5e353328fedfa2686f9b25f0c8d">
-<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_grouped</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_grouped</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html">nest</a></span><span class="op">(</span>.key <span class="op">=</span> <span class="st">"list"</span><span class="op">)</span> <span class="co"># naming the nested column "list"</span></span>
 <span></span>
@@ -937,7 +963,7 @@ W = 0.92752, p-value = 0.001561</code></pre>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/pluck.html">pluck</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">Time</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/as_vector.html">as_vector</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
     Shapiro-Wilk normality test
@@ -945,7 +971,7 @@ W = 0.92752, p-value = 0.001561</code></pre>
 data:  .
 W = 0.88954, p-value = 0.02638</code></pre>
 </div>
-<div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># OK now we are set for group-wise Shapiro-Wilk testing with purrr:</span></span>
+<div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># OK now we are set for group-wise Shapiro-Wilk testing with purrr:</span></span>
 <span></span>
 <span><span class="va">frogs_grouped</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>shaptest <span class="op">=</span> </span>
@@ -960,9 +986,8 @@ W = 0.88954, p-value = 0.02638</code></pre>
 <span>                      .f <span class="op">=</span> \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">TempFac</span>, <span class="va">params</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">params</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["TempFac"],"name":[1],"type":["fct"],"align":["left"]},{"label":["statistic"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["method"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"13","2":"0.8895426","3":"0.02637682","4":"Shapiro-Wilk normality test"},{"1":"18","2":"0.9254425","3":"0.12614802","4":"Shapiro-Wilk normality test"},{"1":"25","2":"0.8978947","3":"0.03766278","4":"Shapiro-Wilk normality test"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -972,18 +997,17 @@ W = 0.88954, p-value = 0.02638</code></pre>
 </div>
 
 <div class="no-row-height column-margin column-container"><div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-20_9fbb51b991c9fc7aae7d96cffbddffcd">
-<div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#### Using `dplyr::group_modify()</span></span>
+<div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#### Using `dplyr::group_modify()</span></span>
 <span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_map.html">group_modify</a></span><span class="op">(</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>                  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">Time</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>                  </span>
 <span>                  <span class="fu"><a href="https://purrr.tidyverse.org/reference/as_vector.html">as_vector</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>                  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>                  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div></div><p>The <code>shapiro.wilk</code> test makes a NULL Hypothesis that the data <strong>are</strong> normally distributed and estimates the probability that this could have happened by chance. Except for <code>TempFac = 18</code> the p-values are less than 0.05 and we can reject the NULL hypothesis that each of these is normally distributed. Perhaps this is a sign that we need more than 20 samples per factor level. Let there be more frogs !!!</p>
 <p>We can also check the residuals post-model:</p>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb32" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_anova</span><span class="op">$</span><span class="va">residuals</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb32" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_anova</span><span class="op">$</span><span class="va">residuals</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_dhistogram</a></span><span class="op">(</span><span class="op">~</span> <span class="va">value</span>,data <span class="op">=</span> <span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_fitdistr.html">gf_fitdistr</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -994,16 +1018,16 @@ W = 0.88954, p-value = 0.02638</code></pre>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_qq.html">gf_qqstep</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_qq.html">gf_qqline</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">$</span><span class="va">residuals</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-21_49969ae1e1d60922ebf87f2fce3d4fe4">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<span><span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">$</span><span class="va">residuals</span><span class="op">)</span></span></code></pre></div>
+<div class="cell column-screen-inset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-21_49969ae1e1d60922ebf87f2fce3d4fe4" data-layout-ncol="3">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
 <p><img src="ANOVA_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="2100"></p>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 33.3%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>
     Shapiro-Wilk normality test
 
@@ -1012,14 +1036,12 @@ W = 0.94814, p-value = 0.01275</code></pre>
 </div>
 </div>
 </div>
-</div>
 <p>Unsurprisingly, the residuals are also not normally distributed either.</p>
-</section><section id="iconify-ic-twotone-rule-check-for-similar-variance" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="iconify-ic-twotone-rule-check-for-similar-variance">
+</section><section id="check-for-similar-variance" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="check-for-similar-variance">
 <iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Check for Similar Variance</h3>
 <p>Response data with different variances at different levels of an <em>explanatory</em> variable are said to exhibit <strong>heteroscedasticity</strong>. This violates one of the assumptions of ANOVA.</p>
 <p>To check if the <code>Time</code> readings are similar in <code>variance</code> across levels of <code>TempFac</code>, we can use the <span style="background-color: yellow;">Levene Test</span>, or since our per-group observations are not normally distributed, a non-parametric rank-based <span style="background-color: yellow;">Fligner-Killeen Test</span>. The NULL hypothesis is that the data <strong>are</strong> with similar variances. The tests assess how probable this is with the given data assuming this NULL hypothesis:</p>
-<div class="page-columns page-full">
-<div class="sourceCode" id="cb34" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb34" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>variance <span class="op">=</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/aggregating.html">var</a></span><span class="op">(</span><span class="va">Time</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1027,18 +1049,17 @@ W = 0.94814, p-value = 0.01275</code></pre>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/fligner.test.html">fligner.test</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>, data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu">DescTools</span><span class="fu">::</span><span class="fu"><a href="https://andrisignorell.github.io/DescTools/reference/LeveneTest.html">LeveneTest</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>, data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell column-body-outset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-22_a704a5da3982aada6c11da7577cbdf80">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<span><span class="fu">DescTools</span><span class="fu">::</span><span class="fu"><a href="https://andrisignorell.github.io/DescTools/reference/LeveneTest.html">LeveneTest</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span>, data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span></code></pre></div>
+<div class="cell column-body-outset-right quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-22_a704a5da3982aada6c11da7577cbdf80" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["TempFac"],"name":[1],"type":["fct"],"align":["left"]},{"label":["variance"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"13","2":"1.273684"},{"1":"18","2":"1.263158"},{"1":"25","2":"1.431579"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>
     Fligner-Killeen test of homogeneity of variances
 
@@ -1046,9 +1067,8 @@ data:  Time by TempFac
 Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["F value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Pr(>F)"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"2","2":"0.3931034","3":"0.6767746","_rn_":"group"},{"1":"57","2":"NA","3":"NA","_rn_":""}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1057,22 +1077,20 @@ Fligner-Killeen:med chi-squared = 0.53898, df = 2, p-value = 0.7638</code></pre>
 </div>
 </div>
 </div>
-</div>
 <p>It seems that there is no cause for concern here; the data do not have significantly different variances.</p>
-</section><section id="iconify-ic-twotone-rule-independent-observations" class="level3"><h3 class="anchored" data-anchor-id="iconify-ic-twotone-rule-independent-observations">
+</section><section id="independent-observations" class="level3"><h3 class="anchored" data-anchor-id="independent-observations">
 <iconify-icon inline="" icon="ic:twotone-rule"></iconify-icon> Independent Observations</h3>
 <p>This is an experiment <em>design</em> concern; the way the data is gathered must be specified such that data for each level of the factors ( factor combinations if there are more than one) should be independent.</p>
-</section></section><section id="iconify-flat-color-icons-workflow-workflow-effect-size" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-effect-size">
+</section></section><section id="workflow-effect-size" class="level2"><h2 class="anchored" data-anchor-id="workflow-effect-size">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: Effect Size</h2>
 <p>The simplest way to find the actual <code>effect sizes</code> detected by an ANOVA test is to use (paradoxically) the <code><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm()</a></code> command:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-23_92b8d3959bd197e174472789e232493d">
-<div class="sourceCode" id="cb36" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">tidy_anova</span> <span class="op">&lt;-</span> </span>
+<div class="sourceCode" id="cb36" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">tidy_anova</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/summary.lm.html">summary.lm</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">tidy_anova</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">tidy_anova</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"26.3","3":"0.2571777","4":"102.26394","5":"2.781059e-66"},{"1":"TempFac18","2":"-5.3","3":"0.3637041","4":"-14.57228","5":"7.081214e-21"},{"1":"TempFac25","2":"-10.1","3":"0.3637041","4":"-27.76982","5":"8.187867e-35"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1096,7 +1114,7 @@ Standard Errors
 </div>
 <p>We can easily plot bar-chart with error bars for the effect size:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-24_7941261ddc131fc50970070ff1a22d77">
-<div class="sourceCode" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">tidy_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">tidy_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>hi <span class="op">=</span> <span class="va">estimate</span> <span class="op">+</span> <span class="va">std.error</span>,</span>
 <span>         lo <span class="op">=</span> <span class="va">estimate</span> <span class="op">-</span> <span class="va">std.error</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_lines.html">gf_hline</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">.</span>, yintercept <span class="op">=</span> <span class="fl">0</span>, </span>
@@ -1114,14 +1132,17 @@ Standard Errors
 <span>           size <span class="op">=</span> <span class="fl">3.5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span><span class="op">(</span><span class="st">"Temp Values"</span>, </span>
 <span>                             labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"13°C"</span>, <span class="st">"18°C"</span>, <span class="st">"25°C"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>If we want an “absolute value” plot for effect size, it needs just a little bit of work:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-25_b7ae63d012c0aa5b84252ef816ca997b">
-<div class="sourceCode" id="cb38" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Merging group averages with `std.error`</span></span>
+<div class="sourceCode" id="cb38" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Merging group averages with `std.error`</span></span>
 <span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu">mean</span><span class="op">(</span><span class="va">Time</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -1142,15 +1163,18 @@ Standard Errors
 <span>           size <span class="op">=</span> <span class="fl">3.5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span><span class="op">(</span><span class="st">"Temp Values"</span>, </span>
 <span>                             labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"13°C"</span>, <span class="st">"18°C"</span>, <span class="st">"25°C"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>In both graphs, note the difference in the error-bar heights.</p>
 <p>The ANOVA test does not tell us that the “treatments” (i.e.&nbsp;levels of <code>TempFac</code>) are equally effective. We need to use a <em>multiple comparison</em> procedure to arrive at an answer to that question. We compute the pair-wise differences in effect-size:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-26_22e89111cc55aa70c1056fd90e99cdec">
-<div class="sourceCode" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/TukeyHSD.html">TukeyHSD</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/TukeyHSD.html">TukeyHSD</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>  Tukey multiple comparisons of means
     95% family-wise confidence level
@@ -1175,24 +1199,26 @@ $TempFac
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <p>There is a very neat package called <code>ggstatsplot</code><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> that allows us to plot very comprehensive statistical graphs. Let us quickly do this:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-27_e5a90d8a63aac41a4d9a287ea3b1798d">
-<div class="sourceCode" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://indrajeetpatil.github.io/ggstatsplot/">ggstatsplot</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://indrajeetpatil.github.io/ggstatsplot/">ggstatsplot</a></span><span class="op">)</span></span>
 <span><span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">ggstatsplot</span><span class="fu">::</span><span class="fu"><a href="https://indrajeetpatil.github.io/ggstatsplot/reference/ggbetweenstats.html">ggbetweenstats</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TempFac</span>, y <span class="op">=</span> <span class="va">Time</span>,</span>
-<span>                              title <span class="op">=</span> <span class="st">"ANOVA : Frogs Spawn Time vs Temperature Setting"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>                              title <span class="op">=</span> <span class="st">"ANOVA : Frogs Spawn Time vs Temperature Setting"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
-<p>We can also obtain crisp-looking anova tables from the new <code>supernova</code> package <a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>, which is based on the methods discussed in Judd et al. <a href="#sec-references">Section&nbsp;11</a></p>
-<div>
-<div class="sourceCode" id="cb42" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCLATALL/supernova">supernova</a></span><span class="op">)</span></span>
+<p>We can also obtain crisp-looking anova tables from the new <code>supernova</code> package <a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>, which is based on the methods discussed in Judd et al. <a href="#sec-references" class="quarto-xref">Section&nbsp;11</a></p>
+<div class="sourceCode" id="cb42" data-code-line-numbers=""><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCLATALL/supernova">supernova</a></span><span class="op">)</span></span>
 <span><span class="fu">supernova</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/supernova/man/supernova.html">supernova</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span></span>
-<span><span class="fu">supernova</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/supernova/man/pairwise.html">pairwise</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-28_d9ecd5c6125bf95960320cdd1ee3ea8f">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<span><span class="fu">supernova</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/supernova/man/pairwise.html">pairwise</a></span><span class="op">(</span><span class="va">frogs_anova</span><span class="op">)</span></span></code></pre></div>
+<div class="cell quarto-layout-panel" data-hash="ANOVA_cache/html/unnamed-chunk-28_d9ecd5c6125bf95960320cdd1ee3ea8f" data-layout-nrow="2">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code> Analysis of Variance Table (Type III SS)
  Model: Time ~ TempFac
 
@@ -1204,8 +1230,8 @@ $TempFac
  Total (empty model)   | 1096.333 59  18.582                    </code></pre>
 </div>
 </div>
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <pre data-code-line-numbers=""><code>
 
   group_1 group_2    diff pooled_se       q    df   lower  upper p_adj
@@ -1216,12 +1242,11 @@ $TempFac
 </div>
 </div>
 </div>
-</div>
 <p>The <code>supernova</code> table clearly shows the reduction the Sum of Squares as we go from a NULL (empty) model to a full ANOVA model.</p>
 </div>
 </div>
 </div>
-</section></section><section id="iconify-flat-color-icons-workflow-workflow-anova-using-permutation-tests" class="level2"><h2 class="anchored" data-anchor-id="iconify-flat-color-icons-workflow-workflow-anova-using-permutation-tests">
+</section></section><section id="workflow-anova-using-permutation-tests" class="level2"><h2 class="anchored" data-anchor-id="workflow-anova-using-permutation-tests">
 <iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Workflow: ANOVA using Permutation Tests</h2>
 <p>We wish to establish the significance of the effect size due to each of the levels in <code>TempFac</code>. From the normality tests conducted earlier we see that except at one level of <code>TempFac</code>, the times are are not normally distributed. Hence we opt for a Permutation Test to check for significance of effect.</p>
 <p>As remarked in Ernst<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>, the non-parametric permutation test can be both <em>exact</em> and also <strong>intuitively easier</strong> for students to grasp. Permutations are easily executed in R, using packages such as <code>mosaic</code><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>.</p>
@@ -1236,27 +1261,26 @@ $TempFac
 <div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <p><code>mosaic</code> offers an easy and intuitive way of doing a repeated permutation test, using the <code>do()</code> command. We will <code>shuffle</code> the <code>TempFac</code> factor to jumble up the <code>Time</code> observations, 4999 times. Each time we shuffle, we compute the F_statistic and record it. We then plot the 4999 F-statistics and compare that with the real-world observation of <code>F-stat</code>.</p>
 <div class="cell" data-hash="ANOVA_cache/html/permutation test for ANOVA with mosaic_94b68df2c30bee740ae1ddc4ddb5e7d7">
-<div class="sourceCode" id="cb45" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">obs_F_stat</span> <span class="op">&lt;-</span> </span>
+<div class="sourceCode" id="cb45" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">obs_F_stat</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">frogs_anova</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">statistic</span><span class="op">)</span></span>
 <span><span class="va">observed_mosaic</span> <span class="op">&lt;-</span> <span class="va">obs_F_stat</span><span class="op">$</span><span class="va">statistic</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span><span class="va">observed_mosaic</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">observed_mosaic</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 385.8966</code></pre>
 </div>
-<div class="sourceCode" id="cb47" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">null_dist_mosaic</span> <span class="op">&lt;-</span> <span class="fu">do</span><span class="op">(</span><span class="fl">4999</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/aov.html">aov</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/resample.html">shuffle</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span>, </span>
+<div class="sourceCode" id="cb47" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">null_dist_mosaic</span> <span class="op">&lt;-</span> <span class="fu">do</span><span class="op">(</span><span class="fl">4999</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/aov.html">aov</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="fu"><a href="https://www.mosaic-web.org/mosaic/reference/resample.html">shuffle</a></span><span class="op">(</span><span class="va">TempFac</span><span class="op">)</span>, </span>
 <span>                                    data <span class="op">=</span> <span class="va">frogs_long</span><span class="op">)</span></span>
-<span><span class="va">null_dist_mosaic</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">null_dist_mosaic</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["source"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["int"],"align":["right"]},{"label":["SS"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["F"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pval"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".row"],"name":[7],"type":["int"],"align":["right"]},{"label":[".index"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"shuffle(TempFac)","2":"2","3":"1.033333","4":"0.5166667","5":"0.02688761","6":"0.9734830","7":"1","8":"1","_rn_":"shuffle(TempFac)...1"},{"1":"Residuals","2":"57","3":"1095.300000","4":"19.2157895","5":"NA","6":"NA","7":"2","8":"1","_rn_":"Residuals...2"},{"1":"shuffle(TempFac)","2":"2","3":"31.033333","4":"15.5166667","5":"0.83023561","6":"0.4411490","7":"1","8":"2","_rn_":"shuffle(TempFac)...3"},{"1":"Residuals","2":"57","3":"1065.300000","4":"18.6894737","5":"NA","6":"NA","7":"2","8":"2","_rn_":"Residuals...4"},{"1":"shuffle(TempFac)","2":"2","3":"22.633333","4":"11.3166667","5":"0.60077303","6":"0.5518227","7":"1","8":"3","_rn_":"shuffle(TempFac)...5"},{"1":"Residuals","2":"57","3":"1073.700000","4":"18.8368421","5":"NA","6":"NA","7":"2","8":"3","_rn_":"Residuals...6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb48" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">null_dist_mosaic</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb48" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">null_dist_mosaic</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">.</span>, <span class="op">~</span> <span class="cn">F</span>, </span>
 <span>               fill <span class="op">=</span> <span class="op">~</span> <span class="cn">F</span> <span class="op">&gt;=</span> <span class="va">observed_mosaic</span>,</span>
@@ -1268,15 +1292,18 @@ $TempFac
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_aux.html">gf_refine</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>trans <span class="op">=</span> <span class="st">"log10"</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotation_logticks.html">annotation_logticks</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html">scale_fill_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Simulated F &gt; Observed F ?"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span>theme<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/permutation test for ANOVA with mosaic-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/permutation test for ANOVA with mosaic-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>The Null distribution of the <code>F_statistic</code> under permutation shows it never crosses the real-world observed value, testifying as to the strength of the effect of <code>TempFac</code> on hatching <code>Time</code>. And the <code>p-value</code> is:</p>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-30_21fcad54cc3e6db7f505cb98c933b0df">
-<div class="sourceCode" id="cb49" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">p_value</span> <span class="op">&lt;-</span> <span class="fu">mean</span><span class="op">(</span><span class="va">null_dist_mosaic</span><span class="op">$</span><span class="cn">F</span> <span class="op">&gt;=</span> <span class="va">observed_mosaic</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">p_value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb49" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">p_value</span> <span class="op">&lt;-</span> <span class="fu">mean</span><span class="op">(</span><span class="va">null_dist_mosaic</span><span class="op">$</span><span class="cn">F</span> <span class="op">&gt;=</span> <span class="va">observed_mosaic</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">p_value</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 0</code></pre>
 </div>
@@ -1285,14 +1312,13 @@ $TempFac
 <div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <p>We calculate the observed F-stat with <code>infer</code>, which also has a very direct, if verbose, syntax for doing permutation tests:</p>
 <div class="cell" data-hash="ANOVA_cache/html/ANOVA F-statistic with infer_a60f598169bb6f66cb7d055f9201e486">
-<div class="sourceCode" id="cb51" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">observed_infer</span> <span class="op">&lt;-</span> </span>
+<div class="sourceCode" id="cb51" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">observed_infer</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/specify.html">specify</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/hypothesize.html">hypothesise</a></span><span class="op">(</span>null <span class="op">=</span> <span class="st">"independence"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/calculate.html">calculate</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span></span>
-<span><span class="va">observed_infer</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">observed_infer</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["stat"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"385.8966"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1302,37 +1328,39 @@ $TempFac
 </div>
 <p>We see that the observed F-Statistic is of course <span class="math inline">\(385.8966\)</span> as before. Now we use <code>infer</code> to generate a NULL distribution using permutation of the factor <code>TempFac</code>:</p>
 <div class="cell" data-hash="ANOVA_cache/html/Permutation using infer_fdcef927487be61252d2acf9077779e8">
-<div class="sourceCode" id="cb52" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">null_dist_infer</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb52" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">null_dist_infer</span> <span class="op">&lt;-</span> <span class="va">frogs_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/specify.html">specify</a></span><span class="op">(</span><span class="va">Time</span> <span class="op">~</span> <span class="va">TempFac</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/hypothesize.html">hypothesise</a></span><span class="op">(</span>null <span class="op">=</span> <span class="st">"independence"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/generate.html">generate</a></span><span class="op">(</span>reps <span class="op">=</span> <span class="fl">4999</span> , type <span class="op">=</span> <span class="st">"permute"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/calculate.html">calculate</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">null_dist_infer</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">null_dist_infer</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["replicate"],"name":[1],"type":["int"],"align":["right"]},{"label":["stat"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"0.36153704"},{"1":"2","2":"0.56287787"},{"1":"3","2":"0.11571572"},{"1":"4","2":"0.77253138"},{"1":"5","2":"0.08430153"},{"1":"6","2":"1.78545120"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">null_dist_infer</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb53" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">null_dist_infer</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/visualize.html">visualise</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"simulation"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://infer.tidymodels.org/reference/shade_p_value.html">shade_p_value</a></span><span class="op">(</span>obs_stat <span class="op">=</span> <span class="va">observed_infer</span><span class="op">$</span><span class="va">stat</span>, direction <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>trans <span class="op">=</span> <span class="st">"log10"</span>, expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="fl">500</span><span class="op">)</span>, clip <span class="op">=</span> <span class="st">"off"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotation_logticks.html">annotation_logticks</a></span><span class="op">(</span>outside <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="ANOVA_files/figure-html/Permutation using infer-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="ANOVA_files/figure-html/Permutation using infer-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>As seen, the <code>infer</code> based permutation test also shows that the permutationally generated F-statistics are nowhere near that which was observed. The effect of <code>TempFac</code> is very strong.</p>
 </div>
 </div>
 </div>
-</section><section id="iconify-fluent-mdl2-decision-solid-conclusions" class="level2"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-decision-solid-conclusions">
+</section><section id="conclusions" class="level2"><h2 class="anchored" data-anchor-id="conclusions">
 <iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusions</h2>
 <p>We have discussed ANOVA as a means of modelling the effects of a Categorical variable on a Continuous (Quant) variable. ANOVA can be carried out using the standard formula <code>aov</code> when assumptions on distributions, variances, and independence are met. Permutation ANOVA tests can be carried out when these assumptions do not quite hold.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1364,7 +1392,7 @@ It <em>is</em> possible to incorporate these beliefs into the ANOVA model, using
 </div>
 </section><section id="sec-references" class="level2"><h2 class="anchored" data-anchor-id="sec-references">
 <iconify-icon inline="" icon="ooui:references-rtl"></iconify-icon> References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" data-entry-spacing="0" role="list">
 <p><br>
 The ANOVA tutorial at <a href="https://ourcodingclub.github.io/tutorials/anova/">Our Coding Club</a><br>
 Antoine Soetewey. <em>How to: one-way ANOVA by hand</em>. <a href="https://statsandr.com/blog/how-to-one-way-anova-by-hand/" class="uri">https://statsandr.com/blog/how-to-one-way-anova-by-hand/</a><br>
@@ -1376,7 +1404,7 @@ Judd, Charles M., Gary H. McClelland, and Carey S. Ryan.(2017). “Introduction 
 Patil, I. (2021). <em>Visualizations with statistical details: The ‘ggstatsplot’ approach.</em> Journal of Open Source Software, 6(61), 3167, doi:10.21105/joss.03167<br>
 Langsrud, Øyvind. (2003). <em>ANOVA for unbalanced data: Use type II instead of type III sums of squares</em>. Statistics and Computing. 13. 163-167. https://doi.org/10.1023/A:1023260610025. <a href="https://www.researchgate.net/publication/220286726_ANOVA_for_unbalanced_data_Use_type_II_instead_of_type_III_sums_of_squares" class="uri">https://www.researchgate.net/publication/220286726_ANOVA_for_unbalanced_data_Use_type_II_instead_of_type_III_sums_of_squares</a><br>
 Kim TK. (2017). <em>Understanding one-way ANOVA using conceptual figures</em>. Korean J Anesthesiol. 2017 Feb;70(1):22-26. doi: 10.4097/kjae.2017.70.1.22. Epub 2017 Jan 26. PMID: 28184262; PMCID: PMC5296382.<br><em>Anova – Type I/II/III SS explained</em>.<a href="https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/" class="uri">https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/</a></p>
-<section id="iconify-lucide-package-check-r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="iconify-lucide-package-check-r-package-citations">
+<section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check"></iconify-icon> R Package Citations</h6>
 <div class="cell" data-hash="ANOVA_cache/html/unnamed-chunk-33_8e878100a7aa86633ba02d6546620904">
 <div class="cell-output-display">
@@ -1457,7 +1485,7 @@ Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span class="nocase">ggtext</
 <li id="fn7"><p><a href="https://github.com/UCLATALL/supernova" class="uri">https://github.com/UCLATALL/supernova</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn8"><p>Ernst, Michael D. 2004. “Permutation Methods: A Basis for Exact Inference.” Statistical Science 19 (4): 676–85. doi:10.1214/088342304000000396.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn9"><p>Pruim R, Kaplan DT, Horton NJ (2017). “The mosaic Package: Helping Students to ‘Think with Data’ Using R.” The R Journal, 9(1), 77–102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2023,
+</ol></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2023,
   author = {V., Arvind},
   title = {Comparing {Multiple} {Means} with {ANOVA}},
   date = {2023-03-28},
@@ -1496,62 +1524,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
       }
     }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1561,8 +1556,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1575,6 +1579,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1618,6 +1741,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1643,6 +1767,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1700,22 +1850,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       });
     }
   }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-          // target, if specified
-          link.setAttribute("target", "_blank");
-          // default icon
-          link.classList.add("external");
-      }
-    }
 });
 </script>
 </div> <!-- /content -->
@@ -1723,7 +1857,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>
+    <div class="nav-footer-center">
+<p>Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

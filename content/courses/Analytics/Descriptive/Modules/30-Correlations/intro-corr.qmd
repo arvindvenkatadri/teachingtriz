@@ -18,6 +18,12 @@ categories:
 bibliography: 
   - grateful-refs.bib
 citation: true
+editor: 
+  markdown: 
+    wrap: 72
+webr:
+  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula', 'palmerpenguins','correlation','GGally','corrplot', 'ggExtra','Lock5withR']
+  
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-slides-and-tutorials}
@@ -147,6 +153,9 @@ Let us look at the `HollywoodMovies2011` dataset from the `Lock5withR` package.
 
 ## {{< iconify carbon chart-3d >}} Inspecting the Data
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
 ```{r}
 #| label: glimpse-movies
 HollywoodMovies2011-> movies
@@ -168,6 +177,34 @@ movies_describe$categorical
 movies_describe$quantitative
 
 ```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+HollywoodMovies2011-> movies
+glimpse(movies)
+
+```
+
+```{webr-r}
+#| label: skim-movies-webr
+skimr::skim(movies)
+
+```
+
+```{webr-r}
+#| label: inspect-movies-webr
+
+movies_describe <- inspect(movies)
+movies_describe$categorical
+movies_describe$quantitative
+
+```
+
+
+:::
+
+
 ::: callout-note
 ### Business Insights from Data Inspection
 
@@ -208,6 +245,9 @@ Some of the very basic and commonly used plots for data are:
 
 Which are the numeric variables in `movies`?
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
 ```{r}
 
 movies_quant <- movies %>%
@@ -216,6 +256,21 @@ movies_quant <- movies %>%
 movies_quant
 
 ```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+
+movies_quant <- movies %>%
+  drop_na() %>%
+  select(where(is.numeric))
+movies_quant
+
+```
+
+:::
+
+
+
 Now let us plot their relationships.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
@@ -297,6 +352,46 @@ movies %>%
     geom_smooth(method = "lm", se = FALSE)
 
 ```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+
+##
+movies %>% 
+  gf_point(DomesticGross ~ WorldGross) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movie Gross Earnings: Domestics vs World")
+
+##
+movies %>% 
+  gf_point(Profitability ~ OpeningWeekend) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+
+##
+movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
+  gf_lm(title = "Scatter Plot",
+            subtitle = "Movie Ratings: Tomatoes vs Audience")
+
+##
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
+##
+## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
+movies %>%
+  drop_na() %>%
+  gf_point(RottenTomatoes ~ AudienceScore, 
+           color = ~ Genre) %>%
+ gf_lm()
+
+```
+
+
+
 :::
 
 :::callout-note

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind Venkatadri">
 <meta name="dcterms.date" content="2021-11-01">
@@ -21,7 +21,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -57,6 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -99,7 +100,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -108,6 +115,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -226,7 +234,7 @@ div.csl-indent {
 const initializeWebRTimerStart = performance.now();
 
 // Determine if we need to install R packages
-var installRPackagesList = [''];
+var installRPackagesList = ['readr', 'dplyr', 'mosaic', 'skimr', 'ggformula', 'palmerpenguins', 'Lock5withR'];
 // Check to see if we have an empty array, if we do set to skip the installation.
 var setupRPackages = !(installRPackagesList.indexOf("") !== -1);
 var autoloadRPackages = true;
@@ -738,16 +746,41 @@ globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
   mainDiv.className = 'qwebr-noninteractive-setup-area';
 
   return mainDiv;
-}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 <meta property="og:title" content="The Foundation Series - 🕶 Science, Human Experience, Experiments, and Data">
-<meta property="og:description" content="Why do we visualize data">
+<meta property="og:description" content="Where does Data come from, and Why do we visualize it">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/05-NatureData/preview.png">
-<meta property="og:site-name" content="The Foundation Series">
+<meta property="og:site_name" content="The Foundation Series">
 <meta property="og:image:height" content="1200">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:alt" content="By Rudityas on Glazestock.com">
 <meta name="twitter:title" content="The Foundation Series - 🕶 Science, Human Experience, Experiments, and Data">
-<meta name="twitter:description" content="Why do we visualize data">
+<meta name="twitter:description" content="Where does Data come from, and Why do we visualize it">
 <meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/05-NatureData/preview.png">
 <meta name="twitter:image-height" content="1200">
 <meta name="twitter:image-width" content="1200">
@@ -757,8 +790,8 @@ globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../../../../index.html">
     <span class="navbar-title">The Foundation Series</span>
     </a>
@@ -770,55 +803,55 @@ globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
 <li class="nav-item">
-    <a class="nav-link" href="../../../../../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../../../../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
 </ul>
 <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arvindvenkatadri/my-quarto-website"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/arvind_v" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/arvind_v"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="../../../../../../www.linkedin.com/in/arvindvenkatadri"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com" rel="" target=""><i class="bi bi-envelope" role="img">
+    <a class="nav-link" href="mailto:arvind.venkatadri@gmail.com"> <i class="bi bi-envelope" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-<div class="quarto-navbar-tools">
+</div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🕶 Science, Human Experience, Experiments, and Data</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">🕶 Science, Human Experience, Experiments, and Data</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
@@ -948,16 +981,17 @@ globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
-<li><a href="#iconify-noto-v1-package-setting-up-r-packages" id="toc-iconify-noto-v1-package-setting-up-r-packages" class="nav-link active" data-scroll-target="#iconify-noto-v1-package-setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
+<li><a href="#using-web-r" id="toc-using-web-r" class="nav-link active" data-scroll-target="#using-web-r"><iconify-icon inline="" icon="mdi:web-check"></iconify-icon> Using web-R</a></li>
+  <li><a href="#setting-up-r-packages" id="toc-setting-up-r-packages" class="nav-link" data-scroll-target="#setting-up-r-packages"><iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</a></li>
   <li><a href="#sec-where-data" id="toc-sec-where-data" class="nav-link" data-scroll-target="#sec-where-data"><i class="fa-solid fa-envelope" title="An envelope" aria-label="envelope"></i> Where does Data come from?</a></li>
-  <li><a href="#fa-chart-simple-why-visualize" id="toc-fa-chart-simple-why-visualize" class="nav-link" data-scroll-target="#fa-chart-simple-why-visualize"><i class="fa-solid fa-chart-simple" aria-label="chart-simple"></i> Why Visualize?</a></li>
-  <li><a href="#iconify-mdi-category-plus-what-are-data-types" id="toc-iconify-mdi-category-plus-what-are-data-types" class="nav-link" data-scroll-target="#iconify-mdi-category-plus-what-are-data-types"><iconify-icon inline="" icon="mdi:category-plus"></iconify-icon> What are Data Types?</a></li>
+  <li><a href="#why-visualize" id="toc-why-visualize" class="nav-link" data-scroll-target="#why-visualize"><i class="fa-solid fa-chart-simple" aria-label="chart-simple"></i> Why Visualize?</a></li>
+  <li><a href="#what-are-data-types" id="toc-what-are-data-types" class="nav-link" data-scroll-target="#what-are-data-types"><iconify-icon inline="" icon="mdi:category-plus"></iconify-icon> What are Data Types?</a></li>
   <li><a href="#sec-data-types" id="toc-sec-data-types" class="nav-link" data-scroll-target="#sec-data-types"><i class="fa-solid fa-glasses" aria-label="glasses"></i> How do we Spot Data Variable Types?</a></li>
   <li>
 <a href="#some-examples-of-data-variables" id="toc-some-examples-of-data-variables" class="nav-link" data-scroll-target="#some-examples-of-data-variables">Some Examples of Data Variables</a>
@@ -967,14 +1001,14 @@ globalThis.qwebrCreateNonInteractiveSetupElement = function(qwebrCounter) {
   </ul>
 </li>
   <li>
-<a href="#iconify-material-symbols-auto-graph-what-is-a-data-visualization" id="toc-iconify-material-symbols-auto-graph-what-is-a-data-visualization" class="nav-link" data-scroll-target="#iconify-material-symbols-auto-graph-what-is-a-data-visualization"><iconify-icon inline="" icon="material-symbols:auto-graph"></iconify-icon> What is a Data Visualization?</a>
+<a href="#what-is-a-data-visualization" id="toc-what-is-a-data-visualization" class="nav-link" data-scroll-target="#what-is-a-data-visualization"><iconify-icon inline="" icon="material-symbols:auto-graph"></iconify-icon> What is a Data Visualization?</a>
   <ul class="collapse">
-<li><a href="#iconify-carbon-chart-network-data-viz-data-geometry" id="toc-iconify-carbon-chart-network-data-viz-data-geometry" class="nav-link" data-scroll-target="#iconify-carbon-chart-network-data-viz-data-geometry"><iconify-icon inline="" icon="carbon:chart-network"></iconify-icon> Data Viz = Data + Geometry</a></li>
+<li><a href="#data-viz-data-geometry" id="toc-data-viz-data-geometry" class="nav-link" data-scroll-target="#data-viz-data-geometry"><iconify-icon inline="" icon="carbon:chart-network"></iconify-icon> Data Viz = Data + Geometry</a></li>
   </ul>
 </li>
   <li><a href="#sec-data-viz" id="toc-sec-data-viz" class="nav-link" data-scroll-target="#sec-data-viz"><iconify-icon inline="" icon="flat-color-icons:workflow"></iconify-icon> Basic Types of Charts</a></li>
-  <li><a href="#iconify-fluent-mdl2-decision-solid-conclusion" id="toc-iconify-fluent-mdl2-decision-solid-conclusion" class="nav-link" data-scroll-target="#iconify-fluent-mdl2-decision-solid-conclusion"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</a></li>
-  <li><a href="#iconify-ooui-references-ltr-references" id="toc-iconify-ooui-references-ltr-references" class="nav-link" data-scroll-target="#iconify-ooui-references-ltr-references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</a></li>
   </ul></nav>
     </div>
 <!-- main -->
@@ -1119,7 +1153,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (
 
 }</script><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
 <h1 class="title">🕶 Science, Human Experience, Experiments, and Data</h1>
-<p class="subtitle lead">Why do we visualize data</p>
+<p class="subtitle lead">Where does Data come from, and Why do we visualize it</p>
   <div class="quarto-categories">
     <div class="quarto-category">Scientific Inquiry</div>
     <div class="quarto-category">Experiments</div>
@@ -1151,47 +1185,38 @@ globalThis.qwebrCreateMonacoEditorInstance = function (
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 25, 2023</p>
+      <p class="date-modified">January 6, 2024</p>
     </div>
   </div>
     
   </div>
   
 
-</header><section id="iconify-noto-v1-package-setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="iconify-noto-v1-package-setting-up-r-packages">
+
+</header><section id="using-web-r" class="level2"><h2 class="anchored" data-anchor-id="using-web-r">
+<iconify-icon inline="" icon="mdi:web-check"></iconify-icon> Using web-R</h2>
+<p>This tutorial uses <code>web-r</code> that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure ( like in an old-fashioned library) with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab “behind” has the <code>web-R</code> code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the <code>web-r</code> tabs and need to compare your code with the original!</p>
+<section id="keyboard-shortcuts" class="level4"><h4 class="anchored" data-anchor-id="keyboard-shortcuts">Keyboard Shortcuts</h4>
+<ul>
+<li>Run selected code using either:
+<ul>
+<li>macOS: <kbd>⌘</kbd> + <kbd>↩︎/Return</kbd>
+</li>
+<li>Windows/Linux: <kbd>Ctrl</kbd> + <kbd>↩︎/Enter</kbd>
+</li>
+</ul>
+</li>
+<li>Run the entire code by clicking the “Run code” button or pressing <kbd>Shift</kbd>+<kbd>↩︎</kbd>.</li>
+</ul></section></section><section id="setting-up-r-packages" class="level2"><h2 class="anchored" data-anchor-id="setting-up-r-packages">
 <iconify-icon inline="" icon="noto-v1:package"></iconify-icon> Setting up R Packages</h2>
-<p>Click on the <code>Run Code</code> button to install the packages here and work on in the browser.</p>
-<div class="cell" data-hash="nature-data_cache/html/setup_72d0699bd70d4830c1e08159a8961b40">
-<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Data processing with tidy principles</span></span>
+<div class="cell" data-hash="nature-data_cache/html/setup_392532ce036980d84f85aee0b7eedad7">
+<div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span> <span class="co"># Data processing with tidy principles</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/mosaic">mosaic</a></span><span class="op">)</span> <span class="co"># Our go-to package for almost everything</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span> <span class="co"># Out plotting package</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ProjectMOSAIC/ggformula">ggformula</a></span><span class="op">)</span> <span class="co"># Our plotting package</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">Lock5withR</span><span class="op">)</span> <span class="co"># Some neat little datasets from a lovely textbook</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="qwebr-insertion-location-1"></div>
-<script type="module">
-// Retrieve the insertion point
-const currentDocumentLocation = document.getElementById("qwebr-insertion-location-1");
-
-// Initalize an interactive element
-const initializedElement =   qwebrCreateInteractiveElement(
-    1
-  );
-
-// Add the interactive element into the document scope
-currentDocumentLocation.appendChild(initializedElement);
-
-// Initialize a Monaco Editor Instance
-qwebrCreateMonacoEditorInstance(
-  `library(tidyverse) # Data processing with tidy principles
-library(mosaic) # Our go-to package for almost everything
-library(ggformula) # Out plotting package
-
-library(Lock5withR) # Some neat little datasets from a lovely textbook
-library(kableExtra)`, 
-  1);
-</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </section><section id="sec-where-data" class="level2"><h2 class="anchored" data-anchor-id="sec-where-data">
 <i class="fa-solid fa-envelope" title="An envelope" aria-label="envelope"></i> Where does Data come from?</h2>
 <p>We will need to form a basic understanding of basic scientific enterprise. Let us look at the <a href="https://r-for-artists.netlify.app/slides/10-nature-of-data/10-nature-of-data"><strong>slides</strong></a>. (Also embedded below!)</p>
@@ -1199,7 +1224,7 @@ library(kableExtra)`,
 <iframe src="https://r-for-artists.netlify.app/slides/10-nature-of-data/10-nature-of-data" width="780px" height="400px" data-external="1">
 </iframe>
 </div>
-</section><section id="fa-chart-simple-why-visualize" class="level2"><h2 class="anchored" data-anchor-id="fa-chart-simple-why-visualize">
+</section><section id="why-visualize" class="level2"><h2 class="anchored" data-anchor-id="why-visualize">
 <i class="fa-solid fa-chart-simple" aria-label="chart-simple"></i> Why Visualize?</h2>
 <ul>
 <li>We can digest information more easily when it is pictorial</li>
@@ -1207,26 +1232,37 @@ library(kableExtra)`,
 <li>Data Viz includes <span style="background-color: yellow;"><em>shapes</em> that carry strong cultural memories</span>; and impressions for us. These cultural memories help us to use data viz in a <em>universal way</em> to appeal to a wide variety of audiences. <span style="background-color: yellow;">(Do humans have a gene for geometry?</span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a><span style="background-color: yellow;">)</span>;</li>
 <li>It helps sift facts and mere statements: for example:</li>
 </ul>
-<div id="fig-rape-capital" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure"><p><img src="../../../../../materials/images/rape-capital.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;1: Rape Capital</figcaption></figure>
+<div id="fig-rape-capital" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-rape-capital-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../../../../materials/images/rape-capital.png" class="img-fluid figure-img">
 </div>
-<div id="fig-data_reveals-crime" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure"><p><img src="../../../../../materials/images/data-reveals-crime.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;2: Data Reveals Crime</figcaption></figure>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rape-capital-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Rape Capital
+</figcaption></figure>
 </div>
-</section><section id="iconify-mdi-category-plus-what-are-data-types" class="level2"><h2 class="anchored" data-anchor-id="iconify-mdi-category-plus-what-are-data-types">
+<div id="fig-data_reveals-crime" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-data_reveals-crime-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../../../../materials/images/data-reveals-crime.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data_reveals-crime-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Data Reveals Crime
+</figcaption></figure>
+</div>
+</section><section id="what-are-data-types" class="level2"><h2 class="anchored" data-anchor-id="what-are-data-types">
 <iconify-icon inline="" icon="mdi:category-plus"></iconify-icon> What are Data Types?</h2>
-<div class="quarto-layout-panel">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="quarto-layout-cell" style="flex-basis: 47.1%;justify-content: center;">
+<div>
+
+</div>
+<div class="quarto-layout-panel" data-layout="[[40,-5, 40]]">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 47.1%;justify-content: flex-start;">
 <p></p>
 <div id="youtube-frame" style="position: relative; padding-bottom: 56.25%; /* 16:9 */ height: 0;"><iframe width="100%" height="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/dwFsRZv4oHA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 </div>
-<div class="quarto-figure-spacer quarto-layout-cell" style="flex-basis: 5.9%;justify-content: center;">
+<div class="quarto-figure-spacer quarto-layout-cell" style="flex-basis: 5.9%;justify-content: flex-start;">
 <p>&nbsp;</p>
 </div>
-<div class="quarto-layout-cell" style="flex-basis: 47.1%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 47.1%;justify-content: flex-start;">
 <p></p>
 <div id="youtube-frame" style="position: relative; padding-bottom: 56.25%; /* 16:9 */ height: 0;"><iframe width="100%" height="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/hZxnzfnt5v8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 </div>
@@ -1234,13 +1270,16 @@ library(kableExtra)`,
 </div>
 <div class="cell" data-hash="nature-data_cache/html/unnamed-chunk-4_91f2a3a80c05d59875429fff6da5dfcc">
 <div class="cell-output-display">
-<p><img src="https://openintro-ims.netlify.app/01-data-hello_files/figure-html/variables-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure"><p><img src="https://openintro-ims.netlify.app/01-data-hello_files/figure-html/variables-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="nature-data_cache/html/unnamed-chunk-5_a7c6f396667bbc2b10ec6843d7cc71c9">
+</div>
+<div class="cell" data-layout-align="center" data-hash="nature-data_cache/html/unnamed-chunk-5_c0039f15ab1a8ac275d9578ce258edf8">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="./images/tidydata.jpg" width="680" height="400" class="figure-img"></p>
+<figure class="figure"><p><img src="./images/tidydata.jpg" class="quarto-figure quarto-figure-center figure-img" width="680" height="400"></p>
 </figure>
 </div>
 </div>
@@ -1262,7 +1301,7 @@ Tidy Data
 <i class="fa-solid fa-glasses" aria-label="glasses"></i> How do we Spot Data Variable Types?</h2>
 <p><span style="background-color: yellow;">By asking questions!</span> Shown below is a table of different kinds of questions you could use to query a dataset. The variable or variables that “answer” the question would be in the category indicated by the question.</p>
 <div class="column-page">
-<div class="cell" data-hash="nature-data_cache/html/unnamed-chunk-6_5d20fb1675766dd17c55a8964db6402b">
+<div class="cell" data-hash="nature-data_cache/html/unnamed-chunk-6_caf13eea95699175a52f2cc581403df0">
 <div class="cell-output-display">
 <table class="lightable-paper lightable-hover table table-sm table-striped small" data-quarto-postprocess="true">
 <thead><tr class="header">
@@ -1313,8 +1352,8 @@ Tidy Data
 </div>
 <p>As you go from <a href="https://openintro-ims.netlify.app/data-hello.html#variable-types">Qualitative to Quantitative data types</a> in the table, I hope you can detect a movement from fuzzy groups/categories to more and more crystallized numbers.</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="../../../../../../content/materials/images/Ratio-Interval-Ordinal-Nominal.PNG" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Type of Variables</figcaption></figure>
+<figure class="figure"><p><img src="../../../../../../content/materials/images/Ratio-Interval-Ordinal-Nominal.PNG" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<figcaption>Type of Variables</figcaption></figure>
 </div>
 <p>Each variable/scale can be subjected to the operations of the previous group. In the words of <a href="https://stats.idre.ucla.edu/other/mult-pkg/whatstat/what-is-the-difference-between-categorical-ordinal-and-interval-variables/">S.S. Stevens</a></p>
 <blockquote class="blockquote">
@@ -1323,13 +1362,42 @@ Tidy Data
 </section><section id="some-examples-of-data-variables" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="some-examples-of-data-variables">Some Examples of Data Variables</h2>
 <section id="example-1-allcountries" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="example-1-allcountries">Example 1: <code>AllCountries</code>
 </h3>
-<div class="cell page-columns page-full" data-hash="nature-data_cache/html/unnamed-chunk-7_1d91234d521bef8facc0cba8e8b6f9ea">
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills page-columns page-full" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Base R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills page-columns page-full" style="background: whitesmoke;">
+<div id="tabset-1-1" class="tab-pane active page-columns page-full" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell page-columns page-full" data-hash="nature-data_cache/html/unnamed-chunk-7_e87f30243cc453ae60fea7c9d6160782">
 <div class="cell-output-display column-body-outset-right">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["Country"],"name":[1],"type":["fct"],"align":["left"]},{"label":["Code"],"name":[2],"type":["fct"],"align":["left"]},{"label":["LandArea"],"name":[3],"type":["int"],"align":["right"]},{"label":["Population"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Energy"],"name":[5],"type":["int"],"align":["right"]},{"label":["Rural"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Military"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Health"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["HIV"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["Internet"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["Developed"],"name":[11],"type":["int"],"align":["right"]},{"label":["BirthRate"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["ElderlyPop"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["LifeExpectancy"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["CO2"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["GDP"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["Cell"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["Electricity"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["kwhPerCap"],"name":[19],"type":["ord"],"align":["right"]}],"data":[{"1":"Andorra","2":"AND","3":"470","4":"0.084","5":"NA","6":"11.1","7":"NA","8":"21.3","9":"NA","10":"70.5","11":"NA","12":"10.4","13":"NA","14":"NA","15":"6.52783463","16":"NA","17":"77.17642","18":"NA","19":"NA"},{"1":"Albania","2":"ALB","3":"27400","4":"3.143","5":"2088","6":"53.3","7":"NA","8":"8.2","9":"NA","10":"23.9","11":"1","12":"14.6","13":"9.3","14":"76.6","15":"1.31285501","16":"3678.2317","17":"141.92896","18":"1747.0980","19":"Under 2500"},{"1":"Algeria","2":"ALG","3":"2381740","4":"34.373","5":"37069","6":"34.8","7":"13.0","8":"10.6","9":"0.1","10":"10.2","11":"1","12":"20.8","13":"4.6","14":"72.4","15":"3.23296040","16":"4494.8867","17":"92.42126","18":"970.9825","19":"Under 2500"},{"1":"Afghanistan","2":"AFG","3":"652230","4":"29.021","5":"NA","6":"76.0","7":"4.4","8":"3.7","9":"NA","10":"1.7","11":"NA","12":"46.5","13":"2.2","14":"43.9","15":"0.02503483","16":"501.4709","17":"37.80711","18":"NA","19":"NA"},{"1":"American Samoa","2":"ASA","3":"200","4":"0.066","5":"NA","6":"7.7","7":"NA","8":"NA","9":"NA","10":"NA","11":"NA","12":"NA","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA","19":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="qwebr-insertion-location-1"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-1");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    1
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `head(AllCountries,5) %>% arrange(desc(Internet))`, 
+  1);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1349,13 +1417,42 @@ A1. This leads to the <code>Internet</code> variable, which is a Quantitative va
 </div>
 </section><section id="example-2studentsurveys" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="example-2studentsurveys">Example 2:<code>StudentSurveys</code>
 </h3>
-<div class="cell page-columns page-full" data-hash="nature-data_cache/html/unnamed-chunk-8_64398290e7a9ff19226053df2d5e7b29">
+<div class="tabset-margin-container"></div><div class="panel-tabset nav-pills page-columns page-full" style="background: whitesmoke;">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Base R</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false"><iconify-icon inline="" icon="noto-v1:spider-web"></iconify-icon> web-r</a></li>
+</ul>
+<div class="tab-content nav-pills page-columns page-full" style="background: whitesmoke;">
+<div id="tabset-2-1" class="tab-pane active page-columns page-full" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell page-columns page-full" data-hash="nature-data_cache/html/unnamed-chunk-8_d9ab399b1967243fda6d3271f6542094">
 <div class="cell-output-display column-body-outset-right">
-
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Year"],"name":[1],"type":["fct"],"align":["left"]},{"label":["Gender"],"name":[2],"type":["fct"],"align":["left"]},{"label":["Smoke"],"name":[3],"type":["fct"],"align":["left"]},{"label":["Award"],"name":[4],"type":["fct"],"align":["left"]},{"label":["HigherSAT"],"name":[5],"type":["fct"],"align":["left"]},{"label":["Exercise"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["TV"],"name":[7],"type":["int"],"align":["right"]},{"label":["Height"],"name":[8],"type":["int"],"align":["right"]},{"label":["Weight"],"name":[9],"type":["int"],"align":["right"]},{"label":["Siblings"],"name":[10],"type":["int"],"align":["right"]},{"label":["BirthOrder"],"name":[11],"type":["int"],"align":["right"]},{"label":["VerbalSAT"],"name":[12],"type":["int"],"align":["right"]},{"label":["MathSAT"],"name":[13],"type":["int"],"align":["right"]},{"label":["SAT"],"name":[14],"type":["int"],"align":["right"]},{"label":["GPA"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["Pulse"],"name":[16],"type":["int"],"align":["right"]},{"label":["Piercings"],"name":[17],"type":["int"],"align":["right"]},{"label":["Sex"],"name":[18],"type":["fct"],"align":["left"]}],"data":[{"1":"Senior","2":"M","3":"No","4":"Olympic","5":"Math","6":"10","7":"1","8":"71","9":"180","10":"4","11":"4","12":"540","13":"670","14":"1210","15":"3.13","16":"54","17":"0","18":"Male","_rn_":"1"},{"1":"Sophomore","2":"F","3":"Yes","4":"Academy","5":"Math","6":"4","7":"7","8":"66","9":"120","10":"2","11":"2","12":"520","13":"630","14":"1150","15":"2.50","16":"66","17":"3","18":"Female","_rn_":"2"},{"1":"FirstYear","2":"M","3":"No","4":"Nobel","5":"Math","6":"14","7":"5","8":"72","9":"208","10":"2","11":"1","12":"550","13":"560","14":"1110","15":"2.55","16":"130","17":"0","18":"Male","_rn_":"3"},{"1":"Junior","2":"M","3":"No","4":"Nobel","5":"Math","6":"3","7":"1","8":"63","9":"110","10":"1","11":"1","12":"490","13":"630","14":"1120","15":"3.10","16":"78","17":"0","18":"Male","_rn_":"4"},{"1":"Sophomore","2":"F","3":"No","4":"Nobel","5":"Verbal","6":"3","7":"3","8":"65","9":"150","10":"1","11":"1","12":"720","13":"450","14":"1170","15":"2.70","16":"40","17":"6","18":"Female","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="qwebr-insertion-location-2"></div>
+<script type="module">
+// Retrieve the insertion point
+const currentDocumentLocation = document.getElementById("qwebr-insertion-location-2");
+
+// Initalize an interactive element
+const initializedElement =   qwebrCreateInteractiveElement(
+    2
+  );
+
+// Add the interactive element into the document scope
+currentDocumentLocation.appendChild(initializedElement);
+
+// Initialize a Monaco Editor Instance
+qwebrCreateMonacoEditorInstance(
+  `head(StudentSurvey,5)`, 
+  2);
+</script><noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
 </div>
@@ -1377,24 +1474,27 @@ Q.3.<strong>How big</strong> are the families?<br>
 A.3. Clearly, the variable that answers is <code>Siblings</code> and since the question is synonymous with “how many”, this is a Quantitative variable.<br></p>
 </div>
 </div>
-</section></section><section id="iconify-material-symbols-auto-graph-what-is-a-data-visualization" class="level2"><h2 class="anchored" data-anchor-id="iconify-material-symbols-auto-graph-what-is-a-data-visualization">
+</section></section><section id="what-is-a-data-visualization" class="level2"><h2 class="anchored" data-anchor-id="what-is-a-data-visualization">
 <iconify-icon inline="" icon="material-symbols:auto-graph"></iconify-icon> What is a Data Visualization?</h2>
-<section id="iconify-carbon-chart-network-data-viz-data-geometry" class="level3"><h3 class="anchored" data-anchor-id="iconify-carbon-chart-network-data-viz-data-geometry">
+<section id="data-viz-data-geometry" class="level3"><h3 class="anchored" data-anchor-id="data-viz-data-geometry">
 <iconify-icon inline="" icon="carbon:chart-network"></iconify-icon> Data Viz = Data + Geometry</h3>
-<section id="iconify-fa6-solid-shapes-shapes" class="level4"><h4 class="anchored" data-anchor-id="iconify-fa6-solid-shapes-shapes">
+<section id="shapes" class="level4"><h4 class="anchored" data-anchor-id="shapes">
 <iconify-icon inline="" icon="fa6-solid:shapes"></iconify-icon> Shapes</h4>
 <p><span style="background: yellow;">Data Visualization is the act of “mapping” a geometric aspect/aesthetic to a variable in data.</span>The aesthetic then varies in accordance with the data variable, creating (part of) a chart.</p>
 <p>What might be the geometric aesthetics available to us? An <span style="background: yellow;">aesthetic</span> is a geometric property, such as <code>x-coordinate</code>, <code>y-coordinate</code>, <code>length/breadth/height</code>,<code>radius</code>,<code>shape</code>,<code>size</code>, <code>linewidth</code>, <code>linetype</code>, and even <code>colour</code>…</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="../../../../../../content/materials/images/common-aesthetics-1.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Common Geometric Aesthetics in Charts</figcaption></figure>
+<figure class="figure"><p><img src="../../../../../../content/materials/images/common-aesthetics-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<figcaption>Common Geometric Aesthetics in Charts</figcaption></figure>
 </div>
-</section><section id="iconify-material-symbols-function-mapping" class="level4"><h4 class="anchored" data-anchor-id="iconify-material-symbols-function-mapping">
+</section><section id="mapping" class="level4"><h4 class="anchored" data-anchor-id="mapping">
 <iconify-icon inline="" icon="material-symbols:function"></iconify-icon> Mapping</h4>
 <p>What does this “mapping” mean? That the geometric aesthetics are used to <em>represent</em> qualitative or quantitative variables from your data, <span style="background: yellow;">by varying in accordance to the data variable</span>. For instance, <code>length</code> or <code>height</code> of a <code>bar</code> can be made proportional to the<code>age</code> or <code>income</code> of a person. <code>Colour</code> of points can be mapped to <code>gender</code>, with a unique <code>colour</code> for each <code>gender</code>. <code>Position</code> along an axis x can vary in accordance with a <code>height</code> variable and y with a <code>bodyWeight</code> variable.</p>
 <div class="cell" data-hash="nature-data_cache/html/unnamed-chunk-9_4819b61af61a29e318841594a31f6755">
 <div class="cell-output-display">
-<p><img src="nature-data_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure"><p><img src="nature-data_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>A chart may use more than one aesthetic: <code>position</code>, <code>shape</code>, <code>colour</code>, <code>height</code> and <code>angle</code>,<code>pattern</code> or <code>texture</code> to name several. Usually, each aesthetic is mapped to <strong>just one</strong> variable to ensure there is no cognitive error. There is of course a choice and you should be able to <strong>map</strong> any kind of variable to any geometric aspect/aesthetic that may be available.</p>
@@ -1408,7 +1508,7 @@ A Natural Mapping
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Note that here is also a “natural” mapping between aesthetic and [<strong>kind of variable</strong>] <a href="#sec-data-types">Section&nbsp;5</a>, Quantitative or Qualitative. For instance, <code>shape</code> is rarely mapped to a Quantitative variable; we understand this because the nature of variation between the Quantitative variable and the <code>shape</code> aesthetic is not similar (i.e.&nbsp;not continuous). Bad choices may lead to bad, or worse, misleading charts!</p>
+<p>Note that here is also a “natural” mapping between aesthetic and [<strong>kind of variable</strong>] <a href="#sec-data-types" class="quarto-xref">Section&nbsp;6</a>, Quantitative or Qualitative. For instance, <code>shape</code> is rarely mapped to a Quantitative variable; we understand this because the nature of variation between the Quantitative variable and the <code>shape</code> aesthetic is not similar (i.e.&nbsp;not continuous). Bad choices may lead to bad, or worse, misleading charts!</p>
 </div>
 </div>
 <p>In the above chart, it is pretty clear what kind of variable is plotted on the <code>x-axis</code> and the <code>y-axis</code>. What about <code>colour</code>? Could this be considered a <code>z-axis</code> in the chart? There are also other aspects that you can choose (not explicitly shown here) such as the <code>plot theme</code>(colours, fonts, backgrounds etc), which may <strong>not be mapped</strong> to data, but are nonetheless choices to be made. We will get acquainted with this aspect as we build charts.</p>
@@ -1478,7 +1578,7 @@ A Natural Mapping
 </tbody>
 </table>
 </div>
-</section><section id="iconify-fluent-mdl2-decision-solid-conclusion" class="level2"><h2 class="anchored" data-anchor-id="iconify-fluent-mdl2-decision-solid-conclusion">
+</section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">
 <iconify-icon inline="" icon="fluent-mdl2:decision-solid"></iconify-icon> Conclusion</h2>
 <p>So there we have it:</p>
 <ul>
@@ -1491,13 +1591,13 @@ A Natural Mapping
 </li>
 </ul>
 <p>You might think of all these Questions, Answers, Mapping as being equivalent to <strong>metaphors</strong> as a language in itself. And indeed, in R we use a philosophy called the <strong>Grammar of Graphics</strong>! We will use this grammar in the R graphics packages that we will encounter.</p>
-</section><section id="iconify-ooui-references-ltr-references" class="level2"><h2 class="anchored" data-anchor-id="iconify-ooui-references-ltr-references">
+</section><section id="references" class="level2"><h2 class="anchored" data-anchor-id="references">
 <iconify-icon inline="" icon="ooui:references-ltr"></iconify-icon> References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" style="font-size: 60%;" data-entry-spacing="0" role="list">
 <p><br><a href="https://openintro-ims.netlify.app/data-hello.html#variable-types">Open Intro Stats: Types of Variables</a><br>
 Lock, Lock, Lock, Lock, and Lock. <em>Statistics: Unlocking the Power of Data</em>, Third Edition, Wiley, 2021. <a href="https://www.wiley.com/en-br/Statistics:+Unlocking+the+Power+of+Data,+3rd+Edition-p-9781119674160)" class="uri">https://www.wiley.com/en-br/Statistics:+Unlocking+the+Power+of+Data,+3rd+Edition-p-9781119674160)</a><br>
 Claus Wilke. <em>Fundamentals of Data Visualization</em>. <a href="https://clauswilke.com/dataviz/" class="uri">https://clauswilke.com/dataviz/</a></p>
-<section id="iconify-lucide-package-check-r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="iconify-lucide-package-check-r-package-citations">
+<section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check"></iconify-icon> R Package Citations</h6>
 <div class="cell" data-hash="nature-data_cache/html/unnamed-chunk-10_2df0fb8e53e1c4502ce8bdb2fa886641">
 <div class="cell-output-display">
@@ -1553,7 +1653,7 @@ Snow, Greg. 2020. <em><span>TeachingDemos</span>: Demonstrations for Teaching an
 <li id="fn1"><p><a href="https://www.xcode.in/genes-and-personality/how-genes-influence-your-math-ability/" class="uri">https://www.xcode.in/genes-and-personality/how-genes-influence-your-math-ability/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>How might this data have been obtained? By asking people in a survey and getting <strong>Yes/No</strong> answers!<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>Qualitative variables are called <em>Factor variables</em> in R, and are stored, internally, as numeric variables together with their levels. The actual values of the numeric variable are 1, 2, and so on.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{venkatadri2021,
+</ol></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{venkatadri2021,
   author = {Venkatadri, Arvind},
   title = {🕶 {Science,} {Human} {Experience,} {Experiments,} and {Data}},
   date = {2021-11-01},
@@ -1590,62 +1690,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
       }
     }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1655,8 +1722,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1669,6 +1745,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1712,6 +1907,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1737,6 +1933,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1794,22 +2016,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       });
     }
   }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-          // target, if specified
-          link.setAttribute("target", "_blank");
-          // default icon
-          link.classList.add("external");
-      }
-    }
 });
 </script>
 </div> <!-- /content -->
@@ -1817,7 +2023,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     <div class="nav-footer-left">
       &nbsp;
     </div>   
-    <div class="nav-footer-center">Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</div>
+    <div class="nav-footer-center">
+<p>Website made with ❤️ and <a href="https://quarto.org/">Quarto</a>, by Arvind V.<br> License: <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.</p>
+</div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
