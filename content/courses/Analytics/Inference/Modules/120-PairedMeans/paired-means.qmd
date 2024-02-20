@@ -11,6 +11,9 @@ tags:
 - Random Number Generation
 - Distributions
 - Generating Parallel Worlds
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -158,7 +161,9 @@ We see that:
 
 ### A. {{< iconify mdi chart-bell-curve size=2x >}} Check for Normality
 
-Let us also complete a check for normality: the `shapiro.wilk` test checks whether a Quant variable is from a normal distribution; the NULL hypothesis is that the data *are* from a normal distribution.
+Let us also complete a check for normality: the `shapiro.wilk` test
+checks whether a Quant variable is from a normal distribution; the NULL
+hypothesis is that the data *are* from a normal distribution.
 
 ```{r}
 #| layout-ncol: 2
@@ -169,7 +174,7 @@ shapiro.test(Diving2017$Semifinal)
 ```
 
 Hmmm....the Shapiro-Wilk test suggests that both scores ***are***
-normally distributed, though `Semifinal` is probably marginally so. 
+normally distributed, though `Semifinal` is probably marginally so.
 
 Can we check this with plots? We can plot Q-Q plots for both variables,
 and also compare both data with normally-distributed data generated with
@@ -203,11 +208,14 @@ Diving2017_long %>%
 
 While the boxplots are not very evocative, we see in the QQ-plots that
 the `Final` scores are closer to the straight line than the `Semifinal`
-scores. But it is perhaps still hard to accept the data as normally distributed...hmm.
+scores. But it is perhaps still hard to accept the data as normally
+distributed...hmm.
 
 ### B. {{< iconify mdi sigma-lower size=2x >}} Check for Variances
 
-Let us check if the two variables have similar variances: the `var.test` does this for us, with a NULL hypothesis that the variances are not significantly different:
+Let us check if the two variables have similar variances: the `var.test`
+does this for us, with a NULL hypothesis that the variances are not
+significantly different:
 
 ```{r}
 #| layout-ncol: 2
@@ -219,7 +227,8 @@ qf(0.975,11,11)
 
 ```
 
-The variances are not significantly different, as seen by the $p.value = 0.08$.
+The variances are not significantly different, as seen by the
+$p.value = 0.08$.
 
 So to summarise our data checks:\
 - data are normally distributed\
@@ -239,11 +248,12 @@ $$
 H_a: \mu_{semifinal} \ne \mu_{final}\
 $$
 
-## {{< iconify academicons hypothesis >}} Observed and Test Statistic 
+## {{< iconify academicons hypothesis >}} Observed and Test Statistic
 
 What would be the **test statistic** we would use? The **difference in
-means**. Is the observed difference in the means between the two groups of
-scores non-zero? We use the `diffmean` function, with the argument `only.2=FALSE` to allow for *paired data*:
+means**. Is the observed difference in the means between the two groups
+of scores non-zero? We use the `diffmean` function, with the argument
+`only.2=FALSE` to allow for *paired data*:
 
 ```{r}
 
@@ -263,7 +273,11 @@ obs_diff_swim
 ::: panel-tabset
 ### Using the *paired* `t.test`
 
-Since the data variables satisfy the assumption of being *normally distributed*, and the variances are not significantly different, we may attempt the classical `t.test` with paired data. (we will use the `mosaic` variant). [Type `help(t.test)` in your Console.]{.aside} Our model would be:
+Since the data variables satisfy the assumption of being *normally
+distributed*, and the variances are not significantly different, we may
+attempt the classical `t.test` with paired data. (we will use the
+`mosaic` variant). [Type `help(t.test)` in your Console.]{.aside} Our
+model would be:
 
 $$
 mean(Final(i) - Semifinal(i)) = \beta_0 \\
@@ -281,7 +295,6 @@ mosaic::t.test(x = Diving2017$Semifinal,
                paired = TRUE, var.equal = FALSE) %>% broom::tidy()
 ```
 
-
 The `confidence interval` spans the zero value, and the `p.value` is a
 high $0.259$, so there is no reason to accept alternative hypothesis
 that the means are different. Hence we say that there is no evidence of
@@ -289,7 +302,12 @@ a difference between `SemiFinal` and `Final` scores.
 
 ### Using non-parametric *paired* Wilcoxon test
 
-Well, we might consider ( based on knowledge of the sport ) that at least one of the variables does *not* meet the normality criteria, and though their variances are not significantly different. So we would attempt a non-parametric Wilcoxon test, that uses the *signed-rank of the paired data differences*, instead of the data variables. Our model would be:
+Well, we might consider ( based on knowledge of the sport ) that at
+least one of the variables does *not* meet the normality criteria, and
+though their variances are not significantly different. So we would
+attempt a non-parametric Wilcoxon test, that uses the *signed-rank of
+the paired data differences*, instead of the data variables. Our model
+would be:
 
 $$
 mean(\ sign.rank[\ Final(i) - Semifinal(i)\ ]\ ) = \beta_0 \\
@@ -307,12 +325,13 @@ wilcox.test(x = Diving2017$Semifinal,
 ```
 
 Here also with the `p.value` being $0.3804$, we have no reason to accept
-the Alternative Hypothesis. The parametric `t.test` and the non-parametric `wilcox.test` agree in their inferences. 
-
+the Alternative Hypothesis. The parametric `t.test` and the
+non-parametric `wilcox.test` agree in their inferences.
 
 ### Using the Linear Model Method
 
-We can apply the *linear-model-as-inference* interpretation both to the original data and to the sign.rank data:\ 
+We can apply the *linear-model-as-inference* interpretation both to the
+original data and to the sign.rank data: 
 
 $$
 lm(y_i - x_i \sim 1) = \beta_0\\
@@ -326,7 +345,6 @@ H_0: \beta_0 = 0\\
 \\\
 H_a: \beta_0 \ne 0\\
 $$
-
 
 ```{r}
 #| results: hold
@@ -352,9 +370,12 @@ straddle $0$.
 We saw from the diagram created by Allen Downey that *there is only one
 test*! We will now use this philosophy to develop a technique that
 allows us to mechanize several *Statistical Models* in that way, with
-nearly identical code. For the specific data at hand, we need to shuffle the records between `Semifinal` and `Final` on a per Swimmer basis and take
-the `test statistic` (difference between the two swim records for *each*
-swimmer). Another way to look at this is to take the differences between `Semifinal` and `Final` scores and *shuffle the differences to either polarity*. We will follow this method in the code below:
+nearly identical code. For the specific data at hand, we need to shuffle
+the records between `Semifinal` and `Final` on a per Swimmer basis and
+take the `test statistic` (difference between the two swim records for
+*each* swimmer). Another way to look at this is to take the differences
+between `Semifinal` and `Final` scores and *shuffle the differences to
+either polarity*. We will follow this method in the code below:
 
 ```{r}
 #| layout-ncol: 2
@@ -395,7 +416,6 @@ does appear that we can not only obtain the current observed difference
 but even surpass it frequently. So it does seem that there is no
 difference in means between Semi-Final and Final swimming scores.
 :::
-
 
 ### All Tests Together
 
@@ -446,9 +466,6 @@ The linear model and the `t.test` are nearly identical in performance;
 the p.values are the same. The same is also true of the `wilcox.test`
 and the linear model with sign-rank data differences. This is of course
 not surprising!
-
-
-
 
 # {{< iconify pajamas issue-type-test-case >}} Case Study #2: Walmart vs Target
 
@@ -520,8 +537,11 @@ Not close to the Gaussian...there is clearly some skew to the right,
 with some items being very costly compared to the rest. More when we
 check the assumptions on data for the tests.
 
-How about price differences, what we are interested in? Let us plot the prices for the products, as box plots after pivoting the data to long form,
-[^1] and as bar charts:
+How about price differences, what we are interested in? Let us plot the
+prices for the products, as box plots after pivoting the data to long
+form, [^1] and as bar charts:
+
+[^1]: <https://raw.githubusercontent.com/gadenbuie/tidyexplain/main/images/tidyr-pivoting.gif>
 
 ```{r}
 #| layout-ncol: 2
@@ -546,10 +566,10 @@ Groceries_long %>%
 
 ::: callout-note
 We see that the price difference between Walmart and Target prices is
-highest for the `Product` named `Quaker Oats Life Cereal Original`. Apart from this Product, the rest have no discernible trend either way. Let
-us check `observed statistic` (the mean difference in prices)
+highest for the `Product` named `Quaker Oats Life Cereal Original`.
+Apart from this Product, the rest have no discernible trend either way.
+Let us check `observed statistic` (the mean difference in prices)
 :::
-
 
 ```{r}
 #| layout: [[75, 25]]
@@ -608,7 +628,7 @@ var.test(Groceries$Walmart, Groceries$Target)
 
 It appears from the $p.value = 0.9$ and the
 $Confidence Interval = [0.4629, 2.0432]$ that we cannot reject the NULL
-Hypothesis that the variances are not significantly different. 
+Hypothesis that the variances are not significantly different.
 
 ### {{< iconify fluent-mdl2 insights >}} Inference
 
@@ -701,7 +721,6 @@ prop1(~ mean, data = null_dist_price)
 ```
 
 Does not seem to be any significant difference in prices...
-
 :::
 
 ### All Tests Together
@@ -752,9 +771,8 @@ lm(signed_rank(Target - Walmart) ~ 1,
 
 ```
 
-
-
-Clearly, the parametric tests do not detect a significant difference in prices, whereas the non-parametric tests do. 
+Clearly, the parametric tests do not detect a significant difference in
+prices, whereas the non-parametric tests do.
 
 Suppose we knock off the `Quaker Cereal` data item...(note the spaces in
 the product name)
@@ -802,10 +820,12 @@ mean(null_dist_price_less >= obs_diff_price_less)
 ```
 
 We see that removing the Quaker Oats product item from the data **does**
-give a significant difference in mean prices !!! That one price difference was in the opposite direction compared to the general trend in differences, so when it was removed, we obtained a truer picture of price differences.
+give a significant difference in mean prices !!! That one price
+difference was in the opposite direction compared to the general trend
+in differences, so when it was removed, we obtained a truer picture of
+price differences.
 
 [Try to do a regular parametric t.test with this reduced data!]{.aside}
-
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
@@ -822,15 +842,13 @@ having to rely on any assumption relating to underlying distributions
 and so on.
 
 ## {{< iconify ooui references-ltr >}} References
-::: {#refs style="font-size: 60%;"}
 
+::: {#refs style="font-size: 60%;"}
 1.  Randall Pruim, Nicholas J. Horton, Daniel T. Kaplan, [*Start
     Teaching with
     R*](https://github.com/ProjectMOSAIC/LittleBooks/raw/master/Starting/MOSAIC-StartTeaching.pdf)
 2.  <https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307>
 3.  <https://statsandr.com/blog/wilcoxon-test-in-r-how-to-compare-2-groups-under-the-non-normality-assumption/>
-
-[^1]: <https://raw.githubusercontent.com/gadenbuie/tidyexplain/main/images/tidyr-pivoting.gif>
 
 ###### {{< iconify lucide package-check >}} R Package Citations
 
@@ -848,4 +866,3 @@ cite_packages(
 
 ```
 :::
-
