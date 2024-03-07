@@ -11,6 +11,7 @@ image-alt: image from rawpixel.com
 categories:
 - Correlations  
 - Scatter Plots
+- Confidence Ellipses
 - Bubble Plots  
 - 2D Density Plots  
 - Heatmaps  
@@ -22,7 +23,7 @@ editor:
   markdown: 
     wrap: 72
 webr:
-  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula', 'palmerpenguins','correlation','GGally','corrplot', 'ggExtra','Lock5withR']
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula', 'palmerpenguins','correlation','GGally','corrplot', 'ggExtra','Lock5withR']
   
 ---
 
@@ -43,6 +44,7 @@ library(tidyverse) # Tidy data processing and plotting
 library(ggformula) # Formula based plots
 library(mosaic) # Our go-to package
 library(skimr) # Another Data inspection package
+library(kableExtra) # Making good tables with data
 
 library(correlation) # Different Types of Correlations
 # From the easystats collection of packages
@@ -166,6 +168,7 @@ glimpse(movies)
 ```{r}
 #| label: skim-movies
 skimr::skim(movies)
+skimr::skim(movies) %>% kableExtra::kbl()
 
 ```
 
@@ -173,8 +176,8 @@ skimr::skim(movies)
 #| label: inspect-movies
 
 movies_describe <- inspect(movies)
-movies_describe$categorical
-movies_describe$quantitative
+movies_describe$categorical %>% kbl()
+movies_describe$quantitative %>% kbl()
 
 ```
 
@@ -237,6 +240,7 @@ Some of the very basic and commonly used plots for data are:
 
 -   Scatter Plot
 -   Contour Plot
+-   Scatter Plot with Confidence Ellipses
 -   Pairwise Correlation Plots
 -   Correlogram
 -   Heatmap
@@ -484,12 +488,13 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 ##
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
-  geom_density_2d() + 
+  geom_density_2d(bins = 30) + 
   geom_point() + 
+  stat_ellipse(level = 0.95, colour = "grey") + 
+  stat_ellipse(level = 0.68, colour = "brown") +   
   geom_lm() + 
   labs(title = "Scatter Plot",
             subtitle = "Movie Ratings: Tomatoes vs Audience")
-
 
 ```
 
@@ -497,10 +502,7 @@ movies %>% drop_na() %>%
 
 :::callout-note
 ### Business Insight from `movies` 2D plots
-The 2D density show us areas inscribed by closed contours where the
-values of the two variables fixed. The more concentrated and aligned
-these contours, the more likely that there would be significant
-correlation between the two.
+We can imagine the 2D density plot as a 3-dimensional structure, like hills/mountains, and these are depicted by the contour lines. The more concentrated and aligned these contours, the more likely that there would be significant correlation between the two. 
 
 In the plot above, we can see two such areas of concentration and these
 are also aligned roughly along a line.
@@ -511,6 +513,7 @@ are also aligned roughly along a line.
 ## Independent and Dependent Variables
 
 Note that we have rather *arbitrarily* taken `AudienceScore` as the independent variable, to be plotted on the `x-axis`, and `RottenTomatoes` on the `y-axis`. It could easily have been the other way around, based on our Research Question. Datasets are gathered with specific Research Hypotheses in mind, so check the help file and also with the person who gathered the data about what variable they are interested in!
+
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Quantizing Correlation
