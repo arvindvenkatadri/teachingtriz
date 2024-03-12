@@ -19,6 +19,9 @@ bibliography:
   - references.bib
   - grateful-refs.bib
 citation: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -52,10 +55,7 @@ library(grateful)
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} How do we Grasp Data?
 
-We spoke of Experiments and Data Gathering in the first module [Nature
-of
-Data](/content/courses/Analytics/Descriptive/Modules/05-NatureData/nature-data.qmd#sec-where-data).
-This helped us to **obtain** data.
+We spoke of Experiments and Data Gathering in the first module [Nature of Data](/content/courses/Analytics/Descriptive/Modules/05-NatureData/nature-data.qmd#sec-where-data). This helped us to **obtain** data.
 
 As we discussed in that same Module, for us to grasp the significance of
 the data, we need to **describe** it; the actual data is usually too
@@ -89,9 +89,37 @@ book is: **Aggregation**
 > individuality of the measures, subsuming them to one summary.
 :::
 
-## {{< iconify file-icons influxdata >}} Examine the Data
+## {{< iconify grommet-icons test >}} Case Study-1
 
-So in this module we will look at a few *favourite statistics* or
+We will first use a dataset `mpg` that is available in R as part of one
+of the R packages that we have loaded with the `library()` command.
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+It is usually a good idea to make crisp business-like tables, for the
+data itself, and the *schema* as revealed by one of the outputs of the
+three methods to be presented below. There are many methods to do this; 
+one of the simplest and effective ones is to use the `kable` set of commands from the `knitr` and `kableExtra` packages:
+
+```{r}
+#| label: kable-for-data-1
+mpg %>% 
+  head(10) %>%
+  kbl(
+    # add Human Readable column names
+    col.names = c("Manufacturer", "Model", "Engine\nDisplacement", 
+                    "Model\n Year", "Cylinders", "Transmission",
+                    "Drivetrain", "City\n Mileage", "Highway\n Mileage",
+                    "Fuel", "Class\nOf\nVehicle"), 
+    caption = "MPG Dataset") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", 
+                                      "condensed", "responsive"),
+                full_width = F, position = "center")
+
+```
+
+
+Next we will look at a few *favourite statistics* or
 "favstats" that we can derive from data. R is full of packages that can
 provide very evocative and effective summaries of data. We will first
 start with the `dplyr` package from the tidyverse, the `skimr` package,
@@ -99,7 +127,8 @@ then the `mosaic` package. We will look at the summary outputs from
 these and learn how to interpret them.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### Using dpylr::glimpse
+
+#### Using dpylr::glimpse()
 
 The `dplyr` package offers a convenient command called `glimpse`:
 
@@ -110,20 +139,18 @@ glimpse(mpg)
 ```
 
 ::: callout-note
-### Descriptive Stat Summary from `dplyr::glimpse`
+#### Descriptive Stat Summary from `dplyr::glimpse()`
 
-Very crisp output, giving us the size of the dataset(234 X 11) and the
+Very crisp output, giving us the size of the dataset (234 X 11) and the
 nature of the variable columns, along with their first few entries. The
 `chr` variables are usually *Categorical/Qualitative*, the `int` or
 `dbl` (double precision) are usually *Numerical/Quantitative*. But be
-careful! *Verify that this is as per your intent, interpret the
-variables and modify their encoding as needed.*
+careful! *Verify that this is as per your intent, interpret the variables and modify their encoding as needed.*
 :::
 
-### Using skimr
+#### Using skimr::skim()
 
-Let us look at the popular `mpg` dataset ( from R ) using
-`skimr::skim()`.
+Let us look at `mpg`using `skimr::skim()`.
 
 From the output of `?skimr`:
 
@@ -143,7 +170,7 @@ skimr::skim(mpg) # explicitly stating package name
 Taken together, we have the following:
 
 ::: callout-note
-### Descriptive Stat Summary from `skimr::skim`
+### Descriptive Stat Summary from `skimr::skim()`
 
 -   A *Data Summary*: it lists the dimensions of the `mpg` dataset: 234
     rows and 11 columns. 6 columns are character formatted, the
@@ -162,20 +189,19 @@ Taken together, we have the following:
     may need to modify the encoding if needed.
 :::
 
-### Using mosaic
+#### Using mosaic::inspect()
 
-Let us look at the popular `mpg` dataset ( from R ) using
-`mosaic::inspect()`. We get very similar output from `mosaic`
+We get very similar output from `mosaic::inspect()`:
 
 ```{r}
-#| label: inspect-penguins
+#| label: inspect-mpg
 
-inspect(penguins)
+inspect(mpg)
 
 ```
 
 ::: callout-note
-### Descriptive Stat Summary from `mosaic::inspect`
+### Descriptive Stat Summary from `mosaic::inspect()`
 
 We see that the output of `mosaic::inspect()` is organized as follows:
 
@@ -195,90 +221,176 @@ which variables. This is a very important consideration in the use of
 the data for analytics purposes.
 :::
 
-::: column-margin
 We can save and see the outputs separately:
 
 ```{r mpg-inspect-2, eval=FALSE}
 
-penguins_describe <- inspect(penguins)
-penguins_describe$categorical
-penguins_describe$quantitative
+mpg_describe <- inspect(mpg)
+mpg_describe$categorical
+mpg_describe$quantitative
 
 ```
+
 :::
-:::
 
-### Your Turn
+## {{< iconify grommet-icons test >}} Case Study-2
 
--   What is the number of *qualitative/categorical* variables in the
-    `mpg` data?
-    `r checkdown::check_question(answer = 6, right = "correct", wrong = "not correct", placeholder = "enter a number")`
-    <br>
--   How many manufacturers are named in this dataset?
-    `r checkdown::check_question(answer = 15, right = "correct", wrong = "not correct", placeholder = "enter a number")`
-    <br>
--   How many levels does the variable `drv` have?
-    `r checkdown::check_question(answer = 3, right = "correct", wrong = "not correct", placeholder = "enter a number")`
-    <br>
--   How many *quantitative/numerical* variables **shown** in the `mpg`
-    data?
-    `r checkdown::check_question(answer = 5, right = "correct", wrong = "not correct", placeholder = "enter a number")`
-    <br>
--   But the
-    variable`r checkdown::check_question(answer = "cyl", options = c("hwy", "cty", "cyl", "displ"), type = "select", right = "correct", wrong = "not correct", placeholder = "select a variable name")`
-    is actually a **qualitative variable**.
+Instead of taking a "built-in" dataset , i.e. one that is part of an R
+package that we can load with `library()`, let us try the above process
+with a data set that we obtain from the internet. We will use this
+superb repository of datasets created by Vincent Arel-Bundock:
+<https://vincentarelbundock.github.io/Rdatasets/articles/data.html>
 
-## Reporting Tables for Data and the Data Schema
+Let us choose a modest-sized dataset, say this dataset on
+`Doctor Visits`, which is available online
+<https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv> and
+read it into R.
 
 ::: callout-important
-### Data and their Schema
+### Reading external data into R
 
-Note that all the three methods report the **schema** of the original
-dataframe. The schema are also **formatted as data frames**! However
-they do not "contain" the original data! Do not confuse between the data
-and it's reported schema!
+The `read_csv()` command from R package `readr` allows us to read both
+locally saved data on our hard disk, or data available in a shared
+folder online.
 :::
 
-It is usually a good idea to make crisp business-like tables, for the
-data itself, and the *schema* as revealed by one of the outputs of the
-three methods presented above. There are many methods to do this; one of
-the simplest and effective ones is to use the `kable` set of commands
-from the `knitr` package that we have installed already:
+```{r}
+#| message: true
+# From Vincent Arel-Bundock's dataset website
+# https://vincentarelbundock.github.io/Rdatasets
+# 
+# read_csv can read data from the net
+# 
+docVisits <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv")
+
+```
+So, a data frame containing 5,190 observations on 12 variables.
+
+::: callout-note
+### How about a locally stored CSV file?
+We can also use a locally downloaded and stored CSV file. Assuming the file is stored in a subfolder called `data` inside your `R project` folder, we can proceed as follows:
 
 ```{r}
-#| label: kable-for-data
-mpg %>% 
+#| echo: fenced
+#| eval: false
+docVisits <- read_csv("data/DoctorVisits.csv")
+
+```
+
+:::
+Let us quickly report the data itself, as in a real report. Note that we can use the features of the `kableExtra` package to dress up this table too!!
+
+```{r}
+#| label: kable-for-data02
+docVisits %>%
   head(10) %>%
-  kbl(col.names = c("Manufacturer", "Model", "Engine\nDisplacement", "Model\n Year", 
-                    "Cylinders", "Transmission", "Drivetrain", "City\n Mileage", 
-                    "Highway\n Mileage", "Fuel", "Class\nOf\nVehicle"), longtable = FALSE, 
-      caption = "MPG Dataset") %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
-                  full_width = F, position = "center", fixed_thead = T)
+  kbl(caption = "Doctor Visits Dataset",
+      # Add Human Readable Names if desired
+      # col.names(..names that you may want..)
+      ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover",
+                          "condensed", "responsive"),
+    full_width = F, position = "center")
 
 ```
 
-And for the schema from `skim`:
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Using dplyr::glimpse()
 
 ```{r}
-skim(mpg) %>%
-  kbl(align = "c", caption = "Skim Output for mpg Dataset") %>%
-  kable_classic(full_width = F) %>%
-  footnote(general = "Here are general comments on the table. ",
-           number = c("Footnote 1; ", "Footnote 2; "),
-           alphabet = c("Footnote A; ", "Footnote B; "),
-           symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"))
+#| label: glimpse-2
+glimpse(docVisits)
 ```
 
-## {{< iconify mdi-light group >}}{{< iconify mdi counting-5 >}} Groups and Counts
+::: callout-note
+#### Descriptive Stat Summary from `dplyr::glimpse()`
+
+Very crisp output, giving us the size of the dataset (5190 X 13) and the
+nature of the variable columns, along with their first few entries.
+There are several Quantitative variables: `visits`, `age`, `income`, `illness`, `reduced` and `health`; the rest seem to be Qualitative variables. 
+
+Always document your data with variable descriptions when you share it, a **data dictionary**!
+
+:::
+
+
+| Variable   | Description                                                                                                     |
+|------------|------------------------------------------------------------|
+| visits     | Number of doctor visits in past 2 weeks.                                                                        |
+| gender     | Factor indicating gender.                                                                                       |
+| age        | Age in years divided by 100.                                                                                    |
+| income     | Annual income in tens of thousands of dollars.                                                                  |
+| illness    | Number of illnesses in past 2 weeks.                                                                            |
+| reduced    | Number of days of reduced activity in past 2 weeks due to illness or injury.                                    |
+| health     | General health questionnaire score using Goldberg's method.                                                     |
+| private    | Factor. Does the individual have private health docVisits?                                                      |
+| freepoor   | Factor. Does the individual have free government health docVisits due to low income?                            |
+| freerepat  | Factor. Does the individual have free government health docVisits due to old age, disability or veteran status? |
+| nchronic   | Factor. Is there a chronic condition not limiting activity?                                                     |
+| lchronic   | Factor. Is there a chronic condition limiting activity?                                                         |
+
+#### Using skimr::skim()
+
+```{r}
+#| label: skim-2
+skim(docVisits) %>% kbl()
+```
+
+::: callout-note
+### Descriptive Stat Summary from `skimr::skim()`
+
+-   A *Data Summary*: it lists the dimensions of the `docVisits`
+    dataset: 5190 rows and 13 columns. 6 columns are character
+    formatted, the remaining 7 are numeric. The dataset is not "grouped"
+    (more on this later).
+
+-   The second part of the output shows a table with the `character`
+    variables which are therefore `factor` variables with `levels`.
+
+-   The third part shows a table listing the names and summary stats for
+    the `numerical` variables. We have `mean`, `sd`, all the quantiles
+    (p0, p25, p50(median), p75 and p100 percentiles) and **a neat little
+    histogram** for each.
+    
+-   Can we consider the `health` Goldberg score a Qualitative variable, to be understood as "ranks" between a minimum and maximum? It is just possible...
+:::
+
+#### Using mosaic::inspect()
+
+```{r}
+#| label: inspect-2
+inspect(docVisits)
+```
+
+::: callout-note
+### Descriptive Stat Summary from `mosaic::inspect()`
+
+We see that the output of `mosaic::inspect()` is organized very
+similarly to the output from `skim`. Is there any missing data? Both
+`skim` and `mosaic` report on the data completion for each variable in
+the dataset.
+:::
+
+:::
+
+## {{< iconify mdi-light group >}} {{< iconify mdi counting-5 >}} Groups and Counts
 
 We have looked at means, limits, and percentiles of *Quantitative*
 variables. Another good idea to examine datasets is to look at counts
-and frequencies with respect to *Qualitative* variables. We will do this
-with the `dplyr` package from the `tidyverse`:
+and frequencies with respect to *Qualitative* variables. We typically do
+this with the `dplyr` package from the `tidyverse`.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### diamonds dataset
 
 ```{r}
-#| label: counts-and-tables
+#| label: diamonds-counts-and-tables
 
 diamonds %>% count(cut)
 diamonds %>% count(color)
@@ -291,7 +403,7 @@ diamonds %>%
 ```
 
 ::: callout-note
-### Business Insights from Groups and Counts
+### Business Insights from Groups and Counts (`diamonds`)
 
 We see that the groups for each level of `cut`, `color`, and `clarity`
 are not the same size: for instance the group with the "ideal" cut is
@@ -312,17 +424,141 @@ be preferable to `lump` smaller categories/levels together. (Using the
 `forcats` package)
 :::
 
+### docVisits dataset
+
+```{r}
+#| label: docVisits-counts-and-tables-1
+## Counting by the obvious factor variables
+docVisits %>% count(gender)
+docVisits %>% count(private)
+docVisits %>% count(freepoor)
+docVisits %>% count(freerepat)
+docVisits %>% count(lchronic)
+docVisits %>% count(nchronic)
+
+```
+
+```{r}
+#| label: docVisits-counts-and-tables-2
+# Now for all Combinations...
+# Maybe too much to digest...
+docVisits %>% count(across(where(is.character)))
+# Shall we try counting by some variables that might be factors?
+# Even if they are labeled as <dbl>?
+# 
+docVisits %>% count(illness)
+docVisits %>% count(health)
+
+```
+
+::: callout-note
+### Business Insights from Groups and Counts (`docVisits`)
+
+- Most of the counts are roughly balanced across the *levels* of the factors; however, `freepoor` and `lchronic` show unbalanced counts...
+
+- The factors are too numerous for a combination count table to very useful..
+
+- Counting by `illness` and `health` does show that these two columns have a limited set of integer entries across over 5000 rows!! So these can be thought of as factors if needed in the analysis.
+
+:::
+
+:::
+
+
+## {{< iconify mdi table-star >}} Reporting Tables for Data and the Data Schema
+
+::: callout-important
+### Data and the Data Schema are Different!!
+
+Note that all the three methods (`dplyr::glimpse()`, `skimr::skim()`, and `mosaic::inspect()`)  report the **schema** of the original
+dataframe. The schema are also **formatted as data frames**! However
+they do not "contain" the original data! Do not confuse between the data
+and it's reported schema!
+:::
+
+As stated earlier, it is usually a good idea to make crisp business-like tables, for the data itself, and of the *schema* as revealed by one of the outputs of the
+three methods presented above. There are many methods to do this; one of
+the simplest and effective ones is to use the `kable` set of commands
+from the `knitr` package that we have installed already:
+
+```{r}
+#| label: kable-for-data-2
+mpg %>% 
+  head(10) %>%
+  kbl(col.names = c("Manufacturer", "Model", "Engine\nDisplacement", 
+                    "Model\n Year", "Cylinders", "Transmission",
+                    "Drivetrain", "City\n Mileage", "Highway\n Mileage",
+                    "Fuel", "Class\nOf\nVehicle"), 
+      longtable = FALSE, centering = TRUE,
+      caption = "MPG Dataset") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", 
+                                        "condensed", "responsive"),
+                  full_width = F, position = "center")
+
+```
+
+And for the schema from `skim()`, with some extra bells and whistles on the table:
+
+```{r}
+
+skim(mpg) %>%
+  kbl(align = "c", caption = "Skim Output for mpg Dataset") %>%
+kable_paper(full_width = F) %>%
+  footnote(general = "Here is a general comments of the table. ",
+           number = c("Footnote 1; ", "Footnote 2; "),
+           alphabet = c("Footnote A; ", "Footnote B; "),
+           symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"),
+           general_title = "General: ", number_title = "Type I: ",
+           alphabet_title = "Type II: ", symbol_title = "Type III: ",
+           footnote_as_chunk = T, title_format = c("italic", "underline")
+           )
+```
+
+See <https://haozhu233.github.io/kableExtra/> for more options on formatting the table with kableExtra. 
+
+
+## {{< iconify material-symbols person >}} A Quick Quiz
+
+::: callout-warning
+It is always a good idea to look for variables in data that may be
+incorrectly formatted. For instance, a variable marked as *numerical*
+may have the values 1-2-3-4 which represent `options`, `sizes`, or say
+`months`. in which case it would have to be interpreted as a `factor`.
+:::
+
+Let us take a small test with the `mpg` dataset:
+
+-   What is the number of *qualitative/categorical* variables in the
+    `mpg` data?
+    `r checkdown::check_question(answer = 6, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many manufacturers are named in this dataset?
+    `r checkdown::check_question(answer = 15, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many levels does the variable `drv` have?
+    `r checkdown::check_question(answer = 3, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   How many *quantitative/numerical* variables **shown** in the `mpg`
+    data?
+    `r checkdown::check_question(answer = 5, right = "correct", wrong = "not correct", placeholder = "enter a number")`
+    <br>
+-   But the
+    variable`r checkdown::check_question(answer = "cyl", options = c("hwy", "cty", "cyl", "displ"), type = "select", right = "correct", wrong = "not correct", placeholder = "select a variable name")`
+    is actually a **qualitative variable**.
+    
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 The three methods given here give us a very comprehensive look into the
-**structure** of the dataset. Make these part of your *Workflow*.
+**structure** of the dataset. 
 
+Use the `kable` set of commands to make a smart-looking of the data and the outputs of any of the three methods. 
 
+Make these part of your *Workflow*.
 
 ## {{< iconify ooui references-rtl >}} References
 
 ::: {#refs style="font-size: 60%;"}
-
 ###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}
