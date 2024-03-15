@@ -75,7 +75,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../../../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../../../../../../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
 <link href="../../../../../../../site_libs/quarto-contrib/downloadthis-1.9.1/downloadthis.css" rel="stylesheet">
-<script src="../../../../../../../site_libs/quarto-contrib/iconify-1.0.0-beta.2/iconify-icon.min.js"></script><script id="quarto-search-options" type="application/json">{
+<script src="../../../../../../../site_libs/quarto-contrib/iconify-1.0.0-beta.2/iconify-icon.min.js"></script>
+<meta name="shinylive:serviceworker_dir" content="../../../../../../..">
+<script src="../../../../../../../site_libs/quarto-contrib/shinylive-0.2.3/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="../../../../../../../site_libs/quarto-contrib/shinylive-0.2.3/shinylive/run-python-blocks.js" type="module"></script>
+<link href="../../../../../../../site_libs/quarto-contrib/shinylive-0.2.3/shinylive/shinylive.css" rel="stylesheet">
+<link href="../../../../../../../site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -902,7 +907,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 1, 2024</p>
+      <p class="date-modified">March 15, 2024</p>
     </div>
   </div>
     
@@ -1174,6 +1179,43 @@ Question
 <p><strong>Insight</strong>: Fairly symmetric distribution…but there are a few very short and some very tall children! <em>Always try to change the no. of bins to check of we are missing some pattern.</em></p>
 </div>
 </div>
+<pre class="shinylive-r" data-code-line-numbers="" data-engine="r"><code><a href="https://shiny.posit.co/">#| standalone: true
+#| viewerHeight: 800
+
+library(shiny)
+
+ui &lt;- fluidPage(
+  titlePanel("Interactive Histogram!"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(
+        inputId = "bins",
+        label = "Number of bins:",
+        min = 1,
+        max = 50,
+        value = 30
+      )
+    ),
+    mainPanel(
+      plotOutput(outputId = "distPlot")
+    )
+  )
+)
+
+server &lt;- function(input, output) {
+  output$distPlot &lt;- renderPlot({
+    x &lt;- faithful$waiting
+    bins &lt;- seq(min(x), max(x), length.out = input$bins + 1)
+    hist(x,
+         breaks = bins, col = "#75AADB", border = "white",
+         xlab = "Waiting time to next eruption (in mins)",
+         main = "Histogram of waiting times"
+    )
+  })
+}
+
+shinyApp(ui = ui, server = server)
+</a></code></pre>
 <div class="callout callout-style-default callout-note callout-titled" title="Question">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1186,7 +1228,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.5 Is there a difference in height distributions between Male and Female children?(<em>Quant variable sliced by Qual variable</em>)</p>
 <div class="cell">
-<div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mean_daughters</span> <span class="op">&lt;-</span> <span class="va">Galton_measures</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mean_daughters</span> <span class="op">&lt;-</span> <span class="va">Galton_measures</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>             <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mean_sons</span> <span class="op">&lt;-</span> <span class="va">Galton_measures</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>             <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"M"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1227,7 +1269,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.6 Are Mothers generally shorter than fathers?</p>
 <div class="cell">
-<div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mean_fathers</span> <span class="op">&lt;-</span> <span class="va">Galton</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">mosaic</span><span class="fu">::</span><span class="fu">mean</span><span class="op">(</span><span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mean_fathers</span> <span class="op">&lt;-</span> <span class="va">Galton</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">mosaic</span><span class="fu">::</span><span class="fu">mean</span><span class="op">(</span><span class="op">~</span> <span class="va">father</span>, data <span class="op">=</span> <span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mean_mothers</span> <span class="op">&lt;-</span> <span class="va">Galton</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu">mean</span><span class="op">(</span><span class="op">~</span> <span class="va">mother</span>, data <span class="op">=</span> <span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -1271,7 +1313,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.7a. Are heights of children different based on the number of kids in the family? And For Male and Female children?</p>
 <div class="cell">
-<div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Boxplot series for daughters</span></span>
+<div class="sourceCode" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Boxplot series for daughters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_boxplot.html">gf_boxplot</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">nkids</span>, group <span class="op">=</span> <span class="op">~</span> <span class="va">nkids</span>, fill <span class="op">=</span> <span class="op">~</span> <span class="va">sex</span>, </span>
 <span>           data <span class="op">=</span> <span class="va">Galton</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span><span class="co"># Boxplot series for sons</span></span>
@@ -1305,7 +1347,7 @@ Follow-up Question
 <div class="callout-body-container callout-body">
 <p>Q. 8a. Is height difference between sons and daughters related to height difference between <code>father</code> and <code>mother</code>?</p>
 <p>Differences between <code>father</code> and <code>mother</code> heights influencing <code>height</code>…this would be like <code>height ~ (father-mother)</code>. This would be a relationship between <strong>two</strong> Quant variables. A histogram would not serve here and we plot this as a <strong>Scatter Plot</strong>:</p>
-<div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Galton_parents_diff</span> <span class="op">&lt;-</span> <span class="va">Galton</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Galton_parents_diff</span> <span class="op">&lt;-</span> <span class="va">Galton</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">family</span>,<span class="va">sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  </span>
 <span>  <span class="co"># Parental Height Difference</span></span>
@@ -1368,12 +1410,12 @@ Follow-up Question
 </h2>
 <div class="page-columns page-full"><p>Let us try the <code>NHANES</code> dataset. </p><div class="no-row-height column-margin column-container"><span class="margin-aside">Try <code><a href="https://rdrr.io/pkg/NHANES/man/NHANES.html">help(NHANES)</a></code> in your Console.</span></div></div>
 <div class="cell">
-<div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"NHANES"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"NHANES"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="look-at-the-data" class="level3 page-columns page-full"><h3 class="anchored" data-anchor-id="look-at-the-data">
 <iconify-icon inline="" icon="grommet-icons:inspect"></iconify-icon> Look at the Data</h3>
 <div class="cell page-columns page-full">
-<div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">skimr</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">NHANES</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">skimr</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/skimr/reference/skim.html">skim</a></span><span class="op">(</span><span class="va">NHANES</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display column-body-outset-right">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -2323,7 +2365,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.1 What are the Education levels and the counts of people with those levels?</p>
 <div class="cell">
-<div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -2333,7 +2375,7 @@ Question
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># This also works</span></span>
+<div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># This also works</span></span>
 <span><span class="co"># tally(~Education, data = NHANES) %&gt;% as_tibble()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Insight</strong>: The count goes up as we go from lower Education levels to higher. Need to keep that in mind. How do we understand the large number of <code>NA</code> entries? What could have led to these entries?</p>
@@ -2350,7 +2392,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.2 How do counts of Education vs Work-status look like?</p>
-<div class="sourceCode" id="cb17" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>Education <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">Education</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Work</span>,<span class="va">Education</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
@@ -2389,7 +2431,7 @@ Question
 </div>
 <div class="callout-body-container callout-body page-columns page-full">
 <p>Q.3. What is the distribution of Physical Activity Days, across Gender? Across Education?</p>
-<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_histogram.html">gf_histogram</a></span><span class="op">(</span><span class="op">~</span> <span class="va">PhysActiveDays</span> <span class="op">|</span> <span class="va">Gender</span>, fill <span class="op">=</span> <span class="op">~</span> <span class="va">Gender</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -2419,7 +2461,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.3a. What is the distribution of Physical Activity Days, across Education and Sex, <strong>per capita</strong>?</p>
-<div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Gender</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span><span class="op">(</span>mean_active <span class="op">=</span> <span class="fu">mean</span><span class="op">(</span><span class="va">PhysActiveDays</span>,na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -2457,7 +2499,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.4. How are people’s Ages distributed across levels of Education?</p>
-<div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Recall there are missing data</span></span>
+<div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Recall there are missing data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_boxplot.html">gf_boxplot</a></span><span class="op">(</span><span class="va">Age</span> <span class="op">~</span> <span class="va">Education</span>,</span>
 <span>           fill <span class="op">=</span> <span class="op">~</span> <span class="va">Education</span>, <span class="co"># Always a good idea to fill boxes</span></span>
 <span>           data <span class="op">=</span> <span class="va">NHANES</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -2487,7 +2529,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.5. How is Education distributed over Race?</p>
-<div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES_by_Race1</span> <span class="op">&lt;-</span> <span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES_by_Race1</span> <span class="op">&lt;-</span> <span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Race1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span><span class="op">(</span>population <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">NHANES_by_Race1</span></span>
@@ -2532,7 +2574,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.6. What is the distribution of people’s BMI, split by Gender? By Race1?</p>
-<div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># One can also plot both histograms and densities in an overlay fashion,</span></span>
+<div class="sourceCode" id="cb23" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># One can also plot both histograms and densities in an overlay fashion,</span></span>
 <span></span>
 <span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Gender</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
@@ -2576,7 +2618,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.7. What is the distribution of people’s Testosterone level vs BMI? Split By Race1?</p>
 <div class="cell">
-<div class="sourceCode" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  </span>
+<div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">NHANES</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_density_2d.html">gf_density_2d</a></span><span class="op">(</span><span class="va">Testosterone</span> <span class="op">~</span> <span class="va">BMI</span> <span class="op">|</span> <span class="va">Race1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_theme.html">gf_theme</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span><span class="fu">plotly</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html">ggplotly</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2591,7 +2633,7 @@ Question
 </section></section><section id="case-study-3-a-complete-example" class="level2"><h2 class="anchored" data-anchor-id="case-study-3-a-complete-example">
 <iconify-icon inline="" icon="pajamas:issue-type-test-case"></iconify-icon> Case Study #3: A complete example</h2>
 <p>Here is a dataset from Jeremy Singer-Vine’s blog, <a href="https://www.data-is-plural.com/">Data Is Plural</a>. This is a list of all books banned in schools across the US.</p>
-<p><a href="#dnldts32730" onclick="fetch('data:text/csv;base64,77u/Q291bnQgb2YgVHlwZSBvZiBCYW4sQ29sdW1uIExhYmVscywsLCwKUm93IExhYmVscyxCYW5uZWQgZnJvbSBDbGFzc3Jvb21zLEJhbm5lZCBmcm9tIExpYnJhcmllcyxCYW5uZWQgZnJvbSBMaWJyYXJpZXMgYW5kIENsYXNzcm9vbXMsQmFubmVkIFBlbmRpbmcgSW52ZXN0aWdhdGlvbixHcmFuZCBUb3RhbApBbGFza2EsLCwxLCwxCkFya2Fuc2FzLCwsMSwsMQpGbG9yaWRhLCwyOSw4MSw5NCwyMDQKR2VvcmdpYSwsNCw5LCwxMwpJbGxpbm9pcywxLDIsLDEsNApJbmRpYW5hLCwxNCwzLDEsMTgKSW93YSwsMSwxLDIsNApLYW5zYXMsLCwxLDI5LDMwCk1hcnlsYW5kLCwsMSwsMQpNaWNoaWdhbiwxLDEsLCwyCk1pbm5lc290YSwsLCwxLDEKTWlzc291cmksMSwxLDIsMTEsMTUKTmV3IEplcnNleSwxLDEsLDEsMwpOZXcgWW9yaywsLDMsOSwxMgpOb3J0aCBDYXJvbGluYSw2LCwsLDYKT2hpbywxLCwxLDIsNApPa2xhaG9tYSw1LDksOSwyMCw0MwpQZW5uc3lsdmFuaWEsNDQzLDMsMiw4LDQ1NgpSaG9kZSBJc2xhbmQsLCwxLCwxClNvdXRoIENhcm9saW5hLCwsMSwsMQpUZW5uZXNzZWUsMywxLCwxMiwxNgpUZXhhcywxMiwxMjgsNjIsNTExLDcxMwpVdGFoLCwxLDEsOSwxMQpWaXJnaW5pYSwsLDEsMTUsMTYKV2FzaGluZ3RvbiwsLCw1LDUKV2lzY29uc2luLCwyLDMsLDUKR3JhbmQgVG90YWwsNDc0LDE5NywxODQsNzMxLDE1ODYK').then(res => res.blob()).then(blob => {
+<p><a href="#dnldts4030" onclick="fetch('data:text/csv;base64,77u/Q291bnQgb2YgVHlwZSBvZiBCYW4sQ29sdW1uIExhYmVscywsLCwKUm93IExhYmVscyxCYW5uZWQgZnJvbSBDbGFzc3Jvb21zLEJhbm5lZCBmcm9tIExpYnJhcmllcyxCYW5uZWQgZnJvbSBMaWJyYXJpZXMgYW5kIENsYXNzcm9vbXMsQmFubmVkIFBlbmRpbmcgSW52ZXN0aWdhdGlvbixHcmFuZCBUb3RhbApBbGFza2EsLCwxLCwxCkFya2Fuc2FzLCwsMSwsMQpGbG9yaWRhLCwyOSw4MSw5NCwyMDQKR2VvcmdpYSwsNCw5LCwxMwpJbGxpbm9pcywxLDIsLDEsNApJbmRpYW5hLCwxNCwzLDEsMTgKSW93YSwsMSwxLDIsNApLYW5zYXMsLCwxLDI5LDMwCk1hcnlsYW5kLCwsMSwsMQpNaWNoaWdhbiwxLDEsLCwyCk1pbm5lc290YSwsLCwxLDEKTWlzc291cmksMSwxLDIsMTEsMTUKTmV3IEplcnNleSwxLDEsLDEsMwpOZXcgWW9yaywsLDMsOSwxMgpOb3J0aCBDYXJvbGluYSw2LCwsLDYKT2hpbywxLCwxLDIsNApPa2xhaG9tYSw1LDksOSwyMCw0MwpQZW5uc3lsdmFuaWEsNDQzLDMsMiw4LDQ1NgpSaG9kZSBJc2xhbmQsLCwxLCwxClNvdXRoIENhcm9saW5hLCwsMSwsMQpUZW5uZXNzZWUsMywxLCwxMiwxNgpUZXhhcywxMiwxMjgsNjIsNTExLDcxMwpVdGFoLCwxLDEsOSwxMQpWaXJnaW5pYSwsLDEsMTUsMTYKV2FzaGluZ3RvbiwsLCw1LDUKV2lzY29uc2luLCwyLDMsLDUKR3JhbmQgVG90YWwsNDc0LDE5NywxODQsNzMxLDE1ODYK').then(res => res.blob()).then(blob => {
       const downloadURL = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       document.body.appendChild(a);
@@ -2599,9 +2641,9 @@ Question
       a.download = 'banned.csv.csv'; a.click();
       window.URL.revokeObjectURL(downloadURL);
       document.body.removeChild(a);
-        });"><button class="btn btn-info downloadthis  " id="dnldts32730"><i class="bi bi-database-fill-down"></i> Download the data </button></a></p>
+        });"><button class="btn btn-info downloadthis  " id="dnldts4030"><i class="bi bi-database-fill-down"></i> Download the data </button></a></p>
 <div class="cell">
-<div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_xlsx</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"../data/banned.xlsx"</span>,</span>
+<div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_xlsx</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"../data/banned.xlsx"</span>,</span>
 <span>                            sheet <span class="op">=</span> <span class="st">"Sorted by Author &amp; Title"</span><span class="op">)</span></span>
 <span><span class="va">banned</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -2611,7 +2653,7 @@ Question
   </script>
 </div>
 </div>
-<div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">banned</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">banned</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code> [1] "Author"                    "Title"                    
  [3] "Type of Ban"               "Secondary Author(s)"      
@@ -2623,7 +2665,7 @@ Question
 <p>Clearly the variables are <em>all</em> Qualitative, except perhaps for <em>Date of Challenge/Removal, (which in this case has been badly mangled by Excel) So we need to make <strong>counts</strong> based on the</em> levels* of the Qual variables and plot Bar/Column charts.</p>
 <p>Let us quickly make some Stat Summaries ( using <code>inspect</code>)</p>
 <div class="cell">
-<div class="sourceCode" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">banned</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">mosaic</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/inspect.html">inspect</a></span><span class="op">(</span><span class="va">banned</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>
 categorical variables:  
@@ -2664,7 +2706,7 @@ Question
 </div>
 <div class="callout-body-container callout-body">
 <p>Q.1.What is the count of banned books by type? By US state?</p>
-<div class="sourceCode" id="cb29" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">`Type of Ban`</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb30" data-code-line-numbers=""><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">`Type of Ban`</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">banned</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">State</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell quarto-layout-panel" data-layout="[60,40]">
 <div class="quarto-layout-row">
@@ -2707,7 +2749,7 @@ Question
 <div class="callout-body-container callout-body">
 <p>Q.2. What is the count of banned books by type <strong>and</strong> by US state?*</p>
 <div class="cell">
-<div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">State</span>, <span class="va">`Type of Ban`</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">banned</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">State</span>, <span class="va">`Type of Ban`</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/mosaicCore/man/prop.html">count</a></span><span class="op">(</span><span class="va">State</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice_max</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span>, order_by <span class="op">=</span> <span class="va">n</span>, with_ties <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/ggformula/man/gf_col.html">gf_col</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">State</span>, <span class="va">n</span><span class="op">)</span> <span class="op">~</span> <span class="va">n</span>, fill <span class="op">=</span> <span class="op">~</span><span class="va">`Type of Ban`</span>,</span>
