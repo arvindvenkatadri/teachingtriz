@@ -25,6 +25,8 @@ citation: true
 
 ```{r}
 #| label: setup
+#| message: false
+#| warning: false
 
 library(tidyverse)
 library(ggformula)
@@ -53,6 +55,20 @@ library(grateful)
 ```
 
 
+```{r}
+#| label: plot theme
+# Let us set a plot theme for Data visualization
+library(thematic)
+theme_set(theme_classic(base_size = 12, base_family = "Roboto Condensed"))
+
+theme_update(
+  panel.grid.minor = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot"
+)
+thematic_rmd(bg = "#FFFFF8",fg = "#111111", accent = "#DD1144", font = "Roboto Condensed")
+```
+
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 Sometimes the dependent variable is an either/or categorization. For
@@ -62,7 +78,7 @@ election, or `graduated` from college or `not`. There might even be more
 than two categories such as voted for Congress, BJP, or Independent; or
 never smoker, former smoker, or current smoker.
 
-We saw with the **general linear model** that it models the **mean** of
+We saw with the **General Linear Model** that it models the **mean** of
 a target *Quantitative* variable as a linear weighted sum of the
 predictor variables:
 
@@ -116,6 +132,9 @@ a qualitative predictor, and `default` is a qualitative target variable.
 If we naively use a linear model equation as
 `model = lm(default ~ balance, data = Default)` and plot it, then...
 
+::: {.grid}
+::: {.g-col-6}
+
 ```{r}
 #| label: fig-naive-linear-model
 #| fig-cap: "Naive Linear Model"
@@ -128,17 +147,24 @@ Default %>%
   gf_point(default ~ balance, colour = ~ default, alpha = 0.2,
            title = "Student Credit Card Default data") %>%
   gf_abline(intercept = lm_mod$coefficients[1],
-            slope = lm_mod$coefficients[2]) %>% 
-  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
-  gf_theme(theme_classic())
+            slope = lm_mod$coefficients[2],linewidth = 1) %>% 
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) 
 
 ```
+
+:::
+  
+::: {.g-col-6}
 
 ...it is pretty much clear from @fig-naive-linear-model that something is
 very odd. (no pun intended! See below!) If the only possible values for
 `default` are $No = 0$ and $Yes = 1$, how could we interpret predicted
 value of, say, $Y_i = 0.25$ or $Y_i = 1.55$, or perhaps $Y_i = -0.22$? 
 Anything other than Yes/No is hard to interpret!
+
+:::
+  
+::: 
 
 ### {{< iconify ic baseline-report-problem >}} {{< iconify ant-design solution-outlined >}} Problems...and Solutions
 
@@ -153,10 +179,49 @@ Let us state what we might desire of our model:
     we still want to use a linear-weighted sum for the RHS (i.e
     predictor side) of the model equation.
 
-And for the LHS (i.e the target side)?
+What can we try to make this work? Especially for the LHS (i.e the target side)?
 
-3.  **Probability**: What can we try? Even though we are interested in
-    binary outcomes, we might try to use **probability of the outcome** as our target. However, this still leaves us with a range of \[0,1\] for the target variable, as before. How about **odds of the outcome**, instead of trying to predict the outcomes directly (Yes or No), or their probabilities \[0,1\]?
+3.  **Making the LHS continuous**: What can we try? In dummy encoding our target variable, we found a range of [0,1], which is the same range for a **probability** value!  Could we try to use **probability of the outcome** as our target, even though we are interested in binary outcomes? This would still leave us with a range of $[0,1]$ for the target variable, as before. 
+
+::: callout-note
+::: {.grid}
+::: {.g-col-6}
+```{r}
+#| label: fig-binomial-mean-variance
+#| echo: false
+n <- 1
+gf_fun(p *(1 - p) *n ~ p, xlim = c(0, 1), linewidth = 1) %>% 
+    gf_labs(x = "Probability p",
+    y = "Variance",
+    title = "Variance vs Mean: A Nonlinear Relationship",
+    subtitle = "For the Binomial Distribution of p"
+  ) %>% 
+  gf_theme(theme_minimal())
+
+```
+:::
+  
+::: {.g-col-6}
+#### Binomially distributed target variable
+If we map our Categorical/Qualitative target variable into a Quantitative probability, we need immediately to look at the [**LINE** assumptions in linear regression](../LinReg/LinReg.qmd#sec-assumptions-in-linear-models).
+
+In linear regression, we assume a normally distributed target variable, i.e. the errors around the predicted value are normally distributed.
+With a categorical target variable with two levels $0$ and $1$ it would be impossible for the errors $e_i = Y_i - \hat{Y_i}$ to have a *normal distribution*, as assumed for the statistical tests to be valid. The
+errors are bounded by $[0,1]$! One candidate for the error distribution in this case is the *binomial distribution*, whose mean and variance are `p` and `np(1-p)` respectively. 
+
+Note immediately that **the binomial variance moves with the mean**!
+
+:::
+  
+::: 
+ 
+
+
+The LINE assumption of *normality* is clearly violated. And from @fig-binomial-mean-variance, extreme probabilities (near 1 or 0) are more stable (i.e., have less error variance) than middle probabilities. So the model has *"built-in" heteroscedasticity*, which we need to counter with transformations such as the $log()$ function. More on this later.
+:::
+
+
+4. **Odds**?: How would one "extend" the range of a target variable from [0,1] to $[-\infty, \infty]$ ? One step would be to try the **odds of the outcome**, instead of trying to predict the outcomes directly (Yes or No), or their probabilities $[0,1]$.
 
 ::: callout-note
 ## Odds
@@ -181,99 +246,50 @@ $$
 
 and `OddsNoDefault` = $1/29.0303 = 0.03444709$.
 
-Now, *odds* cover the entire real number line, i.e. [$-\infty$, $\infty$] !
-Clearly, when the probability `p` of an event is $0$, the odds are $-\infty$...and when it nears $1$, the odds tend to $\infty$. So we have
+Now, *odds* cover half of real number line, i.e. $[0, \infty]$ !
+Clearly, when the probability `p` of an event is $0$, the odds are $0$...and when it nears $1$, the odds tend to $\infty$. So we have
 **transformed** a simple probability that lies between $[0,1]$ to odds
-lying between $[-\infty, \infty]$. That's a great step towards making a linear model possible; we have "removed" the limits on our linear model's
+lying between $[0, \infty]$. That's one step towards making a linear model possible; we have "removed" one of the limits on our linear model's
 prediction range by using `Odds` as our target variable.
 :::
 
-4.  **Error Distributions with Odds targets**: Odds are a necessarily
-    nonlinear function of probability; the slope of `Odds ~ probability`
-    depends upon the probability itself. So a percentage change in the
-    Odds would lead to different amounts of change in the probabilities,
-    depending on the value of the probability.
+5. **Transformation using `log()`?**: We need one more leap of faith: how do we convert a $[0, \infty]$ range to a $[-\infty, \infty]$? Can we try a log transformation? 
+
+$$
+log([0, \infty]) ~ = ~ [-\infty, \infty]
+$$
+This extends the range of our Qualitative target to the same as with a Quantitative target!
+
+There is an additional benefit if this `log()` transformation: the **Error Distributions with Odds targets**. See @fig-odds-plot below. Odds are a necessarily nonlinear function of probability; the slope of `Odds ~ probability` also depends upon the probability itself, as we saw with the probability curve @fig-binomial-mean-variance.
 
 ```{r}
 #| echo: false
+#| warning: false
 #| layout-ncol: 2
 #| label: fig-odds-plot
 #| fig-cap: "Odds Plot"
 #| fig-subcap: 
-#| - Odds
-#| - Log Odds
+#|   - Odds
+#|   - Log Odds
 
 library(ggtext)
-gf_fun(p / (1 - p) ~ p, xlim = c(0.01, 0.9)) %>%
-  gf_segment(
-    1 + 1 ~ 0 + 1 / (1 + 1),
-    linetype = "dashed",
-    linewidth = 0.2,
-    xlab = "Probability p",
-    ylab = "Odds",
-    title = "Odds vs Probability"
-  ) %>%
-  gf_segment(1 + 0 ~ 1 / (1 + 1) + 1 / (1 + 1),
-             linetype = "dashed",
-             linewidth = 0.2)  %>%
-  gf_segment(1.2 + 1.2 ~ 0 + 1.2 / (1.2 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(1.2 + 0 ~ 1.2 / (1.2 + 1) + 1.2 / (1.2 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  
-  gf_segment(7.5 + 7.5 ~ 0 + 7.5 / (7.5 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(7.5 + 0 ~ 7.5 / (7.5 + 1) + 7.5 / (7.5 + 1),
-             linetype = "dashed",
-             linewidth = 0.2)  %>%
-  gf_segment(7.65 + 7.65 ~ 0 + 7.65 / (7.65 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(7.65 + 0 ~ 7.65 / (7.65 + 1) + 7.65 / (7.65 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_theme(theme_classic()) %>%
-  gf_refine(coord_cartesian(expand = FALSE))
+gf_fun(p / (1 - p) ~ p, xlim = c(0.01, 0.9), linewidth = 1) %>% 
+  gf_labs(
+    x = "Probability p",
+    y= "Odds",
+    title = "Odds vs Probability",
+    subtitle = "A Nonlinear Relationship")
 
-gf_fun(p / (1 - p) ~ p, xlim = c(0.01, 0.9)) %>%
-  gf_segment(1 + 1 ~ 0.001 + 1 / (1 + 1), linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(
-    1 + 0.001 ~ 1 / (1 + 1) + 1 / (1 + 1),
-    linetype = "dashed",
-    linewidth = 0.2,
-    xlab = "Log Probability p",
-    ylab = "Log Odds",
-    title = "Log Odds vs Log Probability"
-  )  %>%
-  gf_segment(1.2 + 1.2 ~ 0.001 + 1.2 / (1.2 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(1.2 + 0.001 ~ 1.2 / (1.2 + 1) + 1.2 / (1.2 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  
-  gf_segment(9 + 9 ~ 0.001 + 9 / (9 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(9 + 0.001 ~ 9 / (9 + 1) + 9/ (9+ 1),
-             linetype = "dashed",
-             linewidth = 0.2)  %>%
-  gf_segment(10.8 + 10.8 ~ 0.001 + 10.8 / (10.8 + 1),
-             linetype = "dashed",
-             linewidth = 0.2) %>%
-  gf_segment(
-    10.8 + 0.001 ~ 10.8 / (10.8 + 1) + 10.8 / (10.8 + 1),
-    linetype = "dashed",
-    linewidth = 0.2
-  ) %>%
-  gf_theme(theme_classic()) %>%
-  gf_refine(coord_cartesian(expand = FALSE),
-            scale_x_log10(),
-            scale_y_log10())
+###
+p <- seq(0.01, 0.95,0.01)
+odds <- p/(1-p)
+
+gf_line(log(odds)~ log(p),linewidth = 1) %>% 
+  gf_labs(
+    x = "log Probability p",
+    y= "log Odds",
+    title = "With log Transformation",
+    subtitle = "More linear now..")
 
 ```
 
@@ -285,11 +301,7 @@ odds ratio to $1.20$ would correspond to probabilities of $0.545$ and
 $0.455$. However, if the original probabilities were $0.9$ and $0.1$ for
 an odds ratio $9$, then a 20% increase to $10.8$ would correspond to
 probabilities of $0.915$ and $0.085$, a much smaller change in the
-probabilities. Hence, extreme probabilities (near 1 or 0) are more
-stable (i.e., have less error) than middle probabilities.
-
-This should remind us of the [**LINE** assumptions in linear
-regression](../LinReg/LinReg.qmd#sec-assumptions-in-linear-models) where we assume that the errors (in prediction) are normally distributed with common variance, across different values of the independent/predictor variable. The solution to this *heteroscedasticity* problem is similar here to what we discussed there: the *log transformation*, @fig-odds-plot-2. This transformation works because it makes the same percentage changes equivalent no matter what the starting value of the odds or the probabilities; logs convert multipliers/divisors to sums/differences and the graph is linear for the most part.
+probabilities. The `log` transformation provides a more linear relationship, which is what we desire. 
 
 So in our model, instead of modeling *odds* as the dependent variable,
 we will use $log(odds)$, also known as the **logit**, defined as:
@@ -301,14 +313,7 @@ log(odds_i) &= log[(p_i)/(1-p_i)]\\ \nonumber
 \end{align}
 $$
 
-::: callout-note
-### Binomially distributed target variable
 
-In linear regression, we assume a normally distributed target variable.
-With a categorical target variable with two levels $0$ and $1$ it would be impossible for the errors $e_i = Y_i - \hat{Y_i}$ to have a *normal distribution*, as assumed for the statistical tests to be valid. The
-errors are bounded by \[0,1\]!
-One candidate for the error distribution in this case is the *binomial distribution*, whose mean and variance are `p` and `np(1-p)` respectively. Note immediately that the variance moves with the mean! So the model has "built-in" heteroscedasticity, which we need to counter with transformations such as the $log()$ function. More on this later.
-:::
 
 5.  **Estimation of Model Parameters**: The last problem to solve is
     that because we have made so many transformations to get to the
@@ -340,21 +345,22 @@ The RHS of Eqn.5 is a *sigmoid* function of the weighted sum of predictors and i
 #| echo: false
 #| warning: false
 #| layout-ncol: 3
-#| column: screen-inset-right
 #| label: fig-model-plots
 #| fig-cap: "Model Plots"
 #| fig-subcap: 
 #|   - naive linear regression model
 #|   - logistic regression model
 #|   - log odds gives linear models
-library(knitr)
+
 Default %>%
   gf_point(default ~ balance, colour = ~ default,
            title = "Student Credit Card Default data") %>%
   gf_abline(intercept = lm_mod$coefficients[1],
             slope = lm_mod$coefficients[2]) %>%
-  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
-  gf_theme(theme_classic())
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) 
+
+# %>% 
+#   gf_theme(theme_classic())
 
 Default %>%
   gf_point(
@@ -366,13 +372,15 @@ Default %>%
   ) %>%
   gf_fun(exp(0.01 * (x - 1600)) / (1 + exp(0.01 * (x - 1600))) + 1 ~ x,
          xlim = c(1, 3000)) %>%
-  gf_text(1.5 ~ 2000, label = "Logistic Regression\n model", inherit = F) %>%
+  gf_text(1.5 ~ 2200, label = "Logistic Regression\n model", inherit = F) %>%
   gf_refine(scale_y_discrete(labels = c(0, 1))) %>% 
-  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) %>% 
-  gf_theme(theme_classic())
+  gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) 
 
-#THis next code runs very slowly
-# Also give a warning that I cannot yet understand
+# %>% 
+#   gf_theme(theme_classic())
+
+# This next code runs very slowly
+# Also gives a warning that I cannot yet understand
 Default %>%
 mutate(default = if_else(default == "No", 1, 1000)) %>%
   gf_point(default ~ balance,
@@ -382,14 +390,13 @@ mutate(default = if_else(default == "No", 1, 1000)) %>%
            title = "Student Credit Card Default data",
            subtitle = "Log(odds) on Y-axis gives Straight Line Model") %>%
   gf_abline(intercept = -0.5, slope = 0.0016) %>%
-  gf_text(70 ~ 2000, label = "Logistic Regression\n model", inherit = F) %>%
-  gf_label(25 ~ 2000,
-          label = expression(y == beta[0] + beta[1] * Balance),
-          inherit = F) %>%
   gf_refine(scale_y_log10()) %>%
-  gf_refine(scale_color_fermenter(palette = "RdBu",guide = "none")) %>%
-  gf_theme(theme(axis.text.x = element_blank())) %>% 
-  gf_theme(theme_classic())
+  gf_refine(scale_color_fermenter(palette = "RdBu",guide = "none")) %>% 
+  gf_text(70 ~ 2200, label = "Logistic Regression\n model", inherit = F) %>%
+  gf_label(25 ~ 2000,
+           label = expression(y == beta[0] + beta[1] * Balance),
+           inherit = F)
+
 
 ```
 

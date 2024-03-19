@@ -53,23 +53,24 @@ library(TeachHist)
 library(TeachingDemos)
 library(nomnoml)
 library(grateful)
+library(ragg)
+library(showtext)
 
 ```
 
 ```{r}
 #| label: plot theme
 # Let us set a plot theme for Data visualization
-
-theme_set(theme_light(base_size = 11, base_family = "Roboto Condensed"))
+library(thematic)
+theme_set(theme_classic(base_size = 12, base_family = "Roboto Condensed"))
 
 theme_update(
   panel.grid.minor = element_blank(),
   plot.title = element_text(face = "bold"),
   plot.title.position = "plot"
 )
-
+thematic_rmd(bg = "#FFFFF8",fg = "#111111", accent = "#DD1144", font = "Roboto Condensed")
 ```
-
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -172,7 +173,7 @@ $$
 ::: callout-important
 ## General Linear Models
 
-The target variable $y$ is modelled as a *normally* distributed variable **whose mean depends upon a linear combination of predictor variables** $x$, and whose variance is $\sigma^2$.
+The target variable $y$ is modelled as a *normally* distribute variable **whose mean depends upon a linear combination of predictor variables** $x$, and whose variance is $\sigma^2$.
 :::
 
 Let us now read in the data and check for these assumptions as part of our Workflow.
@@ -190,7 +191,7 @@ inspect(housing)
 The original data are 506 observations on 14 variables, `medv` being the target variable:
 
 |         |                                                                       |
-|:-----------------|:-----------------------------------------------------|
+|:------------------|:----------------------------------------------------|
 | crim    | per capita crime rate by town                                         |
 | zn      | proportion of residential land zoned for lots over 25,000 sq.ft       |
 | indus   | proportion of non-retail business acres per town                      |
@@ -228,19 +229,23 @@ In order to fit the linear model, we need to choose **predictor** variables that
 Let us select a few sets of Quantitative and Qualitative features, along with the target variable `cmedv` and do a pairs-plots with them:
 
 ```{r}
-#| label: pairs plots 1
+#| label: fig-pairs-plots
+#| fig-cap: 
+#|   - "Pairs Plot 1"
+#|   - "Pairs Plot 2"
+#|   - "Pairs Plot 3"
 #| message: false
 #| warning: false
 #| layout-nrow: 2
 
-#theme_set(theme_bw())
 housing %>%
   # Target variable cmedv
   # Predictors Rooms / Age / Distance to City Centres / Radial Highway Access
   select(cmedv, rm, age, dis) %>%
   GGally::ggpairs(title = "Plot 1",
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2)))
+                                                 alpha = 0.2))) +
+  theme_bw()
 
 housing %>%
   # Target variable cmedv
@@ -248,7 +253,8 @@ housing %>%
   select(cmedv, rad, zn, indus, tax) %>%
   GGally::ggpairs(title = "Plot 2", 
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2)))
+                                                 alpha = 0.2))) +
+  theme_bw()
 
 housing %>%
   # Target variable cmedv
@@ -256,21 +262,24 @@ housing %>%
   select(cmedv, crim, nox, rad, b, lstat) %>%
   GGally::ggpairs(title = "Plot 3", 
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2)))
+                                                 alpha = 0.2))) +
+  theme_bw()
 
 
 ```
 
-Clearly, `rm` (avg. number of rooms) is a big determining feature for median price `cmedv`. This we infer based on the large magnitudes of correlations of `rm` with`cmedv`. The variable`age` (proportion of owner-occupied units built prior to 1940) may also be a significant influence on `cmedv`. (See top row)
+See the top row of @fig-pairs-plots-1. Clearly, `rm` (avg. number of rooms) is a big determining feature for median price `cmedv`. This we infer based on the large correlation of `rm` with`cmedv`, $0.696$. The variable`age` (proportion of owner-occupied units built prior to 1940) may also be a significant influence on `cmedv`, with a correlation of $-0.378$.
 
-None of the Quant variables `rad, zn, indus, tax` have a overly strong correlation with `cmedv`. (See top row)
+None of the Quant variables `rad, zn, indus, tax` have a overly strong correlation with `cmedv`. See top row of @fig-pairs-plots-2.
 
-The variable `lstat` (proportion of lower classes in the neighbourhood) as expected, has a strong (negative) correlation with `cmedv`; `rad`(index of accessibility to radial highways), `nox`(nitrous oxide) and `crim`(crime rate) also have fairly large correlations with `cmedv`.
+The variable `lstat` (proportion of lower classes in the neighbourhood) as expected, has a strong (negative) correlation with `cmedv`; `rad`(index of accessibility to radial highways), `nox`(nitrous oxide) and `crim`(crime rate) also have fairly large correlations with `cmedv`, as seen from @fig-pairs-plots-3.
 
 ::: callout-important
 ## Correlation Scores and Uncertainty
 
-Recall that `cor.test` reports a correlation score and the `p-value` for the same. There is also a `confidence interval` reported for the correlation score, an interval within which we are 95% sure that the true correlation value is to be found. Note that `GGally` too reports the significance of the correlation scores using stars, `***` or `**`. This indicates the p-value in the scores obtained by `GGally`; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally.
+Recall that `cor.test` reports a correlation score and the `p-value` for the same. There is also a `confidence interval` reported for the correlation score, an interval within which we are 95% sure that the true correlation value is to be found.
+
+Note that `GGally` too reports the significance of the correlation scores using stars, `***` or `**`. This indicates the p-value in the scores obtained by `GGally`; Presumably, there is an internal `cor.test` that is run for each pair of variables and the p-value and confidence levels are also computed internally.
 :::
 
 Let us plot (again) scatter plots of Quant Variables that have strong correlation with `cmedv`:
@@ -307,7 +316,7 @@ So, `rm` does have a positive effect on `cmedv`, and `age` may have a (mild?) ne
 Let us also check the *Qualitative predictor variables*: Access to the Charles river (`chas`) does seem to affect the prices somewhat.
 
 ```{r}
-#| label: Charles River
+#| label: fig-Charles-River
 
 housing %>%
   # Target variable cmedv
@@ -319,7 +328,7 @@ housing %>%
 
 ```
 
-Look at the bar plot above. While not too many properties can be near the Charles River (for obvious reasons) the box plots do seem to show some dependency of `cmedv` on `chas`.
+Look at the @fig-Charles-River bar plot above. While not too many properties can be near the Charles River (for obvious reasons) the box plots do seem to show some dependency of `cmedv` on `chas`.
 
 ::: callout-note
 Qualitative predictors for a Quantitative target can be included in the model using what is called *dummy variables*, where each *level* of the Qualitative variable is given a **one-hot** kind of encoding. See for example <https://www.statology.org/dummy-variables-regression/>
@@ -367,6 +376,7 @@ all_corrs %>%
   # Plot points(smallest geom) last!
   gf_point(estimate ~ reorder(predictor, estimate)) %>%
   gf_labs(x = "Predictors", y = "Correlation with cmedv") %>%
+  gf_theme(theme_minimal()) %>% 
   
   # tilt the x-axis labels for readability
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
@@ -382,7 +392,7 @@ all_corrs %>%
 
 ```
 
-We can clearly see that `rm` and `lstat` have strong correlations with `cmedv` and should make good choices for setting up a minimal linear regression model. (`medv` is the older errorred version of `cmedv`)
+We can clearly see that `rm` and `lstat` have strong correlations with `cmedv` and should make good choices for setting up a minimal linear regression model. (`medv` is the older errored version of `cmedv`)
 :::
 
 ::: callout-note
@@ -1047,19 +1057,19 @@ Apply Model {shape: oval}
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
-::: {#refs style="font-size: 60%;"}
-<https://mlu-explain.github.io/linear-regression/>\
-The Boston Housing Dataset, corrected version. StatLib \@ CMU, [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)\
-<https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>\
-Andrew Gelman, Jennifer Hill, Aki Vehtari. *Regression and Other Stories*, Cambridge University Press, 2023.[Available Online](https://users.aalto.fi/~ave/ROS.pdf)\
-Michael Crawley, The R Book,second edition, 2013. Chapter 11.\
-Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, *Introduction to Statistical Learning*, Springer, 2021. Chapter 3. <https://www.statlearning.com/>\
-David C Howell, [Permutation Tests for Factorial ANOVA Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
-Marti Anderson, [Permutation tests for univariate or multivariate analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
-<http://r-statistics.co/Assumptions-of-Linear-Regression.html>\
-Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017. "Introduction to Data Analysis." In, 1--9. Routledge. <https://doi.org/10.4324/9781315744131-1>. Also see <http://www.dataanalysisbook.com/index.html>\
-Patil, I. (2021). Visualizations with statistical details: The 'ggstatsplot' approach. Journal of Open Source Software, 6(61), 3167,[https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}\
+1. <https://mlu-explain.github.io/linear-regression/>\
+1. The Boston Housing Dataset, corrected version. StatLib \@ CMU, [lib.stat.cmu.edu/datasets/boston_corrected.txt](http://lib.stat.cmu.edu/datasets/boston_corrected.txt)\
+1. <https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R>\
+1. Andrew Gelman, Jennifer Hill, Aki Vehtari. *Regression and Other Stories*, Cambridge University Press, 2023.[Available Online](https://users.aalto.fi/~ave/ROS.pdf)\
+1. Michael Crawley, The R Book,second edition, 2013. Chapter 11.\
+1. Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani, *Introduction to Statistical Learning*, Springer, 2021. Chapter 3. <https://www.statlearning.com/>\
+1. David C Howell, [Permutation Tests for Factorial ANOVA Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
+1. Marti Anderson, [Permutation tests for univariate or multivariate analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
+1. <http://r-statistics.co/Assumptions-of-Linear-Regression.html>\
+1. Judd, Charles M., Gary H. McClelland, and Carey S. Ryan. 2017. "Introduction to Data Analysis." In, 1--9. Routledge. <https://doi.org/10.4324/9781315744131-1>. Also see <http://www.dataanalysisbook.com/index.html>\
+1. Patil, I. (2021). Visualizations with statistical details: The 'ggstatsplot' approach. Journal of Open Source Software, 6(61), 3167,[https://doi:10.21105/joss.03167](https://doi:10.21105/joss.03167){.uri}\
 
+::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}
