@@ -587,10 +587,13 @@ gss2002 <- GSS2002 %>%
   # select two categorical variables from the dataset
   dplyr::select(Education, DeathPenalty) %>% 
   drop_na(Education, DeathPenalty)
+gss2002
 
-gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
+# make a tally table
+gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002)
 gss_table %>% addmargins()
 
+# gss_table is *not* a tibble, but a *table* object. 
 vcd::mosaic(gss_table, gp = shading_hsv)
 
 ```
@@ -621,7 +624,7 @@ residual**.
 
 Pearson Residual: $r_{i,j} = \frac{(o_{+i}- e_{j+})}{\sqrt(e_{i,j})}$
 
-The Pearson residual is scaled because the sum of all the squared Person
+The Pearson residual is scaled because the sum of all the squared Pearson
 residuals is the chi-square statistic, χ2, upon which the inferential
 analysis follows.
 
@@ -637,9 +640,11 @@ This is perhaps the simplest way, but does use a different package and
 also does *not* use the formula notation: there is no `gf_mosaic`
 command yet!
 
+`ggmosaic` takes a tibble with Qualitative variables, internally computes the counts/table, and plots the mosaic plot:
+
 ```{r mosaic-plot,warning=FALSE}
 #library(ggmosaic)
-
+gss2002
 ggplot(data = gss2002) +
   geom_mosaic(aes(x = product(DeathPenalty, Education), 
                   fill = DeathPenalty))
