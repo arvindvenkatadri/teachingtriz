@@ -22,7 +22,20 @@ citation: true
 editor: 
   markdown: 
     wrap: 72
+webr:
+  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula', 'palmerpenguins']
 ---
+
+## {{< iconify mdi web-check >}} Using web-R
+This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure ( like in an old-fashioned library) with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
+
+#### Keyboard Shortcuts
+
+- Run selected code using either:
+  - macOS: <kbd>⌘</kbd> + <kbd>↩/Return</kbd>
+  - Windows/Linux: <kbd>Ctrl</kbd> + <kbd>↩/Enter</kbd>
+- Run the entire code by clicking the "Run code" button or pressing <kbd>Shift</kbd>+<kbd>↩</kbd>. 
+
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -249,9 +262,9 @@ read it into R.
 ::: callout-important
 ### Reading external data into R
 
-The `read_csv()` command from R package `readr` allows us to read both
-locally saved data on our hard disk, or data available in a shared
+The `read_csv()` command from R package `readr` allows us to read both locally saved data on our hard disk, or data available in a shared
 folder online.
+Avoid using the `read.csv()` from base R, though it will show up in your code auto-complete set of options! 
 :::
 
 ```{r}
@@ -259,7 +272,7 @@ folder online.
 # From Vincent Arel-Bundock's dataset website
 # https://vincentarelbundock.github.io/Rdatasets
 # 
-# read_csv can read data from the net
+# read_csv can read data directly from the net
 # 
 docVisits <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv")
 
@@ -378,7 +391,8 @@ the dataset.
 
 :::
 
-## {{< iconify mdi-light group >}} {{< iconify mdi counting-5 >}} Groups and Counts
+## {{< iconify mdi-light group >}} {{< iconify mdi counting-5 >}} Groups and Counts of Qualitative Variables
+
 What is the most important dialogue uttered in the movie ["Sholay"](https://youtu.be/chi9hsfYcDE)?
 
 Recall our discussion in [Types of Data Variables](.../../../05-NatureData/nature-data.qmd#sec-data-types). We 
@@ -466,6 +480,69 @@ docVisits %>% count(health)
 
 :::
 
+## {{< iconify vaadin group >}} {{< iconify carbon summary-kpi >}} Groups and Summaries of Quantitative Variables
+
+We saw that we could obtain **numerical summary stats** such as `means, medians, quartiles, maximum/minimum` of **entire** Quantitative variables, i.e the complete column. However, we often need identical numerical summary stats of parts of a Quantitative variable. Why?
+
+Note that we have *Qualitative* variables as well in a typical dataset. These Qual variables help us to **group** the entire dataset based on their combinations of **levels**. We can now think of *summarizing Quant variables* within each such group. 
+
+Let us work through these ideas for both our familiar datasets.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### diamonds dataset
+
+```{r}
+#| label: mean-price-over-Qual-vars
+diamonds %>% 
+  group_by(clarity) %>% 
+  summarize(average_price = mean(price), count = n())
+
+diamonds %>% 
+  group_by(clarity, color) %>% 
+  summarize(average_price = mean(price), count = n())
+
+```
+::: callout-note
+### Business Insights from Grouped Quant Summaries (`diamonds`)
+We have a good range of mean_prices over `clarity` and `cut`. The number of groups are large enough (>> 7!) to warrant a chart, which we will make in our next module on [Distributions](.../../../20-Distributions/intro-dist.qmd).
+
+:::
+
+### docvisits dataset
+
+```{r}
+#| label: summaries-over-levels-of-Qual
+
+docVisits %>%
+  group_by(gender) %>% 
+  summarize(average_visits = mean(visits), count = n())
+
+docVisits %>%
+  group_by(gender) %>% 
+  summarize(average_visits = mean(visits), count = n())
+
+docVisits %>% group_by(freepoor,nchronic) %>% 
+  summarise(mean_income = mean(income),
+            average_visits = mean(visits),
+            count = n())
+```
+::: callout-note
+### Business Insights from Grouped Quant Summaries (`docVisits`)
+
+Clearly the people who are `freepoor` ( On Govt Insurance) AND with a chronic condition are those who have lower average income and a higher average number of visits to the doctor...but there are relatively few of them (n = 55) in this dataset. 
+
+:::
+
+:::
+
+
+## {{< fa folder-open >}} More on dplyr
+
+The `dplyr` package is capable of doing much more than just `count`, `group_by` and `summarize`. We will encounter this package many times more as we build our intuition about data visualization. A full tutorial on `dplyr` is linked to the icon below: 
+
+| <a href="../../../../../labs/r-labs/tidy/dplyr.qmd"><iconify-icon icon="carbon:data-blob"></iconify-icon> `dplyr` Tutorial</a> |
+|--------------------------------------------------------------|
 
 ## {{< iconify mdi table-star >}} Reporting Tables for Data and the Data Schema
 
@@ -547,7 +624,7 @@ Let us take a small test with the `mpg` dataset:
 -   But the
     variable`r checkdown::check_question(answer = "cyl", options = c("hwy", "cty", "cyl", "displ"), type = "select", right = "correct", wrong = "not correct", placeholder = "select a variable name")`
     is actually a **qualitative variable**.
-    
+
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 

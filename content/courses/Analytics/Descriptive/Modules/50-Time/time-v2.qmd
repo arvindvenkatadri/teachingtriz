@@ -57,9 +57,8 @@ library(fpp3)
 library(tsdl)
 library(TSstudio)
 library(timetk)
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
+library(gghighlight) # Highlight specific parts of charts
 
 ```
 
@@ -79,6 +78,11 @@ fpp3_packages(include_self = FALSE)
 library(checkdown)
 library(epoxy)
 library(grateful)
+library(hrbrthemes)
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Sans", base_size = 12))
+
 ```
 
 
@@ -405,8 +409,7 @@ births_2000_2014 %>%
           color = ~ day_of_week) %>% 
   gf_point(title = "Births, By Day of Week", 
            subtitle = "Over the Years") %>% 
-  gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_distiller(palette = "Paired")) 
 
 
 # Grouping by date_of_month
@@ -416,8 +419,7 @@ births_2000_2014 %>%
           color = ~ date_of_month) %>% 
   gf_point(title = "Births, By Date of Month",
            subtitle = "Over the Years") %>% 
-  gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_distiller(palette = "Paired")) 
 
 
 ```
@@ -460,8 +462,7 @@ births_2000_2014_monthly %>%
            title = "Summaries of Monthly Births over the years") %>% 
   
 ## palette for 12 colours
-  gf_theme(scale_colour_brewer(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_brewer(palette = "Paired")) 
 
 
 ```
@@ -497,8 +498,7 @@ births_2000_2014_weekly %>%
           data = .) %>% 
   gf_point(size = 2, title = "Births over the Years by Day of Week") %>% 
   # palette for 12 colours
-  gf_theme(scale_colour_brewer(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_brewer(palette = "Paired")) 
 
 
 ```
@@ -564,8 +564,7 @@ births_2000_2014_monthly %>%
   labs(title = "Summaries of Monthly Births over the years") + 
     
   # palette for 12 colours
-  scale_colour_brewer(palette = "Paired") + 
-  theme_classic()
+  scale_colour_brewer(palette = "Paired") 
 
 
 ```
@@ -591,12 +590,65 @@ births_2000_2014_weekly %>%
     
   # palette for 12 colours
   scale_colour_brewer(palette = "Paired") +  
-  labs(title = "Births over the Years by Day of Week") + 
-  theme_classic()
+  labs(title = "Births over the Years by Day of Week")
 
 
 ```
 :::
+
+
+#### {{< iconify gravity-ui cubes-3-overlap  >}} Small Multiples using gghighlight
+
+Instead of looking at multiple overlapping time series graphs, we could split these up into `small multiples` or *facets* and **still retain** the overall picture that is offered by the overlapping graphs. The trick here is the **highlight** one of the graphs at a time, while keeping *all other* graphs in the background. We can do this with the `gghighlight` package.
+
+```{r}
+#| layout: [[50],[50]]
+
+#library(gghighlight)
+#ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                       base_family = "sans"))
+###
+births_2000_2014_monthly
+###
+births_2000_2014_monthly %>% ggplot() + 
+  geom_line(aes(y = mean_monthly_births,x = year, group = month)) +
+  labs(x = "Year", y  ="Mean Monthly Births over the Years", 
+       title = "Mean Births by Month", 
+       caption = "Using gghighlight package") +
+
+  ## Add highlighting
+  gghighlight(
+    use_direct_label = F,
+    unhighlighted_params = list(colour = alpha("grey85", 1))) +
+  
+# Add faceting
+  facet_wrap(vars(month))
+
+```
+
+```{r}
+#| layout: [[50],[50]]
+
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
+###
+births_2000_2014_weekly
+###
+births_2000_2014_weekly %>% ggplot() + 
+  geom_line(aes(y = mean_daily_births, x = year, group = day_of_week)) +
+  labs(x = "Year", y  ="Mean Daily Births over the Years", 
+       title = "Mean Births by Day of Week", 
+       caption = "Using gghighlight package") +
+
+  ## Add highlighting
+  gghighlight(
+    use_direct_label = F,
+    unhighlighted_params = list(colour = alpha("grey85", 1))) +
+  
+# Add faceting
+  facet_wrap(vars(day_of_week))
+
+```
 
 ::: callout-note
 ### Why are fewer babies born on weekends?
@@ -604,6 +656,8 @@ births_2000_2014_weekly %>%
 Looks like an interesting story here...there are significantly fewer
 births on average on Sat and Sun, over the years! Why? Should we watch
 [Grey's Anatomy](https://www.hotstar.com/in/tv/greys-anatomy/14823) ?
+
+And more births in September? That should be a no-brainer!! `r emoji::emoji("laugh")`
 :::
 
 ::: callout-important
@@ -613,6 +667,8 @@ into a `time series` format. So far we are simply treating the
 group and summarize. We have not created an explicit `time` or `date`
 variable.
 :::
+
+
 
 {{< pagebreak >}}
 
@@ -727,8 +783,7 @@ Let us simply plot `Cost` over time:
 
 PBS %>%
   gf_point(Cost ~ Month, data = .) %>% 
-  gf_line(title = "PBS Costs vs time", caption = "ggformula") %>% 
-  gf_theme(theme_classic())
+  gf_line(title = "PBS Costs vs time", caption = "ggformula") 
 
 ```
 
@@ -741,8 +796,7 @@ PBS %>%
   ggplot(aes(Month, Cost)) + 
   geom_point() + 
   geom_line() + 
-  labs(title = "PBS Costs vs time", caption = "ggplot") + 
-  theme_classic()
+  labs(title = "PBS Costs vs time", caption = "ggplot")
 
 ```
 
@@ -792,8 +846,7 @@ births_2000_2014 %>%
                "Sep","Oct","Nov","Dec")
   )) %>%
   
-  gf_theme(scale_fill_brewer(type = "qual", palette = "OrRd", direction = -1)) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_fill_brewer(type = "qual", palette = "OrRd", direction = -1)) 
 
 ```
 
@@ -819,19 +872,17 @@ In the Tutorial @sec-slides-and-tutorials, we will explore:
 
 ## {{< iconify ooui references-ltr >}} References
 
-
-\
-Robert Hyndman, *Forecasting: Principles and Practice (Third
+1. Robert Hyndman, *Forecasting: Principles and Practice (Third
 Edition)*.[available online](https://otexts.com/fpp3/)\
-[Time Series Analysis at Our Coding
+2. [Time Series Analysis at Our Coding
 Club](https://ourcodingclub.github.io/tutorials/time/)\
-[The Nuclear Threat---The Shadow Peace, part
+1. [The Nuclear Threat---The Shadow Peace, part
 1](http://www.fallen.io/shadow-peace/1/)\
-[11 Ways to Visualize Changes Over Time -- A
+1. [11 Ways to Visualize Changes Over Time -- A
 Guide](https://flowingdata.com/2010/01/07/11-ways-to-visualize-changes-over-time-a-guide/)\
-[What is seasonal adjustment and why is it
+1. [What is seasonal adjustment and why is it
 used?](http://junkcharts.typepad.com/junk_charts/2010/11/what-is-seasonal-adjustment-and-why-is-it-used.html)\
-[The start-at-zero
+1. [The start-at-zero
 rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)\
 
 ::: {#refs style="font-size: 60%;"}
@@ -844,7 +895,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("fpp3", "timetk","tsbox", "tsdl", "tsibble", 
+  pkgs = c("fpp3", "gghighlight", "timetk","tsbox", "tsdl", "tsibble", 
            "tsibbledata", "TSstudio")
 ) %>%
   knitr::kable(format = "simple")

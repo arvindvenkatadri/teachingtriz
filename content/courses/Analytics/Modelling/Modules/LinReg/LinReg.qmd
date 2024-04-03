@@ -17,6 +17,11 @@ bibliography:
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
+editor:
+  markdown:
+    wrap: 72
+webr:
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials {#sec-linreg-tutorials}
@@ -40,6 +45,7 @@ library(GGally)
 library(corrplot)
 library(corrgram)
 library(ggstatsplot)
+
 ```
 
 ```{r}
@@ -53,24 +59,44 @@ library(TeachHist)
 library(TeachingDemos)
 library(nomnoml)
 library(grateful)
-library(ragg)
-library(showtext)
+
 
 ```
+
 
 ```{r}
-#| label: plot theme
-# Let us set a plot theme for Data visualization
-library(thematic)
-theme_set(theme_classic(base_size = 12, base_family = "Roboto Condensed"))
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: true
+#| results: hide
 
-theme_update(
-  panel.grid.minor = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot"
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
 )
-thematic_rmd(bg = "#FFFFF8",fg = "#111111", accent = "#DD1144", font = "Roboto Condensed")
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_bw(base_size = 12)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = F,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
+
 ```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -244,8 +270,7 @@ housing %>%
   select(cmedv, rm, age, dis) %>%
   GGally::ggpairs(title = "Plot 1",
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2))) +
-  theme_bw()
+                                                 alpha = 0.2))) 
 
 housing %>%
   # Target variable cmedv
@@ -253,8 +278,7 @@ housing %>%
   select(cmedv, rad, zn, indus, tax) %>%
   GGally::ggpairs(title = "Plot 2", 
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2))) +
-  theme_bw()
+                                                 alpha = 0.2))) 
 
 housing %>%
   # Target variable cmedv
@@ -262,8 +286,7 @@ housing %>%
   select(cmedv, crim, nox, rad, b, lstat) %>%
   GGally::ggpairs(title = "Plot 3", 
                   lower = list(continuous = wrap("smooth", 
-                                                 alpha = 0.2))) +
-  theme_bw()
+                                                 alpha = 0.2))) 
 
 
 ```
@@ -336,7 +359,7 @@ Qualitative predictors for a Quantitative target can be included in the model us
 
 ### Correlations using cor.test and purrr
 
-This is somewhat advanced material: We will use the `purrr` package to develop all correlations with respect to our target variable in one shot and also plot these correlation test scores in an error-bar plot. This has the advantage of being able to depict all correlations in one plot. (We will use this approach again here when we trim our linear models down from the *maximal* one to a workable one of lesser complexity.). Let us do this.
+This is somewhat advanced material: We will use the `purrr` package to develop all correlations with respect to our target variable in one shot and also plot these correlation test scores in an error-bar plot. See [Tidy Modelling with R](https://www.tmwr.org/base-r#tidiness-modeling). This has the advantage of being able to depict all correlations in one plot. (We will use this approach again here when we trim our linear models down from the *maximal* one to a workable one of lesser complexity.). Let us do this.
 
 We develop a *list object* containing all correlation test results with respect to `cmedv`, tidy these up using `broom::tidy`, and then plot these:
 
@@ -376,7 +399,7 @@ all_corrs %>%
   # Plot points(smallest geom) last!
   gf_point(estimate ~ reorder(predictor, estimate)) %>%
   gf_labs(x = "Predictors", y = "Correlation with cmedv") %>%
-  gf_theme(theme_minimal()) %>% 
+  #gf_theme(theme_minimal()) %>% 
   
   # tilt the x-axis labels for readability
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%

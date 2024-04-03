@@ -26,7 +26,7 @@ editor:
   markdown: 
     wrap: 72
 webr:
-  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
 
 ---
 
@@ -66,11 +66,42 @@ library(ggformula)
 library(ggridges)
 library(skimr)
 
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_bw(base_size = 12)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = F,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
 
 ```
+
+
 
 ```{r}
 #| label: Extra Pedagogical Packages
@@ -84,7 +115,9 @@ library(TeachingDemos)
 library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
 library(grateful)
 library(MKdescr)
-library(shinylive)
+library(shinylive) # To create a Shiny app in a Quarto HTML doc
+# Will not work if webr is also used in the SAME Quarto doc!
+
 ```
 
 
@@ -205,26 +238,24 @@ than typing the formal arguments, code is typically shorthanded to this:
 `dataframe %>%  ggplot(aes(xvar, yvar)) + geom_----()`
 :::
 
-## {{< iconify icon-park-outline chart-histogram >}} Histograms and Bar Charts
+## {{< iconify icon-park-outline chart-histogram >}} Bar Charts and Histograms
 
-**Histograms** are best to show the distribution of raw *quantitative
-data*,by displaying the number of values that fall within defined
+**Bar Charts** show counts of observations with respect to a **Qualitative** variable. For instance, a shop inventory with shirt-sizes. Each *bar* has a height proportional to the *count* per shirt-size, in this example. 
+
+Although **Histograms** may look similar to **Bar Charts**, the two are
+different. First, histograms show *continuous Quant data*. By contrast,
+bar charts show *categorical data*, such as shirt-sizes, or apples, bananas, carrots, etc.
+
+**Histograms** are best to show the distribution of raw **Quantitative data**, by displaying the number of values that fall within defined
 ranges, often called *buckets* or *bins*. We use a **Quant** variable on
 the `x-axis` and the histogram shows us how frequently different values
 occur for that variable by showing *counts/frequencies* on the y-axis.
 The x-axis is typically broken up into "buckets" or ranges for the
 x-variable, And usually you can adjust the bucket ranges to explore
 frequency patterns. For example, you can shift histogram buckets from
-0-1, 1-2, 2-3, etc. to 0-2, 2-4, etc.
+0-1, 1-2, 2-3, etc. to 0-2, 2-4, etc. Histograms do not usually show spaces between buckets because the buckets represent contiguous ranges, while bar charts show spaces to separate each (unconnected) *category/level* within a Qual variable.
 
-Although histograms may look similar to **Bar Charts**, the two are
-different. First, histograms show *continuous Quant data*. By contrast,
-bar charts show *categorical data*, such as apples, bananas, carrots,
-etc.
-
-Second, histograms do not usually show spaces between buckets because
-these are *continuous values*, while column charts show spaces to
-separate each *category*.
+To complicate matters: Having said all that, the histogram is really a bar chart in disguise! You probably suspect that *the "bucketing" of the Quant variable is tantamount to creating a Qual variable*! Each bucket is a *level* in this fictitious bucketed *Quant* variable. 
 
 ## {{< iconify grommet-icons test >}} Case Study-1: `diamonds` dataset
 
@@ -274,9 +305,9 @@ skim(diamonds)
 
 -   This is a large dataset (54K rows).
 -   There are several Qualitative variables: `cut`, `color` and
-    `clarity`. These have 5, 7, and 8 levels. The fact that the `class`
-    for these is `ordered` suggests that these are factors and that the
-    levels have a sequence/order.
+    `clarity`. These have 5, 7, and 8 levels respectively. The fact that
+    the `class` for these is `ordered` suggests that these are factors 
+    and that the levels have a sequence/order.
 -   `carat`, `price`, `x`, `y`, `z`, `depth` and `table` are
     Quantitative variables.
 -   There are no missing values for any variable, all are complete with
@@ -295,21 +326,24 @@ Let's plot some histograms.
 #| label: histograms-ggformula
 #| layout-ncol: 2
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14,
+#                                        base_family = "sans"))
 
 gf_histogram(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
 
 ###
-diamonds %>% gf_histogram(~ price, 
-                          fill = ~ cut, 
-                          alpha = 0.3) %>%
-  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+diamonds %>% 
+  gf_histogram(~ price, 
+               fill = ~ cut, 
+               alpha = 0.3) %>%
+  gf_labs(title = "Plot B: Prices by Cut",
+          caption = "ggformula")
 
 ###
-diamonds %>% gf_histogram(~ price,
-                          fill = ~ cut) %>%
+diamonds %>% 
+  gf_histogram(~ price, 
+               fill = ~ cut) %>%
   gf_facet_wrap(~ cut) %>%
   gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",
           caption = "ggformula") %>%
@@ -317,7 +351,8 @@ diamonds %>% gf_histogram(~ price,
 
 ###
 diamonds %>% gf_histogram(~ price,
-                          fill = ~ cut, color = "black") %>% 
+                          fill = ~ cut, 
+                          color = "black") %>% 
   gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
   gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
           subtitle = "Free y-scale",
@@ -334,19 +369,21 @@ diamonds %>% gf_histogram(~ price,
 #| message: false
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 ggplot(data = diamonds) + 
   geom_histogram(aes(x = price)) +
-  labs(title = "Plot A: Diamond Prices",caption = "ggplot")
+  labs(title = "Plot A: Diamond Prices",
+       caption = "ggplot")
 
 ###
 diamonds %>% ggplot() + 
   geom_histogram(aes(x = price, 
                      fill = cut), 
                      alpha = 0.3) + 
-  labs(title = "Plot B: Prices by Cut",caption = "ggplot")
+  labs(title = "Plot B: Prices by Cut",
+       caption = "ggplot")
 
 ###
 diamonds  %>% ggplot() + 
@@ -376,29 +413,42 @@ diamonds  %>% ggplot() +
 #| label: histograms-ggformula-webr
 #| layout-ncol: 2
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 gf_histogram(~ price, data = diamonds) %>%
-  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+  gf_labs(title = "Plot A: Diamond Prices",
+          caption = "ggformula")
 
-###
-diamonds %>% gf_histogram(~ price, 
-                          fill = ~ cut, 
-                          alpha = 0.3) %>%
-  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+```
 
-###
-diamonds %>% gf_histogram(~ price,
-                          fill = ~ cut) %>%
+```{webr-r}
+
+diamonds %>% 
+  gf_histogram(~ price, 
+               fill = ~ cut, 
+               alpha = 0.3) %>%
+  gf_labs(title = "Plot B: Prices by Cut",
+          caption = "ggformula")
+
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_histogram(~ price,
+               fill = ~ cut) %>%
   gf_facet_wrap(~ cut) %>%
   gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",
           caption = "ggformula") %>%
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
 
-###
-diamonds %>% gf_histogram(~ price,
-                          fill = ~ cut, color = "black") %>% 
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_histogram(~ price,
+               fill = ~ cut, 
+               color = "black") %>% 
   gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
   gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
           subtitle = "Free y-scale",
@@ -413,32 +463,39 @@ diamonds %>% gf_histogram(~ price,
 #| message: false
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 ggplot(data = diamonds) + 
   geom_histogram(aes(x = price)) +
   labs(title = "Plot A: Diamond Prices",caption = "ggplot")
 
-###
-diamonds %>% ggplot() + 
+```
+
+```{webr-r}
+diamonds %>% 
+  ggplot() + 
   geom_histogram(aes(x = price, 
                      fill = cut), 
                      alpha = 0.3) + 
   labs(title = "Plot B: Prices by Cut",caption = "ggplot")
 
-###
-diamonds  %>% ggplot() + 
+```
+
+```{webr-r}
+diamonds  %>% 
+  ggplot() + 
   geom_histogram(aes(price, fill = cut)) +
   facet_wrap(facets = vars(cut)) + 
   labs(title = "Plot C: Prices by Filled and Facetted by Cut",
        caption = "ggplot") + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+```
 
-
-###
-diamonds  %>% ggplot() + 
+```{webr-r}
+diamonds  %>% 
+  ggplot() + 
   geom_histogram(aes(price, fill = cut), color = "black") +
   facet_wrap(facets = vars(cut), scales = "free_y") +
   labs(title = "Plot D: Prices by Filled and Facetted by Cut",
@@ -475,7 +532,6 @@ making more graphs, as we will see. Here, we are making a **Hypothesis**
 that more than just `cut` determines the `price` of a diamond.
 :::
 
-Here is an interactive app to play with: try to adjust the bin widths / number of bins and see how the histogram changes.
 
 
 ### {{< iconify ic baseline-bar-chart >}} Plotting Barcharts
@@ -492,29 +548,35 @@ choose **Qual** variables to count with!
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 gf_bar(~ cut, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
 
 
 ###
-diamonds %>% gf_bar( ~ cut, fill = ~ cut) %>%
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ cut) %>%
   gf_labs(title = "Plot B: Diamonds Counts filled by Cut")
 
 
 ###
-diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
-                     position = "stack",
-                     alpha = 0.3) %>%
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ clarity, 
+          position = "stack",
+          alpha = 0.3) %>%
   gf_labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
           subtitle = "Stacked Bar Chart")
 
 ###
-diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
-                     position = "dodge",
-                     color = "black") %>%
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ clarity, 
+          position = "dodge",
+          color = "black") %>%
   gf_refine(scale_fill_viridis_d(option = "turbo")) %>% # inferno, magma, cividis...etc
   gf_labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
           subtitle = "Dodged Bar Chart",
@@ -522,8 +584,8 @@ diamonds %>% gf_bar( ~ cut, fill = ~ clarity,
 ```
 
 ```{r}
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 diamonds %>% gf_bar( ~ cut, 
                      fill = ~ clarity, 
                      position = "dodge", 
@@ -543,8 +605,8 @@ diamonds %>% gf_bar( ~ cut,
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 ggplot(diamonds)  + 
   geom_bar(aes(cut)) + 
@@ -552,21 +614,24 @@ ggplot(diamonds)  +
 
 
 ###
-diamonds %>% ggplot() + 
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = cut) ) + 
   labs(title = "Plot B: Diamonds Counts filled by Cut")
 
 
 ###
-diamonds %>% ggplot() + 
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "stack",
-              alpha = 0.3) + 
+               alpha = 0.3) + 
   labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
        subtitle = "Stacked Bar Chart")
 
 ###
-diamonds %>% ggplot() + 
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "dodge",
                color = "black") + 
@@ -574,13 +639,15 @@ diamonds %>% ggplot() +
   labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
        subtitle = "Dodged Bar Chart",
        caption = "Turbo Palette from Viridis set")
+
 ```
 
 ```{r}
-ggplot2::theme_set(new = theme_classic(base_size = 12, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 12, 
+#                                        base_family = "sans"))
 
-diamonds %>% ggplot() + 
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "dodge", 
                colour = "black") +
@@ -605,23 +672,33 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 gf_bar(~ cut, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
 
+```
 
-###
-diamonds %>% gf_bar( ~ cut, fill = ~ cut) %>%
+```{webr-r}
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ cut) %>%
   gf_labs(title = "Plot B: Diamonds Counts filled by Cut")
 
+```
 
-###
-diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
-                     position = "stack",
-                     alpha = 0.3) %>%
+```{webr-r}
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ clarity, 
+          position = "stack",
+          alpha = 0.3) %>%
   gf_labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
           subtitle = "Stacked Bar Chart")
 
-###
-diamonds %>% gf_bar( ~ cut, fill = ~ clarity, 
-                     position = "dodge",
-                     color = "black") %>%
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_bar( ~ cut, 
+          fill = ~ clarity, 
+          position = "dodge",
+          color = "black") %>%
   gf_refine(scale_fill_viridis_d(option = "turbo")) %>% # inferno, magma, cividis...etc
   gf_labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
           subtitle = "Dodged Bar Chart",
@@ -635,9 +712,9 @@ diamonds %>% gf_bar( ~ cut,
                      fill = ~ clarity, 
                      position = "dodge", 
                      colour = "black") %>%
-  gf_facet_wrap(vars(color),scales = "free_y") %>%
+  gf_facet_wrap(vars(color), scales = "free_y") %>%
   gf_refine(scale_fill_viridis_d(option = "turbo")) %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1))) %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1))) %>%
   gf_labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
           subtitle = "Dodged Bar Chart Facetted by Color",
           caption = "Turbo Palette from Viridis set")
@@ -656,23 +733,30 @@ ggplot(diamonds)  +
   geom_bar(aes(cut)) + 
   labs(title = "Plot A: Diamonds Counts of different Cuts")
 
+```
 
-###
-diamonds %>% ggplot() + 
+```{webr-r}
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = cut) ) + 
   labs(title = "Plot B: Diamonds Counts filled by Cut")
 
+```
 
-###
-diamonds %>% ggplot() + 
+```{webr-r}
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "stack",
-              alpha = 0.3) + 
+               alpha = 0.3) + 
   labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
        subtitle = "Stacked Bar Chart")
 
-###
-diamonds %>% ggplot() + 
+```
+
+```{webr-r}
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "dodge",
                color = "black") + 
@@ -686,7 +770,8 @@ diamonds %>% ggplot() +
 ggplot2::theme_set(new = theme_classic(base_size = 12, 
                                        base_family = "sans"))
 
-diamonds %>% ggplot() + 
+diamonds %>% 
+  ggplot() + 
   geom_bar(aes(cut, fill = clarity), 
                position = "dodge", 
                colour = "black") +
@@ -718,6 +803,60 @@ same:
     judging from the y-axis limits.
 :::
 
+
+::: callout-note
+### `gf_bar`vs `gf_col` (and `geom_bar` vs `geom_col`)
+These two geometries in `ggformula` and `ggplot` do very similar things: give us a bar plot. There is **one significant difference** however: `gf_bar/geom_bar` **performs counting internally**, whereas `gf_col/geom_col` need the data to be counted beforehand. `gf_counts()` is another name for `gf_bar()`.
+See the code below:
+
+```{r}
+#| layout-ncol: 2
+#| results: hold
+
+diamonds %>% 
+  gf_bar(~ cut) # performs counts based on `cut` (Qual variable)
+
+###
+
+diamonds %>% 
+  # count gives a default variable called `n`
+  # We rename it to "counts". 
+  # Note the quotation marks in the naming ceremony below
+  count(cut, name = "counts") %>% 
+  
+  # gf_col needs counted data
+  # we use the (re)named variable counts vs cut
+  gf_col(counts ~ cut) 
+
+
+```
+
+Note also that `gf_bar/geom_bar` takes only ONE variable (for the x-axis), whereas `gf_col/geom_col` needs both X and Y variables since it simply plots columns. 
+
+Both are useful!
+
+:::
+
+::: callout-note
+### And we can plot Proportions and Percentages too!
+Also check out `gf_props` and `gf_percents` ! These are also very useful `ggformula` functions!
+
+```{r}
+#| layout-ncol: 2
+#| results: hold
+gf_props(~ substance,
+  data = mosaicData::HELPrct, fill = ~ sex,
+  position = "dodge"
+)
+###
+gf_percents(~ substance,
+  data = mosaicData::HELPrct, fill = ~ sex,
+  position = "dodge"
+)
+```
+
+
+:::
 ### {{< iconify mdi chart-bell-curve >}} Plotting Densities
 
 You might imagine a density chart as a histogram where the buckets are
@@ -737,8 +876,8 @@ histograms, especially with default bucket widths.
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 gf_density(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
@@ -777,8 +916,8 @@ diamonds %>% gf_density(~ price,
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 diamonds %>% ggplot() + 
   geom_density(aes(price)) +
@@ -820,7 +959,6 @@ diamonds %>% ggplot() +
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
 #| label: density-charts-ggformula-webr
-#| layout-ncol: 2
 
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
@@ -828,8 +966,9 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 
 gf_density(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+```
 
-###
+```{webr-r}
 diamonds %>% gf_density(~ price, 
                           fill = ~ cut, 
                           color = ~ cut,
@@ -838,13 +977,17 @@ diamonds %>% gf_density(~ price,
                                   aesthetics = c("colour", "fill"))) %>%
   gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
 
-###
+```
+
+```{webr-r}
 diamonds %>% gf_density(~ price,
                           fill = ~ cut) %>%
   gf_facet_wrap(vars(cut)) %>%
   gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",caption = "ggformula") 
 
-###
+```
+
+```{webr-r}
 diamonds %>% gf_density(~ price,
                           fill = ~ cut, 
                         color = "black") %>% 
@@ -858,7 +1001,6 @@ diamonds %>% gf_density(~ price,
 
 ```{webr-r}
 #| label: density-charts-ggplot-webr
-#| layout-ncol: 2
 
 # Set graph theme
 ggplot2::theme_set(new = theme_classic(base_size = 14, 
@@ -868,7 +1010,9 @@ diamonds %>% ggplot() +
   geom_density(aes(price)) +
   labs(title = "Plot A: Diamond Prices",caption = "ggplot")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_density(aes(price, 
                    fill = cut, 
@@ -878,7 +1022,9 @@ diamonds %>% ggplot() +
                         aesthetics = c("colour", "fill")) + 
   labs(title = "Plot B: Prices by Cut",caption = "ggplot")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_density(aes(price,
                    fill = cut)) + 
@@ -886,7 +1032,9 @@ diamonds %>% ggplot() +
   labs(title = "Plot C: Prices by Filled and Facetted by Cut",
       caption = "ggplot") 
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_density(aes(price,
                    fill = cut), 
@@ -935,7 +1083,12 @@ MKdescr::illustrate.boxplot(rnorm(50, mean = 3, sd = 2))
 ```{r}
 #| label: Boxplots-ggformula
 #| layout-ncol: 2
-gf_boxplot(price ~ ., data = diamonds) %>% 
+
+# Set graph theme
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
+
+gf_boxplot(price ~ "All Diamonds", data = diamonds) %>% 
   gf_labs(title = "Plot A: Boxplot for Diamond Prices")
 
 ###
@@ -968,6 +1121,10 @@ diamonds %>%
 ```{r}
 #| label: Boxplots-ggplots
 #| layout-ncol: 2
+
+# Set graph theme
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 diamonds %>% ggplot() + 
   geom_boxplot(aes(y = price)) + # note: y, not x
   labs(title = "Plot A: Boxplot for Diamond Prices")
@@ -1000,16 +1157,24 @@ diamonds %>% ggplot() +
 
 ```{webr-r}
 #| label: Boxplots-ggformula-webr
-#| layout-ncol: 2
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
+
 gf_boxplot(price ~ ., data = diamonds) %>% 
   gf_labs(title = "Plot A: Boxplot for Diamond Prices")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_boxplot(price ~ cut) %>% 
   gf_labs(title = "Plot B: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_boxplot(price ~ cut, 
              fill = ~ cut, 
@@ -1017,7 +1182,9 @@ diamonds %>%
              alpha = 0.3) %>% 
   gf_labs(title = "Plot C: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_boxplot(price ~ cut, 
              fill = ~ cut, 
@@ -1036,19 +1203,25 @@ diamonds %>% ggplot() +
   geom_boxplot(aes(y = price)) + # note: y, not x
   labs(title = "Plot A: Boxplot for Diamond Prices")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_boxplot(aes(cut, price)) + 
   labs(title = "Plot B: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_boxplot(aes(cut, 
                    price, 
                    color = cut, fill = cut), alpha = 0.4) +
   labs(title = "Plot C: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_boxplot(aes(cut, 
                    price, 
@@ -1093,7 +1266,13 @@ plot*. `ggformula` support this plot by importing/depending upon the `ggridges` 
 
 ```{r}
 #| label: more-charts
-#| layout-nrow: 2
+#| out-width: "80%"
+#| fig-align: "center"
+
+# Set graph theme
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
+
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.3, 
                   rel_min_height = 0.005, data = mpg) %>% 
@@ -1101,14 +1280,16 @@ gf_density_ridges(drv ~ hwy, fill = ~ drv,
             scale_x_continuous(expand = c(0.01, 0))) %>% 
   gf_labs(title = "Ridge Plot")
 
-
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
 #| label: more-charts-webr
-#| layout-nrow: 2
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
 
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.3, 
@@ -1155,7 +1336,11 @@ Let us see what this looks like!
 #| label: Violin plots with ggformula
 #| layout-ncol: 2
 
-gf_violin(price ~ "", data = diamonds, 
+# Set graph theme
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
+
+gf_violin(price ~ "All Diamonds", data = diamonds, 
           draw_quantiles = c(0,.25,.50,.75)) %>%
   gf_labs(title = "Plot A: Violin plot for Diamond Prices")
 
@@ -1191,6 +1376,10 @@ diamonds %>%
 ```{r}
 #| label: Violin plots with ggplot
 #| layout-ncol: 2
+# Set graph theme
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
+
 diamonds %>% ggplot() + 
   geom_violin(aes(y = price, x = ""),
               draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
@@ -1228,20 +1417,27 @@ diamonds %>% ggplot() +
 
 ```{webr-r}
 #| label: Violin plots with ggformula webr
-#| layout-ncol: 2
 #| collapse: true
+
+# Set graph theme
+ggplot2::theme_set(new = theme_classic(base_size = 14, 
+                                       base_family = "sans"))
 
 gf_violin(price ~ "", data = diamonds, 
           draw_quantiles = c(0,.25,.50,.75)) %>%
   gf_labs(title = "Plot A: Violin plot for Diamond Prices")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_violin(price ~ cut,
             draw_quantiles = c(0,.25,.50,.75)) %>% 
   gf_labs(title = "Plot B: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_violin(price ~ cut, 
              fill = ~ cut, 
@@ -1250,7 +1446,9 @@ diamonds %>%
             draw_quantiles = c(0,.25,.50,.75)) %>% 
   gf_labs(title = "Plot C: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% 
   gf_violin(price ~ cut, 
              fill = ~ cut, 
@@ -1271,13 +1469,17 @@ diamonds %>% ggplot() +
               draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
   labs(title = "Plot A: violin for Diamond Prices")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_violin(aes(cut, price),
               draw_quantiles = c(0,.25,.50,.75)) + 
   labs(title = "Plot B: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_violin(aes(cut, price, 
                   color = cut, fill = cut),
@@ -1285,7 +1487,9 @@ diamonds %>% ggplot() +
               alpha = 0.4) +
   labs(title = "Plot C: Price by Cut")
 
-###
+```
+
+```{webr-r}
 diamonds %>% ggplot() + 
   geom_violin(aes(cut, 
                    price, 
@@ -1529,6 +1733,10 @@ longest_races <- race_df %>%
   slice_max(n = 5, order_by = distance) # Longest distance races
 longest_races
 
+```
+
+```{webr-r}
+
 longest_races %>%
   left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
   filter(rank %in% c(1:10)) %>% # Top 10 ranks
@@ -1536,11 +1744,13 @@ longest_races %>%
 
 ```
 
+:::
+
 Wow....France has one the top 10 positions 26 times in the longest
 races... which take place in France, Thailand, Chad, Australia, and
 Portugal. So although the USA has the greatest number of top 10
-finishes, when it comes to the *longest* races, it is *vive la France*!
-:::
+finishes, when it comes to the *longest* races, it is `r emoji::emoji("france")` *vive la France*!
+
 :::
 
 
@@ -1554,8 +1764,8 @@ races and all ranks?
 ### {{< iconify la r-project >}} R
 ```{r}
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 rank_df %>%
   gf_histogram(~ time_in_seconds, bins = 75)
 
@@ -1590,8 +1800,8 @@ What is the distribution of race distances?
 ### {{< iconify la r-project >}} R
 ```{r}
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 race_df %>%
   gf_histogram(~ distance, bins =  50)
 
@@ -1660,8 +1870,8 @@ afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
 #| label: Slicing_time_to_Qual
 # Demo purposes only!
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 race_start_factor <- race_df %>%
   mutate(
@@ -1713,7 +1923,6 @@ race_start_factor %>%
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 
-
 Let's make a count of start times:
 
 ```{webr-r}
@@ -1731,8 +1940,8 @@ afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
 #| label: Slicing_time_to_Qual
 # Demo purposes only!
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 
 race_start_factor <- race_df %>%
   mutate(
@@ -1766,7 +1975,9 @@ race_start_factor <- race_df %>%
            as_factor(start_day_time) %>%
            fct_collapse(.f = ., 
                night = c("night", "postmidnight")))
-##
+```
+
+```{webr-r}
 # Join with rank_df
 race_start_factor %>%
   left_join(rank_df, by = "race_year_id") %>%
@@ -1802,7 +2013,6 @@ your project folder:
 
 ```{r}
 #| layout-nrow: 2
-#| column: body-outset-right
 pop <- read_csv("data/populations.csv")
 pop
 inspect(pop)
@@ -1815,8 +2025,8 @@ Let us plot densities/histograms for `value`:
 #| label: skewed-histogram
 #| layout-ncol: 2
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
 gf_histogram(~ value, data = pop, title = "Long Tailed Histogram") 
 ##
@@ -1835,8 +2045,8 @@ concerned, using say a "log" transformation:
 #| label: skewed-density
 #| layout-ncol: 2
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
 gf_histogram(~ log10(value), data = pop, title = "Histogram with Log transformed x-variable") 
 ##
@@ -1846,7 +2056,7 @@ gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-v
 
 Be prepared to transform your data with `log` or `sqrt` transformations
 when you see skewed distributions! Salaries, Instagram connections,
-number of customers vs Companies, net worth /valuation of Companies,
+number of customers vs Companies, net worth / valuation of Companies,
 extreme events on stock markets....all of these could have highly skewed
 distributions. In such a case, the standard statistics of mean/median/sd
 may not convey too much information.
@@ -1862,8 +2072,8 @@ the variables that are plotted in the respective distributions.
 #| echo: false
 #| layout-ncol: 2
 library(TeachHist)
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 p1 <- TeachHistDens(Mean = 60, Sd = 5)
 p3 <- TeachHistDens(Mean = 10, Sd = 5)
 p2 <- TeachHistDens(Mean = 60, Sd = 15)
@@ -1928,14 +2138,11 @@ show the distribution.
 
 ## {{< iconify ooui references-rtl >}} References
 
-\
-See the scrolly animation for a histogram at this website: *Exploring
-Histograms, an essay by Aran Lunzer and Amelia McNamara*
+1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
 <https://tinlizzie.org/histograms/?s=09>\
-Minimal R using
+1. Minimal R using
 `mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
-Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [
-](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
+1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations

@@ -54,8 +54,6 @@ library(kableExtra) # html styled tables
 library(gt) # Making Cool Tables
 library(patchwork) # To arrange plots on a grid and other things
 
-## Plot Theme
-theme_set(new = theme_classic())
 
 ```
 
@@ -69,6 +67,16 @@ library(epoxy)
 # library(TeachHist)
 # library(TeachingDemos)
 library(grateful)
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618,
+ out.width = "80%",
+ fig.align = "center"
+)
+## Plot Theme
+theme_set(new = theme_classic())
 
 ```
 
@@ -189,7 +197,6 @@ variables and at least one column containing `frequency` or `count`
 information.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 ### {{< iconify la r-project >}} R
 
 ```{r}
@@ -311,7 +318,7 @@ Most plots for Categorical Data ( as we shall see ) require that the
 data be converted into a ***Contingency Table*** ; the Statistical tests
 for Proportions ( the $\chi^2$ test ) also needs Contingency Tables. The
 *Frequency Table* we encountered earlier is very close to being a
-full-fledged Contingency Table.
+full-fledged Contingency Table; one only needs to add the margin counts!
 
 From [Wolfram
 Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
@@ -326,7 +333,7 @@ Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 
 In this section we understand how to make Contingency Tables from each
 of the three forms. We will use `vcd`, `mosaic` and the `tidyverse`
-packages for our purposes. Then we will see how it can be visualized.
+packages for our purposes. Then we will see how they can be visualized.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Using base R
@@ -426,8 +433,9 @@ But it is a **set** of (two-way) Contingency Tables:
 ```{r}
 #| layout-ncol: 2
 UCBAdmissions
+###
 vcd::structable(UCBAdmissions)
-
+###
 structable(UCBAdmissions) %>% as.matrix() %>% addmargins()
 
 ```
@@ -465,7 +473,7 @@ to perform some data processing using `dplyr` to get there.
 ### Using the tidyverse
 
 Doing this with the `tidyverse` set of packages may seem
-counter-intuitively long-winded, but the workflow is easily
+counter-intuitive and long-winded, but the workflow is easily
 understandable.
 
 First we develop the counts:
@@ -485,7 +493,7 @@ diamonds %>%
 
 We need to have the individual levels of `cut` as rows and the
 individual levels of `clarity` as columns. This means that we need to
-pivot this from "long" to wide" to obtain a Contingency Table:
+pivot this from "long" to wide"[^1] to obtain a Contingency Table:
 
 ```{r}
 #| message: false
@@ -507,6 +515,8 @@ diamonds %>%
 ```
 :::
 
+[^1]: <https://tidyr.tidyverse.org/articles/pivot.html>
+
 ## {{< iconify carbon chart-3d >}} Plots for Categorical Data
 
 Let us now examine the various kinds of plots we can make with
@@ -522,7 +532,6 @@ categorical data. These can be used for say 2 or 3 Categorical
 variables, with not too many *levels*. However, for more complex data,
 if there are a large number of categorical variables, or if the
 categorical variables have many levels, the bar plot is not adequate.
-
 
 ### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Plotting Contingency Tables with Mosaic Plots
 
@@ -556,10 +565,7 @@ splitting a rectangle recursively. Thus, the area of each tile is
 proportional to the corresponding cell entry given the dimensions of
 previous splits.
 
-
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
-
 #### Using vcd
 
 The `vcd::mosaic()` function needs the data in *contingency table* form.
@@ -624,14 +630,12 @@ residual**.
 
 Pearson Residual: $r_{i,j} = \frac{(o_{+i}- e_{j+})}{\sqrt(e_{i,j})}$
 
-The Pearson residual is scaled because the sum of all the squared Pearson
-residuals is the chi-square statistic, χ2, upon which the inferential
-analysis follows.
+The Pearson residual is scaled because the sum of all the squared
+Pearson residuals is the chi-square statistic, χ2, upon which the
+inferential analysis follows.
 
 We will treat the $X^2$ test in the Module on [Inference for Two
 Proportions.](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric)
-
-
 :::
 
 #### Using ggmosaic
@@ -640,7 +644,8 @@ This is perhaps the simplest way, but does use a different package and
 also does *not* use the formula notation: there is no `gf_mosaic`
 command yet!
 
-`ggmosaic` takes a tibble with Qualitative variables, internally computes the counts/table, and plots the mosaic plot:
+`ggmosaic` takes a tibble with Qualitative variables, internally
+computes the counts/table, and plots the mosaic plot:
 
 ```{r mosaic-plot,warning=FALSE}
 #library(ggmosaic)
@@ -700,7 +705,6 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 ```
 
-
 #### Plotting **Actual** and **Expected** Contingency Tables
 
 To be written up
@@ -710,11 +714,7 @@ To be written up
 vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor)
 vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor, type = "expected")
 ```
-
-
-
 :::
-
 
 ## {{< iconify fluent-mdl2 balloons >}} Balloon Plots
 
@@ -770,7 +770,6 @@ names are enclosed in quotes.
 Balloon Plots work because they use color and size aesthetics to
 represent categories and counts respectively.
 
-
 ## {{< iconify fluent likert-16-regular >}} Plots for Survey Data
 
 In many business situations, we perform say *customer surveys* to get
@@ -783,15 +782,16 @@ where several respondents rate a product or a service on a scale of
 ## A fictitious QuickEZ app
 
 We are a start-up that has an app called **QuickEZ** for delivery of
-groceries. We conduct a survey of 200 people at a local store.
+groceries. We conduct a survey of 200 people at a local store, with the
+following questions,
 
 1.  "Have your heard of the QuickEZ app?"
 2.  "Do you use the QuickEZ app?"
 3.  "Do you find it easy to use the QuickEZ app?"
 4.  "Will you continue to use the QuickEZ app?"
 
-each to be answered on a scale of : "always", "often", "never",
-"sometimes".
+where each questions is to be answered on a scale of : "always",
+"often", "sometimes","never".
 :::
 
 Such data may look for example as follows:
@@ -804,7 +804,7 @@ Such data may look for example as follows:
 
 #library(sjlabelled
 set.seed(42)
-score_labels = c("always", "often", "never", "sometimes") # numerically 1:4
+score_labels = c("always", "often", "sometimes","never") # numerically 1:4
 question_labels <- c("Have your heard of the QuickEZ app?",
                      "Do you use the QuickEZ app?",
                      "Do you find it easy to use the QuickEZ app?",
@@ -836,13 +836,16 @@ str(quickez_data)
 
 ```
 
-Such data is also a form of *Categorical data* and we need to count and
-plot counts for each of the survey questions. Such a plot is called a
-**Likert plot** and it looks like this:
+The columns here correspond to the 4 questions (q1-q4) and the rows
+contain the 200 responses, which have been coded as (1:4). Such data is
+also a form of *Categorical data* and we need to count and plot counts
+for each of the survey questions. Such a plot is called a **Likert
+plot** and it looks like this:
 
 ```{r}
 #| label: Likert-Plot-1
 #| echo: false
+theme_set(new = theme_classic())
 
 plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
             #sort.frq = "" # Try "pos.desc" good news on top!
@@ -969,14 +972,14 @@ with info function.
 :::
 
 Let us manually create one such dataset, since this is a common-enough
-situation[^1] that we have survey data and then have to label the
+situation[^2] that we have survey data and then have to label the
 variables and the values before plotting. We will use the R package
-`sjlabelled` to label our data.[^2].
+`sjlabelled` to label our data.[^3].
 
-[^1]: Piping Hot Data: Leveraging Labelled Data in R,
+[^2]: Piping Hot Data: Leveraging Labelled Data in R,
     https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
 
-[^2]: Label Support in
+[^3]: Label Support in
     R:<https://cran.r-project.org/web/packages/sjlabelled/index.html>
 
 ```{r}
@@ -1064,26 +1067,25 @@ data:
 
 ## {{< iconify ooui references-ltr >}} References
 
-\
-Chapter 4, <https://openintro-ims.netlify.app/explore-categorical.html>
-from *An Introduction to Modern Statistics by Mine Cetinkaya-Rundel and
-Johanna Hardin*.\
+1.  Mine Cetinkaya-Rundel and Johanna Hardin. *An Introduction to Modern
+    Statistics*, Chapter 4.
+    <https://openintro-ims.netlify.app/explore-categorical.html>\
 
-Using the `strcplot` command from `vcd`,
-<https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf>\
+2.  Using the `strcplot` command from `vcd`,
+    <https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf>\
 
-Creating Frequency Tables with `vcd`,
-<https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html>\
+3.  Creating Frequency Tables with `vcd`,
+    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html>\
 
-Creating mosaic plots with `vcd`,
-<https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html>\
+4.  Creating mosaic plots with `vcd`,
+    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html>\
 
-Michael Friendly, *Corrgrams: Exploratory displays for correlation
-matrices*. The American Statistician August 19, 2002 (v1.5).
-<https://www.datavis.ca/papers/corrgram.pdf>\
+5.  Michael Friendly, *Corrgrams: Exploratory displays for correlation
+    matrices*. The American Statistician August 19, 2002 (v1.5).
+    <https://www.datavis.ca/papers/corrgram.pdf>\
 
-[Visualizing Categorical Data in
-R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
+6.  [Visualizing Categorical Data in
+    R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations

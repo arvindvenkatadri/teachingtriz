@@ -56,10 +56,41 @@ library(ggExtra) # Making Combination Plots
 library(Lock5withR) # Datasets
 library(palmerpenguins) # A famous dataset
 
-# Set plot theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = F,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
 
 ```
+
 
 ```{r}
 #| label: Themes and Extra Packages
@@ -168,7 +199,9 @@ glimpse(movies)
 ```{r}
 #| label: skim-movies
 skimr::skim(movies)
-skimr::skim(movies) %>% kableExtra::kbl()
+skimr::skim(movies) %>% 
+  kableExtra::kbl() %>% 
+  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
 
 ```
 
@@ -176,8 +209,12 @@ skimr::skim(movies) %>% kableExtra::kbl()
 #| label: inspect-movies
 
 movies_describe <- inspect(movies)
-movies_describe$categorical %>% kbl()
-movies_describe$quantitative %>% kbl()
+movies_describe$categorical %>%
+  kableExtra::kbl() %>% 
+  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
+movies_describe$quantitative %>%
+  kableExtra::kbl() %>% 
+  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
 
 ```
 
@@ -218,7 +255,7 @@ movies_describe$quantitative
 - RottenTomatoes a numeric vector
 - AudienceScore a numeric vector
 - Story a factor with many levels
-- Genre a factor with levels `Action, Adventure, Animation, Comedy, Drama, Fantasy, Horror, Romance,Thriller`.
+- Genre a factor with levels `Action, Adventure, Animation, Comedy, Drama, Fantasy, Horror, Romance, Thriller`.
 - TheatersOpenWeek a numeric vector
 - BOAverageOpenWeek a numeric vector
 - DomesticGross a numeric vector
@@ -287,28 +324,28 @@ Now let us plot their relationships.
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 
 ##
 movies %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
-  gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Gross Earnings: Domestics vs World")
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+        subtitle = "Movie Gross Earnings: Domestics vs World")
 
 ##
 movies %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
-  gf_lm(title = "Scatter Plot",
-            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+        subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ##
-movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
-  gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Ratings: Tomatoes vs Audience")
-
-##
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+movies %>% 
+  gf_point(RottenTomatoes ~ AudienceScore) %>% 
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+        subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 ##
 ## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
@@ -316,7 +353,9 @@ movies %>%
   drop_na() %>%
   gf_point(RottenTomatoes ~ AudienceScore, 
            color = ~ Genre) %>%
- gf_lm()
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+        subtitle = "Movie Ratings: Trends by Genre")
 
 ```
 
@@ -328,24 +367,30 @@ movies %>%
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
-movies %>% ggplot(aes(x = DomesticGross,y = WorldGross)) + 
+movies %>% 
+  ggplot(aes(x = DomesticGross,y = WorldGross)) + 
   geom_point() + 
-  geom_lm(title = "Scatter Plot",
-            subtitle = "Movie Gross Earnings: Domestics vs World")
+  geom_lm() + 
+  labs(title = "Scatter Plot",
+       subtitle = "Movie Gross Earnings: Domestics vs World")
 ##
-movies %>% ggplot(aes(OpeningWeekend,Profitability)) + 
+movies %>% 
+  ggplot(aes(OpeningWeekend,Profitability)) + 
   geom_point() + 
-  geom_lm(title = "Scatter Plot",
-            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+  geom_lm() + 
+  labs(title = "Scatter Plot",
+       subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ##
-movies %>% ggplot(aes(AudienceScore,RottenTomatoes)) + 
+movies %>% 
+  ggplot(aes(AudienceScore,RottenTomatoes)) + 
   geom_point() + 
-  geom_lm(title = "Scatter Plot",
-            subtitle = "Movie Ratings: Tomatoes vs Audience")
+  geom_lm() +
+  labs(title = "Scatter Plot",
+       subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 
 ##
@@ -353,7 +398,9 @@ movies %>%
   drop_na() %>%
   ggplot(aes(RottenTomatoes, AudienceScore, color = Genre)) + 
   geom_point() + 
-    geom_smooth(method = "lm", se = FALSE)
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Scatter Plot",
+       subtitle = "Movie Ratings: Trends by Genre")
 
 ```
 
@@ -361,36 +408,41 @@ movies %>%
 
 ```{webr-r}
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 
 ##
 movies %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
   gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Gross Earnings: Domestics vs World")
+        subtitle = "Movie Gross Earnings: Domestics vs World")
+```
 
+```{webr-r}
 ##
 movies %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
   gf_lm(title = "Scatter Plot",
-            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+        subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
+```
+
+```{webr-r}
 ##
 movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Ratings: Tomatoes vs Audience")
+        subtitle = "Movie Ratings: Tomatoes vs Audience")
 
-##
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+```
 
-##
+```{webr-r}
 ## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
 movies %>%
   drop_na() %>%
   gf_point(RottenTomatoes ~ AudienceScore, 
            color = ~ Genre) %>%
- gf_lm()
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+          subtitle = "Movie Ratings: Trends by Genre")
 
 ```
 
@@ -421,35 +473,37 @@ We have fitted a **trend line** to each of the scatter plots.
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
 movies %>% 
   drop_na() %>%
   gf_density_2d(WorldGross ~ DomesticGross) %>% 
   gf_point() %>%
-  gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Gross Earnings: Domestics vs World")
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+        subtitle = "Movie Gross Earnings: Domestics vs World")
 ##
 movies %>% 
   drop_na() %>%
   gf_density_2d(Profitability ~ OpeningWeekend) %>% 
   gf_point() %>%
-  gf_lm(title = "Scatter Plot",
-            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+  gf_lm() %>% 
+  gf_labs(title = "Scatter Plot",
+          subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ```
 
 ```{r}
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 movies %>% 
   drop_na() %>%
   gf_density_2d(RottenTomatoes ~ AudienceScore) %>% 
   gf_point() %>%
   gf_lm(title = "Scatter Plot",
-            subtitle = "Movie Ratings: Tomatoes vs Audience")
+        subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 ```
 
@@ -459,8 +513,8 @@ movies %>%
 #| layout-ncol: 2
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
 movies %>% drop_na() %>%
   ggplot(aes(DomesticGross, WorldGross)) + 
@@ -468,7 +522,7 @@ movies %>% drop_na() %>%
   geom_point() + 
   geom_lm() + 
   labs(title = "Scatter Plot",
-            subtitle = "Movie Gross Earnings: Domestics vs World")
+       subtitle = "Movie Gross Earnings: Domestics vs World")
 ##
 movies %>% drop_na() %>%
   ggplot(aes(OpeningWeekend,Profitability)) +
@@ -476,15 +530,15 @@ movies %>% drop_na() %>%
   geom_point() + 
   geom_lm() + 
   labs(title = "Scatter Plot",
-            subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
+       subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ```
 
 
 ```{r}
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# ggplot2::theme_set(new = theme_classic(base_size = 14, 
+#                                        base_family = "sans"))
 ##
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
@@ -494,7 +548,7 @@ movies %>% drop_na() %>%
   stat_ellipse(level = 0.68, colour = "brown") +   
   geom_lm() + 
   labs(title = "Scatter Plot",
-            subtitle = "Movie Ratings: Tomatoes vs Audience")
+       subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 ```
 
@@ -540,8 +594,12 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 #| label: pairs chart
 #| message: false
 
-
-ggplot2::theme_set(theme_bw()) # Works better for ggpairs
+ggplot2::theme_set(theme_bw(base_family = "Roboto Condensed")) + # Works better for ggpairs
+theme_update(panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
 
 names(movies_quant)
 
@@ -565,9 +623,7 @@ GGally::ggpairs(
   lower = list(continuous = wrap("smooth", alpha = 0.3, se = FALSE)),
   
   title = "Movies Data Correlations Plot #1"
-) +
-  
-  theme_bw()
+) 
 
 
 ```
@@ -608,9 +664,7 @@ GGally::ggpairs(
   lower = list(continuous = wrap("smooth", alpha = 0.3, se = FALSE)),
   
   title = "Movies Data Correlations Plot #2"
-) +
-  
-  theme_bw()
+)
 
 ```
 :::callout-note
@@ -651,18 +705,14 @@ matrix that supports **automatic variable reordering** to help detect hidden pat
 #| label:  cor-plot
 #| warning: false
 #| message: false
-#| layout-ncol: 3
-
 
 # library(corrplot)
-
-
 mydata_cor <- cor(movies_quant)
 mydata_cor %>% 
   knitr::kable(caption = "Correlation Scores Matrix")
 
 ## View the matrix
-corrplot(mydata_cor, method = "number", 
+corrplot::corrplot(mydata_cor, method = "number", 
          number.cex = 0.6,
          cl.cex = 0.6, tl.cex = 0.6)
 
@@ -672,19 +722,19 @@ corrplot(mydata_cor,
          main = "Correlogram with Circles")
 
 # Ellipse plot
-corrplot::corrplot(mydata_cor, 
+corrplot(mydata_cor, 
                    method = "ellipse",
                    main = "Correlogram with Ellipes")
 
 # Heatmap
-corrplot::corrplot(mydata_cor, method = "color", ## US Spelling only
+corrplot(mydata_cor, method = "color", ## US Spelling only
          main = "Correlogram")
 
 
 # Heatmap with numbers
-corrplot::corrplot.mixed(mydata_cor, 
-               lower = "color",number.cex = 0.6,
-         cl.cex = 0.6, tl.cex = 0.6,
+corrplot.mixed(mydata_cor, 
+               lower = "color", number.cex = 0.6,
+               cl.cex = 0.6, tl.cex = 0.6,
                upper = "number",
                tl.pos = "l",
                main = "Heatmap?")
@@ -707,7 +757,7 @@ corrplot::corrplot.mixed(mydata_cor,
 Correlations scores can be obtained by conducting a formal test in R. We will use the `mosaic` function `cor_test` to get these results:
 
 ```{r}
-#| column: body-outset-right
+
 mosaic::cor_test(Profitability ~ Budget, data = movies) %>% 
   broom::tidy() %>% 
   knitr::kable(digits = 2,
@@ -739,13 +789,23 @@ Sometimes, a simple scatter, or density alone, or viewed next to one another is 
 ```{r}
 #| label: Scatter-Plot with Marginal Densities
 
+
+ggplot2::theme_set(theme_classic(base_family = "Roboto Condensed")) + # Works better for ggpairs
+theme_update(panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
 library(ggExtra)
 
 penguins %>% 
   drop_na() %>% 
   gf_point(body_mass_g  ~ flipper_length_mm, colour = ~ species) %>% 
   gf_smooth(method = "lm") %>% 
-  ggExtra::ggMarginal(type = "density", groupColour = TRUE, groupFill = TRUE)
+  gf_labs(title = "Scatter Plot with Marginal Densities") %>% 
+  ggExtra::ggMarginal(type = "density", groupColour = TRUE, 
+                      groupFill = TRUE, margins = "both") 
 
 
 ```
@@ -759,10 +819,9 @@ explore more R code for these in the tutorials @sec-slides-and-tutorials.
 
 ## {{< iconify ooui references-ltr >}} References
 
-\
-Minimal R using `mosaic`.
+1. Minimal R using `mosaic`.
     <https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
-Antoine Soetewey. *Pearson, Spearman and Kendall correlation coefficients by hand* <https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/>\
+1. Antoine Soetewey. *Pearson, Spearman and Kendall correlation coefficients by hand* <https://www.r-bloggers.com/2023/09/pearson-spearman-and-kendall-correlation-coefficients-by-hand/>\
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
