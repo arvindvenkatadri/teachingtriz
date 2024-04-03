@@ -68,15 +68,38 @@ library(epoxy)
 # library(TeachingDemos)
 library(grateful)
 
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
- fig.asp = 0.618,
+ fig.asp = 0.618, # Golden Ratio
  out.width = "80%",
  fig.align = "center"
 )
-## Plot Theme
-theme_set(new = theme_classic())
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = TRUE,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
 
 ```
 
@@ -141,7 +164,7 @@ Visualization](http://ddar.datavis.ca/pages/home) :
 
 ```{r}
 #| label: case-form-data
-#| layout-ncol: 2
+#| layout: [[20],[80]]
 
 class(Arthritis)
 
@@ -307,7 +330,8 @@ HairEyeColor %>%
 HairEyeColor %>% 
   as_tibble() %>%  # Convert
   kbl(caption = "Hair Eye and Color") %>% 
-  kable_classic_2(html_font = "Cambria", full_width = F)
+  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
 
 ```
 :::
@@ -377,7 +401,7 @@ ftable(mytable) %>% addmargins()
 A bit strange that the column labels disappear in the `ftable` when
 margins are added...
 
-### Using the vcd package
+### Using vcd
 
 The `vcd` ( Visualize Categorical Data ) package by Michael Friendly has
 a convenient function to create Contingency Tables: `structable()`; this
@@ -443,7 +467,7 @@ structable(UCBAdmissions) %>% as.matrix() %>% addmargins()
 Note that `structable` does not permit the adding of margins directly;
 it needs to be converted to a matrix for `addmargins()` to do its work.
 
-### Using the mosaic package
+### Using mosaic
 
 I think this is the **simplest and most elegant way** of obtaining
 Contingency Tables:
@@ -470,7 +494,7 @@ directly to commands such as `stats::chisq.test()` or
 Often we need Contingency Tables that are in `tibble` form and we need
 to perform some data processing using `dplyr` to get there.
 
-### Using the tidyverse
+### Using tidyverse
 
 Doing this with the `tidyverse` set of packages may seem
 counter-intuitive and long-winded, but the workflow is easily
@@ -493,7 +517,7 @@ diamonds %>%
 
 We need to have the individual levels of `cut` as rows and the
 individual levels of `clarity` as columns. This means that we need to
-pivot this from "long" to wide"[^1] to obtain a Contingency Table:
+pivot this from "long to wide"[^1] to obtain a Contingency Table:
 
 ```{r}
 #| message: false
@@ -509,7 +533,8 @@ diamonds %>%
   # Now add the row and column totals using the `janitor` package
   janitor::adorn_totals(where = c("row", "col")) %>%
   
-  # Recover to tibble since janitor gives a "tabyl" format ( which can be useful too !)
+  # Recover to tibble since janitor gives a "tabyl" format 
+  # ( which can be useful too !)
   as_tibble()
 
 ```
@@ -665,6 +690,8 @@ post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mos
 
 ```{r}
 #| label: marimekko
+#| fig-height: 6
+#| fig-asp: 0.816
 #| message: false
 #| warning: false
 
@@ -699,20 +726,30 @@ gf_col(edu_prop ~ Education, data = gss_summary,
                 scales = "free_x", 
                 space = "free_x") %>% 
   
-  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
-  gf_theme(theme_void())
+  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) 
+
   
 
 ```
 
-#### Plotting **Actual** and **Expected** Contingency Tables
+#### **Actual** and **Expected** Contingency Tables
 
-To be written up
+Contingency Tables reveal relationships between Qualitative variables, by examining counts of observations for each *combination* of the *levels* of the variables. Two Qual variables with $m$ and $n$ levels will give us a table of size $m \times n$. 
+
+In the module on statistical inference for Qualitative data we will see how we can create not only actual Contingency Tables ( as above) but that which would have existed if the two Qualitative variables had no relationship whatsoever. This is called the ["Expected Contingency Table"](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric).
+
+We can calculate and plot both of these with the `vcd` package, as shown below:
 
 ```{r}
+#| label: fig-contingency-expected-actual
+#| fig-cap: 
+#|   - "Actual Contingency Table"
+#|   - "Expected Contingency Table"
 #| layout-ncol: 2
+
 vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor)
 vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor, type = "expected")
+
 ```
 :::
 
@@ -725,8 +762,8 @@ totals)!
 
 ```{r}
 #| label: balloon-plot-using-ggpubr
-#| layout-ncol: 2
-#| column: page-inset-right
+#| fig-width: 7
+#| fig-asp: 0.618
 
 housetasks <- read.delim(
   system.file("demo-data/housetasks.txt", 
