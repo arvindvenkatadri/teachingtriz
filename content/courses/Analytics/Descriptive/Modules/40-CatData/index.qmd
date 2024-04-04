@@ -36,7 +36,6 @@ webr:
 
 library(tidyverse)
 library(mosaic) # Our trusted friend
-library(GGally) 
 library(skimr)
 library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
@@ -51,9 +50,6 @@ library(ca) # Correspondence Analysis, for use some day
 
 ## Making Tables
 library(kableExtra) # html styled tables
-library(gt) # Making Cool Tables
-library(patchwork) # To arrange plots on a grid and other things
-
 
 ```
 
@@ -87,7 +83,7 @@ knitr::opts_chunk$set(
 library(ragg)
 library(showtext)
 library(thematic)
-#extrafont::loadfonts(quiet = TRUE)
+extrafont::loadfonts(quiet = TRUE)
 
 ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
 ggplot2::theme_update(
@@ -171,8 +167,9 @@ class(Arthritis)
 # Tibble as HTML for presentation
 Arthritis %>%  
   head(10) %>% 
-  kbl(caption = "Arthritis Treatments and Effects<br> First 10 Observations",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F)
+  kbl(caption = "Case Form: Arthritis Treatments and Effects<br> First 10 Observations", centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 
 ```
 
@@ -188,7 +185,8 @@ class(Arthritis)
 Arthritis %>%  
   head(10) %>% 
   kbl(caption = "Arthritis Treatments and Effects<br> First 10 Observations",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F)
+  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 
 ```
 
@@ -229,7 +227,8 @@ str(GSS)
 # Tibble as HTML for presentation
 GSS %>%
   kbl(caption = "General Social Survey",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F)
+  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 
 ```
 
@@ -244,7 +243,8 @@ str(GSS)
 # Tibble as HTML for presentation
 GSS %>%
   kbl(caption = "General Social Survey",centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F)
+  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 
 ```
 :::
@@ -338,11 +338,12 @@ HairEyeColor %>%
 
 ## {{< iconify grommet-icons table-add >}} Creating Contingency Tables {#sec-creating-contingency-tables}
 
-Most plots for Categorical Data ( as we shall see ) require that the
+Many plots for Categorical Data ( as we shall see ) require that the
 data be converted into a ***Contingency Table*** ; the Statistical tests
 for Proportions ( the $\chi^2$ test ) also needs Contingency Tables. The
 *Frequency Table* we encountered earlier is very close to being a
 full-fledged Contingency Table; one only needs to add the margin counts!
+So what is a Contingency Table?
 
 From [Wolfram
 Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
@@ -370,11 +371,11 @@ table(Arthritis$Treatment) # Contingency Table
 
 # 1-way Contingency Table
 table(Arthritis$Treatment) %>% addmargins() # Contingency Table with margins
-###
 
 # 2-Way Contingency Tables
 # Choosing Treatment and Improved
 table(Arthritis$Treatment, Arthritis$Improved) %>% addmargins() 
+
 # Choosing Treatment and Sex
 table(Arthritis$Sex, Arthritis$Improved) %>% addmargins()
 
@@ -382,24 +383,23 @@ table(Arthritis$Sex, Arthritis$Improved) %>% addmargins()
 
 We can use `table()` ( and also `xtabs()` ) to generate
 multi-dimensional tables too (More than 2-way) These will be printed out
-as a series of 2D tables, one for each value of the "third" parameter.
-We can then *flatten* this set of tables using **ftable()** and add
-margins to convert into a Contingency Table:
+as **a series of 2D tables**, one for each value/level of the "third" parameter. We can then *flatten* this set of tables using **ftable()** 
+and add margins to convert into a Contingency Table:
 
 ```{r}
 #| label: r-base-three-way-table
-mytable <- table(Arthritis$Treatment, Arthritis$Sex, Arthritis$Improved)
-mytable
+my_arth_table <- table(Arthritis$Treatment, Arthritis$Sex, Arthritis$Improved)
+my_arth_table
 
 
 # Now flatten 
-ftable(mytable) 
-ftable(mytable) %>% addmargins()
+ftable(my_arth_table) 
+ftable(my_arth_table) %>% addmargins()
 
 ```
 
 A bit strange that the column labels disappear in the `ftable` when
-margins are added...
+margins are added...maybe need to investigate the `FUN` argument to `add_margins()`. 
 
 ### Using vcd
 
@@ -407,15 +407,15 @@ The `vcd` ( Visualize Categorical Data ) package by Michael Friendly has
 a convenient function to create Contingency Tables: `structable()`; this
 function produces a 'flat' representation of a high-dimensional
 contingency table constructed by recursive splits (similar to the
-construction of mosaic charts/graphs). `structable` tends to render flat
-tables, of the kind that can be thought of as a "text representation" of
-the `vcd::mosaic` plot:
+construction of mosaic charts/graphs). `structable` tends to render **flat
+tables**, of the kind that can be thought of as a *"text representation" of
+the `vcd::mosaic` plot*:
 
 The arguments of `structable` are:
 
 -   a formula $y + p \sim x + z$ which shows which variables are to be
-    included as *columns* and *rows* respectively on a table
--   a `data` argument, which can indicate a `data frame`
+    included as *columns* and *rows* respectively on a table;
+-   a `data` argument, which can indicate a `data frame` from where the variables are drawn.
 
 ```{r}
 #| label: vcd-data-frame-to-contingency-table
@@ -435,19 +435,20 @@ class(arth_vcd)
 # With Margins
 arth_vcd %>% as.matrix() %>% addmargins()
 
-# We can convert this to a tibble, unlike the `table` earlier!
-arth_vcd %>% as.matrix() %>% addmargins() %>% as_tibble()
-
 ```
 
 ```{r}
 #| label: vcd-multitable-to-contingency-table
 #| layout-ncol: 2
-# HairEyeColor is in multiple table form
-# structable flattens these into one, as for a mosaic chart
 
+# HairEyeColor is in multiple table form
 HairEyeColor
+
+# structable flattens these into one, as for a mosaic chart
 vcd::structable(HairEyeColor)
+
+# As tibble
+vcd::structable(HairEyeColor) %>% as_tibble()
 
 ```
 
@@ -484,21 +485,18 @@ mosaicCore::tally( ~ substance, data = HELPrct, margins = TRUE)
 tally( sex ~ substance, data = HELPrct, margins = TRUE)
 tally(~ sex | substance, data = HELPrct, margins = TRUE)
 
+
 ```
+
+### Using tidyverse
 
 So far these packages give Contingency Tables that are **easy to see for
 humans**; some of these structures are also capable being passed
 directly to commands such as `stats::chisq.test()` or
 `janitor::chisq.test()`.
 
-Often we need Contingency Tables that are in `tibble` form and we need
-to perform some data processing using `dplyr` to get there.
-
-### Using tidyverse
-
-Doing this with the `tidyverse` set of packages may seem
-counter-intuitive and long-winded, but the workflow is easily
-understandable.
+Often we need Contingency Tables that are in `tibble` form, and we need
+to perform some data processing using `dplyr` to get there. Doing this with the `tidyverse` set of packages may seem counter-intuitive and long-winded, but the workflow is easily understandable.
 
 First we develop the counts:
 
@@ -537,7 +535,41 @@ diamonds %>%
   # ( which can be useful too !)
   as_tibble()
 
+### Another Way 
+diamonds %>% 
+  group_by(cut, clarity) %>% 
+  dplyr::summarise( count = n()) %>% 
+  
+  pivot_wider(id_cols = cut, 
+              names_from = clarity, 
+              values_from = count) %>% 
+  
+  # Now add the row and column totals using the `dplyr` package
+  # From: https://stackoverflow.com/a/67885521
+  mutate("row_totals"  = sum(across(where(is.integer)))) %>% 
+  ungroup() %>% 
+  add_row(cut = "col_total", summarize(., across(where(is.integer), sum)))
+
 ```
+
+
+```{r}
+#| include: false
+#How about the data/tables we saw earlier?
+# Convert to tibble
+ftable(my_arth_table) %>% addmargins() %>% as_tibble()
+
+# We can convert this to a tibble
+arth_vcd %>% as_tibble()
+
+# with margins? Ummm...
+arth_vcd %>% as.matrix() %>% addmargins() %>% as_tibble()
+
+tally(~ sex | substance, data = HELPrct, margins = TRUE) %>% as_tibble()
+
+```
+
+
 :::
 
 [^1]: <https://tidyr.tidyverse.org/articles/pivot.html>
@@ -550,7 +582,7 @@ plotting entire Contingency Tables, and then look Balloon Plots as an
 alternative. Finally we will look at a special case of **survey data**
 and look at Likert Plots.
 
-### Simple Bar Plots
+### {{< iconify ion bar-chart >}} Simple Bar Plots
 
 We have already seen **bar plots**, which allow us to plot counts of
 categorical data. These can be used for say 2 or 3 Categorical
@@ -558,10 +590,9 @@ variables, with not too many *levels*. However, for more complex data,
 if there are a large number of categorical variables, or if the
 categorical variables have many levels, the bar plot is not adequate.
 
-### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Plotting Contingency Tables with Mosaic Plots
+Recollect that the bar plot computes *counts* to plot with. 
 
-Now that we know how to create Contingency Tables, we can use these to
-create plots for such complex data.
+### {{< iconify material-symbols auto-awesome-mosaic-outline-sharp >}} Mosaic Plots
 
 From Michael Friendly:
 
@@ -584,10 +615,8 @@ $$\pmb{area \sim frequency}$$
 
 Let us not look at some sample plots that embody this *area-frequency*
 principle. A **mosaic plot** is basically an area-proportional
-visualization of (typically observed) frequencies, consisting of tiles
-(corresponding to the cells) created by vertically and horizontally
-splitting a rectangle recursively. Thus, the area of each tile is
-proportional to the corresponding cell entry given the dimensions of
+visualization of (typically observed) frequencies (i.e counts), consisting of tiles (corresponding to the cells) created by recursively 
+splitting a rectangle vertically and horizontally. Thus, the area of each tile is proportional to the corresponding cell entry given the dimensions of
 previous splits.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
@@ -600,7 +629,8 @@ We will use our `vcd::structable()` function to construct one:
 #| label:  mosaic-plot-using-vcd
 #| layout-ncol: 2
 
-arthritis_table <- vcd::structable(~ Treatment + Improved, data = Arthritis)
+arthritis_table <- vcd::structable(~ Treatment + Improved, 
+                                   data = Arthritis)
 arthritis_table
 
 vcd::mosaic(arthritis_table, 
@@ -636,7 +666,7 @@ the obtained count on which the tile is constructed and the value
 expected if the categorical variables are independent, that is, not
 related.
 
-The null hypothesis of the test of independence is that the variables
+The *null hypothesis* of the test of independence is that the variables
 are independent, not related. The test, as any inferential test, is
 based on comparing the observed values, here the frequencies of each
 cell or cross-classification, with the values expected under the null.
@@ -660,7 +690,8 @@ Pearson residuals is the chi-square statistic, χ2, upon which the
 inferential analysis follows.
 
 We will treat the $X^2$ test in the Module on [Inference for Two
-Proportions.](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric)
+Proportions.](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric). See also the sub-section herein on *Actual and Expected Contingency Tables*. 
+
 :::
 
 #### Using ggmosaic
@@ -676,7 +707,7 @@ computes the counts/table, and plots the mosaic plot:
 #library(ggmosaic)
 gss2002
 ggplot(data = gss2002) +
-  geom_mosaic(aes(x = product(DeathPenalty, Education), 
+  ggmosaic::geom_mosaic(aes(x = product(DeathPenalty, Education), 
                   fill = DeathPenalty))
 
 ```
@@ -734,6 +765,8 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 #### **Actual** and **Expected** Contingency Tables
 
+We briefly. discussed this idea in the `vcd` sub-section above. 
+
 Contingency Tables reveal relationships between Qualitative variables, by examining counts of observations for each *combination* of the *levels* of the variables. Two Qual variables with $m$ and $n$ levels will give us a table of size $m \times n$. 
 
 In the module on statistical inference for Qualitative data we will see how we can create not only actual Contingency Tables ( as above) but that which would have existed if the two Qualitative variables had no relationship whatsoever. This is called the ["Expected Contingency Table"](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric).
@@ -751,6 +784,9 @@ vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor)
 vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor, type = "expected")
 
 ```
+From an inspection of these paired plots, we see the difference between situatlons when Qualitative variables are *not related* to that when they *are related*. 
+
+
 :::
 
 ## {{< iconify fluent-mdl2 balloons >}} Balloon Plots
@@ -770,7 +806,8 @@ housetasks <- read.delim(
               package = "ggpubr"), row.names = 1)
 head(housetasks, 4)
 
-ggpubr::ggballoonplot(housetasks, fill = "value") +
+ggpubr::ggballoonplot(housetasks, fill = "value", 
+                      ggtheme = theme_pubr()) +
   scale_fill_viridis_c(option = "C") +
   labs(title = "A Balloon Plot for Categorical Data")
 
@@ -780,21 +817,21 @@ And repeat with the familiar `HairEyeColor` dataset:
 
 ```{r}
 #| label: Balloon-Plots-2
-#| layout-ncol: 3
+#| layout: [[20], [40], [40]]
 #| column: page-inset-right
 
 df <- as_tibble(HairEyeColor)
 df
 ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
               fill = "n",
-              ggtheme = theme_bw()) +
+              ggtheme = theme_pubr()) +
   scale_fill_viridis_c(option = "C") + 
   labs(title = "Balloon Plot")
 
 # Balloon Plot with facetting
 ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
               fill = "n", facet.by = "Sex",
-              ggtheme = theme_bw()) +
+              ggtheme = theme_pubr()) +
   scale_fill_viridis_c(option = "C") + 
   labs(title = "Balloon Plot with Facetting", 
        subtitle = "Hair and Eye Color")
@@ -882,7 +919,6 @@ plot** and it looks like this:
 ```{r}
 #| label: Likert-Plot-1
 #| echo: false
-theme_set(new = theme_classic())
 
 plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
             #sort.frq = "" # Try "pos.desc" good news on top!
@@ -957,7 +993,8 @@ We can plot this data using the `plot_likert` function from package
 
 ```{r}
 
-efc %>% select(dplyr::contains("cop")) %>% 
+efc %>% 
+  select(dplyr::contains("cop")) %>% 
   sjPlot::plot_likert(title = "Caregiver Survey from EUROFAM")
 
 ```
