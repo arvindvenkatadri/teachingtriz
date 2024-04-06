@@ -14,14 +14,14 @@ bibliography:
 citation: true
 #suppress-bibliography: true
 webr:
-  packages: ['readr', 'dplyr','lubridate', 'ggformula','mosaic', 'skimr', 'timetk', 'tsibble', 'tsibbledata','TSstudio','scales']
+  packages: ['readr', 'tidyr', 'dplyr','lubridate', 'ggformula','mosaic', 'skimr', 'timetk', 'tsibble', 'tsibbledata','TSstudio','scales']
 editor: 
   markdown: 
     wrap: 72
 ---
 
 ## {{< iconify mdi web-check >}} Using web-R
-This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure (like in an old-fashioned library), with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
+This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure (like in an old-fashioned library), with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. ~~The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!~~ If you have messed up the code there, then you can hit the "recycle" button on the `web-r` tab to go back to the original!
 
 #### Keyboard Shortcuts
 
@@ -45,9 +45,38 @@ library(timetk)
 # Datasets
 library(tsibbledata)
 
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# Chunk options
+knitr::opts_chunk$set(
+ #fig.width = 7,
+ #fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 14)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = TRUE,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
 
 ```
 
@@ -130,16 +159,27 @@ the icon below, and saving the downloaded file in a sub-folder called
 
 {{< downloadthis ../data/US_births_2000-2014_SSA.csv dname="US_births_2000-2014_SSA" label="Download the US Births data" icon="database-fill-down" type="info" >}}
 
+
+```{webr-r}
+#| context: setup
+## https://github.com/fivethirtyeight/data/blob/master/births/US_births_2000-2014_SSA.csv
+
+births_2000_2014 <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_2000-2014_SSA.csv")
+
+```
+
+
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
 
 ```{r}
-#| label: timeseries and tsibble
-#| layout-ncol: 2
+#| label: timeseries and tsibble-1
+#| layout: [[60], [40]]
 #| message: false
 
-births_2000_2014 <- read_csv("../data/US_births_2000-2014_SSA.csv")
+births_2000_2014 <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_2000-2014_SSA.csv")
+#births_2000_2014
 
 births_timeseries <- 
   births_2000_2014 %>% 
@@ -150,13 +190,15 @@ births_timeseries <-
 
 births_timeseries
 class(births_timeseries)
+
 # Convert to tsibble
 # combine the year/month/date_of_month columns into a date
 # drop them thereafter
 births_tsibble <- 
   births_2000_2014 %>%
-  mutate(index = lubridate::make_date(year = year,month = month,
-                                     day = date_of_month)) %>%
+  mutate(index = lubridate::make_date(year = year, 
+                                      month = month,
+                                      day = date_of_month)) %>%
   tsibble::as_tsibble(index = index) %>%
   select(index, births)
 
@@ -166,14 +208,11 @@ class(births_tsibble)
 ```
 
 
-
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
 #| label: timeseries and tsibble with webr
 #| layout-ncol: 2
 #| message: false
-
-births_2000_2014 <- read_csv("../data/US_births_2000-2014_SSA.csv")
 
 births_timeseries <- 
   births_2000_2014 %>% 
@@ -181,9 +220,13 @@ births_timeseries <-
                                      month = month,
                                      day = date_of_month)) %>%
   select(date, births)
-
-births_timeseries
+births_timeseries %>% head(6)
+##
 class(births_timeseries)
+
+```
+
+```{webr-r}
 # Convert to tsibble
 # combine the year/month/date_of_month columns into a date
 # drop them thereafter
@@ -224,10 +267,7 @@ Let us try a basic plot with both `tsibble` vs `timetk` packages.
 births_tsibble %>%
   gf_line(births ~ index, 
           data = ., 
-          title = "Basic tsibble plotted with ggformula") %>% 
-  gf_theme(theme_classic())
-
-
+          title = "Basic tsibble plotted with ggformula") 
 
 # timetk **can** plot tsibbles. 
 births_tsibble %>% 
@@ -244,10 +284,7 @@ births_tsibble %>%
 births_tsibble %>%
   gf_line(births ~ index, 
           data = ., 
-          title = "Basic tsibble plotted with ggformula") %>% 
-  gf_theme(theme_classic())
-
-
+          title = "Basic tsibble plotted with ggformula")
 
 # timetk **can** plot tsibbles. 
 births_tsibble %>% 
@@ -283,8 +320,8 @@ births_tsibble %>%
            data = ., 
            title = "Monthly Aggregate with tsibble + ggformula") %>% 
   gf_line() %>% 
-  gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
+  gf_smooth(se = FALSE, method = "loess")  %>% 
+  gf_labs(x = "Year", y = "Mean Monthly Births")
 
 
 births_timeseries %>% 
@@ -320,7 +357,7 @@ births_tsibble %>%
            title = "Monthly Aggregate with tsibble + ggformula") %>% 
   gf_line() %>% 
   gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
+  gf_labs(x = "Year", y = "Mean Monthly Births")
 
 
 births_timeseries %>% 
@@ -366,8 +403,7 @@ births_tsibble %>%
   ##Plot
   gf_point(mean_births ~ year_index, data = .) %>% 
   gf_line() %>% 
-  gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
+  gf_smooth(se = FALSE, method = "loess")
 ####
 births_timeseries %>%
   ## Summarize
@@ -399,8 +435,7 @@ births_tsibble %>%
   ##Plot
   gf_point(mean_births ~ year_index, data = .) %>% 
   gf_line() %>% 
-  gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
+  gf_smooth(se = FALSE, method = "loess") 
 ####
 births_timeseries %>%
   ## Summarize
@@ -454,6 +489,7 @@ births_tsibble %>%
 # Trying to get Annual Birth Average as before
 # Should give 15 rows, one per year, but does not!
   summarise(mean_births = mean(births, na.rm = TRUE)) 
+
 ```
 
 Even if we pull out the `year` information in `index`, it gives confusing results...
@@ -486,7 +522,6 @@ births_tsibble %>%
   tsibble::index_by(year_date = year(index)) %>% 
   dplyr::summarise(mean_births = mean(births, na.rm = TRUE)) 
 
-
 ```
 
 
@@ -512,14 +547,14 @@ births_tsibble %>%
   index_by(month_index = ~ yearmonth(.)) %>%
   # 15 years
   # No need to summarise, since we want boxplots per year / month
+  # Plot the groups
+  # 180 plots!!
   gf_boxplot(births ~ index, group =  ~ month_index,
              fill = ~ month_index,
              data = ., 
              title = "Boxplots of Births by Month",
-             caption = "tsibble + ggformula") %>%
-  # plot the groups
-  # 180 plots!!
-  gf_theme(theme_minimal())
+             caption = "tsibble + ggformula") 
+
            
 ####
 births_tsibble %>% # Can try births_timeseries too
@@ -542,16 +577,15 @@ births_tsibble %>%
   index_by(month_index = ~ yearmonth(.)) %>%
   # 15 years
   # No need to summarise, since we want boxplots per year / month
+  # Plot the groups
+  # 180 plots!!
   gf_boxplot(births ~ index, group =  ~ month_index,
              fill = ~ month_index,
              data = ., 
              title = "Boxplots of Births by Month",
-             caption = "tsibble + ggformula") %>%
-  # plot the groups
-  # 180 plots!!
-  gf_theme(theme_minimal())
+             caption = "tsibble + ggformula")
            
-####
+###
 births_tsibble %>% # Can try births_timeseries too
   timetk::plot_time_series_boxplot(index, births, .period = "month",
                                    .plotly_slider = TRUE,
@@ -582,9 +616,8 @@ births_tsibble %>%
   gf_boxplot(births ~ index, 
              group = ~ qrtr_index,
              fill = ~ qrtr_index,
-             data = .) %>%  # 60 plots!!
-  gf_theme(theme_minimal())
-
+             data = .) # 60 plots!!
+###
 births_tsibble %>% # Can try births_timeseries too
   timetk::plot_time_series_boxplot(
                             index, births, .period = "quarter",
@@ -604,9 +637,8 @@ births_tsibble %>%
   gf_boxplot(births ~ index, 
              group = ~ qrtr_index,
              fill = ~ qrtr_index,
-             data = .) %>%  # 60 plots!!
-  gf_theme(theme_minimal())
-
+             data = .) # 60 plots!!
+###
 births_tsibble %>% # Can try births_timeseries too
   timetk::plot_time_series_boxplot(
                             index, births, .period = "quarter",
@@ -632,14 +664,14 @@ quarter...
 #| label: Annual_boxplots
 births_tsibble %>% 
   index_by(year_index = ~ lubridate::year(.)) %>% # 15 years, 15 groups
-    # No need to summarise, since we want boxplots per year / month
+  # No need to summarise, since we want boxplots per year / month
 
   gf_boxplot(births ~ index, 
               group = ~ year_index, 
               fill = ~ year_index, 
              data = .) %>%  # plot the groups 15 plots
-  gf_theme(scale_fill_distiller(palette = "Spectral")) %>% 
-  gf_theme(theme_minimal())
+  gf_theme(scale_fill_distiller(palette = "Spectral")) 
+####
 
 births_tsibble %>% 
   timetk::plot_time_series_boxplot(
@@ -663,8 +695,8 @@ births_tsibble %>%
               group = ~ year_index, 
               fill = ~ year_index, 
              data = .) %>%  # plot the groups 15 plots
-  gf_theme(scale_fill_distiller(palette = "Spectral")) %>% 
-  gf_theme(theme_minimal())
+  gf_theme(scale_fill_distiller(palette = "Spectral"))
+###
 
 births_tsibble %>% 
   timetk::plot_time_series_boxplot(
@@ -825,15 +857,13 @@ towards filtering, summaries, and averages.
 #| layout-ncol: 2
 PBS %>% 
   gf_point(Cost ~ Month, data = .) %>% 
-  gf_line(title = "PBS Costs vs time", caption = "ggformula") %>% 
-  gf_theme(theme_classic())
+  gf_line(title = "PBS Costs vs time", caption = "ggformula")
 
 ####
 PBS %>% ggplot(aes(Month, Cost)) + 
   geom_point() + 
   geom_line() + 
-  labs(title = "PBS Costs vs time") + 
-  theme_classic()
+  labs(title = "PBS Costs vs time")
 
 ```
 
@@ -842,15 +872,15 @@ PBS %>% ggplot(aes(Month, Cost)) +
 
 PBS %>% 
   gf_point(Cost ~ Month, data = .) %>% 
-  gf_line(title = "PBS Costs vs time", caption = "ggformula") %>% 
-  gf_theme(theme_classic())
+  gf_line(title = "PBS Costs vs time", caption = "ggformula") 
+```
 
 
+```{webr-r}
 PBS %>% ggplot(aes(Month, Cost)) + 
   geom_point() + 
   geom_line() + 
-  labs(title = "PBS Costs vs time") + 
-  theme_classic()
+  labs(title = "PBS Costs vs time") 
 
 ```
 
@@ -879,7 +909,6 @@ PBS %>%
           colour = ~ Type, 
           data = .) %>% 
   gf_point(title = "Costs per Month for General A category patients") %>%
-  gf_theme(theme_classic()) %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
 
 
@@ -898,7 +927,6 @@ PBS %>%
           colour = ~ Type, 
           data = .) %>% 
   gf_point(title = "Costs per Month for General A category patients") %>%
-  gf_theme(theme_classic()) %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
 
 ```
@@ -943,7 +971,7 @@ PBS_month <-  PBS %>%
                           .fn = mean,
                           .names = "mean_{.col}"))
 PBS_month
-
+###
 PBS_month %>% 
   mutate(Month_Date = as_date(Month_Date)) %>%
   gf_line(mean_Cost ~ Month_Date) %>%
@@ -977,6 +1005,7 @@ PBS_month %>%
           title = "Mean Costs and Scripts for General + A category",
           subtitle = "Means over General + A category ") %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
+
 ```
 
 :::
@@ -985,7 +1014,7 @@ PBS_month %>%
 ### Insights
 
 As can be seen:
-TBD
+To Be Written Up !!!
 :::
 
 
@@ -1002,6 +1031,7 @@ PBS_quarter <-
                           .fn = mean,
                           .names = "mean_{.col}"))
 PBS_quarter
+###
 PBS_quarter %>% 
   gf_line(mean_Cost ~ Quarter_Date) %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
@@ -1019,9 +1049,15 @@ PBS_quarter <-
                           .fn = mean,
                           .names = "mean_{.col}"))
 PBS_quarter
+
+```
+
+```{webr-r}
+
 PBS_quarter %>% 
   gf_line(mean_Cost ~ Quarter_Date) %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
+
 ```
 
 :::
@@ -1067,6 +1103,7 @@ PBS_year
 PBS_year %>% 
   gf_line(mean_Cost ~ Year_Date) %>%
   gf_refine(scale_y_continuous(labels = scales::label_comma()))
+
 ```
 
 :::
@@ -1099,18 +1136,17 @@ earlier.)
 #| message: false
 PBS %>% 
   mutate(Month_Date = lubridate::as_date(Month)) %>%
-  ##
+##
   timetk::summarise_by_time(.date_var = Month_Date,
                             .by = "month",
                             mean_Cost = mean(Cost)) %>%
-  ##
+##
   timetk::plot_time_series(.date_var = Month_Date, 
                            .value = mean_Cost,
                            .interactive = FALSE,
                            .x_lab = "Time", .y_lab = "Costs",
                            .title = "Mean Costs by Month") + 
   labs(caption = "Tsibble Plotted with timetk")
-
 
 ```
 
@@ -1121,17 +1157,18 @@ PBS %>%
 #| message: false
 PBS %>% 
   mutate(Month_Date = lubridate::as_date(Month)) %>%
-  ##
+##
   timetk::summarise_by_time(.date_var = Month_Date,
                             .by = "month",
                             mean_Cost = mean(Cost)) %>%
-  ##
+##
   timetk::plot_time_series(.date_var = Month_Date, 
                            .value = mean_Cost,
                            .interactive = FALSE,
                            .x_lab = "Time", .y_lab = "Costs",
                            .title = "Mean Costs by Month") + 
   labs(caption = "Tsibble Plotted with timetk")
+
 ```
 
 :::

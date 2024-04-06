@@ -47,12 +47,40 @@ library(sweep) # New (07/2023) package to bring broom-like features to time seri
 library(tsdl) # Time Series Data Library from Rob Hyndman
 
 
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
-
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# Chunk options
+knitr::opts_chunk$set(
+ #fig.width = 7,
+ #fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 14)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+thematic_on(font = "Roboto Condensed",inherit = TRUE,
+             bg = "#FFFFFF",fg = "#111111",
+             accent = "#DD1144")
+
+```
 
 
 ```{r}
@@ -318,8 +346,7 @@ births_2000_2014 %>%
           group = ~ day_of_week, 
           color = ~ day_of_week) %>% 
   gf_point(title = "By Day of Week") %>% 
-  gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_distiller(palette = "Paired"))
 
 
 # Grouping by date_of_month
@@ -328,8 +355,7 @@ births_2000_2014 %>%
           group = ~ date_of_month, 
           color = ~ date_of_month) %>% 
   gf_point(title = "By Date of Month") %>% 
-  gf_theme(scale_colour_distiller(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_distiller(palette = "Paired")) 
 
 ```
 
@@ -360,8 +386,7 @@ births_2000_2014_monthly %>%
           colour = ~ month, linewidth = 1) %>% 
   gf_point(size = 1.5, title = "Summaries of Monthly Births over the years") %>% 
     # palette for 12 colours
-  gf_theme(scale_colour_brewer(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_brewer(palette = "Paired")) 
 
 
 ```
@@ -397,8 +422,7 @@ births_2000_2014_weekly %>%
           data = .) %>% 
   gf_point(size = 2) %>% 
   # palette for 12 colours
-  gf_theme(scale_colour_brewer(palette = "Paired")) %>% 
-  gf_theme(theme_classic())
+  gf_theme(scale_colour_brewer(palette = "Paired"))
 
 
 ```
@@ -520,7 +544,8 @@ births_2000_2014 %>%  ggplot(aes(year, births,
                                  group = date_of_month, 
                                  color = date_of_month)) + 
   geom_line() + 
-  geom_point(title = "By Date of Month") +  
+  geom_point() +  
+  labs(title = "By Date of Month") + 
   scale_colour_distiller(palette = "Paired")
 
 ```
@@ -542,18 +567,16 @@ births_2000_2014_monthly <- births_2000_2014 %>%
   group_by(year, month) %>% 
   summarise(mean_monthly_births = mean(births, na.rm = TRUE))
 births_2000_2014_monthly
-
+###
 births_2000_2014_monthly %>% 
   ggplot(aes(year, mean_monthly_births,
-                                        group = month, 
-                                        colour = month)) + 
+               group = month, colour = month)) + 
   geom_line(linewidth = 1) + 
   geom_point(size = 1.5) + 
   labs(title = "Summaries of Monthly Births over the years") + 
     
   # palette for 12 colours
-  scale_colour_brewer(palette = "Paired") + 
-  theme_classic()
+  scale_colour_brewer(palette = "Paired")
 
 
 ```
@@ -578,8 +601,7 @@ births_2000_2014_weekly %>%
   geom_point() + 
     
   # palette for 12 colours
-  scale_colour_brewer(palette = "Paired") +  
-  theme_classic()
+  scale_colour_brewer(palette = "Paired")
 
 
 ```
@@ -649,9 +671,7 @@ Let us simply plot `Cost` over time:
 
 PBS %>% 
   gf_point(Cost ~ Month, data = .) %>% 
-  gf_line(title = "PBS Costs vs time") %>% 
-  gf_theme(theme_classic())
-
+  gf_line(title = "PBS Costs vs time") 
 ```
 
 
@@ -663,8 +683,7 @@ PBS %>%
 PBS %>% ggplot(aes(Month, Cost)) + 
   geom_point() + 
   geom_line() + 
-  labs(title = "PBS Costs vs time") + 
-  theme_classic()
+  labs(title = "PBS Costs vs time") 
 
 ```
 
@@ -731,8 +750,7 @@ PBS %>%
   gf_line(Cost ~ Month, 
           colour = ~ Type, 
           data = .) %>% 
-  gf_point(title = "Costs, per Month") %>% 
-  gf_theme(theme_classic())
+  gf_point(title = "Costs, per Month") 
 
 # Scripts
 PBS %>% 
@@ -740,8 +758,7 @@ PBS %>%
   gf_line(Scripts ~ Month, 
           colour = ~ Type, 
           data = .) %>% 
-  gf_point(title = "Scripts, per Month") %>% 
-  gf_theme(theme_classic())
+  gf_point(title = "Scripts, per Month") 
 
 
 # Costs variable for a specific combo of Qual variables(keys)
@@ -752,8 +769,7 @@ PBS %>%
   gf_line(Cost ~ Month, 
           colour = ~ Type, 
           data = .) %>% 
-  gf_point(title = "Costs, per Month for General/A/A10 category patients") %>%
-  gf_theme(theme_classic())
+  gf_point(title = "Costs, per Month for General/A/A10 category patients")
 
 
 # Scripts variable for a specific combo of Qual variables(keys)
@@ -764,8 +780,7 @@ PBS %>%
   gf_line(Scripts ~ Month, 
           colour = ~ Type, 
           data = .) %>% 
-  gf_point(title = "Scripts, per Month for General/A/A10 category patients") %>% 
-  gf_theme(theme_classic())
+  gf_point(title = "Scripts, per Month for General/A/A10 category patients") 
 
 
 ```
@@ -845,9 +860,7 @@ This is DAILY data of course. Let us say we want to *group by month and plot mea
 births_tsibble %>%
   gf_line(births ~ date, 
           data = ., 
-          title = "Basic tsibble plotted with ggformula") %>% 
-  gf_theme(theme_classic())
-
+          title = "Basic tsibble plotted with ggformula")
 
 
 # timetk **can** plot tsibbles. 
@@ -873,9 +886,7 @@ births_tsibble %>%
            data = ., 
            title = "Monthly Aggregate with tsibble") %>% 
   gf_line() %>% 
-  gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
-
+  gf_smooth(se = FALSE, method = "loess") 
 
 births_timeseries %>% 
   # timetk cannot wrangle tsibbles
@@ -905,8 +916,7 @@ births_tsibble %>%
   dplyr::summarise(mean_births = mean(births, na.rm = TRUE)) %>%
   gf_point(mean_births ~ year_index, data = .) %>% 
   gf_line() %>% 
-  gf_smooth(se = FALSE, method = "loess") %>% 
-  gf_theme(theme_minimal())
+  gf_smooth(se = FALSE, method = "loess") 
 
 
 births_timeseries %>% 
@@ -977,10 +987,9 @@ births_tsibble %>%
   # No need to summarise, since we want boxplots per year / month
   gf_boxplot(births ~ date, 
              group =  ~ month_index, 
-             fill = ~ month_index, data = .) %>%  
+             fill = ~ month_index, data = .) 
   # plot the groups
   # 180 plots!!
-  gf_theme(theme_minimal())
 
 births_timeseries %>% 
   # timetk::summarise_by_time(.date_var = date, 
@@ -1002,8 +1011,7 @@ births_tsibble %>%
   gf_boxplot(births ~ date, 
              group = ~ qrtr_index,
              fill = ~ qrtr_index,
-             data = .) %>%  # 60 plots!!
-  gf_theme(theme_minimal())
+             data = .)  # 60 plots!!
 
 births_timeseries %>% 
   timetk::plot_time_series_boxplot(date, births,
@@ -1020,11 +1028,11 @@ births_tsibble %>%
     # No need to summarise, since we want boxplots per year / month
 
   gf_boxplot(births ~ date, 
-              group = ~ year_index, 
-              fill = ~ year_index, 
+             group = ~ year_index, 
+             fill = ~ year_index, 
              data = .) %>%  # plot the groups 15 plots
-  gf_theme(scale_fill_distiller(palette = "Spectral")) %>% 
-  gf_theme(theme_minimal())
+  gf_labs(title = "Yearly aggregate births with ggformula") %>% 
+  gf_theme(scale_fill_distiller(palette = "Spectral")) 
 
 births_timeseries %>% 
   timetk::plot_time_series_boxplot(date, births,
@@ -1092,9 +1100,6 @@ How about a heatmap? We can cook up a categorical variable based on the
 number of births (low, fine, high) and use that to create a heatmap:
 
 ```{r}
-
-
-library(ggformula)
 
 births_2000_2014 %>%
   mutate(birthrate = case_when(births >= 10000 ~ "high",
