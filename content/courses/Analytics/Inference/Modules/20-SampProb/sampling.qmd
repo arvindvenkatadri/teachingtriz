@@ -1,6 +1,5 @@
 ---
 title: "\U0001F3B2 Samples, Populations, Statistics and Inference"
-author: "Arvind Venkatadri"
 date: 25/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 20
@@ -14,6 +13,8 @@ categories:
 bibliography: 
   - grateful-refs.bib
 citation: true
+filters: 
+  - shinylive
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
@@ -46,21 +47,61 @@ library(cowplot) # ggplot themes and stacking of plots
 #| echo: false
 #| message: false
 
+library(grateful)
 library(checkdown)
 library(epoxy)
 library(TeachHist)
 library(TeachingDemos)
-library(grateful)
+library(smovie) # Stat Movies with code
 library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
-
+library(regressinator) # Fake data populations we can sample from
+library(shinylive)
 ```
 
 ```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+extrafont::loadfonts(quiet = TRUE)
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center",
+ warning = FALSE
+)
+### Ggplot Theme
+# library(ragg)
+# library(showtext)
+# library(thematic)
+# extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_bw(base_size = 12)) + 
+ggplot2::theme_update(
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+# thematic_on(font = "Roboto Condensed",inherit = F,
+#              bg = "#FFFFFF",fg = "#111111",
+#              accent = "#DD1144")
+
+```
+
+
+```{r}
 #| echo: FALSE
-#| eval: FALSE
+#| eval: false
 #| fig.align: 'center'
 #| fig.alt: "Photo by Anirudh on unsplash"
-knitr::include_graphics("featured.jpg")
+knitr::include_graphics("preview.jpg")
 
 ```
 
@@ -72,8 +113,8 @@ mathematically denote the population's size using upper-case `N`.
 
 A *population parameter* is some numerical summary about the population
 that is unknown but you wish you knew. For example, when this quantity
-is a mean like the average height of all Bangaloreans, the population
-parameter of interest is the population mean.
+is a mean like *the mean height of all Bangaloreans*, the population
+parameter of interest is the *population mean*.
 
 A *census* is an exhaustive enumeration or counting of all N individuals
 in the population. We do this in order to compute the population
@@ -89,10 +130,8 @@ Populations *P*arameters are usually indicated by Greek Letters.
 
 ## {{< iconify game-icons card-pickup >}} What is a Sample?
 
-Sampling is the act of collecting a sample from the population, which we
-generally do when we can't perform a census. We mathematically denote
-the sample size using lower case `n`, as opposed to upper case `N` which
-denotes the population's size. Typically the sample size `n` is much
+Sampling is the act of collecting a small subset from the population, 
+which we generally do when we can't perform a **census**. We mathematically denote the sample size using lower case `n`, as opposed to upper case `N` which denotes the population's size. Typically the sample size `n` is much
 smaller than the population size `N`. Thus sampling is a much cheaper
 alternative than performing a census.
 
@@ -103,13 +142,10 @@ sample.
 ::: callout-note
 ## Why do we sample?
 
-Because we cannot conduct a census ( not always ) --- and sometimes we
-won't even know how big the population is --- we take samples. And we
+Because we cannot conduct a census ( not always ) --- and **sometimes we won't even know how big the population is** --- we take samples. And we
 *still* want to do useful work for/with the population, after
-*estimating its parameters, an act of generalizing* from sample to
-population. So the question is, **can we estimate useful parameters of
-the population, using just samples? Can point estimates serve as useful
-guides to population parameters?**
+estimating its parameters, *an act of generalizing* from sample to
+population. So the question is, **can we estimate useful parameters of the population, using just samples? Can point estimates serve as useful guides to population parameters?**
 
 [This act of generalizing from sample to population is at the heart of
 **statistical inference**.]{style="background-color: yellow;"}
@@ -238,6 +274,7 @@ with **population parameters** on the basis of this ONE sample of 50:
 
 ```{r}
 #| layout: [[20,20,60]]
+#| warning: false
 sample_height <- sample(NHANES_adult, size = 50) %>% 
   select(Height)
 sample_height
@@ -260,8 +297,7 @@ sample_height %>%
           color = "blue") %>% 
   
   gf_label(7 ~ (sample_mean_height - 8), 
-          label = "Sample Mean Height", color = "red") %>% 
-  gf_theme(theme_classic())
+          label = "Sample Mean Height", color = "red") 
 
 
 ```
@@ -276,6 +312,7 @@ will then see if these 500 means lie close to the `pop_mean_height`:
 
 ```{r}
 #| layout: [[20,20,60]]
+#| warning: false
 
 sample_height_500 <- do(500) * {
   sample(NHANES_adult, size = 50) %>%
@@ -297,7 +334,7 @@ sample_height_500 %>%
   gf_segment(
     .index + .index ~ sample_min_500 + sample_max_500,
     color = "red",
-    size = 0.3,
+    linewidth = 0.3,
     alpha = 0.3,
     ylab = "Sample Index (1-500)",
     xlab = "Sample Means"
@@ -307,9 +344,7 @@ sample_height_500 %>%
            color = "blue") %>%
   
   gf_label(-15 ~ pop_mean_height, label = "Population Mean", 
-           color = "blue") %>% 
-  
-  gf_theme(theme = theme_classic)
+           color = "blue") 
 
 ```
 
@@ -335,6 +370,7 @@ variable.
 ```{r}
 #| label: Sampling-Mean-Distribution
 #| layout-ncol: 2
+#| warning: false
 #| fig-cap: Distributions
 #| fig-subcap: 
 #|  - Sample
@@ -348,8 +384,8 @@ sample_height_500 %>%
   
   gf_label(0.01 ~ pop_mean_height, 
             label = "Population Mean", 
-            color = "blue") %>% 
-  gf_theme(theme_classic())
+            color = "blue") 
+
 
 # How does this **distribution of sample-means** compare with the
 # overall distribution of the population?
@@ -370,8 +406,8 @@ sample_height_500 %>%
                bins = 30) %>% 
   
   gf_label(0.025 ~ (pop_mean_height + 20), 
-           label = "Population Distribution", color = "blue") %>% 
-  gf_theme(theme_classic())
+           label = "Population Distribution", color = "blue") 
+
 
 ```
 
@@ -392,7 +428,7 @@ look at the resulting histograms and [Q-Q
 plots.](https://www.youtube.com/watch?v=okjYjClSjOg) (Q-Q plots check
 whether a certain distribution is close to being normal or not.)
 
-We will use sample sizes of `c(16, 32, 64, 128)` and generate 1000
+We will use sample sizes of `c(8, 16, ,32, 64)` and generate 1000
 samples each time, take the means and plot these 1000 means:
 
 ```{r}
@@ -400,16 +436,18 @@ samples each time, take the means and plot these 1000 means:
 set.seed(12345)
 
 
+samples_height_08 <- do(1000) * mean(resample(NHANES_adult$Height, size = 08))
+
 samples_height_16 <- do(1000) * mean(resample(NHANES_adult$Height, size = 16))
 
 samples_height_32 <- do(1000) * mean(resample(NHANES_adult$Height, size = 32))
 
 samples_height_64 <- do(1000) * mean(resample(NHANES_adult$Height, size = 64))
 
-samples_height_128 <- do(1000) * mean(resample(NHANES_adult$Height, size = 128))
+# samples_height_128 <- do(1000) * mean(resample(NHANES_adult$Height, size = 128))
 
 # Quick Check
-head(samples_height_16)
+head(samples_height_08)
 
 ```
 
@@ -418,24 +456,25 @@ Now let's create separate `Q-Q plots` for the different sample sizes.
 ```{r}
 #| warning: false
 # Now let's create separate Q-Q plots for the different sample sizes.
-#
-p1 <- gf_qq( ~ mean,data = samples_height_16,
-             title = "N = 16", 
-             color = "cornsilk") %>%
+# ggplot2::theme_set(theme_classic())
+
+p1 <- gf_qq( ~ mean,data = samples_height_08,
+             title = "N = 8", 
+             color = "dodgerblue") %>%
   gf_qqline()
 
-p2 <- gf_qq( ~ mean,data = samples_height_32,
-            title = "N = 32", 
+p2 <- gf_qq( ~ mean,data = samples_height_16,
+            title = "N = 16", 
             color = "sienna") %>%
   gf_qqline()
 
 p3 <- gf_qq( ~ mean,data = samples_height_32,
-            title = "N = 64", 
-            color = "tomato2") %>%
+            title = "N = 32", 
+            color = "palegreen") %>%
   gf_qqline()
 
-p4 <- gf_qq( ~ mean,data = samples_height_128,
-            title = "N = 128", 
+p4 <- gf_qq( ~ mean,data = samples_height_64,
+            title = "N = 64", 
             color = "violetred") %>%
   gf_qqline()
 
@@ -446,54 +485,64 @@ cowplot::plot_grid(p1, p2, p3, p4)
 Let us plot their individual histograms to compare them:
 
 ```{r}
+#| warning: false
+#| layout-ncol: 2
+#| layout-nrow: 2
 
 # Let us overlay their individual histograms to compare them:
 p5 <- gf_dhistogram(~ mean,
-              data = samples_height_16,
-              color = "black",
-              fill = "cornsilk",title = "N = 16") %>%
+              data = samples_height_08,
+              color = "grey",
+              fill = "dodgerblue",title = "N = 8") %>%
   gf_fitdistr() %>%
-  gf_vline(xintercept = pop_mean_height,
+  gf_vline(xintercept = pop_mean_height, inherit = FALSE,
            color = "blue") %>%
-  gf_label(-0.01 ~ pop_mean_height, 
+  gf_label(-0.025 ~ pop_mean_height, 
            label = "Population Mean", 
-           color = "blue")
+           color = "blue") %>% 
+  gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
 
 p6 <- gf_dhistogram(~ mean,
-              data = samples_height_32,
-              color = "black",
-              fill = "sienna",title = "N = 32") %>%
+              data = samples_height_16,
+              color = "grey",
+              fill = "sienna",title = "N = 16") %>%
   gf_fitdistr() %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, 
+  gf_label(-.025 ~ pop_mean_height, 
            label = "Population Mean", 
-           color = "blue")
+           color = "blue") %>% 
+  gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
 
 p7 <- gf_dhistogram(~ mean,
-                    data = samples_height_64 ,
+                    data = samples_height_32 ,
                     na.rm = TRUE,
-                    color = "black",
-                    fill = "tomato2",title = "N = 64") %>%
+                    color = "grey",
+                    fill = "palegreen",title = "N =32") %>%
   gf_fitdistr() %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, 
-           label = "Population Mean", color = "blue")
+  gf_label(-.025 ~ pop_mean_height, 
+           label = "Population Mean", color = "blue") %>% 
+  gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
 
 p8 <- gf_dhistogram(~ mean, 
-                    data = samples_height_128,
+                    data = samples_height_64,
                     na.rm = TRUE,
-                    color = "black",
-                    fill = "violetred",title = "N = 128") %>% 
+                    color = "grey",
+                    fill = "violetred",title = "N = 64") %>% 
   gf_fitdistr() %>% 
   gf_vline(xintercept = pop_mean_height,
          color = "blue") %>%
-  gf_label(-.01 ~ pop_mean_height, 
-           label = "Population Mean", color = "blue")
+  gf_label(-.025 ~ pop_mean_height, 
+           label = "Population Mean", color = "blue") %>% 
+  gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
 
-cowplot::plot_grid(p5,p6,p7,p8)
-
+#patchwork::wrap_plots(p5,p6,p7,p8)
+p5
+p6
+p7
+p8
 
 ```
 
@@ -501,55 +550,55 @@ And if we overlay the histograms:
 
 ```{r, echo=FALSE}
 gf_dhistogram(~ mean,
+              data = samples_height_08,
+              color = "grey",
+              fill = "dodgerblue",alpha = .5) %>% 
+  # gf_label(0.15 ~ 172, inherit = FALSE,
+  #          label = "N = 8", color = "dodgerblue") %>% 
+
+gf_dhistogram(~ mean,
               data = samples_height_16,
-              color = "black",
-              fill = "cornsilk",alpha = .5) %>% 
-  gf_label(0.15 ~ 172, 
-           label = "N =16", fill = "cornsilk", color = "black") %>% 
+              color = "grey",
+              fill = "sienna",alpha = 0.5) %>% 
+    # gf_label(0.2 ~ 172, 
+    #        label = "N = 16", color = "sienna") %>% 
 
 gf_dhistogram(~ mean,
               data = samples_height_32,
-              color = "black",
-              fill = "sienna",alpha = 0.5) %>% 
-    gf_label(0.2 ~ 172, 
-           label = "N = 32", color = "sienna") %>% 
+              color = "grey",
+              fill = "palegreen",alpha = 0.5) %>% 
+    # gf_label(0.3 ~ 172, 
+    #        label = "N = 32", color = "palegreen") %>% 
 
 gf_dhistogram(~ mean,
               data = samples_height_64,
-              color = "black",
-              fill = "tomato2",alpha = 0.5) %>% 
-    gf_label(0.3 ~ 172, 
-           label = "N = 64", color = "tomato2") %>% 
-
-gf_dhistogram(~ mean,
-              data = samples_height_128,
-              color = "black",
+              color = "grey",
               fill = "violetred",alpha = 0.5) %>% 
-    gf_label(0.4 ~ 172, 
-           label = "N = 128", color = "violetred") %>% 
+    # gf_label(0.4 ~ 172, 
+    #        label = "N = 64", color = "violetred") %>% 
 
 gf_fitdistr(
   ~ mean,
-  data = samples_height_16,
-  color = "cornsilk",size = 2
+  data = samples_height_08,
+  color = "dodgerblue",size = 2
 ) %>%
   
   gf_fitdistr(
     ~ mean,
-    data = samples_height_32 ,
+    data = samples_height_16 ,
     color = "sienna",size = 2
   ) %>%
   
   gf_fitdistr(
     ~ mean,
-    data = samples_height_64 ,
+    data = samples_height_32 ,
     na.rm = TRUE,
-    color = "tomato2",size = 2
+    color = "palegreen",size = 2
   ) %>%
   
   gf_fitdistr(
     ~ mean,
-    data = samples_height_128 ,
+    data = samples_height_64 ,
     na.rm = TRUE,
     color = "violetred", size = 2
   ) %>%
@@ -557,8 +606,7 @@ gf_fitdistr(
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
   gf_label(-.02 ~ pop_mean_height, label = "Population Mean", 
-           color = "blue") %>% 
-  gf_theme(ggplot2::theme_classic())
+           color = "blue") 
 
 ```
 
@@ -574,10 +622,10 @@ Let us calculate the mean of the sample-means:
 
 ```{r}
 #| results: hold
+mean(~ mean, data  = samples_height_08)
 mean(~ mean, data  = samples_height_16)
 mean(~ mean, data  = samples_height_32)
 mean(~ mean, data  = samples_height_64)
-mean(~ mean, data  = samples_height_128)
 pop_mean_height
 
 ```
@@ -586,10 +634,10 @@ And the sample `sd`s:
 
 ```{r}
 #| results: hold
+sd(~ mean, data  = samples_height_08)
 sd(~ mean, data  = samples_height_16)
 sd(~ mean, data  = samples_height_32)
 sd(~ mean, data  = samples_height_64)
-sd(~ mean, data  = samples_height_128)
 
 ```
 
@@ -616,7 +664,7 @@ As we saw above, the standard deviations of the sample-mean
 distributions reduce with sample size. In fact their SDs are defined by:
 
 `sd = pop_sd/sqrt(sample_size)`[^2] where sample-size here is one of
-`c(16,32,64,128)`
+`c(8, 16,32,64)`
 
 The standard deviation of the **sample-mean distribution** is called the
 **Standard Error**. This statistic derived from the sample, will help us
@@ -635,10 +683,11 @@ In our sampling experiments, the Standard Errors evaluate to:
 #| layout-ncol: 2
 pop_sd_height <- sd(~ Height, data = NHANES_adult)
 
+pop_sd_height/sqrt(8)
 pop_sd_height/sqrt(16)
 pop_sd_height/sqrt(32)
 pop_sd_height/sqrt(64)
-pop_sd_height/sqrt(128)
+
 
 ```
 
@@ -649,9 +698,8 @@ individual sample-mean distributions.
 
 When we work with samples, we want to be able to speak with a certain
 degree of confidence about the **population mean**, based on the
-evaluation of **one** sample mean,not a whole large number of them. Give
-that sample-means are normally distributed around the **population
-means**, we can say that $68\%$ of *all possible sample-mean* lie within
+evaluation of **one** sample mean, not a large number of them. Given
+that sample-means are normally distributed around the **population means**, we can say that $68\%$ of *all possible sample-mean* lie within
 $\pm SE$ of the *population mean*; and further that $95 \%$ of *all
 possible sample-mean* lie within $\pm 2*SE$ of the *population mean*.
 
@@ -679,6 +727,83 @@ Thus if we want to estimate a *population parameter*:
 -   Since Standard Error decreases with sample size, we need to make our
     sample of adequate size.( $n=30$ seems appropriate in most cases.
     Why?)
+  
+- And we do not have to worry about the distribution of the population. It need not be normal !!
+
+## {{< iconify material-symbols interactive-space-outline >}} An interactive Sampling app
+
+Here below is an interactive sampling app. Choose the number of samples you want from a **normally-distributed population** $N(\mu = 0, \sigma = 1)$. Vary the sample size to see how the sample mean varies around the tru population mean. 
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 600
+#| viewerWidth: 1000
+library(shiny)
+library(bslib)
+
+# Define UI for app that draws a histogram ----
+ui <- page_sidebar(
+  sidebar = sidebar(open = "open",
+    numericInput("n", "Sample count", 100),
+    checkboxInput("pause", "Pause", FALSE),
+  ),
+  plotOutput("plot", width=800)
+)
+
+server <- function(input, output, session) {
+  data <- reactive({
+    input$resample
+    if (!isTRUE(input$pause)) {
+      invalidateLater(1000)
+    }
+    rnorm(input$n)
+  })
+  
+  output$plot <- renderPlot({
+    hist(data(),
+      breaks = 40,
+      xlim = c(-3, 3),
+      ylim = c(0, 1.5),
+      lty = "blank",
+      xlab = "value",
+      freq = FALSE,
+      main = ""
+    )
+    
+    x <- seq(from = -3, to = 3, length.out = 500)
+    y <- dnorm(x)
+    lines(x, y, lwd=1.5)
+    
+    lwd <- 5
+    abline(v=0, col="red", lwd=lwd, lty=2)
+    abline(v=mean(data()), col="blue", lwd=lwd, lty=1)
+
+    legend(legend = c("Normal", "Mean", "Sample mean"),
+      col = c("black", "red", "blue"),
+      lty = c(1, 2, 1),
+      lwd = c(1, lwd, lwd),
+      x = 0.25,
+      y = 1.25
+    )
+  }, res=140)
+}
+
+# Create Shiny app ----
+shinyApp(ui = ui, server = server)
+
+```
+What if we sample from *not* a normal distribution but say, a Poisson Distribution? Will we still see the sample mean hover around the population mean?
+
+```{r}
+#| echo: false
+smovie::clt(distn = "gamma")
+
+```
+
+## An Interactive app for the CLT
+
+<https://gallery.shinyapps.io/CLT_mean/>
+
 
 ## {{< iconify ooui references-rtl >}} References
 
@@ -715,7 +840,6 @@ Thus if we want to estimate a *population parameter*:
     70:2, 202-214, DOI:
     [10.1080/00031305.2015.1077728](https://doi.org/10.1080/00031305.2015.1077728)
 
-10. 
 
 [^1]: The \`Height\` variable seems to be normally distributed at
     population level. We will try other non-normal population variables
@@ -725,10 +849,20 @@ Thus if we want to estimate a *population parameter*:
     population and there is no question of estimation error! So
     `sample_sd = pop_sd`!
 
-## Package Citations
+::: {#refs style="font-size: 60%;"}
+
+###### {{< iconify lucide package-check >}} R Package Citations
 ```{r}
 #| echo: false
-pkgs <- cite_packages(output = "table", out.dir = ".")
-knitr::kable(pkgs)
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("NHANES", "regressinator", "smovie", "TeachHist",
+           "TeachingDemos", "visualize")
+) %>%
+  knitr::kable(format = "simple")
 
 ```
+:::

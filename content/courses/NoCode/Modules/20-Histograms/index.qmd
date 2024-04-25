@@ -1,0 +1,271 @@
+---
+title: "\U0001F576 ...The clocks were striking thirteen."
+subtitle: "Graphs for Single Quant Variables"
+abstract-title: "Abstract"
+abstract: Making Histograms with Single Quant Variables
+date: 16-Apr-2024
+date-modified: "`r Sys.Date()`"
+order: 20
+lightbox: true
+summary: "Graphs for Single Quant Variables"
+image: featured.jpg
+tags:
+- Qual Variables and Quant Variables
+- Histograms and Density Plots
+external_link: ""
+links:
+# - icon: linkedin
+#   icon_pack: fab
+#   name: 
+#   url: https://linkedin.com/arvindvenkatadri
+# - icon: twitter
+#   icon_pack: fab
+#   name: 
+#   url: https://twitter.com/arvind_v
+slides: ""
+url_code: ""
+url_pdf: ""
+url_slides: ""
+url_video: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(blogdown)
+library(tidyverse)
+library(downloadthis)
+library(knitr)
+library(kableExtra)
+library(hrbrthemes)
+
+# ![An Elephant](elephant.png){#fig-elephant}
+# This is illustrated well by @fig-elephant.
+# ### Figure Panel Divs
+#     ::: {#fig-elephants layout-ncol=2}
+#     ![Surus](surus.png){#fig-surus}
+#     ![Hanno](hanno.png){#fig-hanno}
+#      Famous Elephants
+#     :::
+
+```
+
+## {{< iconify fe beginner >}} What graphs will we see today?
+
+| Variable #1 | Variable #2 | Chart Names |                    Chart Shape                    |
+|:-------------:|:--------------:|:------------------:|:--------------------:|
+|    Quant    |    None     |  Histogram  | {{< iconify mdi-light chart-histogram size=4x >}} |
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+read_csv("../../../../materials/Data/pronouns.csv") %>% 
+  filter(No == "1") %>% 
+  kbl() %>%
+  kable_paper("hover", full_width = T)
+  
+```
+:::
+
+## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
+
+**Histograms** are best to show the distribution of a *quantitative variable*. A *distribution* shows how often the variable in question attains specific values. We plot the histogram by displaying the *how often* vs **defined ranges**, often called *buckets* or *bins*. For example, you can create histogram buckets from discrete ranges of the Quant variables, as 0-5, 6-10, 11-15...etc.
+
+::: callout-important
+As we will see shortly, **Bar/Column charts** show *categorical data*, such as the number of apples, bananas, carrots, etc. Visually speaking, histograms do not usually show spaces between buckets because these are *continuous values*, while column charts show spaces to separate each *category*. More later.
+:::
+
+## {{< iconify ion stats-chart >}} {{< iconify clarity bell-curve-line >}} Quick Histograms in Orange
+
+Let us rapidly make some histograms in Orange, so that we know how the tool works here. We start with the `iris` dataset: Download this *Orange workflow* file and open it in Orange.
+
+{{< downloadthis Orange/iris_histogram.ows dname="iris_histogram" label="Download the Histogram Workflow" icon="database-fill-down" type="info" >}}
+
+You can see the effect of modifying the bin widths, and of fitting a standard distribution for comparison.
+
+## {{< iconify logos netflix-icon >}} Dataset: Netflix Original Series
+
+We are now ready for a more detailed example. Here is a look at this data on Netflix Original Series. Download it to your machine by clicking on the button below.
+
+{{< downloadthis BarChart/NetflixSeries2013_2017.csv dname="NetflixSeries2013_2017" label="Download the Netflix Dataset" icon="database-fill-down" type="info" >}}
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+![Netflix Data Table](images/netflix.png){#fig-netflix-data-table}
+
+@fig-netflix-data-table states that there are 109 movies, 6 variables in the dataset.
+
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
+
+::: callout-note
+### Quantitative Data
+
+-   `Premiere_Year`: (int) Year the movie premiered
+-   `Seasons`: (int) No. of Seasons
+-   `Episodes`: (int) No. of Episodes
+-   `IMDB_Rating`: (int) IMDB Rating!!
+:::
+
+::: callout-note
+### Qualitative Data
+
+-   `Genere`: (chr) types of Genres
+-   `Title`: (chr) 109 titles
+-   `Subgenre`: (chr) types of sub-Genres
+-   `Status`: (chr) status on Netflix
+:::
+
+### {{< iconify material-symbols query-stats >}} Research Questions
+
+Let's try a few questions and see if they are answerable with Histograms.
+
+::: callout-note
+Q1. What is the distribution of `IMDB_Rating`? If we split/colour by movie `Genere`?
+
+::: {#fig-netflix-histograms layout-ncol=2}
+
+![IMDB Ratings Histogram](images/IMDB.png){#fig-IMDB-Histogram}
+
+![IMDB Rating vs Genere](images/IMDBvsGenere.png){#fig-IMD-Rating-vs-Genere}
+
+Netflix Data Histograms
+
+:::
+
+:::
+
+::: callout-note
+Q2. Are `IMDB_Rating` affected by the number of `Seasons` or `Episodes`?
+
+::: {#fig-IMDB-Rating-vs-Seasons-Episodes layout-ncol=2}
+
+![Reformatting "Seasons"](images/ReformatVariable.png){#fig-ReformatVariable} 
+
+![IMDB Rating vs Seasons](images/IMDBvsSeason.png){#fig-IMDBvsSeason}
+
+Plotting with `Seasons`
+
+:::
+
+We first need to reformat the `Seasons` variable from **N** to **C** in the data file view. This converts it to Qual. Then we split the IMDB histogram by this new variable.
+
+:::
+
+### {{< iconify game-icons secret-book >}} What is the Story Here?
+
+Most movies have decent IMDB scores; the distribution is left-skewed. Some of course have been trashed!! Splitting `IMDBRating` by `Genere` is not too illuminating...
+
+Not much wisdom to be gleaned either from splitting `IMDBRating` by `Seasons`...
+
+## {{< iconify emojione books >}} Dataset: the Old Faithful geyser in the USA
+
+Here is a dataset about the eruption durations, and wait times between eruptions of the Old Faithful geyser in Yellowstone National Park, USA.
+
+Download this data to your machine and import it into Orange.
+
+{{< downloadthis data/faithful.csv dname="OldFaithful" label="Download the Geyser Dataset" icon="database-fill-down" type="info" >}}
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+![Old Faithful Data Table](images/data_table.png){#fig-geyser-data-table}
+
+@fig-geyser-data-table states that we have 272 data points, and three variables. All variables are Quantitative!
+
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
+
+::: callout-note
+### Quantitative Data
+
+-   `eruptions`: (dbl Duration Times of Eruptions
+-   `waiting`: (dbl) Waiting Times between Eruptions
+-   `density`: (dbl) (Ignore this for now)
+:::
+
+::: callout-note
+### Qualitative Data
+
+-   No Qual variables!!
+:::
+
+### {{< iconify material-symbols query-stats >}} Research Questions
+
+::: callout-note
+Q1. How are `eruptions` (durations) and `waiting` (times) distributed?\
+
+::: {#fig-geysers-histograms layout-ncol=2}
+
+![Eruption Durations Histogram](images/eruptions.png){#fig-eruptions}
+
+![Waiting Times Histogram](images/waiting.png){#fig-waiting}
+
+Old Faithful Data Histograms
+:::
+
+:::
+### {{< iconify game-icons secret-book >}} What is the Story Here?
+
+-   Both durations have a "double-humped" distribution...
+-   There are therefore two distinct ranges for both durations.
+-   Are there two different mechanisms at work in the geyser, that randomly kick in?
+
+## {{< iconify bi person-up >}} Your Turn
+
+Try your hand at these datasets. Look at the data table, state the data dictionary, contemplate a few Research Questions and answer them with graphs in Orange!
+
+```{r echo=FALSE}
+airbnb <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv", header=TRUE)
+
+apartments <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv", header=T, sep=",") %>% select(GrLivArea, SalePrice)
+
+```
+
+1.  Airbnb Price Data on the French Riviera\
+
+```{r, echo = FALSE}
+airbnb %>% download_this(output_name = "airbnb", output_extension = ".csv", button_label = "Airbnb data", button_type = "default", icon = "fa fa-save")
+```
+
+\
+1. Wage and Education Data from Canada
+
+{{< downloadthis data/SLID.csv dname="SLID" label="Download the Wages/Education Dataset" icon="database-fill-down" type="info" >}}
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+> Histograms are used to study the distribution of one or a few variables. Checking the distribution of your variables one by one is probably the first task you should do when you get a new dataset. It delivers a good quantity of information. Several distribution shapes exist, here is an illustration of the 6 most common ones:
+
+```{r}
+#| echo: false
+#| warning: false
+# Build dataset with different distributions
+
+data <- data.frame(
+  type = c( rep("edge peak", 1000), rep("comb", 1000), rep("normal", 1000), rep("uniform", 1000), rep("bimodal", 1000), rep("skewed", 1000) ),
+  value = c( rnorm(900), rep(3, 100), rnorm(360, sd=0.5), rep(c(-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75), 80), rnorm(1000), runif(1000), rnorm(500, mean=-2), rnorm(500, mean=2), abs(log(rnorm(1000))) )
+)
+
+# Represent it
+data %>%
+  ggplot( aes(x=value)) +
+    geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    facet_wrap(~type, scale="free_x") +
+    theme_ipsum() +
+    theme(
+      panel.spacing = unit(0.1, "lines"),
+      axis.title.x=element_blank(),
+      axis.text.x=element_blank(),
+      axis.ticks.x=element_blank()
+    )
+```
+
+In your Design-Project-related research, you will collect data from or about your target audience. The Quantitative parts of that data may obtain with any of these distributions. Inspecting these may give you an insight into the **population** of your target audience, something that may likely be true, a hunch, which you could verify and convert into ...opportunity.
+
+## {{< iconify ooui references-ltr >}} References
+
+1.  See the scrolly animation for a histogram at this website: **Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara** <https://tinlizzie.org/histograms/?s=09>
+
+2.  <https://www.data-to-viz.com/graph/histogram.html>

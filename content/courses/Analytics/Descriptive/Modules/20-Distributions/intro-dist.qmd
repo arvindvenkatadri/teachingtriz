@@ -77,6 +77,9 @@ library(palmerpenguins) # Our new favourite dataset
 #| message: false
 #| results: hide
 
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+extrafont::loadfonts(quiet = TRUE)
+
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
@@ -122,6 +125,7 @@ library(shinylive) # To create a Shiny app in a Quarto HTML doc
 # Will not work if webr is also used in the SAME Quarto doc!
 
 ```
+
 
 
 ```{r}
@@ -353,7 +357,8 @@ diamonds %>%
   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
 
 ###
-diamonds %>% gf_histogram(~ price,
+diamonds %>% 
+  gf_histogram(~ price,
                           fill = ~ cut, 
                           color = "black") %>% 
   gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
@@ -534,6 +539,18 @@ should decide whether you want to investigate this question further,
 making more graphs, as we will see. Here, we are making a **Hypothesis**
 that more than just `cut` determines the `price` of a diamond.
 :::
+
+### An Interactive App for Histograms
+
+Type in your Console:
+```{r}
+#| echo: fenced
+#| eval: false
+install.packages("shiny")
+library(shiny)
+runExample("01_hello")      # an interactive histogram
+
+```
 
 
 
@@ -818,6 +835,7 @@ See the code below:
 
 diamonds %>% 
   gf_bar(~ cut) # performs counts based on `cut` (Qual variable)
+                # default y-axis labelling is "count"
 
 ###
 
@@ -825,11 +843,11 @@ diamonds %>%
   # count gives a default variable called `n`
   # We rename it to "counts". 
   # Note the quotation marks in the naming ceremony below
-  count(cut, name = "counts") %>% 
+  count(cut, name = "How_Many") %>% 
   
   # gf_col needs counted data
   # we use the (re)named variable counts vs cut
-  gf_col(counts ~ cut) 
+  gf_col(How_Many ~ cut) 
 
 
 ```
@@ -1883,25 +1901,25 @@ race_start_factor <- race_df %>%
         start_time > hms("02:00:00") &
           start_time <= hms("06:00:00") ~ "early_morning",
         
-        start_time > hms("06:00:00") &
+        start_time > hms("06:00:01") &
           start_time <= hms("10:00:00") ~ "late_morning",
         
-        start_time > hms("10:00:00") &
+        start_time > hms("10:00:01") &
           start_time <= hms("14:00:00") ~ "mid_day",
         
-        start_time > hms("14:00:00") &
+        start_time > hms("14:00:01") &
           start_time <= hms("18:00:00") ~ "afternoon",
         
-        start_time > hms("18:00:00") &
+        start_time > hms("18:00:01") &
           start_time <= hms("22:00:00") ~ "evening",
         
-        start_time > hms("22:00:00") &
+        start_time > hms("22:00:01") &
           start_time <= hms("23:59:59") ~ "night",
         
-        start_time >= hms("00:00:0") &
+        start_time >= hms("00:00:00") &
           start_time <= hms("02:00:00") ~ "postmidnight",
         
-        TRUE ~ "other"
+        .default =  "other"
       )
   ) %>%
   mutate(start_day_time = 
@@ -1971,7 +1989,7 @@ race_start_factor <- race_df %>%
         start_time >= hms("00:00:0") &
           start_time <= hms("02:00:00") ~ "postmidnight",
         
-        TRUE ~ "other"
+        .default =  "other"
       )
   ) %>%
   mutate(start_day_time = 
@@ -1997,6 +2015,7 @@ race_start_factor %>%
 ```
 
 :::
+
 
 We see that finish times tend to be longer for afternoon and evening
 start races; these are lower for early morning and night time starts.
