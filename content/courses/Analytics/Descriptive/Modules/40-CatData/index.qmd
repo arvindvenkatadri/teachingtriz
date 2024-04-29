@@ -663,37 +663,62 @@ vcd::mosaic(gss_table, gp = shading_hsv)
 ```
 
 ::: callout-note
+## Pearson Residuals in Mosaic Plots
+
 The mosaic chart provides more additional information than does the
-corresponding bar chart: A visualization of the discrepancies between
-the obtained count on which the tile is constructed and the value
-expected if the categorical variables are independent, that is, not
-related.
+corresponding bar chart. The individual tiles are coloured based on the value of the *Pearson Residual* (explained below). The Pearson residual defines the (scaled) difference between the actual count in the cell, with what might be expected if there was no correlation between the two Qual variables. 
 
-The *null hypothesis* of the test of independence is that the variables
-are independent, not related. The test, as any inferential test, is
-based on comparing the observed values, here the frequencies of each
-cell or cross-classification, with the values expected under the null.
+An uncoloured Mosaic Chart indicates that the residual differences are small and that there is no correlation. 
+:::
 
-What is the expected frequency of a cell in cross-tabulation table for
-cell $i,j$ given no relationship between the variables of interest?
-Represent the sum of row i with $n_{+i}$, the sum of column j with
-$n_{j+}$, and the grand total of all the observations with $n$.
 
-Expected Cell Frequency:
-$e_{i,j} = \frac{(n_{+i})(n_{j+})}{\sqrt(\epsilon_{i,j})}$
+::: callout-note
+## What are Pearson Residuals?
 
-The comparison of what occurred to what is expected is based on their
-difference, scaled by the square root of the expected, the **Pearson
-residual**.
+The mosaic chart is a visualization of the *obtained count* on which the tile is constructed. 
 
-Pearson Residual: $r_{i,j} = \frac{(o_{+i}- e_{j+})}{\sqrt(e_{i,j})}$
+It is also possible to compute a per-cell *expected count*, if the categorical variables are independent, that is, not correlated. The *null hypothesis* is that the variables are independent. The test for independence, as any inferential test, is based on comparing the *observed counts* with the *expected counts*, under the null hypothesis. So, what might the expected frequency of a cell be in cross-tabulation table for cell $i,j$ given no relationship between the variables of interest?
 
-The Pearson residual is scaled because the sum of all the squared
-Pearson residuals is the chi-square statistic, χ2, upon which the
-inferential analysis follows.
+Represent the sum of row $i$ with $n_{+i}$, the sum of column $j$ with
+$n_{j+}$, and the grand total of all the observations with $n$. And [independence of variables means that their joint probability is the product of their probabilities](https://brilliant.org/wiki/probability-rule-of-product/). Therefore, the Expected Cell Frequency/Count is given by:
+
+$$
+\begin{array}{lcl} ~Expected~Count~ e_{i,j} & = & P(Row~and~Column) * n\\
+& = & P(row) \times P(column) * n\\
+& = & \frac{rowSum}{n} *\frac{colSum}{n} \times n\\
+& = &\frac{rowSum *colSum}{n}\\
+\end{array}
+$$
+
+and therefore:
+
+$$
+e_{i,j} = \frac{(n_{+i})(n_{j+})}{n}
+$$
+
+Now, the **Pearson Residual** in each cell is equivalent to the "z-score" of that cell. 
+
+Recall the [z-score](../../Modules/20-Distributions/inde.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the z-score. In the Contingency Table, we have **counts** which are usually modeled as an (integer) *Poisson distribution*, for which **mean (i.e Expected value) and variance are identical**.  Thus we get the Pearson Residual as:
+
+$$
+r_{i,j} = \frac{(Actual - Expected)}{\sqrt{\displaystyle Expected}}
+$$
+and therefore:
+
+$$
+r_{i,j} = \frac{(o_{i,j}- e_{i,j})}{\sqrt{\displaystyle e_{i,j}}}
+$$
+
+The comparison of what occurred to what is expected is based on their difference, scaled by the square root of the expected, the **Pearson Residual**. 
+
+The sum of all the squared Pearson residuals is the chi-square statistic, χ2, upon which the inferential analysis follows. 
+$$
+χ2 = \sum_{i=1}^R\sum_{j=1}^C{r_{i,j}^2} 
+$$
+where R and C are number of rows and columns in the Contingency Table, the levels in the two Qual variables.
 
 We will treat the $X^2$ test in the Module on [Inference for Two
-Proportions.](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric). See also the sub-section herein on *Actual and Expected Contingency Tables*. 
+Proportions.](../../../Inference/Modules/190-TwoProp/two-props.qmd#observed-statistic-the-x2-metric). See also the sub-section here below on *Actual and Expected Contingency Tables*. 
 
 :::
 
@@ -1166,6 +1191,9 @@ data:
 
 6.  [Visualizing Categorical Data in
     R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
+    
+7. H. Riedwyl & M. Schüpbach (1994), Parquet diagram to plot contingency tables. In F. Faulbaum (ed.), Softstat '93: Advances in Statistical Software, 293--299. Gustav Fischer, New York.
+
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
