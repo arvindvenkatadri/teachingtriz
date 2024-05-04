@@ -698,7 +698,7 @@ $$
 
 Now, the **Pearson Residual** in each cell is equivalent to the "z-score" of that cell. 
 
-Recall the [z-score](../../Modules/20-Distributions/inde.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the z-score. In the Contingency Table, we have **counts** which are usually modeled as an (integer) *Poisson distribution*, for which **mean (i.e Expected value) and variance are identical**.  Thus we get the Pearson Residual as:
+Recall the [z-score](../../Modules/20-Distributions/index.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the z-score. In the Contingency Table, we have **counts** which are usually modeled as an (integer) *Poisson distribution*, for which **mean (i.e Expected value) and variance are identical**.  Thus we get the Pearson Residual as:
 
 $$
 r_{i,j} = \frac{(Actual - Expected)}{\sqrt{\displaystyle Expected}}
@@ -875,279 +875,7 @@ names are enclosed in quotes.
 Balloon Plots work because they use color and size aesthetics to
 represent categories and counts respectively.
 
-## {{< iconify fluent likert-16-regular >}} Plots for Survey Data
 
-In many business situations, we perform say *customer surveys* to get
-[Likert Scale](https://www.simplypsychology.org/likert-scale.html) data,
-where several respondents rate a product or a service on a scale of
-`Very much like`, `somewhat like`, `neutral`, `Dislike` and
-`Very much dislike,` for example.
-
-::: callout-note
-## A fictitious QuickEZ app
-
-We are a start-up that has an app called **QuickEZ** for delivery of
-groceries. We conduct a survey of 200 people at a local store, with the
-following questions,
-
-1.  "Have your heard of the QuickEZ app?"
-2.  "Do you use the QuickEZ app?"
-3.  "Do you find it easy to use the QuickEZ app?"
-4.  "Will you continue to use the QuickEZ app?"
-
-where each questions is to be answered on a scale of : "always",
-"often", "sometimes","never".
-:::
-
-Such data may look for example as follows:
-
-```{r}
-#| label: Demoing_labelled_data
-#| layout-ncol: 2
-#| column: body-outset-right
-#| echo: false
-
-#library(sjlabelled
-set.seed(42)
-score_labels = c("always", "often", "sometimes","never") # numerically 1:4
-question_labels <- c("Have your heard of the QuickEZ app?",
-                     "Do you use the QuickEZ app?",
-                     "Do you find it easy to use the QuickEZ app?",
-                     "Will you continue to use the QuickEZ app?")
-quickez_data <- 
-  # Create toy survey data
-  # 200 responses to 5 questions
-  # responses on Likert Scale
-  # 1:4 = "never", "sometimes","often","always")
-  # 
-  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.2, 0.2, 0.5, 0.1)),
-         q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.3, 0.3, 0.3, 0.1)),
-         q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.2, 0.1, 0.1, 0.6)),
-         q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.4, 0.2, 0.1, 0.3))) %>%
-  
-  # Set VARIABLE labels
-  sjlabelled::set_label(x = .,
-                        label = question_labels) %>%
-  
-  # Now set VALUE labels
-  sjlabelled::set_labels(x = ., labels = score_labels)
-
-quickez_data
-str(quickez_data)
-
-```
-
-The columns here correspond to the 4 questions (q1-q4) and the rows
-contain the 200 responses, which have been coded as (1:4). Such data is
-also a form of *Categorical data* and we need to count and plot counts
-for each of the survey questions. Such a plot is called a **Likert
-plot** and it looks like this:
-
-```{r}
-#| label: Likert-Plot-1
-#| echo: false
-
-plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
-            #sort.frq = "" # Try "pos.desc" good news on top!
-            reverse.colors = TRUE,
-            show.prc.sign = TRUE
-            )
-
-```
-
-Based on this chart, since it looks like about half the survey
-respondents have not heard of our app, we need more publicity, and many
-do not find it easy to use 😿, so we have serious re-design and user
-testing to do !! But at least those who have managed to get past the
-hurdles are stating they will continue to use the app, so it does the
-job, but we can make it easier to use.
-
-Here is another example of Likert data from the *healthcare industry*.
-
-`efc` is a German data set from a European study titled [**EUROFAM
-study**](https://doi.org/10.1093/geront/48.6.752), on *family care of
-older people*. Following a common protocol, data were collected from
-national samples of approximately 1,000 family carers (i.e. caregivers)
-per country and clustered into comparable subgroups to facilitate
-cross-national analysis. The *research questions* in [**this EUROFAM
-study**](https://doi.org/10.1093/geront/48.6.752) were:
-
-> 1.  To what extent do family carers of older people use support
->     services or receive financial allowances across Europe? What kind
->     of supports and allowances do they mainly use?
->
-> 2.  What are the main difficulties carers experience accessing the
->     services used? What prevents carers from accessing unused supports
->     that they need? What causes them to stop using still-needed
->     services?
->
-> 3.  In order to improve support provision, what can be understood
->     about the service characteristics considered crucial by carers,
->     and how far are these needs met? and,
->
-> 4.  Which channels or actors can provide the greatest help in
->     underpinning future policy efforts to improve access to
->     services/supports?
-
-We will select the variables from the `efc` data set that related to
-*coping* (on part of care-givers) and plot their responses after
-inspecting them:
-
-```{r}
-#| label: efc_data
-#| layout-nrow: 2
-#| column: body-outset-right
-#| echo: fenced
-data(efc,package = "sjPlot")
-
-efc %>% 
-  select(dplyr::contains("cop")) %>% 
-  head(20)
-efc %>% 
-  select(dplyr::contains("cop")) %>% 
-  str()
-
-```
-
-The `cop`ing related variables have responses on the Likert Scale
-`(1,2,3,4)` which correspond to `(never, sometimes, often, always)`,
-**and** each variable also has a `label` defining each variable. The
-labels are actually ( and perhaps usually ) the *questions* in the
-survey.
-
-We can plot this data using the `plot_likert` function from package
-`sjPlot`:
-
-```{r}
-
-efc %>% 
-  select(dplyr::contains("cop")) %>% 
-  sjPlot::plot_likert(title = "Caregiver Survey from EUROFAM")
-
-```
-
-Many questions here have strong *negative* responses. This may indicate
-that policy and publicity related efforts may be required.
-
-::: callout-note
-## Colours and Orientation in the Likert Plot
-
-One could prefer (as I do) that "often" and "always" scores should be
-toward the right and "sometimes" and "never" scores towards the left.
-One can do this within the `plot_likert` command using:
-
-`plot_likert(..., reverse.scale = TRUE)`
-
-If you want the colours to be reversed, then...
-
-`plot_likert(..., reverse.colors = TRUE)`
-
-Try these options now in your Console! (Note the American spelling
-`color`)
-:::
-
-#### {{< iconify fluent-emoji label >}} Labelled Data
-
-Note how the y-axis has been populated with **Survey Questions**: this
-is an example of a *labelled dataset*, where not only do the variables
-have *names* i.e. column names, but also have longish text **labels**
-that add information to the data variables. The **data values** ( i.e
-scores) in the columns is also **labelled** as per the the Likert scale
-(`Like/Dislike/Strongly Dislike` OR `never/sometimes/often/always`) etc.
-These **Likert scores** are usually a set of contiguous integers.
-
-::: callout-note
-## Variable Labels and Value Labels
-
-**Variable label** is human readable description of the variable. R
-supports rather long variable names and these names can contain even
-spaces and punctuation but short variables names make coding easier.
-Variable label can give a nice, long description of variable. With this
-description it is easier to remember what those variable names refer
-to.\
-**Value labels** are similar to variable labels, but value labels are
-descriptions of the values a variable can take. Labeling values means we
-don't have to remember if `1=Extremely poor` and `7=Excellent` or
-vice-versa. We can easily get dataset description and variables summary
-with info function.
-:::
-
-Let us manually create one such dataset, since this is a common-enough
-situation[^2] that we have survey data and then have to label the
-variables and the values before plotting. We will use the R package
-`sjlabelled` to label our data.[^3].
-
-[^2]: Piping Hot Data: Leveraging Labelled Data in R,
-    https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
-
-[^3]: Label Support in
-    R:<https://cran.r-project.org/web/packages/sjlabelled/index.html>
-
-```{r}
-#| label: Creating_labelled_data
-#| layout-nrow: 2
-
-#library(sjlabelled)
-
-variable_labels <- c("Do you practice Analytics?",
-                     "Do you code in R?",
-                     "Have you published your R Code?",
-                     "Do you use Quarto as your Workflow in R?",
-                     "Will you use R at Work?")
-value_labels = c("never", "sometimes","often","always") #numerically 1:4
-
-my_survey_data <- 
-  # Create toy survey data
-  # 200 responses to 5 questions
-  # responses on Likert Scale
-  # 1:4 = "never", "sometimes","often","always")
-
-  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.2, 0.2, 0.5, 0.1)),
-         q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.3, 0.3, 0.3, 0.1)),
-         q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.2, 0.1, 0.1, 0.6)),
-         q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.4, 0.2, 0.1, 0.3)),
-         q5 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.1, 0.2, 0.5, 0.2))) %>%
-  
-  # Set VARIABLE labels
-  sjlabelled::set_label(x = .,
-                        label = variable_labels) %>%
-  
-  # Now set VALUE labels
-  sjlabelled::set_labels(x = ., labels = value_labels)
-
-str(my_survey_data)
-
-plot_likert(my_survey_data, 
-            title = "Summary of Analytics Questionnaire",
-            reverse.scale = TRUE,# Reverse score values on plot
-            reverse.colors = FALSE, # let the colors be
-            show.prc.sign = TRUE, # Show percentage sign
-            legend.pos = "bottom")
-
-```
-
-It seems many people in the survey plan to use R at work!! And have
-published R code as well. But Quarto seems to have mixed results! But of
-course this is a toy dataset!!
-
-So there we are with Categorical data analysis and plots!
-
-There are a few other plots with this type of data, which are useful in
-very specialized circumstances. One example of this is the
-`agreement plot` which captures the agreement between two (sets) of
-evaluators, on ratings given on a shared ordinal scale to a set of
-items. An example from the field of medical diagnosis is the opinions of
-two specialists on a common set of patients. However, that is for a more
-advanced course!
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
@@ -1162,17 +890,21 @@ data:
 2)  Make Contingency Tables for a $X^2$-test
 3)  Make Mosaic Plots to show how the categories stack up
 4)  Make Balloon Charts as an alternative
-5)  Make Likert Charts for Survey Questionnaire Data
+5)  Make [Likert Charts for Survey Questionnaire Data](../../Modules/45-SurveyData/index.qmd)
 6)  Then, draw your inferences and tell the story!
 
 ## {{< iconify openmoji person >}} Your Turn
 
 1.  Take some of the categorical datasets from the `vcd` and `vcdExtra`
-    packages and recreate the plots from this module.
+    packages and recreate the plots from this module. Go to <https://vincentarelbundock.github.io/Rdatasets/articles/data.html> and type "vcd" in the `search` box. You can directly load CSV files from there, using `read_csv("url-to-csv")`.
+    
 
 ## {{< iconify ooui references-ltr >}} References
 
-1.  Mine Cetinkaya-Rundel and Johanna Hardin. *An Introduction to Modern
+1.  Nice Chi-square interactive story at <https://statisticalstories.xyz/chi-square>
+
+
+1. Mine Cetinkaya-Rundel and Johanna Hardin. *An Introduction to Modern
     Statistics*, Chapter 4.
     <https://openintro-ims.netlify.app/explore-categorical.html>\
 
