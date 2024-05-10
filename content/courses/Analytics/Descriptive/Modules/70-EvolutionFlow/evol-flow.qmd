@@ -62,6 +62,41 @@ library(grateful)
 
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+library(ragg)
+library(showtext)
+library(thematic)
+library(gfonts)
+#extrafont::loadfonts(quiet = TRUE)
+
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
+ggplot2::theme_update(
+  
+  panel.grid.minor = element_blank(),
+  panel.background = element_blank(),
+  plot.title = element_text(face = "bold"),
+  plot.title.position = "plot",
+)
+
+# thematic_rmd(font = "Roboto Condensed",inherit = F,
+#              bg = "#FFFFFF",fg = "#111111",
+#              accent = "#DD1144")
+
+```
+
 ## {{< iconify entypo line-graph >}} What Time Evolution Charts can we plot?
 
 In these cases, the x-axis is typically *time*...and we chart the
@@ -104,13 +139,13 @@ health_filtered <- health %>%
 ```{r}
 #| layout-ncol: 2
 #| results: hold
+
 gf_point(data = health_filtered,
              public_health_expenditure_pc_gdp ~ Year, 
              colour = ~ Entity, 
              ylab = "Healthcare Budget\n as % of GDP",
          title = "Line Charts to show Evolution (over Time )") %>% 
-  gf_line() %>% 
-  gf_theme(theme_classic())
+  gf_line() 
 
 ###
 gf_area(data = health_filtered,
@@ -118,8 +153,7 @@ gf_area(data = health_filtered,
           fill = ~ Entity, alpha = 0.3, 
           ylab = "Healthcare Budget\n as % of GDP",
         title = "Area Charts to show Evolution (over Time )") %>% 
-  gf_line(colour = ~ Entity) %>% 
-  gf_theme(theme_classic())
+  gf_line(colour = ~ Entity) 
 
 ```
 
@@ -231,6 +265,8 @@ practically all this while. You will find examples of on the
 #### Using ggplot
 
 ```{r}
+theme_set(theme_classic())
+##
 Titanic %>% ggplot(data = .,
     
 # Select the Categorical Variables for the vertical Axes / Stages
@@ -263,7 +299,6 @@ Titanic %>% ggplot(data = .,
   scale_fill_manual(values = c("red", "green")) + 
   
   xlab("Demographic") +
-  theme_minimal() +
   ggtitle("Passengers on the maiden voyage of the Titanic",
           "Stratified by demographics and survival")
 
@@ -365,14 +400,16 @@ To be Written Up.
 ## {{< iconify icon-park-outline chart-histogram >}} Dumbbell Plots
 
 A simple plot that can quickly indicate changes in multiple variables/aspects over either a time or a space variable is a dumbbell plot. This is a combination of scatter plot + a segment plot. 
-Let us take our prevously loaded `health` dataset and plot just the change in expenditure for multiple countries, across a time span of 8 years (2010 - 2018)
+Let us take our previously loaded `health` dataset and plot just the change in expenditure for multiple countries, across a time span of 8 years (2010 - 2018)
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### Using ggformula
 ```{r}
 #| layout-ncol: 2
-theme_set(theme_classic())
+ggplot2::theme_set(ggplot2::theme_classic(base_size = 12))
+
+##
 
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018
@@ -427,10 +464,12 @@ health_2010_2018 %>%
     reorder(Entity, Year2018) ~ Year2010,
     colour = ~ "2010", size = 3,
     xlab = "Health Expenditure as Percentage of GDP",
-    ylab = "Country",title = "Healthcare Budgets", subtitle = "Changes between 2010 to 2018"
+    ylab = "Country",
+title = "Healthcare Budgets Changes between 2010 to 2018",
+subtitle = "Bars are Sorted"
   ) %>% 
   gf_refine(scale_x_continuous(
-    breaks = breaks_width(2), 
+    breaks = scales::breaks_width(2), 
     labels = scales::label_percent(suffix = "%", scale = 1)),
     
     scale_colour_manual(name = "Year",values = c("red", "green"))
