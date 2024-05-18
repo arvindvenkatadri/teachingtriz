@@ -78,6 +78,7 @@ fpp3_packages(include_self = FALSE)
 library(checkdown)
 library(epoxy)
 library(grateful)
+library(kableExtra)
 
 ```
 
@@ -90,16 +91,15 @@ library(grateful)
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
+ fig.asp = 0.618 # Golden Ratio
+ #out.width = "80%"
+ )
 ### Ggplot Theme
 library(ragg)
 library(showtext)
 library(thematic)
 library(gfonts)
-#extrafont::loadfonts(quiet = TRUE)
+extrafont::loadfonts(quiet = TRUE)
 
 ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
 ggplot2::theme_update(
@@ -115,8 +115,10 @@ thematic_rmd(font = "Roboto Condensed",inherit = F,
 
 ```
 
+## Reminder on Plotting
+
 ::: callout-tip
-### `mosaic` and `ggformula` command template
+## `mosaic` and `ggformula` command template
 
 Note the standard method for all commands from the `mosaic` and
 `ggformula` packages: goal( y \~ x \| z, data = \_\_\_)
@@ -132,7 +134,7 @@ dataset that you want to plot with.
 :::
 
 ::: callout-tip
-### `ggplot` command template
+## `ggplot` command template
 
 The `ggplot`2 template is used to identify the dataframe, identify the x
 and y axis, and define visualized layers:
@@ -297,20 +299,24 @@ We will pick simple **numerical vector data** ( i.e. not a time series )
 ### {{< iconify la r-project >}} R
 
 ```{r}
-#| label: ts using stats-ts
+data(ChickWeight)
+str(ChickWeight)
+head(ChickWeight)
+```
 
-ChickWeight %>% head()
-
+```{r}
 # Filter for Chick #1 and for Diet #1
 ChickWeight_ts <- ChickWeight %>% 
   dplyr::filter(Chick == 1, Diet ==1) %>% 
   dplyr::select(weight, Time)
 
-# stats::ts does not accept pipe format
+## stats::ts does not accept pipe format
 ChickWeight_ts <- stats::ts(ChickWeight_ts$weight, 
                             frequency = 2) 
 str(ChickWeight_ts)
+```
 
+```{r}
 plot(ChickWeight_ts) # Using base-R
 
 ```
@@ -368,11 +374,15 @@ familiar `tibble` structure opens up new possibilities.\
 
 ```{r}
 #| echo: false
+#| column: margin
 library(gapminder)
 gapminder %>% select(country, year, gdpPercap, 
-                     pop, lifeExp, everything())
+                     pop, lifeExp, everything()) %>% 
+head(5) %>% 
+kbl()
 
 ```
+
 :::
 
 Let us read and inspect in the `US births data` from 2000 to 2014.
@@ -421,6 +431,7 @@ Qualitative variables (yet!).
 #### Plotting `tibble`-oriented time data
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ##### Using ggformula
 
 We will now plot this using `ggformula`. Using the separate
@@ -602,6 +613,7 @@ births_2000_2014_monthly %>%
 #| message: false
 #| warning: false
 #| layout-ncol: 2
+
 births_2000_2014_weekly <- births_2000_2014 %>% 
   mutate(day_of_week = base::factor(day_of_week,
           levels = c(1,2,3,4,5,6,7), 
@@ -631,12 +643,8 @@ births_2000_2014_weekly %>%
 Instead of looking at multiple overlapping time series graphs, we could split these up into `small multiples` or *facets* and **still retain** the overall picture that is offered by the overlapping graphs. The trick here is the **highlight** one of the graphs at a time, while keeping *all other* graphs in the background. We can do this with the `gghighlight` package.
 
 ```{r}
-#| layout: [[50],[50]]
-
 #library(gghighlight)
-#ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                       base_family = "sans"))
-###
+
 births_2000_2014_monthly
 ###
 births_2000_2014_monthly %>% ggplot() + 
@@ -645,22 +653,18 @@ births_2000_2014_monthly %>% ggplot() +
        title = "Mean Births by Month", 
        caption = "Using gghighlight package") +
 
-  ## Add highlighting
+### Add highlighting
   gghighlight(
     use_direct_label = F,
     unhighlighted_params = list(colour = alpha("grey85", 1))) +
   
-# Add faceting
+### Add faceting
   facet_wrap(vars(month))
 
 ```
 
 ```{r}
-#| layout: [[50],[50]]
 
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
-###
 births_2000_2014_weekly
 ###
 births_2000_2014_weekly %>% ggplot() + 
@@ -669,12 +673,12 @@ births_2000_2014_weekly %>% ggplot() +
        title = "Mean Births by Day of Week", 
        caption = "Using gghighlight package") +
 
-  ## Add highlighting
+### Add highlighting
   gghighlight(
     use_direct_label = F,
     unhighlighted_params = list(colour = alpha("grey85", 1))) +
   
-# Add faceting
+### Add faceting
   facet_wrap(vars(day_of_week))
 
 ```
@@ -696,10 +700,6 @@ into a `time series` format. So far we are simply treating the
 group and summarize. We have not created an explicit `time` or `date`
 variable.
 :::
-
-
-
-{{< pagebreak >}}
 
 #### Plotting `tibble` time-series
 
