@@ -68,6 +68,8 @@ library(grateful)
 #| message: false
 #| results: hide
 
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
@@ -76,24 +78,51 @@ knitr::opts_chunk$set(
  fig.align = "center"
 )
 ### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-library(gfonts)
-#extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-# thematic_rmd(font = "Roboto Condensed",inherit = F,
-#              bg = "#FFFFFF",fg = "#111111",
-#              accent = "#DD1144")
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -139,6 +168,9 @@ health_filtered <- health %>%
 ```{r}
 #| layout-ncol: 2
 #| results: hold
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 gf_point(data = health_filtered,
              public_health_expenditure_pc_gdp ~ Year, 
@@ -265,7 +297,10 @@ practically all this while. You will find examples of on the
 #### Using ggplot
 
 ```{r}
-theme_set(theme_classic())
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 ##
 Titanic %>% ggplot(data = .,
     
@@ -296,7 +331,7 @@ Titanic %>% ggplot(data = .,
   scale_x_discrete(limits = c("Class", "Sex", "Age"), 
                    expand = c(.2, .05)) +
   
-  scale_fill_manual(values = c("red", "green")) + 
+  scale_fill_manual(values = c("red3", "springgreen3")) + 
   
   xlab("Demographic") +
   ggtitle("Passengers on the maiden voyage of the Titanic",
@@ -407,7 +442,9 @@ Let us take our previously loaded `health` dataset and plot just the change in e
 ### Using ggformula
 ```{r}
 #| layout-ncol: 2
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12))
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 ##
 
@@ -481,7 +518,10 @@ subtitle = "Bars are Sorted"
 
 ```{r}
 #| layout-ncol: 2
-theme_set(theme_classic())
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018

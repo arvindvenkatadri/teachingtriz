@@ -1,6 +1,5 @@
 ---
 title: "\U0001F554 Time Series Wrangling"
-author: "Arvind V."
 date: 15/Dec/2022
 date-modified: "`r Sys.Date()`"
 abstract: Grouping, Filtering, and Summarizing Time Series Data
@@ -53,32 +52,64 @@ library(tsibbledata)
 #| message: false
 #| results: hide
 
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
 # Chunk options
 knitr::opts_chunk$set(
- #fig.width = 7,
- #fig.asp = 0.618, # Golden Ratio
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
  #out.width = "80%",
  fig.align = "center"
 )
 ### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-#extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 14)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-thematic_on(font = "Roboto Condensed",inherit = TRUE,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
+
 
 
 ```{r}
@@ -124,7 +155,7 @@ AND/OR
 
 We can do the same over `space` variables, i.e. the Qualitative
 variables that define individual time series, and based on which we can
-filter and and analyze these specific time series. Each unique setting of these Qualitative variables could potentially define a time series! There are 336 groups/combinations of them in `PBS`, but not all are unique times eries, since some of the Qual variables are `nested` inside others, e.g `ATC1_desc` provides more info on each value of `ATC1` and is not truly a separate Qual variable.
+filter and and analyze these specific time series. Each unique setting of these Qualitative variables could potentially define a time series! There are 336 groups/combinations of them in `PBS`, but not all are unique timeseries, since some of the Qual variables are `nested` inside others, e.g `ATC1_desc` provides more info on each value of `ATC1` and is not truly a separate Qual variable.
 :::
 
 And the packages are:
@@ -174,13 +205,17 @@ births_2000_2014 <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/
 ### {{< iconify la r-project >}} R
 
 ```{r}
-#| label: timeseries and tsibble-1
-#| layout: [[60], [40]]
+#| label: timeseries-and-tsibble-1
 #| message: false
 
+# Step1: Read the data
 births_2000_2014 <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_2000-2014_SSA.csv")
-#births_2000_2014
 
+```
+
+
+```{r}
+# Step2: Convert year + month + date_of_month to "date"
 births_timeseries <- 
   births_2000_2014 %>% 
   mutate(date = lubridate::make_date(year = year,
@@ -191,7 +226,10 @@ births_timeseries <-
 births_timeseries
 class(births_timeseries)
 
-# Convert to tsibble
+```
+
+```{r}
+# Step3: Convert to tsibble
 # combine the year/month/date_of_month columns into a date
 # drop them thereafter
 births_tsibble <- 
@@ -264,6 +302,9 @@ Let us try a basic plot with both `tsibble` vs `timetk` packages.
 #| 
 #column: body-outset-right
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tsibble %>%
   gf_line(births ~ index, 
           data = ., 
@@ -271,7 +312,7 @@ births_tsibble %>%
 
 # timetk **can** plot tsibbles. 
 births_tsibble %>% 
-  timetk::plot_time_series(.date_var = index, 
+  timetk::plot_time_series(.date_var = index,
                            .value = births, .interactive = FALSE,
                            .title = "Tsibble Plotted with timetk")
 
@@ -280,7 +321,7 @@ births_tsibble %>%
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
 #| label: basic-plot-webr
-#| 
+
 births_tsibble %>%
   gf_line(births ~ index, 
           data = ., 
@@ -312,6 +353,9 @@ Here we take Monthly Aggregates with both `tsibble` vs `timetk`:
 #| layout-ncol: 2
 #| results: hold
 # column: body-outset-right
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_tsibble %>% 
   tsibble::index_by(month_index = ~ tsibble::yearmonth(.)) %>% 
@@ -394,6 +438,10 @@ Let us try getting *annual aggregates*.
 #| layout-ncol: 2
 #| results: hold
 # column: body-outset-right
+
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_tsibble %>% 
   tsibble::index_by(year_index = ~ lubridate::year(.)) %>% 
@@ -532,7 +580,6 @@ Hmm...can we try to plot **boxplots over time** (Candle-Stick Plots)?
 Over month, quarter or year?
 
 
-
 ### {{< iconify iwwa month >}} Monthly Box Plots
 
 
@@ -543,6 +590,10 @@ Over month, quarter or year?
 #| label: Monthly_boxplots
 #| layout-ncol: 2
 #| results: hold
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tsibble %>%
   index_by(month_index = ~ yearmonth(.)) %>%
   # 15 years
@@ -610,6 +661,10 @@ much from.
 
 ```{r}
 #| label: Quarterly_boxplots
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tsibble %>%
   index_by(qrtr_index = ~ yearquarter(.)) %>% # 60 quarters over 15 years
   # No need to summarise, since we want boxplots per year / month
@@ -662,6 +717,10 @@ quarter...
 
 ```{r}
 #| label: Annual_boxplots
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tsibble %>% 
   index_by(year_index = ~ lubridate::year(.)) %>% # 15 years, 15 groups
   # No need to summarise, since we want boxplots per year / month
@@ -755,6 +814,7 @@ Let us first see how many observations there are for each combo of
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
 ```{r}
 #| label: counts
 
@@ -855,6 +915,10 @@ towards filtering, summaries, and averages.
 ```{r}
 #| label: Basic-PBS-plot-ggformula
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>% 
   gf_point(Cost ~ Month, data = .) %>% 
   gf_line(title = "PBS Costs vs time", caption = "ggformula")
@@ -900,6 +964,9 @@ operations.
 
 ```{r}
 #| label: PBS-Costs-filtered-ggformula
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 # Costs variable for a specific combo of Qual variables(keys)
 PBS %>% 
@@ -959,6 +1026,9 @@ aggregation:
 ### {{< iconify la r-project >}} R
 ```{r}
 #| label: summary-month
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 # Cost Summary by Month, which is the original data
 # New Variable Name to make grouping visible
@@ -1024,6 +1094,10 @@ To Be Written Up !!!
 ### {{< iconify la r-project >}} R
 ```{r}
 #| label: PBS-quarterly
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 # Cost Summary by Quarter
 PBS_quarter <- 
   PBS %>% 
@@ -1075,6 +1149,10 @@ TBD
 ### {{< iconify la r-project >}} R
 ```{r}
 #| label: PBS-annual
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 # Cost Summary by Year
 PBS_year <- PBS %>% 
   index_by(Year_Date = year(Month)) %>% # Note this change!!!
@@ -1135,6 +1213,10 @@ earlier.)
 ```{r}
 #| label: Summary over months with timetk
 #| message: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>% 
   mutate(Month_Date = lubridate::as_date(Month)) %>%
 ##
@@ -1180,6 +1262,9 @@ PBS %>%
 ### {{< iconify la r-project >}} R
 ```{r}
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>% 
   mutate(Month_Date = lubridate::as_date(Month)) %>%
   as_tibble() %>%
@@ -1225,6 +1310,10 @@ PBS %>%
 ### {{< iconify la r-project >}} R
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>% 
   mutate(Month_Date = lubridate::as_date(Month)) %>%
   as_tibble() %>%

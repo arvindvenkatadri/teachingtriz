@@ -48,6 +48,69 @@ library(grateful)
 
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+   
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -61,13 +124,8 @@ We will use two packages in R, `mosaic` and the relatively new [`infer`
 package](https://infer.netlify.app), to develop our intuition for what
 are called **permutation** based statistical tests.
 
-## {{< iconify lucide ratio >}} Inference for Two (or More) Proportions
 
-### {{< iconify grommet-icons test >}} Case Study-1: TBD dataset
-
-
-
-### {{< iconify grommet-icons test >}} Case Study-2: `GSS2002` dataset
+## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-1: `GSS2002` dataset
 
 We can extend this idea to *multiple proportions* too.
 
@@ -119,19 +177,23 @@ gss_table %>%
 
 ```
 
-## Contingency Table Plots
+### Contingency Table Plots
 
 The Contingency Table can be plotted, as we have seen, using a `mosaic`
 plot using several packages:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-### Using ggformula
+#### Using ggformula
 
 Needs a little more work, to convert the Contingency Table into a tibble:
 
 ```{r warning=FALSE,message=FALSE}
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 
 gss_summary <- gss2002 %>%
   mutate(
@@ -165,32 +227,35 @@ gf_col(edu_prop ~ Education, data = gss_summary,
                 scales = "free_x", 
                 space = "free_x") %>% 
   
-  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) %>% 
-  gf_theme(theme_void())
+  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) 
 
 ```
 
-### Using vcd
+#### Using vcd
 
 ```{r}
 vcd::mosaic(gss_table, gp = shading_hsv)
 
 ```
 
-### Using ggmosaic
+#### Using ggmosaic
 
 ```{r mosaic-plot,warning=FALSE}
 #library(ggmosaic)
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 ggplot(data = gss2002) +
   geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty)) + theme_minimal()
+                  fill = DeathPenalty))
 
 ```
 
 :::
 
-## Observed Statistic: the $X^2$ metric
+### Observed Statistic: the $X^2$ metric
 
 When there are multiple proportions involved, the $X^2$ test is what is
 used.
@@ -308,6 +373,10 @@ We should now repeat the test with permutations on `Education`:
 
 ```{r}
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 null_chisq <- do(9999) * 
   chisq.test(tally(DeathPenalty ~ shuffle(Education), 
                    data = gss2002))
@@ -317,8 +386,7 @@ head(null_chisq)
 gf_histogram( ~ X.squared, data = null_chisq) %>% 
   
   gf_vline(xintercept = observedChi2, 
-           color = "red") %>% 
-  gf_theme(theme = theme_classic())
+           color = "red") 
 
 prop1(~ X.squared >= observedChi2, data = null_chisq)
 
@@ -327,6 +395,10 @@ prop1(~ X.squared >= observedChi2, data = null_chisq)
 The `p-value` is well below our threshold of $0.05$, so we would
 conclude that `Education` has a significant effect on `DeathPenalty`
 opinion!
+
+### {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-2: TBD dataset
+To be Written Up.
+
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 

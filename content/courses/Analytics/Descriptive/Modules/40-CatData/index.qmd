@@ -42,6 +42,7 @@ library(vcdExtra) # Categorical Data Sets
 library(ggmosaic) # Mosaic Plots
 library(resampledata) # More datasets
 
+library(GGally) # Correlation Plots
 library(sjPlot) # Likert Scale Plots
 library(sjlabelled) # Creating Labelled Data for Likert Plots
 
@@ -50,6 +51,7 @@ library(ca) # Correspondence Analysis, for use some day
 
 ## Making Tables
 library(kableExtra) # html styled tables
+library(gt)
 
 ```
 
@@ -73,34 +75,63 @@ library(grateful)
 #| results: hide
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-extrafont::loadfonts(quiet = TRUE)
 
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
  fig.asp = 0.618, # Golden Ratio
- out.width = "80%",
+ #out.width = "80%",
  fig.align = "center"
 )
 ### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-thematic_rmd(font = "Roboto Condensed",inherit = TRUE,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -733,6 +764,10 @@ computes the counts/table, and plots the mosaic plot:
 
 ```{r mosaic-plot,warning=FALSE}
 #library(ggmosaic)
+#
+# Set graph theme
+theme_set(new = theme_custom())
+
 gss2002
 ggplot(data = gss2002) +
   ggmosaic::geom_mosaic(aes(x = product(DeathPenalty, Education), 
@@ -756,6 +791,10 @@ post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mos
 
 # Reference
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
+
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 gss_summary <- gss2002 %>% 
   dplyr::group_by(Education, DeathPenalty) %>%
@@ -826,8 +865,9 @@ totals)!
 
 ```{r}
 #| label: balloon-plot-using-ggpubr
-#| fig-width: 7
-#| fig-asp: 0.618
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 housetasks <- read.delim(
   system.file("demo-data/housetasks.txt", 
@@ -848,6 +888,9 @@ And repeat with the familiar `HairEyeColor` dataset:
 #| label: Balloon-Plots-2
 #| layout: [[20], [40], [40]]
 #| column: page-inset-right
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 df <- as_tibble(HairEyeColor)
 df

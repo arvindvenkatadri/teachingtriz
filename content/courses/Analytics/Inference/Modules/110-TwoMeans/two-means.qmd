@@ -1,6 +1,5 @@
 ---
 title: 'Inference for Two Independent Means'
-author: "Arvind Venkatadri"
 date: 22/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 110
@@ -29,7 +28,6 @@ library(resampledata3) # Datasets from Chihara and Hesterberg's book
 library(openintro) # datasets
 library(gt) # for tables
 
-ggplot2::theme_set(theme_classic())
 
 ```
 
@@ -46,13 +44,78 @@ library(grateful)
 
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
+```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 ```{mermaid}
 %%| echo: false
 flowchart TD
-    A[Inference for Independent Means] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
+    A[Inference for Independent Means] -->|Check Assumptions|
+    B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
     B --> C{OK?}
     C -->|Yes, both\n Parametric| D[t.test]
     D <-->F[Linear Model\n Method] 
@@ -104,19 +167,20 @@ interested in, after converting data into long format:
 #| label: MathAnxiety graphs
 #| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
 MathAnxiety %>% 
   gf_density(~ AMAS,
               fill = ~ Gender,
               alpha = 0.5,
-              title = "") %>%
-  gf_theme(theme_classic())
+              title = "") 
 
 MathAnxiety %>% 
   gf_boxplot(AMAS ~ Gender,
               fill = ~ Gender,
               alpha = 0.5,
-              title = "") %>%
-  gf_theme(theme_classic())
+              title = "") 
 
 MathAnxiety %>% count(Gender)
 
@@ -146,6 +210,11 @@ also look at Q-Q plots for both variables:
 #| layout-ncol: 3
 #| results: hold
 #| warning: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 MathAnxiety %>%
   gf_density( ~ AMAS,
               fill = ~ Gender,
@@ -249,8 +318,9 @@ but with the same value! This depends upon the way the factor variable
 
 ## {{< iconify fluent-mdl2 insights >}} Inference
 
-::: panel-tabset
-### Using the Parametric `t.test`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using the Parametric t.test
 
 Since the data are not both normally distributed, though the variances
 similar, we typically cannot use a parametric `t.test`. However, we can
@@ -333,6 +403,10 @@ library(latex2exp)
 # https://www.statology.org/r-geom_path-each-group-consists-of-only-one-observation/
 
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 MathAnxiety %>% 
   gf_jitter(rank(AMAS) ~ Gender,color = ~ Gender, 
             show.legend = FALSE,
@@ -352,9 +426,7 @@ MathAnxiety %>%
    gf_text(label = "Mean Rank \nBoys Scores", 
            300 ~ 0.75, inherit = FALSE) %>%
    gf_text(label = "Mean Rank \nGirls Scores", 
-           320 ~ 2.25,inherit = FALSE) %>%
-  gf_theme(theme_classic())
-
+           320 ~ 2.25,inherit = FALSE)
 
 ```
 
@@ -401,17 +473,21 @@ part is the `p.value` under NULL!!
 ```{r}
 #| layout: [[15,40,40, 5]]
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
 null_dist_amas <- 
   do(9999) * diffmean(data = MathAnxiety, AMAS ~ shuffle(Gender))
 null_dist_amas
-
+###
 
 gf_histogram(data = null_dist_amas, ~ diffmean, bins = 25) %>%
   gf_vline(xintercept = obs_diff_amas, colour = "red") 
 
+###
 gf_ecdf(data = null_dist_amas, ~ diffmean) %>%
   gf_vline(xintercept = obs_diff_amas, colour = "red") 
-
+###
 1-prop1(~ diffmean <= obs_diff_amas, data = null_dist_amas)
 
 
@@ -520,24 +596,27 @@ interested in:
 ```{r}
 #| label: EDA RQ1-1
 #| layout-ncol: 3
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 yrbss_select_gender <- yrbss %>% 
   select(weight, gender) %>% 
   drop_na(weight) # Sadly dropping off NA data
-
+###
 yrbss_select_gender %>%
   gf_density( ~ weight,
               fill = ~ gender,
               alpha = 0.5,
-              title = "Highschoolers' Weights by Gender") %>%
-  gf_theme(theme_classic())
-
+              title = "Highschoolers' Weights by Gender") 
+###
 yrbss_select_gender %>%
   gf_boxplot(weight ~ gender,
               fill = ~ gender,
               alpha = 0.5,
-              title = "Highschoolers' Weights by Gender") %>%
-  gf_theme(theme_classic())
-
+              title = "Highschoolers' Weights by Gender") 
+###
 yrbss_select_gender %>% count(gender)
 ```
 
@@ -567,6 +646,11 @@ Let us plot frequency distribution and Q-Q plots[^6] for both variables.
 ```{r}
 #| results: hold
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 male_student_weights <- yrbss_select_gender %>% 
   filter(gender == "male") %>% 
   select(weight)
@@ -582,13 +666,11 @@ yrbss_select_gender %>%
               alpha = 0.5,
               title = "Highschoolers' Weights by Gender") %>%
   gf_facet_grid(~ gender) %>% 
-  gf_fitdistr(dist = "dnorm") %>% 
-  gf_theme(theme_classic())
+  gf_fitdistr(dist = "dnorm") 
 
 yrbss_select_gender %>% 
   gf_qq(~ weight | gender) %>% 
-  gf_qqline(ylab = "scores") %>%
-  gf_theme(theme_classic())
+  gf_qqline(ylab = "scores") 
 
 ```
 
@@ -659,7 +741,7 @@ obs_diff_gender
 
 ## {{< iconify fluent-mdl2 insights >}} Inference
 
-::: panel-tabset
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Using the Mann-Whitney test
 
 Since the data variables do not satisfy the assumption of being
@@ -742,20 +824,23 @@ polarity*. We will follow this method in the code below:
 ```{r}
 #| layout: [[15,40,40, 5]]
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 null_dist_weight <- 
   do(9999) * diffmean(data = yrbss_select_gender, weight ~ shuffle(gender))
 null_dist_weight
 
-
+###
 gf_histogram(data = null_dist_weight, ~ diffmean, bins = 25) %>%
-  gf_vline(xintercept = obs_diff_gender, colour = "red") %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = obs_diff_gender, colour = "red") 
 
+###
 gf_ecdf(data = null_dist_weight, ~ diffmean) %>%
-  gf_vline(xintercept = obs_diff_gender, colour = "red")  %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = obs_diff_gender, colour = "red") 
 
-
+###
 prop1(~ diffmean <= obs_diff_gender, data = null_dist_weight)
 
 
@@ -837,15 +922,17 @@ than 3 days a week? (`physically_active_7d` \>= 3 days)
 We can make distribution plots for `weight` by `physical_3plus`:
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_boxplot(weight ~ physical_3plus, 
           fill = ~ physical_3plus,
-          data = yrbss_select_phy, xlab = "Days of Exercise >=3 ") %>% 
-  gf_theme(theme_classic())
-
+          data = yrbss_select_phy, xlab = "Days of Exercise >=3 ")
+###
 gf_density(~ weight,
           fill = ~ physical_3plus,
-          data = yrbss_select_phy) %>% 
-  gf_theme(theme_classic())
+          data = yrbss_select_phy)
 
 ```
 
@@ -888,8 +975,7 @@ yrbss_select_phy %>%
               alpha = 0.5,
               title = "Highschoolers' Weights by Exercise Frequency") %>%
   gf_facet_grid(~ physical_3plus) %>% 
-  gf_fitdistr(dist = "dnorm") %>% 
-  gf_theme(theme_classic())
+  gf_fitdistr(dist = "dnorm") 
 
 
 ```
@@ -906,9 +992,7 @@ standard deviations:
 
 yrbss_select_phy %>% 
   gf_qq(~ weight | physical_3plus , color = ~ physical_3plus) %>% 
-  gf_qqline(ylab = "Weight") %>%
-  gf_theme(theme_classic())
-
+  gf_qqline(ylab = "Weight") 
 ```
 
 The QQ-plots confirm that he tow data variables are *not* normally
@@ -979,7 +1063,7 @@ obs_diff_phy
 
 ### {{< iconify fluent-mdl2 insights >}} Inference
 
-::: panel-tabset
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 #### Using *parametric* `t.test`
 
@@ -1077,7 +1161,8 @@ Note that `obs_diff_infer` is a 1 X 1 dataframe; `obs_diff_mosaic` is a
 scalar!!
 :::
 
-::: {.panel-tabset style="fill:burlywood"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 A. Inference Using `infer`
 
 Next, we will work through creating a permutation distribution using
@@ -1125,9 +1210,12 @@ find the observed difference in means!
 We can visualize this null distribution with the following code:
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_histogram(data = null_dist, ~ stat) %>% 
-  gf_vline(xintercept = ~ obs_diff_infer$stat, color = "red") %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = ~ obs_diff_infer$stat, color = "red")
 
 ```
 
@@ -1173,6 +1261,10 @@ that with the `obs`erved `diff`rence and compute the `p-value` and
 `confidence intervals`:
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_histogram(~ diffmean, data = null_dist_mosaic) %>% 
   gf_vline(xintercept = obs_diff_mosaic, colour = "red")
 

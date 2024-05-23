@@ -1,6 +1,5 @@
 ---
 title: "Analysis of Time Series in R"
-author: "Arvind Venkatadri"
 date: 28/Dec/2022
 date-modified: "`r Sys.Date()`"
 bibliography: 
@@ -27,7 +26,6 @@ library(forecast)  # Make forecasts and decompose time series
 # devtools::install_github("FinYang/tsdl")
 library(tsdl) # Time Series Data Library from Rob Hyndman
 
-ggplot2::theme_set(theme_classic(base_size = 12, base_family = "sans"))
 
 ```
 
@@ -41,6 +39,69 @@ library(epoxy)
 library(TeachHist)
 library(TeachingDemos)
 library(grateful)
+
+```
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -144,6 +205,9 @@ numerical column:
 
 ```{r feasts-basic-plot}
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
 feasts::autoplot(walmart_tsibble, .vars = Weekly_Sales)
 
 ```
@@ -211,7 +275,7 @@ rest, all is well, it seems...
 :::
 
 
-### {{iconify carbon chart-average >}} Too much noise? How about some averaging?
+### {{< iconify carbon chart-average >}} Too much noise? How about some averaging?
 
 :::callout-note
 **Q.3 How do we smooth out some of the variations in the time series to
@@ -299,8 +363,10 @@ We can do this for **all** `Dept`s using `fable` and `fabletools`:
 
 ```{r}
 #| label:  Decomposing_trends
-#| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+##
 walmart_decomposed <- 
   walmart_tsibble %>% 
   
@@ -385,6 +451,10 @@ flights_delay_ts
 
 ```{r}
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 mean_arr_delays_by_carrier <- 
   flights_delay_ts %>%
   group_by(carrier) %>% 
@@ -424,7 +494,6 @@ mean_arr_delays_by_carrier %>%
   gf_refine(scale_color_manual(name = "Airlines",
                                values = colour_values)) %>%
 
-  gf_theme(theme_classic()) %>%
   gf_theme(theme(axis.text.x = element_text(angle = 45, 
                                             hjust = 1, 
                                             size = 6)))
@@ -509,6 +578,9 @@ each origin across airlines!**
 
 ```{r}
 
+# Set graph theme
+theme_set(new = theme_custom())
+##
 flights_delay_ts %>%
   mutate(total_delay = arr_delay + dep_delay,
          month = lubridate::month(time_hour, 
@@ -520,7 +592,6 @@ flights_delay_ts %>%
              color = ~ origin, 
              fill = ~ origin, alpha = 0.3) %>%
   gf_facet_wrap(vars(carrier), nrow = 3, scales = "free_y") %>%
-  gf_theme(theme = theme_classic()) %>%
   gf_theme(theme(axis.text.x = element_blank()))
 
 
@@ -572,7 +643,9 @@ aggregated by month**
 
 ### Using tsibble + ggformula
 ```{r}
-
+# Set graph theme
+theme_set(new = theme_custom())
+##
 avg_delays_month <- flights_delay_ts %>% 
   group_by(origin) %>% 
   mutate(total_delay = arr_delay + dep_delay) %>% 
@@ -593,14 +666,12 @@ avg_delays_month
 ggformula::gf_tile(origin ~ month, fill = ~ mean_monthly_delay, 
                    color = "black", data = avg_delays_month,
                    title = "Mean Flight Delays from NY Airports in 2013") %>% 
-  gf_theme(theme_classic()) %>% 
-  gf_theme(scale_fill_viridis_c(option = "A")) %>% 
+  gf_theme(scale_fill_viridis_c(option = "A")) 
   
 # "magma" (or "A") inferno" (or "B") "plasma" (or "C") 
 # "viridis" (or "D") "cividis" (or "E") 
 # "rocket" (or "F") "mako" (or "G") "turbo" (or "H")
 
-  gf_theme(scale_x_time(breaks = 1:12, labels = month.abb))
 
 ```
 
@@ -647,8 +718,16 @@ Let us try to find and plot these patterns in Time Series.
 ```{r}
 #| label: STL-model-yearly
 #| column: screen-inset
-
-
+births_2000_2014 <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_2000-2014_SSA.csv")
+##
+births_tsibble <- 
+  births_2000_2014 %>%
+  mutate(index = lubridate::make_date(year = year, 
+                                      month = month,
+                                      day = date_of_month)) %>%
+  tsibble::as_tsibble(index = index) %>%
+  select(index, births)
+##
 births_STL_yearly <- 
   births_tsibble %>% 
   fabletools::model(STL(births ~ season(period = "year")))
@@ -658,17 +737,22 @@ fabletools::components(births_STL_yearly)
 ```
 
 ::: column-screen-inset
+
 ```{r}
 #| fig-column: screen-inset
 #| column: screen-inset
+
+# Set graph theme
+theme_set(new = theme_custom())
+##
 feasts::autoplot(components(births_STL_yearly))
 
 ```
 :::
-:::
 
 
-# Conclusion
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 We can plot most of the common Time Series Plots with the help of the
 **tidyverts** packages: ( `tsibble`, `feast`, `fable` and `fabletools`)
@@ -684,9 +768,6 @@ with the capabilities of `timetk`.
 
 ## {{< iconify ooui references-rtl >}} References
 
-::: {#refs style="font-size: 60%;"}
-
-
 1.  Rob J Hyndman and George Athanasopoulos, *Forecasting:
     Principles and Practice (3rd ed)*, Available Online
     <https://otexts.com/fpp3/>
@@ -695,7 +776,7 @@ with the capabilities of `timetk`.
 
 3.  [The start-at-zero rule](http://junkcharts.typepad.com/junk_charts/2005/09/the_startatzero.html)
 
-
+::: {#refs style="font-size: 60%;"}
 
 ###### {{< iconify lucide package-check >}} R Package Citations
     

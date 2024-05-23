@@ -16,12 +16,7 @@ citation: true
 
 ```{r}
 #| label: setup
-#| fig-align: center
-#| fig-dpi: 300
 
-knitr::opts_chunk$set(fig.align = "center", 
-                      fig.width = 7, fig.height = 5, tidy = TRUE)
-options(scipen = 8, digits = 3)
 # CRAN Packages
 library(tidyverse)
 library(broom)
@@ -39,7 +34,6 @@ library(ggExtra)
 # remotes::install_github("easystats/easystats")
 library(easystats)
 
-ggplot2::theme_set(theme_classic())
 
 ```
 
@@ -57,6 +51,69 @@ library(grateful)
 
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
 
 
 
@@ -87,6 +144,7 @@ cov(x,y) &= \frac{\sum_{i = 1}^{n}(x_i - \mu_x)*(y_i - \mu_y)}{n-1}\\
 
 \end{align*}
 $$
+
 Hence covariance is *the expectation of the product minus the product of the expectations* of the two variables. 
 
 ::: callout-tip
@@ -330,17 +388,13 @@ glimpse(gpa_study_hours)
 We can plot this:
 
 ```{r Pearson_example_3}
-#| results: hold
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 ggplot(gpa_study_hours, aes(x = study_hours, y = gpa)) + 
   geom_point() + 
-  geom_smooth() + 
-  theme_minimal()
-###
-# ggstatsplot::ggscatterstats(data = gpa_study_hours, 
-#                             x = study_hours, 
-#                             y = gpa,
-#                             marginal = TRUE,
-#                             title = "GPA vs Study Hours")
+  geom_smooth()
 
 ```
 
@@ -402,6 +456,11 @@ Let us see how this might work by comparing data and its signed-rank
 version...A quick set of plots:
 
 ```{r data_plots}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 p1 <- ggplot(mydata_long, aes(x = group, y = value)) +
   geom_jitter(width = 0.02,
               height = 0,
@@ -433,7 +492,7 @@ p1 <- ggplot(mydata_long, aes(x = group, y = value)) +
   geom_text(aes(x = 3, y = 0.8, label = "0.5")) +
   labs(title = "Original Data",
        subtitle = "Black Lines show Means") +
-  ylab("Response Variable") + theme_bw()
+  ylab("Response Variable")
 
 p2 <- mydata_long %>%
   group_by(group) %>%
@@ -451,9 +510,9 @@ p2 <- mydata_long %>%
   ) +
   labs(title = "Signed Rank of Data",
        subtitle = "Red Points are means of Ranks!") +
-  ylab("Signed Rank of Response Variable") + theme_bw()
+  ylab("Signed Rank of Response Variable")
 
-patchwork::wrap_plots(p1, p2, nrow = 1, guides = "collect")
+patchwork::wrap_plots(p1, p2, nrow = 1, guides = "collect") 
 
 ```
 
@@ -465,6 +524,11 @@ might?
 
 ```{r Spearman_Plot}
 # Plot the data
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 p1 <- ggplot(mydata_wide, aes(x, y1)) + 
   geom_point() +
   geom_smooth(method = "lm") +
@@ -545,6 +609,11 @@ We examine the `cars93` data, where the numeric variables of interest
 are `weight` and `price`.
 
 ```{r Spearman_example_1}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 cars93 %>% 
   ggplot(aes(weight, price)) + 
   geom_point() + 
@@ -559,6 +628,11 @@ constant over `weight`
 ```{r Spearman_example_2}
 #| warning: false
 #| message: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 cor.test(cars93$price, cars93$weight, method = "spearman") %>% broom::tidy()
 
 # Using linear Model

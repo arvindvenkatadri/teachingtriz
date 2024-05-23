@@ -19,6 +19,7 @@ bibliography:
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
+
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
@@ -43,10 +44,6 @@ library(ggalt) # New geometries, coordinate systems, statistical transformations
 # devtools::install_github("ricardo-bion/ggradar")
 library(ggradar) # Radar Plots
 
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
-
 ```
 
 
@@ -58,6 +55,70 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 library(checkdown)
 library(epoxy)
 library(grateful)
+
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -91,8 +152,9 @@ df1
 ```{r}
 #| layout-ncol: 2
 
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+# Set graph theme
+theme_set(new = theme_custom())
+
 ###
 gf_segment(0 + rank ~ product + product, data = df1) %>% 
 # A formula with shape y + yend ~ x + xend.
@@ -122,8 +184,10 @@ We have flipped the chart horizontally *and* reordered the $x$ categories in ord
 
 ```{r}
 #| layout-ncol: 2
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 ###
 ggplot(df1) +
   geom_segment(aes(y = 0, yend = rank, 
@@ -203,9 +267,10 @@ A cool visualization of this operation was created by [Garrick Aden-Buie](https:
 ### Using ggformula
 
 ```{r}
-#| layout-ncol: 2
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 ## With Wide Form Data
 ## 
 df2 %>% gf_segment(product + product ~ rank_year1 + rank_year2 ) %>% 
@@ -229,8 +294,10 @@ df2_long %>%
 ```{r}
 #| layout-ncol: 2
 #| warning: false
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 
 ## With Wide Format Data
 ggplot(df2, aes(y = product, yend = product, x = rank_year1, xend = rank_year2)) + 
@@ -253,6 +320,10 @@ df2_long %>%
 
 ```{r}
 #| warning: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 df2 %>% ggplot() + 
   geom_dumbbell(aes(y = product, x = rank_year1, xend = rank_year2),
                 size = 3, color = "#e3e2e1", 
@@ -261,7 +332,7 @@ df2 %>% ggplot() +
                 dot_guide_size=0.25) +
   
   labs(x = NULL, y = NULL, title = "ggplot2 geom_dumbbell with dot guide", caption = "Made with ggalt") +
-  theme_minimal() +
+  #theme_minimal() +
   theme(panel.grid.major.x=element_line(size=0.05)) +
   theme(panel.grid.major.y=element_blank())
 
@@ -271,6 +342,10 @@ df2 %>% ggplot() +
 ### Comparison barchart
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 df2_long %>% 
   gf_col(product ~ scores, group = ~ year, fill = ~ year, position = "dodge")
 
@@ -330,9 +405,10 @@ Note the `+` syntax with `ggplot` code!!
 #| warning: false
 
 #library(ggbump)
+
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+theme_set(new = theme_custom())
+
 ###
 df3 %>%  
   ggplot() +
@@ -354,8 +430,8 @@ altogether:
 #| warning: false
 
 # Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+theme_set(new = theme_custom())
+
 ###
 ggplot(df3) +
   geom_bump(aes(x = year, y = position, color = product)) +
@@ -436,8 +512,7 @@ ggradar::ggradar(plot.data = df4,
                  group.line.width = 1, # Product Line Widths
                  fill = TRUE, # fill the radar polygons
                  fill.alpha = 0.3, # Not too dark, Arvind
-                 legend.title = "Product") +
-  theme_void()
+                 legend.title = "Product") 
 
 ```
 
@@ -503,8 +578,7 @@ mpg %>% gf_point(hwy ~ cty,
 
 ## {{< iconify ooui references-ltr >}} References
 
-\
-Highcharts Blog. [Why you need to start using dumbbell charts](https://www.highcharts.com/blog/tutorials/why-you-need-to-start-using-dumbbell-charts/)\
+1. Highcharts Blog. [Why you need to start using dumbbell charts](https://www.highcharts.com/blog/tutorials/why-you-need-to-start-using-dumbbell-charts/)\
 <https://github.com/hrbrmstr/ggalt#lollipop-charts>\
 
 ::: {#refs style="font-size: 60%;"}

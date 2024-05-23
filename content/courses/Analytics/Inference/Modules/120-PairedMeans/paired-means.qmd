@@ -1,6 +1,5 @@
 ---
 title: "\U0001F0CF Inference for Comparing Two Paired Means"
-author: "Arvind Venkatadri"
 date: 10/Nov/2022
 subtitle: ""
 date-modified: "`r Sys.Date()`"
@@ -48,6 +47,71 @@ library(MKdescr)
 
 ```
 
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
+```
+
 # {{< iconify fluent pair-24-filled >}} What is Paired Data?
 
 Sometimes the data is collected on the same set of individual
@@ -64,6 +128,7 @@ these two sets. In this module, we will examine tests for this purpose.
 # {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for Paired Data
 
 ```{mermaid}
+%%| echo: false
 flowchart TD
     A[Inference for Paired Means] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
     B --> C{OK?}
@@ -108,7 +173,9 @@ First, histograms and densities of the two variables at hand:
 ```{r}
 #| echo: true
 #| layout-ncol: 3
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 Diving2017_long <- Diving2017 %>%
   pivot_longer(
     cols = c(Final, Semifinal),
@@ -122,10 +189,8 @@ Diving2017_long %>%
               alpha = 0.5,
               title = "Diving Scores") %>%
   gf_facet_grid( ~ race) %>%
-  gf_fitdistr(dist = "dnorm") %>% gf_theme(theme_classic())
-
-
-
+  gf_fitdistr(dist = "dnorm")
+###
 Diving2017_long %>%
   gf_col(
     fct_reorder(Name, scores) ~ scores,
@@ -135,9 +200,8 @@ Diving2017_long %>%
     xlab = "Scores",
     ylab = "Name",
     title = "Diving Scores"
-  ) %>%
-  gf_theme(theme_classic())
-
+  ) 
+###
 Diving2017_long %>%
   gf_boxplot(
     scores ~ race,
@@ -146,8 +210,7 @@ Diving2017_long %>%
     xlab = "Race",
     ylab = "Scores",
     title = "Diving Scores"
-  ) %>%
-  gf_theme(theme_classic())
+  ) 
 
 ```
 
@@ -183,6 +246,9 @@ the same means and standard deviations:
 ```{r}
 #| layout-ncol: 2
 #| warning: false
+# Set graph theme
+theme_set(new = theme_custom())
+#
 set.rseed(1234)
 Diving2017 %>% 
   mutate(Final_norm = rnorm(n = 12, 
@@ -196,13 +262,11 @@ Diving2017 %>%
                  c(Semifinal, Final, Semifinal_norm,Final_norm),
                names_to = "score_type", values_to = "value") %>% 
   gf_boxplot(value ~ score_type, fill = ~ score_type, 
-             show.legend = FALSE) %>%
-  gf_theme(theme_classic())
-
+             show.legend = FALSE)
+###
 Diving2017_long %>% 
   gf_qq(~ scores | race) %>% 
-  gf_qqline(ylab = "scores") %>%
-  gf_theme(theme_classic())
+  gf_qqline(ylab = "scores")
 
 ```
 
@@ -270,8 +334,9 @@ obs_diff_swim
 
 ## {{< iconify fluent-mdl2 insights >}} Inference
 
-::: panel-tabset
-### Using the *paired* `t.test`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using the *paired* t.test
 
 Since the data variables satisfy the assumption of being *normally
 distributed*, and the variances are not significantly different, we may
@@ -322,6 +387,7 @@ $$
 wilcox.test(x = Diving2017$Semifinal, 
             y = Diving2017$Final,
                paired = TRUE,conf.int = TRUE,conf.level = 0.95) %>% broom::tidy()
+
 ```
 
 Here also with the `p.value` being $0.3804$, we have no reason to accept
@@ -379,6 +445,7 @@ either polarity*. We will follow this method in the code below:
 
 ```{r}
 #| layout-ncol: 2
+#| cache: true
 polarity <- c(rep(1, 6), rep(-1, 6)) 
 # 12 +/- 1s, 
 # 6 each to make sure there is equal probability
@@ -397,15 +464,17 @@ Let us plot the NULL distribution and compare it with the actual
 
 ```{r}
 #| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_histogram(data = null_dist_swim, ~ mean) %>%
-  gf_vline(xintercept = obs_diff_swim, colour = "red") %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = obs_diff_swim, colour = "red")
 
+###
 gf_ecdf(data = null_dist_swim, ~ mean) %>%
-  gf_vline(xintercept = obs_diff_swim, colour = "red")  %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = obs_diff_swim, colour = "red")
 
-
+###
 prop1(~ mean <= obs_diff_swim, data = null_dist_swim)
 
 
@@ -506,6 +575,9 @@ Gaussian distribution for comparison:
 
 ```{r}
 #| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
 Groceries_long <- Groceries %>%
   pivot_longer(
     cols = c(Walmart, Target),
@@ -520,7 +592,7 @@ Groceries_long %>%
               alpha = 0.5,
               title = "Grocery Costs") %>%
   gf_facet_grid( ~ store) %>%
-  gf_fitdistr(dist = "dnorm") %>% gf_theme(theme_classic())
+  gf_fitdistr(dist = "dnorm")
 
 Groceries_long %>%
   gf_density( ~ prices,
@@ -528,7 +600,7 @@ Groceries_long %>%
               alpha = 0.5,
               title = "Grocery Costs") %>%
   gf_facet_grid( ~ store) %>%
-  gf_fitdistr(dist = "dnorm") %>% gf_theme(theme_classic())
+  gf_fitdistr(dist = "dnorm")
 
 
 ```
@@ -545,12 +617,13 @@ form, [^1] and as bar charts:
 
 ```{r}
 #| layout-ncol: 2
- 
+# Set graph theme
+theme_set(new = theme_custom())
+#
 Groceries_long %>% 
-  gf_boxplot(prices~ store, fill = ~ store) %>% 
-  gf_theme(theme_classic())
+  gf_boxplot(prices~ store, fill = ~ store) 
 
-
+###
 Groceries_long %>%
   gf_col(fct_reorder(Product, prices) ~ prices,
     fill = ~ store,
@@ -560,7 +633,7 @@ Groceries_long %>%
     ylab = "",
     title = "Groceries Costs"
   ) %>% 
-  gf_col(data = Groceries_long %>% filter(Product == "Quaker Oats Life Cereal Original"), fct_reorder(Product, prices) ~ prices, fill = ~store, position = "dodge") %>% gf_theme(theme_classic())
+  gf_col(data = Groceries_long %>% filter(Product == "Quaker Oats Life Cereal Original"), fct_reorder(Product, prices) ~ prices, fill = ~store, position = "dodge")
 
 ```
 
@@ -632,16 +705,16 @@ Hypothesis that the variances are not significantly different.
 
 ### {{< iconify fluent-mdl2 insights >}} Inference
 
-::: panel-tabset
-#### Using *paired* `t.test`
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Using *paired* t.test
 
 Well, the variables are *not* normally distributed, so a standard
 `t.test` is not advised, even if the variances are similar. We can still
 try:
 
 ```{r}
-mosaic::t_test(prices ~ store, paired = TRUE, 
-               data = Groceries_long) %>% 
+mosaic::t_test(Groceries$Walmart, Groceries$Target,paired = TRUE) %>% 
   broom::tidy()
 ```
 
@@ -661,7 +734,7 @@ distributed. So a Wilcoxon Test, using signed-ranks, is indicated:
 # For stability reasons, it may be advisable to use rounded data or to set digits.rank = 7, say, 
 # such that determination of ties does not depend on very small numeric differences (see the example).
 
-wilcox.test(prices ~ store, data = Groceries_long, 
+wilcox.test(Groceries$Walmart, Groceries$Target, data = Groceries_long, 
             digits.rank = 7,
             paired = TRUE, conf.int = TRUE, conf.level = 0.95) %>% 
   broom::tidy()
@@ -704,19 +777,22 @@ the two store names:
 
 ```{r}
 # | layout: [[15, 85, 15]]
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 polarity <- c(rep(1, 15), rep(-1,15))
+##
 null_dist_price <- do(9999) * 
                       mean(data = Groceries, 
                            ~ (Target - Walmart) * resample(polarity,
                                                       replace = TRUE))
 null_dist_price
-
+##
 gf_histogram(data = null_dist_price, ~ mean) %>% 
-  gf_vline(xintercept = obs_diff_price, colour = "red") %>% 
-  gf_theme(theme_classic())
+  gf_vline(xintercept = obs_diff_price, colour = "red")
 
 prop1(~ mean, data = null_dist_price)
-
 
 ```
 
@@ -731,8 +807,7 @@ about the tests:
 ```{r}
 #| results: hold
 #| warning: false
-mosaic::t_test(prices ~ store, paired = TRUE,
-               data = Groceries_long) %>%
+mosaic::t_test(Groceries$Walmart, Groceries$Target,paired = TRUE) %>% 
   broom::tidy() %>%
   gt() %>%
   tab_style(style = list(cell_fill(color = "cyan"),
@@ -747,9 +822,7 @@ lm(Target - Walmart ~ 1, data = Groceries) %>%
             locations = cells_body(columns = p.value))  %>%
   tab_header(title = "Linear Model")
 ###
-wilcox.test(
-  prices ~ store,
-  data = Groceries_long,
+wilcox.test(Groceries$Walmart, Groceries$Target,
   digits.rank = 7,
   paired = TRUE,
   conf.int = TRUE,
@@ -780,6 +853,10 @@ the product name)
 ```{r}
 #| layout: [[30,5],[50,5]]
 #| warning: false
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 set.seed(12345)
 Groceries_less <- Groceries %>%
   filter(Product != "Quaker Oats Life Cereal Original")
@@ -791,9 +868,7 @@ Groceries_less_long <- Groceries_less %>%
     values_to = "prices"
   )
 
-wilcox.test(
-  prices ~ store,
-  data = Groceries_less_long,
+wilcox.test(Groceries_less$Walmart, Groceries_less$Target,paired = TRUE,
   digits.rank = 7,
   conf.int = TRUE,
   conf.level = 0.95
@@ -810,11 +885,10 @@ null_dist_price_less <-
   do(9999) * mean(data = Groceries_less,
                   ~ (Target - Walmart) * resample(polarity_less,
                                                   replace = TRUE))
-
+##
 gf_histogram(data = null_dist_price_less, ~ mean) %>%
-  gf_vline(xintercept = obs_diff_price_less, colour = "red") %>%
-  gf_theme(theme_classic())
-
+  gf_vline(xintercept = obs_diff_price_less, colour = "red")
+##
 mean(null_dist_price_less >= obs_diff_price_less)
 
 ```
@@ -843,13 +917,13 @@ and so on.
 
 ## {{< iconify ooui references-ltr >}} References
 
-::: {#refs style="font-size: 60%;"}
 1.  Randall Pruim, Nicholas J. Horton, Daniel T. Kaplan, [*Start
     Teaching with
     R*](https://github.com/ProjectMOSAIC/LittleBooks/raw/master/Starting/MOSAIC-StartTeaching.pdf)
 2.  <https://bcs.wiley.com/he-bcs/Books?action=index&itemId=111941654X&bcsId=11307>
 3.  <https://statsandr.com/blog/wilcoxon-test-in-r-how-to-compare-2-groups-under-the-non-normality-assumption/>
 
+::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}

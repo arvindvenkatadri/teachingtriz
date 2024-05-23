@@ -8,6 +8,7 @@ abstract: "Quant and Qual Variable Graphs and their Siblings"
 order: 20
 image: preview.jpg
 image-alt: Image by rawpixel.com
+df-print: paged
 categories:
 - Qual Variables
 - Quant Variables
@@ -56,7 +57,7 @@ This tutorial uses `web-r` that allows you to run all code within your browser, 
 #| include: true
 #| message: false
 #| warning: false
-
+options(paged.print = TRUE)
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -70,43 +71,6 @@ library(skimr)
 library(palmerpenguins) # Our new favourite dataset
 
 ```
-
-```{r}
-#| label: Plot Sizing and theming
-#| echo: false
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-extrafont::loadfonts(quiet = TRUE)
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-#extrafont::loadfonts(quiet = TRUE)
-
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
-
-thematic_rmd(font = "Roboto Condensed",inherit = F,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
-
-```
-
 
 
 ```{r}
@@ -123,8 +87,75 @@ library(grateful)
 library(MKdescr)
 library(shinylive) # To create a Shiny app in a Quarto HTML doc
 # Will not work if webr is also used in the SAME Quarto doc!
+library(sysfonts)
+library(gfonts)
 
 ```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
 
 
 
@@ -144,11 +175,6 @@ library(palmerpenguins)
 library(ggformula)
 library(ggridges)
 library(skimr)
-# Set graph theme
-ggplot2::theme_set(
-  new = theme_classic(base_size = 14, 
-                      base_family = "sans"))
-
 
 download.file(
   url = 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv', 
@@ -332,12 +358,12 @@ Let's plot some histograms.
 ```{r}
 #| label: histograms-ggformula
 #| layout-ncol: 2
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14,
-#                                        base_family = "sans"))
 
+## Set graph theme
+theme_set(new = theme_custom())
+##
 gf_histogram(~ price, data = diamonds) %>%
-  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula") 
 
 ###
 diamonds %>% 
@@ -376,9 +402,9 @@ diamonds %>%
 #| layout-ncol: 2
 #| message: false
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 ggplot(data = diamonds) + 
   geom_histogram(aes(x = price)) +
@@ -401,8 +427,6 @@ diamonds  %>% ggplot() +
        caption = "ggplot") + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
-
 ###
 diamonds  %>% ggplot() + 
   geom_histogram(aes(price, fill = cut), color = "black") +
@@ -412,7 +436,6 @@ diamonds  %>% ggplot() +
        caption = "ggplot") + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
@@ -420,9 +443,6 @@ diamonds  %>% ggplot() +
 ```{webr-r}
 #| label: histograms-ggformula-webr
 #| layout-ncol: 2
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
 
 gf_histogram(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",
@@ -511,7 +531,6 @@ diamonds  %>%
        caption = "ggplot") + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
 ```
 
 :::
@@ -543,6 +562,7 @@ that more than just `cut` determines the `price` of a diamond.
 ### An Interactive App for Histograms
 
 Type in your Console:
+
 ```{r}
 #| echo: fenced
 #| eval: false
@@ -567,9 +587,9 @@ choose **Qual** variables to count with!
 #| label: bar-charts-ggformula
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 gf_bar(~ cut, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
@@ -604,8 +624,11 @@ diamonds %>%
 ```
 
 ```{r}
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 diamonds %>% gf_bar( ~ cut, 
                      fill = ~ clarity, 
                      position = "dodge", 
@@ -624,9 +647,9 @@ diamonds %>% gf_bar( ~ cut,
 #| label: bar-charts-ggplot
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 ggplot(diamonds)  + 
   geom_bar(aes(cut)) + 
@@ -663,8 +686,10 @@ diamonds %>%
 ```
 
 ```{r}
-# ggplot2::theme_set(new = theme_classic(base_size = 12, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 diamonds %>% 
   ggplot() + 
@@ -677,6 +702,7 @@ diamonds %>%
   labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
        subtitle = "Dodged Bar Chart Facetted by Color",
        caption = "Turbo Palette from Viridis set")
+
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
@@ -684,10 +710,6 @@ diamonds %>%
 ```{webr-r}
 #| label: bar-charts-ggformula-webr
 #| layout-ncol: 2
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 gf_bar(~ cut, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
@@ -726,8 +748,7 @@ diamonds %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
 diamonds %>% gf_bar( ~ cut, 
                      fill = ~ clarity, 
                      position = "dodge", 
@@ -744,10 +765,6 @@ diamonds %>% gf_bar( ~ cut,
 ```{webr-r}
 #| label: bar-charts-ggplot-webr
 #| layout-ncol: 2
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 ggplot(diamonds)  + 
   geom_bar(aes(cut)) + 
@@ -787,8 +804,6 @@ diamonds %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_size = 12, 
-                                       base_family = "sans"))
 
 diamonds %>% 
   ggplot() + 
@@ -826,6 +841,7 @@ same:
 
 ::: callout-note
 ### `gf_bar`vs `gf_col` (and `geom_bar` vs `geom_col`)
+
 These two geometries in `ggformula` and `ggplot` do very similar things: give us a bar plot. There is **one significant difference** however: `gf_bar/geom_bar` **performs counting internally**, whereas `gf_col/geom_col` need the data to be counted beforehand. `gf_counts()` is another name for `gf_bar()`.
 See the code below:
 
@@ -833,10 +849,15 @@ See the code below:
 #| layout-ncol: 2
 #| results: hold
 
-diamonds %>% 
-  gf_bar(~ cut) # performs counts based on `cut` (Qual variable)
-                # default y-axis labelling is "count"
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
+diamonds %>% 
+  gf_bar(~ cut) %>% # performs counts based on `cut` (Qual variable)
+                # default y-axis labelling is "count"
+                
+  gf_labs(title = "Bar Plot Counts internally")
 ###
 
 diamonds %>% 
@@ -847,7 +868,8 @@ diamonds %>%
   
   # gf_col needs counted data
   # we use the (re)named variable counts vs cut
-  gf_col(How_Many ~ cut) 
+  gf_col(How_Many ~ cut) %>% 
+  gf_labs(title = "Column Plot needs pre-counted data")
 
 
 ```
@@ -865,15 +887,22 @@ Also check out `gf_props` and `gf_percents` ! These are also very useful `ggform
 ```{r}
 #| layout-ncol: 2
 #| results: hold
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 gf_props(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,
   position = "dodge"
-)
+) %>%
+  gf_labs(title = "Plotting Proportions using gf_props")
 ###
 gf_percents(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,
   position = "dodge"
-)
+)%>%
+  gf_labs(title = "Plotting Percentages using gf_percents")
 ```
 
 
@@ -896,9 +925,10 @@ histograms, especially with default bucket widths.
 #| label: density-charts-ggformula
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 
 gf_density(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
@@ -936,9 +966,9 @@ diamonds %>% gf_density(~ price,
 #| label: density-charts-ggplot
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 diamonds %>% ggplot() + 
   geom_density(aes(price)) +
@@ -981,10 +1011,6 @@ diamonds %>% ggplot() +
 ```{webr-r}
 #| label: density-charts-ggformula-webr
 
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
-
 gf_density(~ price, data = diamonds) %>%
   gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
 ```
@@ -1022,10 +1048,6 @@ diamonds %>% gf_density(~ price,
 
 ```{webr-r}
 #| label: density-charts-ggplot-webr
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 diamonds %>% ggplot() + 
   geom_density(aes(price)) +
@@ -1105,9 +1127,9 @@ MKdescr::illustrate.boxplot(rnorm(50, mean = 3, sd = 2))
 #| label: Boxplots-ggformula
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 gf_boxplot(price ~ "All Diamonds", data = diamonds) %>% 
   gf_labs(title = "Plot A: Boxplot for Diamond Prices")
@@ -1143,9 +1165,10 @@ diamonds %>%
 #| label: Boxplots-ggplots
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 diamonds %>% ggplot() + 
   geom_boxplot(aes(y = price)) + # note: y, not x
   labs(title = "Plot A: Boxplot for Diamond Prices")
@@ -1178,10 +1201,6 @@ diamonds %>% ggplot() +
 
 ```{webr-r}
 #| label: Boxplots-ggformula-webr
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 gf_boxplot(price ~ ., data = diamonds) %>% 
   gf_labs(title = "Plot A: Boxplot for Diamond Prices")
@@ -1290,9 +1309,10 @@ plot*. `ggformula` support this plot by importing/depending upon the `ggridges` 
 #| out-width: "80%"
 #| fig-align: "center"
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.3, 
@@ -1307,10 +1327,6 @@ gf_density_ridges(drv ~ hwy, fill = ~ drv,
 
 ```{webr-r}
 #| label: more-charts-webr
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.3, 
@@ -1357,9 +1373,10 @@ Let us see what this looks like!
 #| label: Violin plots with ggformula
 #| layout-ncol: 2
 
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 
 gf_violin(price ~ "All Diamonds", data = diamonds, 
           draw_quantiles = c(0,.25,.50,.75)) %>%
@@ -1397,9 +1414,10 @@ diamonds %>%
 ```{r}
 #| label: Violin plots with ggplot
 #| layout-ncol: 2
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 diamonds %>% ggplot() + 
   geom_violin(aes(y = price, x = ""),
@@ -1439,10 +1457,6 @@ diamonds %>% ggplot() +
 ```{webr-r}
 #| label: Violin plots with ggformula webr
 #| collapse: true
-
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
 
 gf_violin(price ~ "", data = diamonds, 
           draw_quantiles = c(0,.25,.50,.75)) %>%
@@ -1565,14 +1579,6 @@ The data has automatically been read into the `webr` session, so you can continu
 
 ```{webr-r}
 #| context: setup
-# download.file(
-#   url = 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv', 
-# destfile = 'race_df.csv')
-# 
-# download.file(
-#   url = "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv", 
-#   destfile = "rank_df.csv")
-
 # Read the data
 race_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
 rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
@@ -1588,6 +1594,7 @@ Let us look at the dataset using all our three methods:
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
 ```{r}
 #| label: glimpse-race-data
 glimpse(race_df)
@@ -1598,11 +1605,13 @@ glimpse(rank_df)
 ```{r}
 #| label: glimpse-race-data-1
 skim(race_df)
+
 ```
 
 ```{r}
 #| label: glimpse-race-data-2
 skim(rank_df)
+
 ```
 
 ```{r}
@@ -1616,19 +1625,19 @@ inspect(rank_df)
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-#| label: glimpse-race-data-webr
+#| label: glimpse-race-data-webr-1
 glimpse(race_df)
 glimpse(rank_df)
 
 ```
 
 ```{webr-r}
-#| label: glimpse-race-data--webr-1
+#| label: glimpse-race-data-webr-2
 skim(race_df)
 ```
 
 ```{webr-r}
-#| label: glimpse-race-data-webr-2
+#| label: glimpse-race-data-webr-3
 skim(rank_df)
 ```
 
@@ -1662,19 +1671,23 @@ inspect(rank_df)
     show *zero* participants!! Is that an error in data entry?
 :::
 
+
 ### {{< iconify fluent-mdl2 explore-data >}} EDA with `race` datasets
 
 ::: callout-note
-### Question
+
+### Question #1
 Which countries host the maximum number of races? Which
 countries send the maximum number of participants??
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
 ```{r}
 race_df %>% count(country) %>% arrange(desc(n))
 rank_df %>% count(nationality) %>% arrange(desc(n))
+
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
@@ -1682,7 +1695,9 @@ rank_df %>% count(nationality) %>% arrange(desc(n))
 ```{webr-r}
 race_df %>% count(country) %>% arrange(desc(n))
 rank_df %>% count(nationality) %>% arrange(desc(n))
+
 ```
+
 :::
 
 The top three locations for races were the USA, UK, and France. These
@@ -1691,13 +1706,14 @@ naturally!
 :::
 
 ::: callout-note
-### Question
+### Question #2
 Which countries have the maximum number of winners (top 3
 ranks)?
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
 ```{r}
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
@@ -1706,6 +1722,7 @@ rank_df %>%
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
+
 ```{webr-r}
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
@@ -1717,10 +1734,12 @@ rank_df %>%
 
 1240 Participants from the USA have been top 3 finishers. Across *all*
 races...
+
 :::
 
+
 ::: callout-note
-### Question
+### Question #3
 Which countries have had the most top-3 finishes in the
 **longest** distance race?
 
@@ -1732,6 +1751,7 @@ observations in **both** datasets.
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
 ```{r}
 #| layout-nrow: 2
 
@@ -1747,8 +1767,8 @@ longest_races %>%
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
+
 ```{webr-r}
-#| layout-nrow: 2
 
 longest_races <- race_df %>%
   slice_max(n = 5, order_by = distance) # Longest distance races
@@ -1766,6 +1786,7 @@ longest_races %>%
 ```
 
 :::
+
 
 Wow....France has one the top 10 positions 26 times in the longest
 races... which take place in France, Thailand, Chad, Australia, and
@@ -1776,7 +1797,7 @@ finishes, when it comes to the *longest* races, it is `r emoji::emoji("france")`
 
 
 ::: callout-note
-### Question
+### Question #4
 What is the distribution of the finishing times, across all
 races and all ranks?
 
@@ -1784,21 +1805,24 @@ races and all ranks?
 
 ### {{< iconify la r-project >}} R
 ```{r}
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 rank_df %>%
-  gf_histogram(~ time_in_seconds, bins = 75)
+  gf_histogram(~ time_in_seconds, bins = 75) %>%
+  gf_labs(title = "Histogram of Race Times")
 
 ```
+
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
 rank_df %>%
-  gf_histogram(~ time_in_seconds, bins = 75)
+  gf_histogram(~ time_in_seconds, bins = 75)  %>%
+  gf_labs(title = "Histogram of Race Times")
 
 ```
 :::
@@ -1813,18 +1837,21 @@ are not the same...but could there be other reasons? Like
 
 
 ::: callout-note
-### Question
+### Question #5
 What is the distribution of race distances?
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 race_df %>%
-  gf_histogram(~ distance, bins =  50)
+  gf_histogram(~ distance, bins =  50) %>%
+  gf_labs(title = "Histogram of Race Distances")
 
 ```
 
@@ -1839,11 +1866,10 @@ race_df %>%
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-# Set graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
 race_df %>%
-  gf_histogram(~ distance, bins =  50)
+  gf_histogram(~ distance, bins =  50) %>%
+  gf_labs(title = "Histogram of Race Distances")
 
 ```
 
@@ -1851,8 +1877,10 @@ Hmm...a closely clumped set of race distances, with some entries in
 between \[0-150\], but some are zero? Which are these?
 
 ```{webr-r}
+
 race_df %>%
   filter(distance == 0)
+
 ```
 :::
 
@@ -1865,7 +1893,7 @@ Perhaps these were cancelled events...all of them are stated to be
 
 
 ::: callout-note
-### Question
+### Question #6
 For all races that have a distance around 150, what is the
 distribution of finishing times? Can these be split/facetted using
 `start_time` of the race (i.e. morning / evening) ?
@@ -1877,6 +1905,7 @@ distribution of finishing times? Can these be split/facetted using
 Let's make a count of start times:
 
 ```{r}
+
 race_times <- race_df %>%
   count(start_time) %>% arrange(desc(n))
 race_times
@@ -1890,9 +1919,10 @@ afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
 ```{r}
 #| label: Slicing_time_to_Qual
 # Demo purposes only!
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
 
 race_start_factor <- race_df %>%
   mutate(
@@ -1938,7 +1968,8 @@ race_start_factor %>%
     color = ~ start_day_time,
     alpha = 0.5
   ) %>%
-  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y")
+  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y") %>%
+  gf_labs(title = "Race Times by Start-Time")
 
 ```
 
@@ -1947,6 +1978,7 @@ race_start_factor %>%
 Let's make a count of start times:
 
 ```{webr-r}
+
 race_times <- race_df %>%
   count(start_time) %>% arrange(desc(n))
 race_times
@@ -1960,9 +1992,6 @@ afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
 ```{webr-r}
 #| label: Slicing_time_to_Qual
 # Demo purposes only!
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
 
 race_start_factor <- race_df %>%
   mutate(
@@ -2010,7 +2039,8 @@ race_start_factor %>%
     color = ~ start_day_time,
     alpha = 0.5
   ) %>%
-  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y")
+  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y")%>%
+  gf_labs(title = "Race Times by Start-Time")
 
 ```
 
@@ -2046,9 +2076,11 @@ Let us plot densities/histograms for `value`:
 ```{r}
 #| label: skewed-histogram
 #| layout-ncol: 2
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 ##
 gf_histogram(~ value, data = pop, title = "Long Tailed Histogram") 
 ##
@@ -2066,10 +2098,11 @@ concerned, using say a "log" transformation:
 ```{r}
 #| label: skewed-density
 #| layout-ncol: 2
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
 ##
+
 gf_histogram(~ log10(value), data = pop, title = "Histogram with Log transformed x-variable") 
 ##
 gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-variable")
@@ -2094,8 +2127,11 @@ the variables that are plotted in the respective distributions.
 #| echo: false
 #| layout-ncol: 2
 library(TeachHist)
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
 p1 <- TeachHistDens(Mean = 60, Sd = 5)
 p3 <- TeachHistDens(Mean = 10, Sd = 5)
 p2 <- TeachHistDens(Mean = 60, Sd = 15)

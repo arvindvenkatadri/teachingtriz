@@ -24,7 +24,7 @@ webr:
 
 |                                                                                                             |                                                                                                              |
 |------------------------------------|------------------------------------|
-| <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis-WIP</a>  |
+| <a href="./files/timeseries-wrangling.qmd"><i class="fa-brands fa-r-project"></i>TimeSeries Wrangling</a>   | <a href="./files/timeseries-analysis.qmd"> <i class="fa-solid fa-person-rays"></i> Time Series Analysis-WIP</a>  |
 
 ## {{< iconify mdi web-check >}} Using web-R
 This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure (like in an old-fashioned library), with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
@@ -57,7 +57,7 @@ library(fpp3)
 library(tsdl)
 library(TSstudio)
 library(timetk)
-
+library(tsbox)
 library(gghighlight) # Highlight specific parts of charts
 
 ```
@@ -79,8 +79,9 @@ library(checkdown)
 library(epoxy)
 library(grateful)
 library(kableExtra)
-
+library(gfonts)
 ```
+
 
 ```{r}
 #| label: Plot Sizing and theming
@@ -88,30 +89,61 @@ library(kableExtra)
 #| message: false
 #| results: hide
 
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
- fig.asp = 0.618 # Golden Ratio
- #out.width = "80%"
- )
-### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-library(gfonts)
-extrafont::loadfonts(quiet = TRUE)
-
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
 )
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-thematic_rmd(font = "Roboto Condensed",inherit = F,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -442,6 +474,9 @@ births over time, colouring by `day_of_week`, for example:
 #| label: using ggformula
 #| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 # grouping by day_of_week
 births_2000_2014 %>% 
   gf_line(births ~ year, 
@@ -475,6 +510,9 @@ month** in each year and plot that:
 #| label: using-tibble-data-3
 #| message: false
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_2000_2014_monthly <- births_2000_2014 %>% 
   
@@ -521,6 +559,9 @@ instead of month:
 #| warning: false
 #| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_2000_2014_weekly <- births_2000_2014 %>% 
   mutate(day_of_week = base::factor(day_of_week,
           levels = c(1,2,3,4,5,6,7), 
@@ -553,6 +594,9 @@ can plot births over time, colouring by `day_of_week`, for example:
 #| label: using ggplot
 #| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 # grouping by day_of_week
 births_2000_2014 %>% 
   ggplot(aes(year, births,
@@ -581,6 +625,9 @@ births_2000_2014 %>%
 #| label: using-tibble-data-3b
 #| message: false
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_2000_2014_monthly <- births_2000_2014 %>% 
   
@@ -614,6 +661,9 @@ births_2000_2014_monthly %>%
 #| warning: false
 #| layout-ncol: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_2000_2014_weekly <- births_2000_2014 %>% 
   mutate(day_of_week = base::factor(day_of_week,
           levels = c(1,2,3,4,5,6,7), 
@@ -645,6 +695,9 @@ Instead of looking at multiple overlapping time series graphs, we could split th
 ```{r}
 #library(gghighlight)
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_2000_2014_monthly
 ###
 births_2000_2014_monthly %>% ggplot() + 
@@ -664,6 +717,9 @@ births_2000_2014_monthly %>% ggplot() +
 ```
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_2000_2014_weekly
 ###
@@ -727,6 +783,9 @@ this with `ggformula/ggplot` as we have done before, and with now with
 ```{r}
 #| eval: false
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tibble_timeseries %>%
   gf_line(births ~ date)
 
@@ -737,6 +796,10 @@ births_tibble_timeseries %>%
 
 ```{r}
 #| label: Time-series-timetk
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 births_tibble_timeseries %>%
   timetk::plot_time_series(.date_var = date, 
                            .value = births, 
@@ -810,6 +873,9 @@ Let us simply plot `Cost` over time:
 ```{r}
 #| label:  PBS-Cost-ggformula
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>%
   gf_point(Cost ~ Month, data = .) %>% 
   gf_line(title = "PBS Costs vs time", caption = "ggformula") 
@@ -820,6 +886,9 @@ PBS %>%
 
 ```{r}
 #| label:  PBS-Cost-ggplot
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 PBS %>% 
   ggplot(aes(Month, Cost)) + 
@@ -832,6 +901,10 @@ PBS %>%
 ### Using timetk
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 PBS %>%
   timetk::plot_time_series(.date_var = Month, .value = Cost, 
                            .interactive = FALSE,
@@ -852,6 +925,9 @@ How about a heatmap? We can cook up a categorical variable based on the
 number of births (low, fine, high) and use that to create a heatmap:
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 births_2000_2014 %>%
   mutate(birthrate = case_when(births >= 10000 ~ "high",

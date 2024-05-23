@@ -50,6 +50,7 @@ library(GGally) # Corr plots
 library(corrplot) # More corrplots
 library(ggExtra) # Making Combination Plots
 
+#devtools::install_github("rpruim/Lock5withR")
 library(Lock5withR) # Datasets
 library(palmerpenguins) # A famous dataset
 
@@ -66,7 +67,6 @@ library(correlation) # Different Types of Correlations
 #| results: hide
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-extrafont::loadfonts(quiet = TRUE)
 
 # Chunk options
 knitr::opts_chunk$set(
@@ -76,22 +76,51 @@ knitr::opts_chunk$set(
  fig.align = "center"
 )
 ### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-#extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-thematic_rmd(font = "Roboto Condensed",inherit = TRUE,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -104,6 +133,8 @@ thematic_rmd(font = "Roboto Condensed",inherit = TRUE,
 library(checkdown)
 library(epoxy)
 library(grateful)
+library(sysfonts)
+library(gfonts)
 
 ```
 
@@ -288,7 +319,7 @@ Some of the very basic and commonly used plots for data are:
 -   Correlogram
 -   Heatmap
 
-## {{< iconify ph chart-scatter-bold >}} {{< iconify carbon qq-plot size=4x >}} Scatter Plots
+## {{< iconify ph chart-scatter-bold >}} {{< iconify carbon qq-plot >}} Scatter Plots
 
 Which are the numeric variables in `movies`?
 
@@ -330,7 +361,7 @@ Now let us plot their relationships.
 #| layout-ncol: 2
 
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
+theme_set(new = theme_custom())
 
 movies %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
@@ -372,9 +403,8 @@ movies %>%
 #| layout-ncol: 2
 
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
-##
+theme_set(new = theme_custom())
+
 movies %>% 
   ggplot(aes(x = DomesticGross,y = WorldGross)) + 
   geom_point() + 
@@ -412,10 +442,7 @@ movies %>%
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-# Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "sans"))
 
-##
 movies %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
   gf_lm(title = "Scatter Plot",
@@ -423,7 +450,7 @@ movies %>%
 ```
 
 ```{webr-r}
-##
+
 movies %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
   gf_lm(title = "Scatter Plot",
@@ -432,7 +459,7 @@ movies %>%
 ```
 
 ```{webr-r}
-##
+
 movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm(title = "Scatter Plot",
         subtitle = "Movie Ratings: Tomatoes vs Audience")
@@ -478,9 +505,8 @@ We have fitted a **trend line** to each of the scatter plots.
 #| layout-ncol: 2
 
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
-##
+theme_set(new = theme_custom())
+
 movies %>% 
   drop_na() %>%
   gf_density_2d(WorldGross ~ DomesticGross) %>% 
@@ -500,9 +526,10 @@ movies %>%
 ```
 
 ```{r}
+
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
+theme_set(new = theme_custom())
+
 movies %>% 
   drop_na() %>%
   gf_density_2d(RottenTomatoes ~ AudienceScore) %>% 
@@ -518,9 +545,8 @@ movies %>%
 #| layout-ncol: 2
 
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
-##
+theme_set(new = theme_custom())
+
 movies %>% drop_na() %>%
   ggplot(aes(DomesticGross, WorldGross)) + 
   geom_density_2d() + 
@@ -541,16 +567,16 @@ movies %>% drop_na() %>%
 
 
 ```{r}
+
 # Set graph theme
-# ggplot2::theme_set(new = theme_classic(base_size = 14, 
-#                                        base_family = "sans"))
-##
+theme_set(new = theme_custom())
+
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
   geom_density_2d(bins = 30) + 
   geom_point() + 
-  stat_ellipse(level = 0.95, colour = "grey") + 
-  stat_ellipse(level = 0.68, colour = "brown") +   
+  stat_ellipse(level = 0.95, colour = "grey", linewidth = 1) + 
+  stat_ellipse(level = 0.68, colour = "firebrick", linewidth = 1) +   
   geom_lm() + 
   labs(title = "Scatter Plot",
        subtitle = "Movie Ratings: Tomatoes vs Audience")
@@ -602,13 +628,9 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 ```{r}
 #| label: pairs chart
 #| message: false
-# 
-# ggplot2::theme_set(theme_bw(base_family = "Roboto Condensed")) + # Works better for ggpairs
-# theme_update(panel.grid.minor = element_blank(),
-#   panel.background = element_blank(),
-#   plot.title = element_text(face = "bold"),
-#   plot.title.position = "plot",
-# )
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 names(movies_quant)
 
@@ -652,7 +674,10 @@ Let us also try a few other variables, related to budget and profits. For instan
 
 ```{r}
 #| message: false
-#| 
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 GGally::ggpairs(
   movies %>% drop_na(),
   # Select Quant variables only for now
@@ -798,6 +823,9 @@ Sometimes, a simple scatter, or density alone, or viewed next to one another is 
 ```{r}
 #| label: Scatter-Plot with Marginal Densities
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 library(ggExtra)
 
 penguins %>% 
@@ -810,8 +838,10 @@ penguins %>%
 
 
 ```
+
 ## An Interactive Correlation Game
- Head off to this interactive game website where you can play with correlations!
+
+Head off to this interactive game website where you can play with correlations!
 
 <https://openintro.shinyapps.io/correlation_game/>
 

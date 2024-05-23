@@ -1,6 +1,5 @@
 ---
 title: "\U0001F0CF Testing a Single Proportion"
-author: "Arvind V."
 date: 10/Nov/2022
 date-modified: "`r Sys.Date()`"
 abstract: "Inference Tests for the significance of a Proportion"
@@ -25,8 +24,6 @@ citation: true
 #| include: true
 #| message: false
 #| warning: false
-knitr::opts_chunk$set(echo = TRUE,message = TRUE,warning = TRUE, fig.align = "center")
-options(digits=2)
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -53,6 +50,70 @@ library(TeachHist)
 library(TeachingDemos)
 library(grateful)
 
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 ```
 
 
@@ -145,6 +206,9 @@ summary
 #| layout: [[20],[80]]
 #| echo: false
 #| warning: false
+# Set graph theme
+theme_set(new = theme_custom())
+#
 obs_difference <-
   diff(mean(candidate_selected ~ evaluator, data = data))
 obs_difference
@@ -301,6 +365,9 @@ We can now check out our Hypothesis that there is *no* bias. We can shuffle the 
 
 ```{r}
 #| layout: [[60, -10, 30]]
+# Set graph theme
+theme_set(new = theme_custom())
+#
 null_dist <- do(4999) * diff(mean(
   candidate_selected ~ shuffle(evaluator), 
   data = data))
@@ -310,12 +377,11 @@ null_dist %>% gf_histogram( ~ M,
                   bins = 25,show.legend = FALSE,
                   xlab = "Bias Proportion", 
                   ylab = "How Often?",
-                  title = "Permutation Test on Diffence between Groups",
+                  title = "Permutation Test on Difference between Groups",
                   subtitle = "") %>% 
   gf_vline(xintercept = ~ obs_difference, color = "red" ) %>% 
   gf_label(500 ~ obs_difference, label = "Observed\n Bias", 
-           show.legend = FALSE) %>% 
-  gf_theme(theme_classic())
+           show.legend = FALSE) 
 
 mean(~ M<= obs_difference, data = null_dist)
 

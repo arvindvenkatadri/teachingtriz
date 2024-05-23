@@ -28,7 +28,7 @@ library(ggformula) # Formula based plots
 library(mosaic) # Data inspection and Statistical Inference 
 library(broom) # Tidy outputs from Statistical Analyses
 library(infer) # Statistical Inference
-library(cowplot) # Arranging Plots
+library(patchwork) # Arranging Plots
 
 ```
 
@@ -43,6 +43,70 @@ library(TeachHist)
 library(TeachingDemos)
 library(grateful)
 
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 ```
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
@@ -141,6 +205,11 @@ Let us plot some histograms and boxplots of Hatching Time:
 #| results: hold
 #| layout-ncol: 2
 #| column: screen-inset-right
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 gf_histogram(
   data = frogs_long,
   ~ Time,
@@ -152,7 +221,6 @@ gf_histogram(
   gf_labs(x = "Hatching Time", y = "Count") %>%
   gf_text(7 ~ (mean(Time) + 2),
           label = "Overall Mean") %>%
-  gf_theme(theme = theme_classic()) %>%
   gf_refine(guides(fill = guide_legend(title = "Temperature level (°C)")))
 
 ###
@@ -163,11 +231,11 @@ gf_boxplot(data = frogs_long,
   gf_vline(xintercept = ~ mean(Time)) %>%
   gf_labs(x = "Temperature", y = "Hatching Time",
           caption = "X-axis is reversed") %>%
-  gf_theme(theme = theme_classic()) %>%
   gf_refine(scale_x_discrete(limits = rev),
             guides(fill = guide_legend(title = "Temperature level (°C)"))) 
 
 ```
+
 
 The histograms look well separated and the box plots also show very little overlap. So we can reasonably hypothesize that Temperature has a significant effect on Hatching Time.
 
@@ -175,6 +243,11 @@ One more slightly esoteric plot: Jitter/Scatter with a new *categorical x-axis* 
 
 ```{r}
 #| label: using ggprism
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 library(ggprism)
 gf_jitter(
   frogs_long,
@@ -226,6 +299,11 @@ Consider a data set with a single Quant and a single Qual variable. The Qual var
 #| label: Anova Intuitive
 #| warning: false
 #| echo: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 library(ggtext)
 set.seed(42) # for replication
 data = tibble(
@@ -260,9 +338,9 @@ p1 <- gf_segment(
            data = overall_mean) %>%
   gf_text(4.25 ~ 30,
           label = expression(paste(mu, "_tot")),
-          inherit = F) %>%
-  gf_theme(theme = theme_classic())
-
+          inherit = F) %>% 
+gf_labs(title = "Fig A: SST")
+##
 p2 <- gf_point(
   quant ~ index,
   group = ~ qual,
@@ -285,11 +363,11 @@ p2 <- gf_point(
           inherit = F) %>%
   gf_text(1 ~ 38,
           label = expression(paste(mu, "_A")),
-          inherit = F) %>%
-  gf_theme(theme = theme_classic())
+          inherit = F) %>% 
+gf_labs(title = "Fig B: SSE")
 
-
-cowplot::plot_grid(p1, p2, labels = c("Fig A: SST", "Fig B: SSE"))
+#cowplot::plot_grid(p1, p2, labels = c("Fig A: SST", "Fig B: SSE"))
+patchwork::wrap_plots(p1,p2)
 
 ```
 
@@ -356,7 +434,9 @@ Now that we understand what `aov()` is doing, let us hand-calculate the numbers 
 #| label: Frogs SST and SSE Graphs
 #| echo: false
 #| layout-ncol: 2
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 frogs_plot <- frogs_long %>% 
   arrange(TempFac) %>% 
            rowid_to_column(var = "index")
@@ -377,21 +457,20 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot, 
              color = "black",
-             frogs_mean$overall_mean + Time ~ index + index)  %>%
-  gf_theme(theme=theme_classic())
+             frogs_mean$overall_mean + Time ~ index + index) 
 
-
+##
 frogs_plot <- frogs_long %>% 
   arrange(TempFac) %>% 
            rowid_to_column(var = "index")
-
+##
 frogs_mean <- frogs_long %>%
              summarise(overall_mean = mean(Time))
-
+##
 frogs_grouped_means <- frogs_long %>%
   group_by(TempFac) %>% 
              summarise(grouped_means = mean(Time))
-
+##
 gf_point(Time ~ index, 
          group = ~ TempFac, 
          colour = ~ TempFac, 
@@ -411,8 +490,7 @@ gf_point(Time ~ index,
   
   gf_segment(data = frogs_plot %>% filter(TempFac == 25),
              frogs_grouped_means$grouped_means[3] + Time ~ index + index
-             )  %>%
-  gf_theme(theme=theme_classic())
+             )
 
 ```
 
@@ -569,7 +647,9 @@ The `F_crit` value can also be seen in a plot[^4],[^5]:
 
 ```{r}
 #| layout: [[45,45,10]]
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_dist(dist = "f",
         params = list(df1 = df_SSA, df2 = df_SSE), 
         # linewidth  = 1,
@@ -677,20 +757,21 @@ We can also check the residuals post-model:
 ```{r}
 #| layout-ncol: 3
 #| column: screen-inset-right
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 frogs_anova$residuals %>% 
   as_tibble() %>% 
   gf_dhistogram(~ value,data = .) %>% 
-  gf_fitdistr() %>%
-  gf_theme(theme=theme_classic())
+  gf_fitdistr() 
 
 
 frogs_anova$residuals %>%
   as_tibble() %>% 
   gf_qq(~ value, data = .) %>% 
   gf_qqstep() %>% 
-  gf_qqline() %>%
-  gf_theme(theme=theme_classic())
-
+  gf_qqline() 
 
 shapiro.test(frogs_anova$residuals)
 
@@ -752,7 +833,9 @@ Observe that the `std.error` for the intercept is $0.257$ while that for `TempFa
 We can easily plot bar-chart with error bars for the effect size:
 
 ```{r}
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 tidy_anova %>% 
   mutate(hi = estimate + std.error,
          lo = estimate - std.error) %>% 
@@ -770,8 +853,7 @@ tidy_anova %>%
            color = "red", 
            size = 3.5) %>% 
   gf_refine(scale_x_discrete("Temp Values", 
-                             labels = c("13°C", "18°C", "25°C")))  %>%
-  gf_theme(theme=theme_classic())
+                             labels = c("13°C", "18°C", "25°C")))
 
   
 ```
@@ -780,6 +862,10 @@ If we want an "absolute value" plot for effect size, it needs just a little bit 
 
 ```{r}
 # Merging group averages with `std.error`
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 frogs_long %>% 
   group_by(TempFac) %>% 
   summarise(mean = mean(Time)) %>% 
@@ -799,9 +885,7 @@ frogs_long %>%
            color = "red", 
            size = 3.5) %>% 
   gf_refine(scale_x_discrete("Temp Values", 
-                             labels = c("13°C", "18°C", "25°C"))) %>%
-  gf_theme(theme=theme_classic())
-
+                             labels = c("13°C", "18°C", "25°C")))
 
 ```
 
@@ -824,6 +908,9 @@ There is a very neat package called `ggstatsplot`[^6] that allows us to plot ver
 
 ```{r}
 #| message: false
+# Set graph theme
+theme_set(new = theme_custom())
+#
 library(ggstatsplot)
 frogs_long %>%
   ggstatsplot::ggbetweenstats(x = TempFac, y = Time,
@@ -872,6 +959,9 @@ We will use `mosaic` first, and also try with `infer`.
 
 ```{r}
 #| label: permutation test for ANOVA with mosaic
+# Set graph theme
+theme_set(new = theme_custom())
+#
 obs_F_stat <- 
   frogs_anova %>% 
   broom::tidy() %>% 
@@ -894,9 +984,7 @@ null_dist_mosaic %>% drop_na() %>%
   gf_text(750 ~ observed_mosaic - 325, label = "Observed F") %>%
   gf_refine(scale_x_continuous(trans = "log10"),
             annotation_logticks(),
-            scale_fill_discrete(name = "Simulated F > Observed F ?")) %>%
-  gf_theme(theme=theme_classic())
-
+            scale_fill_discrete(name = "Simulated F > Observed F ?"))
 
 ```
 
@@ -943,7 +1031,7 @@ null_dist_infer %>%
   scale_x_continuous(trans = "log10", expand = c(0,0)) +
   coord_cartesian(xlim = c(0.2,500), clip = "off") + 
   annotation_logticks(outside = FALSE) + 
-  theme_classic()
+  theme_custom()
 
 ```
 
@@ -970,20 +1058,20 @@ It *is* possible to incorporate these beliefs into the ANOVA model, using what i
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
-::: {#refs style="font-size: 60%;"}
-\
-The ANOVA tutorial at [Our Coding Club](https://ourcodingclub.github.io/tutorials/anova/)\
-Antoine Soetewey. *How to: one-way ANOVA by hand*. <https://statsandr.com/blog/how-to-one-way-anova-by-hand/>\
-ANOVA in R - Stats and R <https://statsandr.com/blog/anova-in-r/>\
-Michael Crawley.(2013) The R Book,second edition. Chapter 11.\
-David C Howell, [Permutation Tests for Factorial ANOVA Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
-Marti Anderson, [Permutation tests for univariate or multivariate analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
-Judd, Charles M., Gary H. McClelland, and Carey S. Ryan.(2017). "Introduction to Data Analysis." In, 1--9. Routledge. https://doi.org/10.4324/9781315744131-1.\
-Patil, I. (2021). *Visualizations with statistical details: The 'ggstatsplot' approach.* Journal of Open Source Software, 6(61), 3167, doi:10.21105/joss.03167\
-Langsrud, Øyvind. (2003). *ANOVA for unbalanced data: Use type II instead of type III sums of squares*. Statistics and Computing. 13. 163-167. https://doi.org/10.1023/A:1023260610025. <https://www.researchgate.net/publication/220286726_ANOVA_for_unbalanced_data_Use_type_II_instead_of_type_III_sums_of_squares>\
-Kim TK. (2017). *Understanding one-way ANOVA using conceptual figures*. Korean J Anesthesiol. 2017 Feb;70(1):22-26. doi: 10.4097/kjae.2017.70.1.22. Epub 2017 Jan 26. PMID: 28184262; PMCID: PMC5296382.\
-*Anova – Type I/II/III SS explained*.<https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/>
+1. The ANOVA tutorial at [Our Coding Club](https://ourcodingclub.github.io/tutorials/anova/)\
+1. Antoine Soetewey. *How to: one-way ANOVA by hand*. <https://statsandr.com/blog/how-to-one-way-anova-by-hand/>\
+1. ANOVA in R - Stats and R <https://statsandr.com/blog/anova-in-r/>\
+1. Michael Crawley.(2013) The R Book,second edition. Chapter 11.\
+1. David C Howell, [Permutation Tests for Factorial ANOVA Designs](https://www.uvm.edu/~statdhtx/StatPages/Permutation%20Anova/PermTestsAnova.html)\
+1. Marti Anderson, [Permutation tests for univariate or multivariate analysis of variance and regression](https://www.academia.edu/50056272/Permutation_tests_for_univariate_or_multivariate_analysis_of_variance_and_regression?auto=download)\
+1. Judd, Charles M., Gary H. McClelland, and Carey S. Ryan.(2017). "Introduction to Data Analysis." In, 1--9. Routledge. https://doi.org/10.4324/9781315744131-1.\
+1. Patil, I. (2021). *Visualizations with statistical details: The 'ggstatsplot' approach.* Journal of Open Source Software, 6(61), 3167, doi:10.21105/joss.03167\
+1. Langsrud, Øyvind. (2003). *ANOVA for unbalanced data: Use type II instead of type III sums of squares*. Statistics and Computing. 13. 163-167. https://doi.org/10.1023/A:1023260610025. <https://www.researchgate.net/publication/220286726_ANOVA_for_unbalanced_data_Use_type_II_instead_of_type_III_sums_of_squares>\
+1. Kim TK. (2017). *Understanding one-way ANOVA using conceptual figures*. Korean J Anesthesiol. 2017 Feb;70(1):22-26. doi: 10.4097/kjae.2017.70.1.22. Epub 2017 Jan 26. PMID: 28184262; PMCID: PMC5296382.\
+1. *Anova – Type I/II/III SS explained*.<https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/>
 
+
+::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}

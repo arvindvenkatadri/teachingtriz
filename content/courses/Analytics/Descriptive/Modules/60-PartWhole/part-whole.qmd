@@ -35,6 +35,7 @@ library(tidyverse)
 library(mosaic)
 library(ggformula)
 library(plotrix) # Fan, Pyramid Chart
+#devtools::install_github("zmeers/ggparliament")
 library(ggparliament) # Parliament Chart
 library(ggpol) # Parliament, Arc-Bar and other interesting charts
 library(data.tree) # Many plots related to heirarchical data
@@ -65,6 +66,8 @@ library(grateful)
 #| message: false
 #| results: hide
 
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
@@ -73,23 +76,51 @@ knitr::opts_chunk$set(
  fig.align = "center"
 )
 ### Ggplot Theme
-library(ragg)
-library(showtext)
-library(thematic)
-library(gfonts)
-#extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_classic(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-thematic_rmd(font = "Roboto Condensed",inherit = F,
-             bg = "#FFFFFF",fg = "#111111",
-             accent = "#DD1144")
+# Set graph theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -161,6 +192,9 @@ Then the `coord_polar(theta = "y")` converts the bar plot into a pie.
 ```{r}
 #| layout-ncol: 2
 #| layout-nrow: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 # Using gf_col since we have a count/value column already
 pie_data %>%
@@ -255,6 +289,10 @@ arcs of **overlapping sectors**. This allows for more effective
 comparison:
 
 ```{r,echo=TRUE}
+  
+# Set graph theme
+theme_set(new = theme_custom())
+
 plotrix::fan.plot(
   x = pie_data$sales,
   labels = pie_data$labels,
@@ -290,6 +328,9 @@ Let us make some toy data:
 ```{r}
 #| label:  donut-chart
 #| layout-ncol: 2
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 # Data
 df <- tibble(group = LETTERS[1:3],
@@ -332,7 +373,6 @@ df %>%
   # Recall x = [2,4]
   gf_refine(xlim(c(-2, 5))) %>% 
 
-  
   gf_theme(theme = theme_void()) %>% 
   gf_theme(legend.position = "none")
 
@@ -384,8 +424,9 @@ and intuitive method that runs on **top** of `ggplot`.) We will use the
 `waffle` package.
 
 ```{r}
-#|  label: using-waffle
-#|  warning: false
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 # install.packages("waffle", repos = "https://cinc.rud.is")
 library(waffle)
@@ -423,6 +464,9 @@ step procedure to convert data into "parliament form" etc. )
 
 ```{r}
 #| label: using-ggpol
+
+# Set graph theme
+theme_set(new = theme_custom())
 
 df <- tibble(group = LETTERS[1:3],
                  value = c(25, 20, 35))
@@ -477,6 +521,9 @@ Website](http://r-graph-gallery.com/index.html) :
 
 ```{r,  message=FALSE,warning=FALSE}
 
+# Set graph theme
+theme_set(new = theme_custom())
+
 # create an edge list data frame giving the hierarchical structure of your individuals
 d1 <- tibble(from = "origin", to = paste("group", seq(1,5), sep = ""))
 d2 <- tibble(from = rep(d1$to, each=5), to = paste("subgroup", seq(1,25), sep="_"))
@@ -495,6 +542,10 @@ p1 <- ggraph(mygraph1, layout = 'dendrogram', circular = TRUE) +
 ```
 
 ```{r}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 # create a data frame 
 data <- tibble(
   level1="CEO",
@@ -534,6 +585,10 @@ p1 + p2 + theme(aspect.ratio = 1)
 #| message: FALSE
 library(tidygraph)
 library(ggraph)
+
+# Set graph theme
+theme_set(new = theme_custom())
+
 graph <- tbl_graph(flare$vertices, flare$edges)
 set.seed(1)
 ggraph(graph, 'circlepack', weight = size) + 
@@ -554,11 +609,10 @@ ggraph(graph, 'circlepack', weight = size) +
 
 ## {{< iconify ooui references-ltr >}} References
 
-\
-Iaroslava.2020. *A Parliament Diagram in R*, <https://datavizstory.com/a-parliament-diagram-in-r/>\
-Venn Diagrams in R, [Venn diagram in ggplot2 \| R CHARTS
+1. Iaroslava.2020. *A Parliament Diagram in R*, <https://datavizstory.com/a-parliament-diagram-in-r/>\
+2. Venn Diagrams in R, [Venn diagram in ggplot2 \| R CHARTS
     (r-charts.com](https://r-charts.com/part-whole/ggvenndiagram/))\
-Generate icon-array charts without code! <https://iconarray.com>
+3. Generate icon-array charts without code! <https://iconarray.com>
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
