@@ -58,6 +58,7 @@ library(regressinator) # Fake data populations we can sample from
 library(shinylive)
 ```
 
+
 ```{r}
 #| label: Plot Sizing and theming
 #| echo: false
@@ -65,34 +66,61 @@ library(shinylive)
 #| results: hide
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-extrafont::loadfonts(quiet = TRUE)
 
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
  fig.asp = 0.618, # Golden Ratio
  #out.width = "80%",
- fig.align = "center",
- warning = FALSE
+ fig.align = "center"
 )
 ### Ggplot Theme
-# library(ragg)
-# library(showtext)
-# library(thematic)
-# extrafont::loadfonts(quiet = TRUE)
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
 
-ggplot2::theme_set(ggplot2::theme_bw(base_size = 12)) + 
-ggplot2::theme_update(
-  panel.grid.minor = element_blank(),
-  panel.background = element_blank(),
-  plot.title = element_text(face = "bold"),
-  plot.title.position = "plot",
-)
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
 
-# thematic_on(font = "Roboto Condensed",inherit = F,
-#              bg = "#FFFFFF",fg = "#111111",
-#              accent = "#DD1144")
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 ```
 
 
@@ -275,6 +303,11 @@ with **population parameters** on the basis of this ONE sample of 50:
 ```{r}
 #| layout: [[20,20,60]]
 #| warning: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 sample_height <- sample(NHANES_adult, size = 50) %>% 
   select(Height)
 sample_height
@@ -293,11 +326,12 @@ sample_height %>%
            colour = "blue") %>% 
   
   gf_label(7 ~ (pop_mean_height + 8), 
-          label = "Population Mean Height", 
+          label = "Population Mean", 
           color = "blue") %>% 
   
   gf_label(7 ~ (sample_mean_height - 8), 
-          label = "Sample Mean Height", color = "red") 
+          label = "Sample Mean", color = "red") %>% 
+  gf_labs(title = "Distribution and Mean of a Single Sample")
 
 
 ```
@@ -313,6 +347,10 @@ will then see if these 500 means lie close to the `pop_mean_height`:
 ```{r}
 #| layout: [[20,20,60]]
 #| warning: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 
 sample_height_500 <- do(500) * {
   sample(NHANES_adult, size = 50) %>%
@@ -376,6 +414,10 @@ variable.
 #|  - Sample
 #|  - Sample and Population
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 sample_height_500 %>% 
   gf_dhistogram(~ sample_mean_500,bins = 30, xlab = "Height") %>% 
   
@@ -384,7 +426,8 @@ sample_height_500 %>%
   
   gf_label(0.01 ~ pop_mean_height, 
             label = "Population Mean", 
-            color = "blue") 
+            color = "blue") %>% 
+gf_labs(title = "Sampling Mean Distribution")
 
 
 # How does this **distribution of sample-means** compare with the
@@ -406,7 +449,8 @@ sample_height_500 %>%
                bins = 30) %>% 
   
   gf_label(0.025 ~ (pop_mean_height + 20), 
-           label = "Population Distribution", color = "blue") 
+           label = "Population Distribution", color = "blue") %>% 
+gf_labs(title = "Sampling Mean Distribution", subtitle = "Original Population overlay")
 
 
 ```
@@ -456,7 +500,10 @@ Now let's create separate `Q-Q plots` for the different sample sizes.
 ```{r}
 #| warning: false
 # Now let's create separate Q-Q plots for the different sample sizes.
-# ggplot2::theme_set(theme_classic())
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 
 p1 <- gf_qq( ~ mean,data = samples_height_08,
              title = "N = 8", 
@@ -489,37 +536,41 @@ Let us plot their individual histograms to compare them:
 #| layout-ncol: 2
 #| layout-nrow: 2
 
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 # Let us overlay their individual histograms to compare them:
 p5 <- gf_dhistogram(~ mean,
               data = samples_height_08,
               color = "grey",
               fill = "dodgerblue",title = "N = 8") %>%
-  gf_fitdistr() %>%
+  gf_fitdistr(linewidth = 1) %>%
   gf_vline(xintercept = pop_mean_height, inherit = FALSE,
            color = "blue") %>%
   gf_label(-0.025 ~ pop_mean_height, 
            label = "Population Mean", 
            color = "blue") %>% 
   gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
-
+##
 p6 <- gf_dhistogram(~ mean,
               data = samples_height_16,
               color = "grey",
               fill = "sienna",title = "N = 16") %>%
-  gf_fitdistr() %>%
+  gf_fitdistr(linewidth = 1) %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
   gf_label(-.025 ~ pop_mean_height, 
            label = "Population Mean", 
            color = "blue") %>% 
   gf_theme(scale_y_continuous(expand = expansion(mult = c(0.08,0.02))))
-
+##
 p7 <- gf_dhistogram(~ mean,
                     data = samples_height_32 ,
                     na.rm = TRUE,
                     color = "grey",
-                    fill = "palegreen",title = "N =32") %>%
-  gf_fitdistr() %>%
+                    fill = "palegreen",title = "N = 32") %>%
+  gf_fitdistr(linewidth = 1) %>%
   gf_vline(xintercept = pop_mean_height,
            color = "blue") %>%
   gf_label(-.025 ~ pop_mean_height, 
@@ -531,7 +582,7 @@ p8 <- gf_dhistogram(~ mean,
                     na.rm = TRUE,
                     color = "grey",
                     fill = "violetred",title = "N = 64") %>% 
-  gf_fitdistr() %>% 
+  gf_fitdistr(linewidth = 1) %>% 
   gf_vline(xintercept = pop_mean_height,
          color = "blue") %>%
   gf_label(-.025 ~ pop_mean_height, 
@@ -549,6 +600,11 @@ p8
 And if we overlay the histograms:
 
 ```{r, echo=FALSE}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
 gf_dhistogram(~ mean,
               data = samples_height_08,
               color = "grey",
@@ -711,14 +767,10 @@ levels $68\%$ and $95 \%$ probability respectively.
 
 Thus if we want to estimate a *population parameter*:
 
--   we take one **random** sample from the population
-
--   we calculate the estimate from the sample
-
--   we calculate the sample-sd
-
--   we calculate the *Standard Error* as $\frac{sample-sd}{\sqrt[]{n}}$
-
+-   we take one **random** sample from the population\
+-   we calculate the estimate from the sample\
+-   we calculate the sample-sd\
+-   we calculate the *Standard Error* as $\frac{sample-sd}{\sqrt[]{n}}$\
 -   we calculate 95% confidence intervals for the *population parameter*
     based on the formula
 

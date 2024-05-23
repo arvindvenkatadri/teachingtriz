@@ -219,13 +219,32 @@ flowchart TD
 
 ## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
+```{r}
+#| label: charting-data
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+mydata_long %>% 
+  gf_density(~ value, group = ~ group, fill = ~ group) %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_facet_wrap(vars(group)) %>% 
+  gf_labs(title = "Densities of Original Data Variables",
+          subtitle ="Compared with Normal Density")
+```
+::: callout-note
+### Observations from Density Plots
+- All variables appear to be zero mean\
+- $x$ seems to have lower $sd$ than the other two
+:::
+
 ### Testing Assumptions in the Data
 
 ### Inference
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-#### The Student's t-test with one sample {.tabset}
+#### The t-test 
 
 A. Model
 
@@ -261,7 +280,7 @@ If we compare the `t.test` with the appropriate `lm` model:
 
 ```{r t_test_one_mean}
 # t-test
-t1 <- t.test(y, mu = 0, alternative = "two.sided")
+t1 <- t.test(y, mu = 0, alternative = "two.sided") %>% broom::tidy()
 print(t1)
 
 ```
@@ -278,7 +297,10 @@ important to use, in the case of a non-parametric single mean test.
 A. Model
 
 $$
-signed\_rank(y) = \beta_0 \\
+signed\_rank(y) = \beta_0
+$$
+
+$$
 H_0: \beta_0 = 0
 $$
 
@@ -314,6 +336,7 @@ t-test confidence intervals: `r t1$conf.int`\
 linear model confidence intervals: `r confint(lm1)`
 
 #### Using bootstrap
+TBW
 
 #### Plots
 
@@ -325,14 +348,14 @@ We can also plot the model using *lm* for both the original data and the
 sign-ranked data.
 
 ```{r Mean_Related_Plots}
-
+t1
 # Set graph theme
 theme_set(new = theme_custom())
 #
 p1 <- ggplot(mydata_wide, aes( x = 0, y = y)) +
   geom_point(alpha = 0.4) +
-  geom_segment(aes(y = t1$estimate, 
-                   yend = t1$estimate, 
+  geom_segment(data = t1, aes(y = estimate, 
+                   yend = estimate, 
                    x = -0.2, xend = 0.2)) + 
   labs(title = "Student's\n t-Test")
 
@@ -359,10 +382,13 @@ p4 <- ggplot(mydata_wide, aes( x = 0, y = signed_rank(y))) +
   labs(title = "Wilcoxon \n Signed-Rank \n Test with lm")
 
 
-patchwork::wrap_plots(p1,p2,p3,p4, nrow = 1, guides = "collect")
+patchwork::wrap_plots(p1,p2,p3,p4, nrow = 2, guides = "collect")
 
 ```
 :::
+
+All the tests assert that the mean of y is not significantly different from zero. 
+
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Exam data
 
@@ -393,6 +419,7 @@ exam_grades
 
 :::
 
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 TBW
 
@@ -418,6 +445,7 @@ cite_packages(
 
 
 :::
+
 
 [^1]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
 
