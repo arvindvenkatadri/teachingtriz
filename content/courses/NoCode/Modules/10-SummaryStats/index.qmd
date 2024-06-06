@@ -13,7 +13,7 @@ categories:
 - Quant Variables
 - Qual Variables
 external_link: ""
-
+bibliography: references.bib
 ---
 
 ```{r}
@@ -38,29 +38,54 @@ library(hrbrthemes)
 ```
 
 ## {{< iconify icons8 idea >}} Inspiration
-To Be written up.
 
-Jorge Luis Borges, in a fantasy short story published in 1942, [“Funes the Memorious,”](https://www.sas.upenn.edu/~cavitch/pdf-library/Borges_FunesTheMemorious.pdf) he described a man, Ireneo Funes, who found after an accident that he could remember absolutely everything. He could reconstruct every day in the smallest detail, and he could even later reconstruct the reconstruction, but he was incapable of understanding. Borges wrote, “To think is to **forget details, generalize, make abstractions**. In the teeming world of Funes there were only details.”(emphasis mine)
+```{r}
+#| echo: false
+#| label: tbl-table-1
+literacy <- readxl::read_xlsx("data/US_literacy_SETables.xlsx",sheet = "S1",skip = 3) %>% 
+  select(-c(2,3),-contains("S.E.")) %>% 
+  rename("Numbers" = `...1`,
+         "BelowLevel1" = `Estimate...4`,
+         "Level1" = `Estimate...6`,
+         "Level2" = `Estimate...8`,
+         "Level3" = `Estimate...10`,
+         "Level4/5" = `Estimate...12`) %>% 
+  filter(str_detect(pattern = "Number",Numbers))
 
-Aggregation can yield great gains above the individual components. Funes was big data without Statistics.
+literacy %>% 
+  kbl(caption = "US Population: Reading and Numeracy Levels", digits = 2,
+      align = "c",centering = T,
+      col.names = c("Year", "Below Level #1", "Level #1", "Level #2", "Level #3", "Levels #4 and #5")) %>% 
+  kable_paper(full_width = F, html_font = "Noto") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), position = "float_right") %>% 
+  column_spec(2:4, bold = T) %>%
+  row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>% 
+    footnote(general = "SOURCE: U.S. Department of Education, National Center for Education Statistics, Program for the International Assessment of Adult Competencies (PIAAC), U.S. PIAAC 2017, U.S. PIAAC 2012/2014.")
+```
 
+This ghastly-looking @tbl-table-1 examines U.S. adults with low English literacy and numeracy skills—or low-skilled adults—at two points in the 2010s, in the years 2012/20141 and 2017, using data from the Program for the [International Assessment of Adult Competencies (PIAAC)](https://gpseducation.oecd.org/Home). As can be seen the summary table is quite surprising in absolute terms, for a developed country like the US, and the numbers have *increased* from 2012/2014 to 2017!
+
+So why do we need to summarise data? Summarization is an act of *throwing away data to make more sense*, as stated by [@stigler2016]. To summarize is to understand. Add to that the fact that our [Working Memories can hold maybe 7 items](https://www.wikiwand.com/en/The_Magical_Number_Seven,_Plus_or_Minus_Two).
+
+And if we don't summarise? [Jorge Luis Borges](https://www.wikiwand.com/en/Jorge_Luis_Borges), in a fantasy short story published in 1942, titled [“Funes the Memorious,”](https://www.sas.upenn.edu/~cavitch/pdf-library/Borges_FunesTheMemorious.pdf) he described a man, Ireneo Funes, who found after an accident that he could remember absolutely everything. He could reconstruct every day in the smallest detail, and he could even later reconstruct the reconstruction, but he was incapable of understanding. Borges wrote, “To think is to **forget details, generalize, make abstractions**. In the teeming world of Funes there were only details.” (emphasis mine)
+
+Aggregation can yield great gains above the individual components in data. Funes was big data without Statistics.
 
 ## {{< iconify fe beginner >}} What graphs / numbers will we see today?
 
-| Variable #1 | Variable #2 | Chart Names | Chart Shape |
-|:--------:|:--------:|:----------:|:-------------:|
-|All| All |  Tables and Stat Measures | {{< iconify material-symbols table-chart-outline size=4x >}} {{< iconify tabler ruler-measure  size=4x >}} {{< iconify material-symbols summarize-outline size=4x >}} |
+| Variable #1 | Variable #2 |       Chart Names        |                                                                             Chart Shape                                                                              |
+|:-----------:|:-----------:|:------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     All     |     All     | Tables and Stat Measures | {{< iconify material-symbols table-chart-outline size=4x >}} {{< iconify tabler ruler-measure size=4x >}} {{< iconify material-symbols summarize-outline size=4x >}} |
 
 Before we plot a single chart, it is wise to take a look at several numbers that summarize the dataset under consideration. What might these be? Some obviously useful numbers are:
 
-- Dataset length: How many rows/observations?
-- Dataset breadth: How many columns/variables?
-- How many Quant variables?
-- How many Qual variables?
-- Quant variables: min, max, mean, median, sd
-- Qual variables: levels, counts per level
-- Both: means, medians for each level of a Qual variable...
-
+-   Dataset length: How many rows/observations?
+-   Dataset breadth: How many columns/variables?
+-   How many Quant variables?
+-   How many Qual variables?
+-   Quant variables: min, max, mean, median, sd
+-   Qual variables: levels, counts per level
+-   Both: means, medians for each level of a Qual variable...
 
 ## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
 
@@ -72,123 +97,84 @@ Before we plot a single chart, it is wise to take a look at several numbers that
 read_csv("../../../../materials/Data/pronouns.csv") %>% 
   #filter(No == "1") %>% 
   kbl() %>%
-  kable_paper("hover", full_width = T)
+  kable_paper(c("striped","hover","responsive"), full_width = T)
   
 ```
 :::
 
-We will obviously choose *all* variables in the dataset, unless they are unrelated ones such as `row number` or `ID` which (we think) may not contribute any information and we can disregard. 
+We will obviously choose *all* variables in the dataset, unless they are unrelated ones such as `row number` or `ID` which (we think) may not contribute any information and we can disregard.
 
 ## {{< iconify mdi food-processor-outline >}} How do these Summaries Work?
 
-Inspecting the `min`, `max`,`mean`, `median` and `sd` of each of the Quant variables tells us straightaway what the ranges of the variables are, and if there are some outliers, which could be normal, or maybe due to data entry error! Comparing two Quant variables for their ranges also tells us that we may have to $scale/normalize$ them for computational ease, if one variable has large numbers and the other has very small ones. 
+Inspecting the `min`, `max`,`mean`, `median` and `sd` of each of the Quant variables tells us straightaway what the ranges of the variables are, and if there are some outliers, which could be normal, or maybe due to data entry error! Comparing two Quant variables for their ranges also tells us that we may have to $scale/normalize$ them for computational ease, if one variable has large numbers and the other has very small ones.
 
 With Qual variables, we understand the `levels` within each, and understand the total number of combinations of the levels across these. `Counts` across levels, and across combinations of levels tells us whether the data has sufficient readings for graphing, inference, and decision-making, of if certain levels/classes of data are under or over represented. This may point to data gathering errors, which may be fixable, or you may have to decide in what to do with this data sparseness.
 
-For both types of variables, we need to keep an eye open for data entries that are *missing*! We will have to take a decision to let go of that entire observation (i.e. a row) or do what is called *imputation* to fill in values that are based on the other values in the same column. 
+For both types of variables, we need to keep an eye open for data entries that are *missing*! We will have to take a decision to let go of that entire observation (i.e. a row) or do what is called *imputation* to fill in values that are based on the other values in the same column.
 
-
-
-## {{< iconify ion stats-chart >}} {{< iconify clarity bell-curve-line >}} Obtaining Quant Summaries
+## {{< iconify material-symbols table-chart-outline >}} {{< iconify tabler ruler-measure >}} {{< iconify material-symbols summarize-outline >}} Obtaining Quant Summaries
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ### Using Orange
-
-Let us rapidly make some histograms in Orange, so that we know how the tool works here. We start with the `iris` dataset: Download this *Orange workflow* file and open it in Orange.
-
-{{< downloadthis Orange/summary-stats.ows dname="Summary Stats" label="Download the Summary Stats Workflow" icon="database-fill-down" type="info" >}}
-
-Look first at the data table, and then at the `feature summaries`. Try to find different sorts of measures for the Quant and Qual parameters. 
-
-Then look at the same stats after *grouping* by some Qual variable. How does this alter your view of the data? Are grouped statistics very different from the ungrouped ones? We will explore this idea again with the [Simpson's Paradox.](../30-ScatterPlots/index.qmd#whats-the-story-here-1)
-
 
 ### Using RAWgraphs
 
-
 ### Using DataWrapper
-
-<https://academy.datawrapper.de/article/136-histogram-min-max-median-mean>
-
-DataWrapper does not offer a separate histogram-making tool. Histograms in DataWrapper are available as a part of the data-inspection part of the work flow, as a small thumbnail-sized plot. 
 
 :::
 
-## {{< iconify logos netflix-icon >}} Dataset: Netflix Original Series
-
-We are now ready for a more detailed example. Here is a look at this data on Netflix Original Series. Download it to your machine by clicking on the button below.
-
-{{< downloadthis BarChart/NetflixSeries2013_2017.csv dname="NetflixSeries2013_2017" label="Download the Netflix Dataset" icon="database-fill-down" type="info" >}}
+## {{< iconify logos netflix-icon >}} Dataset: TBD
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
-![Netflix Data Table](images/netflix.png){#fig-netflix-data-table}
-
-@fig-netflix-data-table states that there are 109 movies, 6 variables in the dataset.
 
 ### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
 
 ::: callout-note
 ### Quantitative Data
 
--   `Premiere_Year`: (int) Year the movie premiered
--   `Seasons`: (int) No. of Seasons
--   `Episodes`: (int) No. of Episodes
--   `IMDB_Rating`: (int) IMDB Rating!!
 :::
 
 ::: callout-note
 ### Qualitative Data
 
--   `Genere`: (chr) types of Genres
--   `Title`: (chr) 109 titles
--   `Subgenre`: (chr) types of sub-Genres
--   `Status`: (chr) status on Netflix
 :::
 
 ### {{< iconify material-symbols query-stats >}} Research Questions
 
-Let's try a few questions and see if they are answerable with Histograms.
+Let's try a few questions and see if they are answerable with Sumamry Figures and Tables.
 
 ::: callout-note
-Q1. What is the distribution of `IMDB_Rating`? If we split/colour by movie `Genere`?
+Q1. 
 
-::: {#fig-netflix-histograms layout-ncol=2}
-
+::: {#fig-netflix-histograms layout-ncol="2"}
 ![IMDB Ratings Histogram](images/IMDB.png){#fig-IMDB-Histogram}
 
 ![IMDB Rating vs Genere](images/IMDBvsGenere.png){#fig-IMD-Rating-vs-Genere}
 
 Netflix Data Histograms
-
 :::
-
 :::
 
 ::: callout-note
-Q2. Are `IMDB_Rating` affected by the number of `Seasons` or `Episodes`?
+Q2. 
 
-::: {#fig-IMDB-Rating-vs-Seasons-Episodes layout-ncol=2}
-
-![Reformatting "Seasons"](images/ReformatVariable.png){#fig-ReformatVariable} 
+::: {#fig-IMDB-Rating-vs-Seasons-Episodes layout-ncol="2"}
+![Reformatting "Seasons"](images/ReformatVariable.png){#fig-ReformatVariable}
 
 ![IMDB Rating vs Seasons](images/IMDBvsSeason.png){#fig-IMDBvsSeason}
 
 Plotting with `Seasons`
-
 :::
 
-We first need to reformat the `Seasons` variable from **N** to **C** in the data file view. This converts it to Qual. Then we split the IMDB histogram by this new variable.
 
 :::
 
 ### {{< iconify game-icons secret-book >}} What is the Story Here?
 
-Most movies have decent IMDB scores; the distribution is left-skewed. Some of course have been trashed!! Splitting `IMDBRating` by `Genere` is not too illuminating...
 
-Not much wisdom to be gleaned either from splitting `IMDBRating` by `Seasons`...
-
-## {{< iconify emojione books >}} Dataset: the Old Faithful geyser in the USA
+## {{< iconify emojione books >}} Dataset:
 
 Here is a dataset about the eruption durations, and wait times between eruptions of the Old Faithful geyser in Yellowstone National Park, USA.
 
@@ -207,9 +193,6 @@ Download this data to your machine and import it into Orange.
 ::: callout-note
 ### Quantitative Data
 
--   `eruptions`: (dbl Duration Times of Eruptions
--   `waiting`: (dbl) Waiting Times between Eruptions
--   `density`: (dbl) (Ignore this for now)
 :::
 
 ::: callout-note
@@ -221,27 +204,23 @@ Download this data to your machine and import it into Orange.
 ### {{< iconify material-symbols query-stats >}} Research Questions
 
 ::: callout-note
-Q1. How are `eruptions` (durations) and `waiting` (times) distributed?\
+Q1. 
 
-::: {#fig-geysers-histograms layout-ncol=2}
-
+::: {#fig-geysers-histograms layout-ncol="2"}
 ![Eruption Durations Histogram](images/eruptions.png){#fig-eruptions}
 
 ![Waiting Times Histogram](images/waiting.png){#fig-waiting}
 
 Old Faithful Data Histograms
 :::
-
 :::
+
 ### {{< iconify game-icons secret-book >}} What is the Story Here?
 
--   Both durations have a "double-humped" distribution...
--   There are therefore two distinct ranges for both durations.
--   Are there two different mechanisms at work in the geyser, that randomly kick in?
 
 ## {{< iconify bi person-up >}} Your Turn
 
-Try your hand at these datasets. Look at the data table, state the data dictionary, contemplate a few Research Questions and answer them with graphs in Orange!
+Try your hand at these datasets. Look at the data table, state the data dictionary, contemplate a few Research Questions and answer them with Summaries and Tables in Orange!
 
 ```{r echo=FALSE}
 airbnb <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv", header=TRUE)
@@ -263,36 +242,5 @@ airbnb %>% download_this(output_name = "airbnb", output_extension = ".csv", butt
 
 ## {{< iconify mingcute thought-line >}} Wait, But Why?
 
-> Histograms are used to study the distribution of one or a few variables. Checking the distribution of your variables one by one is probably the first task you should do when you get a new dataset. It delivers a good quantity of information. Several distribution shapes exist, here is an illustration of the 6 most common ones:
-
-```{r}
-#| echo: false
-#| warning: false
-# Build dataset with different distributions
-
-data <- data.frame(
-  type = c( rep("edge peak", 1000), rep("comb", 1000), rep("normal", 1000), rep("uniform", 1000), rep("bimodal", 1000), rep("skewed", 1000) ),
-  value = c( rnorm(900), rep(3, 100), rnorm(360, sd=0.5), rep(c(-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75), 80), rnorm(1000), runif(1000), rnorm(500, mean=-2), rnorm(500, mean=2), abs(log(rnorm(1000))) )
-)
-
-# Represent it
-data %>%
-  ggplot( aes(x=value)) +
-    geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.9) +
-    facet_wrap(~type, scale="free_x") +
-    theme_ipsum() +
-    theme(
-      panel.spacing = unit(0.1, "lines"),
-      axis.title.x=element_blank(),
-      axis.text.x=element_blank(),
-      axis.ticks.x=element_blank()
-    )
-```
-
-In your Design-Project-related research, you will collect data from or about your target audience. The Quantitative parts of that data may obtain with any of these distributions. Inspecting these may give you an insight into the **population** of your target audience, something that may likely be true, a hunch, which you could verify and convert into ...opportunity.
-
 ## {{< iconify ooui references-ltr >}} References
 
-1.  See the scrolly animation for a histogram at this website: **Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara** <https://tinlizzie.org/histograms/?s=09>
-
-2.  <https://www.data-to-viz.com/graph/histogram.html>
