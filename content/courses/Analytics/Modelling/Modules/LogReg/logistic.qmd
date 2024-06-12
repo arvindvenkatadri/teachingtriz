@@ -19,6 +19,9 @@ bibliography:
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
@@ -54,7 +57,6 @@ library(grateful)
 
 ```
 
-
 ```{r}
 #| label: plot theme
 # Let us set a plot theme for Data visualization
@@ -84,13 +86,15 @@ predictor variables:
 
 $$
 y \sim N(x_i^T * \beta, ~~\sigma^2)
-$$ 
+$$
 
 This model is considered to be **general** because of the dependence on
 potentially *more than one explanatory variable*, v.s. the **simple**
 linear model:[^1] $y = \beta_0 + \beta_1*x_1 + \epsilon$. The general
 linear model gives us model "shapes" that start from a simple straight
-line to a *p-dimensional hyperplane*. 
+line to a *p-dimensional hyperplane*.
+
+[^1]: <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
 
 Although a very useful framework, there are some situations where
 general linear models are not appropriate:
@@ -98,7 +102,10 @@ general linear models are not appropriate:
 -   the range of Y is restricted (e.g. binary, count)
 -   the variance of Y depends on the mean (Taylor's Law)[^2]
 
-How do we use the familiar *linear model* framework when the target/dependent variable is *Categorical*?
+[^2]: <https://en.wikipedia.org/wiki/Taylor%27s_law>
+
+How do we use the familiar *linear model* framework when the
+target/dependent variable is *Categorical*?
 
 ### Linear Models for Categorical Targets?
 
@@ -132,9 +139,8 @@ a qualitative predictor, and `default` is a qualitative target variable.
 If we naively use a linear model equation as
 `model = lm(default ~ balance, data = Default)` and plot it, then...
 
-::: {.grid}
-::: {.g-col-6}
-
+::: grid
+::: g-col-6
 ```{r}
 #| label: fig-naive-linear-model
 #| fig-cap: "Naive Linear Model"
@@ -151,20 +157,16 @@ Default %>%
   gf_refine(scale_color_manual(values = c("dodgerblue","firebrick"))) 
 
 ```
-
 :::
-  
-::: {.g-col-6}
 
-...it is pretty much clear from @fig-naive-linear-model that something is
-very odd. (no pun intended! See below!) If the only possible values for
-`default` are $No = 0$ and $Yes = 1$, how could we interpret predicted
-value of, say, $Y_i = 0.25$ or $Y_i = 1.55$, or perhaps $Y_i = -0.22$? 
-Anything other than Yes/No is hard to interpret!
-
+::: g-col-6
+...it is pretty much clear from @fig-naive-linear-model that something
+is very odd. (no pun intended! See below!) If the only possible values
+for `default` are $No = 0$ and $Yes = 1$, how could we interpret
+predicted value of, say, $Y_i = 0.25$ or $Y_i = 1.55$, or perhaps
+$Y_i = -0.22$? Anything other than Yes/No is hard to interpret!
 :::
-  
-::: 
+:::
 
 ### {{< iconify ic baseline-report-problem >}} {{< iconify ant-design solution-outlined >}} Problems...and Solutions
 
@@ -172,20 +174,26 @@ Where do we go from here?
 
 Let us state what we might desire of our model:
 
-1.  **Model Equation**: Despite this setback, we would still like
-    our model to be as close as possible to the familiar linear model
+1.  **Model Equation**: Despite this setback, we would still like our
+    model to be as close as possible to the familiar linear model
     equation.\
 2.  **Predictors and Weights**: We have quantitative **predictors** so
     we still want to use a linear-weighted sum for the RHS (i.e
     predictor side) of the model equation.
 
-What can we try to make this work? Especially for the LHS (i.e the target side)?
+What can we try to make this work? Especially for the LHS (i.e the
+target side)?
 
-3.  **Making the LHS continuous**: What can we try? In dummy encoding our target variable, we found a range of [0,1], which is the same range for a **probability** value!  Could we try to use **probability of the outcome** as our target, even though we are interested in binary outcomes? This would still leave us with a range of $[0,1]$ for the target variable, as before. 
+3.  **Making the LHS continuous**: What can we try? In dummy encoding
+    our target variable, we found a range of \[0,1\], which is the same
+    range for a **probability** value! Could we try to use **probability
+    of the outcome** as our target, even though we are interested in
+    binary outcomes? This would still leave us with a range of $[0,1]$
+    for the target variable, as before.
 
 ::: callout-note
-::: {.grid}
-::: {.g-col-6}
+::: grid
+::: g-col-6
 ```{r}
 #| label: fig-binomial-mean-variance
 #| echo: false
@@ -195,40 +203,53 @@ gf_fun(p *(1 - p) *n ~ p, xlim = c(0, 1), linewidth = 1) %>%
     y = "Variance",
     title = "Variance vs Mean: A Nonlinear Relationship",
     subtitle = "For the Binomial Distribution of p"
-  ) %>% 
-  gf_theme(theme_minimal())
+  )
 
 ```
 :::
-  
-::: {.g-col-6}
-#### Binomially distributed target variable
-If we map our Categorical/Qualitative target variable into a Quantitative probability, we need immediately to look at the [**LINE** assumptions in linear regression](../LinReg/LinReg.qmd#sec-assumptions-in-linear-models).
 
-In linear regression, we assume a normally distributed target variable, i.e. the errors around the predicted value are normally distributed.
-With a categorical target variable with two levels $0$ and $1$ it would be impossible for the errors $e_i = Y_i - \hat{Y_i}$ to have a *normal distribution*, as assumed for the statistical tests to be valid. The
-errors are bounded by $[0,1]$! One candidate for the error distribution in this case is the *binomial distribution*, whose mean and variance are `p` and `np(1-p)` respectively. 
+::: g-col-6
+#### Binomially distributed target variable
+
+If we map our Categorical/Qualitative target variable into a
+Quantitative probability, we need immediately to look at the [**LINE**
+assumptions in linear
+regression](../LinReg/LinReg.qmd#sec-assumptions-in-linear-models).
+
+In linear regression, we assume a normally distributed target variable,
+i.e. the errors around the predicted value are normally distributed.
+With a categorical target variable with two levels $0$ and $1$ it would
+be impossible for the errors $e_i = Y_i - \hat{Y_i}$ to have a *normal
+distribution*, as assumed for the statistical tests to be valid. The
+errors are bounded by $[0,1]$! One candidate for the error distribution
+in this case is the *binomial distribution*, whose mean and variance are
+`p` and `np(1-p)` respectively.
 
 Note immediately that **the binomial variance moves with the mean**!
-
 :::
-  
-::: 
- 
-
-
-The LINE assumption of *normality* is clearly violated. And from @fig-binomial-mean-variance, extreme probabilities (near 1 or 0) are more stable (i.e., have less error variance) than middle probabilities. So the model has *"built-in" heteroscedasticity*, which we need to counter with transformations such as the $log()$ function. More on this later.
 :::
 
+The LINE assumption of *normality* is clearly violated. And from
+@fig-binomial-mean-variance, extreme probabilities (near 1 or 0) are
+more stable (i.e., have less error variance) than middle probabilities.
+So the model has *"built-in" heteroscedasticity*, which we need to
+counter with transformations such as the $log()$ function. More on this
+later.
+:::
 
-4. **Odds**?: How would one "extend" the range of a target variable from [0,1] to $[-\infty, \infty]$ ? One step would be to try the **odds of the outcome**, instead of trying to predict the outcomes directly (Yes or No), or their probabilities $[0,1]$.
+4.  **Odds**?: How would one "extend" the range of a target variable
+    from \[0,1\] to $[-\infty, \infty]$ ? One step would be to try the
+    **odds of the outcome**, instead of trying to predict the outcomes
+    directly (Yes or No), or their probabilities $[0,1]$.
 
 ::: callout-note
 ## Odds
 
 Odds of an event with probability `p` of occurrence is defined as
-$Odds = p/(1-p)$. As can be seen, the odds are the *ratio* of two probabilities, that of the event and its complement.
-In the `Default` dataset just considered, the odds of default and the odds of non-default can be calculated as:
+$Odds = p/(1-p)$. As can be seen, the odds are the *ratio* of two
+probabilities, that of the event and its complement. In the `Default`
+dataset just considered, the odds of default and the odds of non-default
+can be calculated as:
 
 ```{r}
 #| echo: false
@@ -247,20 +268,28 @@ $$
 and `OddsNoDefault` = $1/29.0303 = 0.03444709$.
 
 Now, *odds* cover half of real number line, i.e. $[0, \infty]$ !
-Clearly, when the probability `p` of an event is $0$, the odds are $0$...and when it nears $1$, the odds tend to $\infty$. So we have
+Clearly, when the probability `p` of an event is $0$, the odds are
+$0$...and when it nears $1$, the odds tend to $\infty$. So we have
 **transformed** a simple probability that lies between $[0,1]$ to odds
-lying between $[0, \infty]$. That's one step towards making a linear model possible; we have "removed" one of the limits on our linear model's
-prediction range by using `Odds` as our target variable.
+lying between $[0, \infty]$. That's one step towards making a linear
+model possible; we have "removed" one of the limits on our linear
+model's prediction range by using `Odds` as our target variable.
 :::
 
-5. **Transformation using `log()`?**: We need one more leap of faith: how do we convert a $[0, \infty]$ range to a $[-\infty, \infty]$? Can we try a log transformation? 
+5.  **Transformation using `log()`?**: We need one more leap of faith:
+    how do we convert a $[0, \infty]$ range to a $[-\infty, \infty]$?
+    Can we try a log transformation?
 
 $$
 log([0, \infty]) ~ = ~ [-\infty, \infty]
-$$
-This extends the range of our Qualitative target to the same as with a Quantitative target!
+$$ This extends the range of our Qualitative target to the same as with
+a Quantitative target!
 
-There is an additional benefit if this `log()` transformation: the **Error Distributions with Odds targets**. See @fig-odds-plot below. Odds are a necessarily nonlinear function of probability; the slope of `Odds ~ probability` also depends upon the probability itself, as we saw with the probability curve @fig-binomial-mean-variance.
+There is an additional benefit if this `log()` transformation: the
+**Error Distributions with Odds targets**. See @fig-odds-plot below.
+Odds are a necessarily nonlinear function of probability; the slope of
+`Odds ~ probability` also depends upon the probability itself, as we saw
+with the probability curve @fig-binomial-mean-variance.
 
 ```{r}
 #| echo: false
@@ -301,7 +330,8 @@ odds ratio to $1.20$ would correspond to probabilities of $0.545$ and
 $0.455$. However, if the original probabilities were $0.9$ and $0.1$ for
 an odds ratio $9$, then a 20% increase to $10.8$ would correspond to
 probabilities of $0.915$ and $0.085$, a much smaller change in the
-probabilities. The `log` transformation provides a more linear relationship, which is what we desire. 
+probabilities. The `log` transformation provides a more linear
+relationship, which is what we desire.
 
 So in our model, instead of modeling *odds* as the dependent variable,
 we will use $log(odds)$, also known as the **logit**, defined as:
@@ -313,20 +343,28 @@ log(odds_i) &= log[(p_i)/(1-p_i)]\\ \nonumber
 \end{align}
 $$
 
-
-
 5.  **Estimation of Model Parameters**: The last problem to solve is
     that because we have made so many transformations to get to the
-    `logits` that we want to model, the logic of minimizing the **sum of squared errors(SSE)** is no longer appropriate.
-    
+    `logits` that we want to model, the logic of minimizing the **sum of
+    squared errors(SSE)** is no longer appropriate.
+
 ::: callout-note
-The probabilities for `default` are $0$ and $1$...the `log(odds)` will map respectively to $-\infty$ and $\infty$. So if we naively try to take residuals, we will find that they are **all** $\infty$ !! Hence $SSE$ cannot be computed and we need another way to assess the quality of our model. 
+The probabilities for `default` are $0$ and $1$...the `log(odds)` will
+map respectively to $-\infty$ and $\infty$. So if we naively try to take
+residuals, we will find that they are **all** $\infty$ !! Hence $SSE$
+cannot be computed and we need another way to assess the quality of our
+model.
 :::
 
-Instead, we will have to use **maximum likelihood estimation(MLE)** to estimate the models, and we will use the $X^2$ ("chi-squared") statistic instead of `t` and `F`to evaluate the model comparisons. The *maximum likelihood method* maximizes the probability of obtaining the data at hand against every choice of model parameters $\beta_i$. 
-    
+Instead, we will have to use **maximum likelihood estimation(MLE)** to
+estimate the models, and we will use the $X^2$ ("chi-squared") statistic
+instead of `t` and `F`to evaluate the model comparisons. The *maximum
+likelihood method* maximizes the probability of obtaining the data at
+hand against every choice of model parameters $\beta_i$.
+
 This is our **Logistic Regression Model**, which uses a Quantitative
-Predictor variable to predict a Categorical target variable. We write the model as ( for the `Default` dataset:
+Predictor variable to predict a Categorical target variable. We write
+the model as ( for the `Default` dataset:
 
 $$
 \begin{align}
@@ -337,9 +375,12 @@ p(default) & = \frac{exp(\beta_0 + \beta_1 * balance)}{1 + exp(\beta_0 + \beta_1
 \end{align}
 $$
 
-From the Eqn.4 above it should be clear that a *unit increase* in `balance` should increase the odds of `default` by $\beta_1$ units. 
+From the Eqn.4 above it should be clear that a *unit increase* in
+`balance` should increase the odds of `default` by $\beta_1$ units.
 
-The RHS of Eqn.5 is a *sigmoid* function of the weighted sum of predictors and is limited to the range [0,1]. The parameters $\beta_i$ need to be estimated using maximum likelihood methods. 
+The RHS of Eqn.5 is a *sigmoid* function of the weighted sum of
+predictors and is limited to the range \[0,1\]. The parameters $\beta_i$
+need to be estimated using maximum likelihood methods.
 
 ```{r}
 #| echo: false
@@ -400,11 +441,11 @@ mutate(default = if_else(default == "No", 1, 1000)) %>%
 
 ```
 
+## {{< iconify simple-icons hypothesis >}} Logistic Regression Models as Hypothesis Tests
 
-## {{< iconify simple-icons hypothesis >}} Logistic Regression Models as Hypothesis Tests   
 To Be Written Up.
 
-::: {.content-hidden when-format="html"}
+::: {.content-hidden when-format="pdf"}
 ## {{< iconify tdesign function-curve >}} Generalized Linear Model
 
 ::: callout-important
@@ -459,8 +500,8 @@ Then we can state that:\
 
 $$
 \begin{align}
-mean(Y_i/n_i) = p_i \coloneqq \mu_i\\
-var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} \coloneqq \sigma_i^2\\
+mean(Y_i/n_i) = p_i := \mu_i\\
+var(Y_i/n_i) = var(Y_i)/n_i^2 = \frac{p_i(1-p_i)}{n_i} := \sigma_i^2\\
 \end{align}
 $$
 
@@ -478,10 +519,7 @@ g(\mu_i) = logit(\mu_i) = log(\frac{\mu_i}{1-\mu_i})
 $$
 :::
 
-
-
 ## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
-
 
 Let us now read in the data and check for these assumptions as part of
 our Workflow.
@@ -489,7 +527,7 @@ our Workflow.
 ::: callout-note
 ## Research Question
 
-To Be Written Up. 
+To Be Written Up.
 :::
 
 ```{r}
@@ -502,32 +540,34 @@ skimr::skim(earinf)
 ```
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: EDA
-To Be Written Up.
 
+To Be Written Up.
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Building
 
-:::{.panel-tabset .nav-pills style="background: whitesmoke;"} 
-
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### {{< iconify mingcute code-fill >}} Model Code
+
 To Be Written Up.
 
 ### {{< iconify mdi thinking >}} Logistic Regression Model Intuitive {#sec-lg-intuitive}
+
 To Be Written Up.
 
 ### {{< iconify material-symbols slideshow-sharp >}} Logistic Regression Models Manually Demonstrated
+
 To Be Written Up.
 
 ### {{< iconify iconoir stats-report >}} Using Other Packages {#sec--using-other-packages}
+
 To Be Written Up.
 :::
-
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
 
 ### {{< iconify ic twotone-rule >}} Checks for Uncertainty
-To Be Written Up.
 
+To Be Written Up.
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
@@ -555,21 +595,26 @@ flowchart TD
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
-1. Judd, Charles M. & McClelland, Gary H. & Ryan, Carey S. *Data
+1.  Judd, Charles M. & McClelland, Gary H. & Ryan, Carey S. *Data
     Analysis: A Model Comparison Approach to Regression, ANOVA, and
     Beyond.* Routledge, Aug 2017. Chapter 14.
-    
-1. <https://yury-zablotski.netlify.app/post/how-logistic-regression-works/>
-1. <https://uc-r.github.io/logistic_regression>
 
-1. <https://francisbach.com/self-concordant-analysis-for-logistic-regression/>
+2.  <https://yury-zablotski.netlify.app/post/how-logistic-regression-works/>
 
-1. <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
+3.  <https://uc-r.github.io/logistic_regression>
 
-1. <https://jasp-stats.org/2022/06/30/generalized-linear-models-glm-in-jasp/>
+4.  <https://francisbach.com/self-concordant-analysis-for-logistic-regression/>
 
-1. P. Bingham, N.Q. Verlander, M.J. Cheal (2004). *John Snow, William Farr and the 1849 outbreak of cholera that affected London: a reworking of the data highlights the importance of the water supply*. Public Health
-Volume 118, Issue 6, September 2004, Pages 387-394. <u>[Read the PDF.](https://sci-hub.se/https://doi.org/10.1016/j.puhe.2004.05.007)</u>
+5.  <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
+
+6.  <https://jasp-stats.org/2022/06/30/generalized-linear-models-glm-in-jasp/>
+
+7.  P. Bingham, N.Q. Verlander, M.J. Cheal (2004). *John Snow, William
+    Farr and the 1849 outbreak of cholera that affected London: a
+    reworking of the data highlights the importance of the water
+    supply*. Public Health Volume 118, Issue 6, September 2004, Pages
+    387-394. <u>[Read the
+    PDF.](https://sci-hub.se/https://doi.org/10.1016/j.puhe.2004.05.007)</u>
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
@@ -587,15 +632,4 @@ cite_packages(
   knitr::kable(format = "simple")
 
 ```
-
-
-
-
-
-
 :::
-
-
-[^1]: <https://statmath.wu.ac.at/courses/heather_turner/glmCourse_001.pdf>
-
-[^2]: <https://en.wikipedia.org/wiki/Taylor%27s_law>
