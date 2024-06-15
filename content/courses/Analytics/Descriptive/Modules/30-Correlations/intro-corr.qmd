@@ -138,6 +138,50 @@ library(gfonts)
 
 ```
 
+## {{< iconify material-symbols add-chart-outline >}} What graphs will we see today?
+
+| Variable #1 | Variable #2 | Chart Names | Chart Shape |
+|:--------:|:--------:|:----------:|:-------------:|
+|Quant| Quant|  Scatter Plot | {{< iconify ph chart-scatter-bold size=4x >}} {{< iconify carbon qq-plot size=3x >}} |
+
+Some of the very basic and commonly used plots for data are:
+
+-   Scatter Plot for two variables
+-   ~~Contour Plot~~
+-   ~~Scatter Plot with Confidence Ellipses~~
+-   Pairwise Correlation Plots for multiple variables
+-   Correlogram  for multiple variables
+-   Heatmap  for multiple variables
+-   Errorbar chart  for multiple variables
+-   Combination chart with marginal densities
+
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page-inset-right
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+library(tidyverse)
+read_csv("../../../../../materials/Data/pronouns.csv") %>% 
+  filter(No == "1") %>% 
+  kbl() %>%
+  kable_paper("hover", full_width = T)
+  
+```
+:::
+
+
+## {{< iconify icons8 idea >}} Inspiration
+
+![ScatterPlot Inspiration <http://www.calamitiesofnature.com/archive/?c=559>](Evolution-belief-vs-GDP.jpeg){#fig-scatterplot-inspiration}
+
+Does *belief in Evolution* depend upon the GSP of of the country?
+Where is the US in all of this? Does the [Bible Belt](https://www.thoughtco.com/the-bible-belt-1434529) tip the scales here?
+
+And India?
+
 ## {{< iconify tabler exchange >}} What is Correlation?
 
 One of the basic Questions we would have of our data is: Does some
@@ -145,6 +189,7 @@ variable depend upon another in some way? Does $y$ vary with $x$? A
 **Correlation Test** is designed to answer exactly this question.
 
 The word **correlation** is used in everyday life to denote some form of association. We might say that we have noticed a correlation between rainy days and reduced sales at supermarkets. However, in statistical terms we use correlation to denote association between two quantitative variables. We also assume that the association is **linear**, that one variable increases or decreases a fixed amount for a unit increase or decrease in the other. The other technique that is often used in these circumstances is **regression**, which involves estimating the best straight line to summarise the association.
+
 
 ## {{< iconify arcticons tapemeasure >}} Pearson Correlation coefficient
 
@@ -215,6 +260,7 @@ than typing the formal arguments, code is typically shorthanded to this:
 :::
 
 
+
 ## {{< iconify grommet-icons test >}} Case Study-1: `HollywoodMovies2011` dataset
 
 Let us look at the `HollywoodMovies2011` dataset from the `Lock5withR` package. 
@@ -233,6 +279,7 @@ glimpse(movies)
 
 ```{r}
 #| label: skim-movies
+#| include: false
 skimr::skim(movies)
 skimr::skim(movies) %>% 
   kableExtra::kbl() %>% 
@@ -242,6 +289,7 @@ skimr::skim(movies) %>%
 
 ```{r}
 #| label: inspect-movies
+#| include: false
 
 movies_describe <- inspect(movies)
 ##
@@ -304,20 +352,11 @@ movies_describe$quantitative
 
 There are no missing values in the *Qual* variables; but some entries in the *Quant* variables are missing. `skim` throws a warning that we may need to examine later. 
 
+
 :::
 
 Let us look at the *Quant* variables: are these related in anyway? Could the relationship between any two Quant variables also depend upon the level of a *Qual* variable? 
 
-## {{< iconify material-symbols add-chart-outline >}} What graphs will we see today?
-
-Some of the very basic and commonly used plots for data are:
-
--   Scatter Plot
--   Contour Plot
--   Scatter Plot with Confidence Ellipses
--   Pairwise Correlation Plots
--   Correlogram
--   Heatmap
 
 ## {{< iconify ph chart-scatter-bold >}} {{< iconify carbon qq-plot >}} Scatter Plots
 
@@ -493,7 +532,7 @@ We have fitted a **trend line** to each of the scatter plots.
 
 :::
  
-
+::: {.content-hidden when-format="html"}
 
 ## {{< iconify gis contour-map >}} 2D Density Plot
 
@@ -512,7 +551,7 @@ movies %>%
   gf_density_2d(WorldGross ~ DomesticGross) %>% 
   gf_point() %>%
   gf_lm() %>% 
-  gf_labs(title = "Scatter Plot",
+  gf_labs(title = "2D Density Plot",
         subtitle = "Movie Gross Earnings: Domestics vs World")
 ##
 movies %>% 
@@ -520,7 +559,7 @@ movies %>%
   gf_density_2d(Profitability ~ OpeningWeekend) %>% 
   gf_point() %>%
   gf_lm() %>% 
-  gf_labs(title = "Scatter Plot",
+  gf_labs(title = "2D Density Plot",
           subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ```
@@ -534,7 +573,7 @@ movies %>%
   drop_na() %>%
   gf_density_2d(RottenTomatoes ~ AudienceScore) %>% 
   gf_point() %>%
-  gf_lm(title = "Scatter Plot",
+  gf_lm(title = "2D Density Plot",
         subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 ```
@@ -552,7 +591,7 @@ movies %>% drop_na() %>%
   geom_density_2d() + 
   geom_point() + 
   geom_lm() + 
-  labs(title = "Scatter Plot",
+  labs(title = "2D Density Plot",
        subtitle = "Movie Gross Earnings: Domestics vs World")
 ##
 movies %>% drop_na() %>%
@@ -560,11 +599,12 @@ movies %>% drop_na() %>%
   geom_density2d() + 
   geom_point() + 
   geom_lm() + 
-  labs(title = "Scatter Plot",
+  labs(title = "2D Density Plot",
        subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
 
 ```
 
+### 2D Densities with Stat Ellipese
 
 ```{r}
 
@@ -578,7 +618,7 @@ movies %>% drop_na() %>%
   stat_ellipse(level = 0.95, colour = "grey", linewidth = 1) + 
   stat_ellipse(level = 0.68, colour = "firebrick", linewidth = 1) +   
   geom_lm() + 
-  labs(title = "Scatter Plot",
+  labs(title = "2D Density Plot with Stat Ellipses",
        subtitle = "Movie Ratings: Tomatoes vs Audience")
 
 ```
@@ -598,12 +638,15 @@ are also aligned roughly along a line.
 :::
 
 
+:::
+
+
+
 ::: callout-important
 ## Independent and Dependent Variables
-
 Note that we have rather *arbitrarily* taken `AudienceScore` as the independent variable, to be plotted on the `x-axis`, and `RottenTomatoes` on the `y-axis`. It could easily have been the other way around, based on our Research Question. Datasets are gathered with specific Research Hypotheses in mind, so check the help file and also with the person who gathered the data about what variable they are interested in!
-
 :::
+
 
 ## {{< iconify flat-color-icons workflow >}} Quantizing Correlation
 
@@ -658,6 +701,7 @@ GGally::ggpairs(
 
 
 ```
+
 :::callout-note
 
 ### Business Insight from Pairs Plot#1
@@ -701,6 +745,7 @@ GGally::ggpairs(
 )
 
 ```
+
 :::callout-note
 ### Business Insight from Pairs Plot #2
 - The `Budget` variable has good correlation scores with `DomesticGross` and `ForeignGross`
@@ -809,16 +854,52 @@ mosaic::cor_test(ForeignGross ~ Budget, data = movies) %>%
 ```
 
 :::callout-note
+
 ## Business Insights from Correlation Tests
 The `budget` and `profitability` are not well correlated, sadly. We see this from the `p.value` which is $0.34$ and the confidence values for the correlation `estimate` which also cover $0$.
 
-However, both `DomesticGross` and `ForeignGross` are well correlated with `Budget`. Look at the `p.value` (=0) and the confindence intervals which are unipolar. 
+However, both `DomesticGross` and `ForeignGross` are well correlated with `Budget`. Look at the `p.value` (=0) and the confidence intervals which are unipolar. 
 
 :::
 
-## A New Combination Plot...
+
+### {{< iconify carbon chart-error-bar-alt >}} The ErrorBar Plot for Correlations
+
+As stated earlier, in our dataset we have a specific `dependent` or `target` variable, which represents the outcome of our experiment or our business situation. The remaining variables are usually `independent` or `predictor` variables. A very useful thing to know, and to view, would be the correlations of *all* independent variables. Using the `correlation` package from the `easystats` family of R packages, this can be very easily achieved. 
+Let us quickly do this for the familiar `mtcars` dataset: we will quickly `glimpse` it, identify the target variable, and plot the correlations: 
+
+```{r}
+glimpse(mtcars)
+
+## Target variable: mpg
+## Calculate all correlations
+cor <- correlation::correlation(mtcars)
+cor
+
+# Filter for variable `mpg` and plot
+theme_set(new = theme_custom())
+##
+cor %>% 
+  filter(Parameter1 == "mpg") %>% 
+  gf_point(r ~ reorder(Parameter2, r), size = 2) %>% 
+  gf_errorbar(CI_low + CI_high ~ reorder(Parameter2, r)) %>% 
+  gf_hline(yintercept = 0, color = "grey", linewidth = 2) %>% 
+  gf_labs(title = "Correlation Errorbar Chart",
+          x = "Predictor Variable",
+          y ="Correlation Score")
+
+```
+
+::: callout-note
+### Business Insights from ErrorBar Plot
+- Several variables are negatively correlated and some are positively correlated with 'mpg`. (The grey line shows "zero correlation")
+- Since none of the error bars straddle zero, the correlations are mostly significant. 
+:::
+
+### {{< iconify carbon qq-plot >}} {{< iconify fluent bezier-curve-square-12-regular rotate="90deg" >}} A New Combination Plot...
 
 Sometimes, a simple scatter, or density alone, or viewed next to one another is not adequate to develop, or convey, our insight. We might just need a combination density + scatter plot. Such a plot can be be constructed from the ground up using `ggformula` or `ggplot`; however, there is a nice package called `ggExtra` that allows the creation of a powerful combination plot:
+
 
 ```{r}
 #| label: Scatter-Plot with Marginal Densities
@@ -845,12 +926,20 @@ Head off to this interactive game website where you can play with correlations!
 
 <https://openintro.shinyapps.io/correlation_game/>
 
+## Simpson's Paradox
+
+<iframe width="100%" height="500" frameborder="0"
+  src="https://observablehq.com/embed/@observablehq/plot-linear-regression-simpson?cell=*"></iframe>
+  
+See how the overall correlation/regression line slopes upward, whereas that for the individual groups slopes downward!! This is an example f Simpson's Paradox!
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
 Our workflow for evaluating correlations between target variable and
 other predictor variables uses several packages such as `GGally`,
 `corrplot`, and of course `mosaic` for correlation tests. We will
 explore more R code for these in the tutorials @sec-slides-and-tutorials.
+
 
 ## {{< iconify ooui references-ltr >}} References
 
@@ -880,6 +969,7 @@ cite_packages(
 
 
 :::
+
 
 
 
