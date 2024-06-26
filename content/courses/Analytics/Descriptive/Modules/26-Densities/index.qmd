@@ -1,0 +1,1202 @@
+---
+title: "\U0001F4CA Densities: Plotting Distributions"
+subtitle: "The Hills are Shadows, said Tennyson"
+author: "Arvind V."
+date: 22/Jun/2024
+date-modified: "`r Sys.Date()`"
+abstract: "Quant and Qual Variable Graphs and their Siblings"
+order: 26
+image: preview.jpg
+image-alt: Image by rawpixel.com
+df-print: paged
+categories:
+- Quant Variables
+- Qual Variables
+- Density Plots
+- Ridge Plots
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
+# editor: 
+#   markdown: 
+#     wrap: 72
+webr:
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+
+---
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+|                                                                                                 |                                                                                                    |                                                                                        |
+|------------------------|------------------------|------------------------|
+| <a href="./files/distributions.qmd"><i class="fa-brands fa-r-project"></i> R (Static Viz)</a>   | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| include: true
+#| message: false
+#| warning: false
+options(paged.print = TRUE)
+library(tidyverse)
+library(mosaic)
+library(ggformula)
+
+#install.packages("remotes")
+#library(remotes)
+#remotes::install_github("wilkelab/ggridges")
+library(ggridges)
+library(skimr)
+
+library(palmerpenguins) # Our new favourite dataset
+
+```
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
+library(grateful)
+library(MKdescr)
+library(shinylive) # To create a Shiny app in a Quarto HTML doc
+# Will not work if webr is also used in the SAME Quarto doc!
+library(sysfonts)
+library(gfonts)
+library(kableExtra)
+# library(conflicted)
+# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,               #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
+
+
+## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
+
+| Variable #1 | Variable #2 | Chart Names |                    Chart Shape    | 
+|:-------------:|:--------------:|:------------------:|:--------------------:|:------:|
+|    Quant    |    None     |  Density plot, Ridge Density Plot  | {{< iconify  mdi chart-bell-curve size=4x >}} |
+
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page-inset-right
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+read_csv("../../../../../materials/Data/pronouns.csv") %>% 
+  filter(No == "1") %>% 
+  kbl() %>%
+  kable_paper("hover", full_width = T)
+  
+```
+:::
+
+## {{< iconify  mdi chart-bell-curve >}} What is a "Density Plot"?
+
+As we saw earlier, **Histograms** are best to show the distribution of raw **Quantitative data**, by displaying the number of values that fall within defined
+ranges, often called *buckets* or *bins*. 
+
+Sometimes it is useful to consider a chart where the *bucket width* shrinks to zero! 
+
+You might imagine a density chart as a histogram where the buckets are
+infinitesimally small, i.e. zero width. Think of the frequency density as a [differentiation (as in calculus)]() of the histogram. By taking the smallest of steps $\sim 0$, we get a measure of the *slope* of distribution. This may seem counter-intuitive,
+but densities have their uses in spotting the ranges in the data where
+there are more frequent values. In this, they serve a similar purpose as
+do histograms, but may offer insights not readily apparent with
+histograms, especially with default bucket widths. The *chunkiness* that we see in the histograms is removed and gives us a smooth curve showing in which *range* the data are more *frequent*. 
+
+## {{< iconify grommet-icons test >}} Case Study-1: `penguins` dataset
+
+We will first look at at a dataset that is directly available in R, the
+`penguins` dataset.
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+As per our Workflow, we will look at the data using all the three
+methods we have seen.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+```{r}
+#| label: glimpse-penguins
+glimpse(penguins)
+
+```
+
+```{r}
+#| label: skim-penguins
+skim(penguins)
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: glimpse-penguins-webr
+glimpse(penguins)
+
+```
+
+```{webr-r}
+#| label: skim-penguins-webr
+skim(penguins)
+
+```
+
+
+:::
+
+
+::: callout-note
+### Business Insights on Examining the `penguins` dataset
+
+-   This is a smallish dataset (344 rows, 8 columns).
+-   There are several Qualitative variables: `species`, `island` and
+    `sex`. These have 3, 3, and 2 levels respectively. They are all `<fct>`, i.e. factors. 
+
+-   `bill_length_mm`, `bill_length_mm`, `flipper_length_mm`, and `body_mass_g  ` are
+    Quantitative variables.
+-   There are a few missing values in `sex`(11 missing entries) and all the Quant variables (2 missing entries each).
+:::
+
+
+
+
+### {{< iconify mdi chart-bell-curve >}} Plotting Densities
+
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+
+### Using ggformula
+
+```{r}
+#| label: density-charts-ggformula
+#| layout-ncol: 2
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+penguins <- penguins %>% drop_na()
+
+gf_density( ~ body_mass_g, data = penguins) %>%
+  gf_labs(title = "Plot A: Penguin Masses", caption = "ggformula")
+
+###
+penguins %>% gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
+  gf_refine(scale_color_viridis_d(option = "magma", aesthetics = c("colour", "fill"))) %>%
+  gf_labs(title = "Plot B: Penguin Body Mass by Species", caption = "ggformula")
+
+###
+penguins %>%
+  gf_density(
+    ~ body_mass_g,
+    fill = ~ species,
+    color = "black",
+    alpha = 0.3
+  ) %>%
+  gf_facet_wrap(vars(sex)) %>%
+  gf_labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex", caption = "ggformula")
+
+###
+penguins %>%
+  gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
+  gf_facet_wrap(vars(sex), scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
+          subtitle = "Free y-scale",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+
+
+```
+
+### Using ggplot
+
+```{r}
+#| label: density-charts-ggplot
+#| layout-ncol: 2
+## Set graph theme
+theme_set(new = theme_custom())
+## Remove the rows containing NA (11 rows!)
+penguins <- penguins %>% drop_na()
+
+ggplot(data = penguins) + 
+  geom_density(aes(x = body_mass_g)) + 
+  labs(title = "Plot A: Penguin Masses",caption = "ggplot")
+
+###
+penguins %>% 
+  ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = species),
+                   color = "black") + 
+  scale_color_viridis_d(option = "magma",
+                        aesthetics = c("colour", "fill")) +
+  labs(title = "Plot B: Penguin Body Mass by Species",
+       caption = "ggplot")
+
+###
+penguins %>% ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = species),
+                   color = "black",
+                   alpha = 0.3) + 
+  facet_wrap(vars(sex)) + 
+  labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex",caption = "ggplot") 
+
+###
+penguins %>% ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = species), 
+                   color = "black") + 
+  facet_wrap(vars(sex), scales = "free_y", nrow = 2) + 
+  labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex", 
+       subtitle = "Free y-scale", caption = "ggplot") %>%
+  theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+```
+
+
+
+### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+#| label: density-charts-ggformula-webr
+
+gf_density(~ price, data = penguins) %>%
+  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+
+```
+
+```{webr-r}
+penguins %>% gf_density(~ price, 
+                          fill = ~ cut, 
+                          color = ~ cut,
+                          alpha = 0.3) %>%
+  gf_refine(scale_color_viridis_d(option = "magma",
+                                  aesthetics = c("colour", "fill"))) %>%
+  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+
+```
+
+```{webr-r}
+penguins %>% gf_density(~ price,
+                          fill = ~ cut) %>%
+  gf_facet_wrap(vars(cut)) %>%
+  gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",caption = "ggformula") 
+
+```
+
+```{webr-r}
+penguins %>% gf_density(~ price,
+                          fill = ~ cut, 
+                        color = "black") %>% 
+  gf_facet_wrap(vars(cut), scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
+          subtitle = "Free y-scale", caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+
+```
+
+```{webr-r}
+#| label: density-charts-ggplot-webr
+penguins <- penguins %>% drop_na()
+
+ggplot(data = penguins) + 
+  geom_density(aes(x = body_mass_g)) + 
+  labs(title = "Plot A: Penguin Masses",caption = "ggplot")
+
+```
+
+```{webr-r}
+penguins %>% 
+  ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = species),
+                   color = "black") + 
+  scale_color_viridis_d(option = "magma",
+                        aesthetics = c("colour", "fill")) +
+  labs(title = "Plot B: Penguin Body Mass by Species",
+       caption = "ggplot")
+
+```
+
+```{webr-r}
+penguins %>% ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = species),
+                   color = "black",
+                   alpha = 0.3) + 
+  facet_wrap(vars(sex)) + 
+  labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex",caption = "ggplot")  
+
+```
+
+```{webr-r}
+penguins %>% ggplot() + 
+  geom_density(aes(x = body_mass_g, fill = ~ species, 
+                   color = "black")) + 
+  facet_wrap(vars(sex), scales = "free_y", nrow = 2) + 
+  labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex", 
+       subtitle = "Free y-scale", caption = "ggplot") %>%
+  theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+
+```
+:::
+
+::: callout-note
+### Business Insights from `diamond` Densities
+
+Pretty much similar conclusions as with histograms. Although densities
+may not be used much in business contexts, they are *better* than
+histograms when *comparing multiple distributions*! So you should use
+thems!
+:::
+
+
+
+### {{< iconify streamline nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle >}} Ridge Plots
+
+Sometimes we may wish to show the distribution/density of a Quant
+variable, against several *levels* of a Qual variable. For instance, the
+prices of different items of furniture, based on the furniture "style"
+variable. Or the `sales` of a particular line of products, across
+different shops or cities. We did this with both histograms and
+densities, by colouring based on a Qual variable, and by facetting using
+a Qual variable. There is a third way, using what is called a *ridge 
+plot*. `ggformula` support this plot by importing/depending upon the `ggridges` package; however, `ggplot` itself appears to not have this capability. 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+
+```{r}
+#| label: more-charts
+#| out-width: "80%"
+#| fig-align: "center"
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+
+gf_density_ridges(drv ~ hwy, fill = ~ drv, 
+                  alpha = 0.3, 
+                  rel_min_height = 0.005, data = mpg) %>% 
+  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+            scale_x_continuous(expand = c(0.01, 0))) %>% 
+  gf_labs(title = "Ridge Plot")
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: more-charts-webr
+
+gf_density_ridges(drv ~ hwy, fill = ~ drv, 
+                  alpha = 0.3, 
+                  rel_min_height = 0.005, data = mpg) %>% 
+  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+            scale_x_continuous(expand = c(0.01, 0))) %>% 
+  gf_labs(title = "Ridge Plot")
+
+
+```
+
+
+:::
+
+
+
+::: callout-note
+### Business Insights from `mpg` Ridge Plots
+
+This is another way of visualizing multiple distributions, of a Quant
+variable at different levels of a Qual variable. We see that the
+distribution of `hwy` mileage varies substantially with `drv` type.
+:::
+
+
+## {{< iconify grommet-icons test >}} Case Study-2: `race` dataset
+
+### {{< iconify mdi database-import-outline >}} Import data
+
+The data come from the
+[TidyTuesday](https://github.com/rfordatascience/tidytuesday), project,
+a weekly social learning project dedicated to gaining practical
+experience with R and data science. In this case the TidyTuesday data
+are based on [International Trail Running Association
+(ITRA)](https://itra.run/Races/FindRaceResults) data but inspired by
+Benjamin Nowak. We will use the [TidyTuesday data that are on
+GitHub](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-10-26).
+Nowak's data are [also available on
+GitHub](https://github.com/BjnNowak/UltraTrailRunning).
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+```{r}
+#| message: false
+#| warning: false
+race_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
+rank_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
+
+```
+
+The data has automatically been read into the `webr` session, so you can continue on to the next code chunk!
+
+```{webr-r}
+#| context: setup
+# Read the data
+race_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
+rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
+
+```
+:::
+
+
+### {{< iconify file-icons influxdata >}} Examine the race Data
+
+Let us look at the dataset using all our three methods:
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+```{r}
+#| label: glimpse-race-data
+glimpse(race_df)
+glimpse(rank_df)
+
+```
+
+```{r}
+#| label: glimpse-race-data-1
+skim(race_df)
+
+```
+
+```{r}
+#| label: glimpse-race-data-2
+skim(rank_df)
+
+```
+
+```{r}
+#| label: inspect-race
+# inspect(race_df) # does not work with hms and difftime variables
+inspect(rank_df)
+
+```
+
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: glimpse-race-data-webr-1
+glimpse(race_df)
+glimpse(rank_df)
+
+```
+
+```{webr-r}
+#| label: glimpse-race-data-webr-2
+skim(race_df)
+```
+
+```{webr-r}
+#| label: glimpse-race-data-webr-3
+skim(rank_df)
+```
+
+```{webr-r}
+#| label: inspect-race-webr
+# inspect(race_df) # does not work with hms and difftime variables
+inspect(rank_df)
+
+```
+
+
+
+:::
+
+
+
+::: callout-note
+### Business Insights from `race` data
+
+-   We have two datasets, one for races (`race_df`) and one for the
+    ranking of athletes (`rank_df`).
+-   There is atleast one common column between the two, the
+    `race_year_id` variable.
+-   Overall, there are *Qualitative* variables such as `country`,
+    `city`,`gender`, and `participation`. This last variables seems
+    badly coded, with entries showing `solo` and `Solo`.
+-   *Quantitative variables* are `rank`, `time`,`time_in_seconds`, `age`
+    from `rank_df`; and `distance`, `elevation_gain`,
+    `elevation_loss`,`particants`, and `aid_stations` from `race_df`.
+-   We have 1207 races and over 130K participants! But some races do
+    show *zero* participants!! Is that an error in data entry?
+:::
+
+
+### {{< iconify fluent-mdl2 explore-data >}} EDA with `race` datasets
+
+::: callout-note
+
+### Question #1
+Which countries host the maximum number of races? Which
+countries send the maximum number of participants??
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+```{r}
+race_df %>% count(country) %>% arrange(desc(n))
+rank_df %>% count(nationality) %>% arrange(desc(n))
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+race_df %>% count(country) %>% arrange(desc(n))
+rank_df %>% count(nationality) %>% arrange(desc(n))
+
+```
+
+:::
+
+The top three locations for races were the USA, UK, and France. These
+are also the countries that send the maximum number of participants,
+naturally!
+:::
+
+::: callout-note
+### Question #2
+Which countries have the maximum number of winners (top 3
+ranks)?
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+```{r}
+rank_df %>% 
+  filter(rank %in% c(1,2,3)) %>%
+  count(nationality) %>% arrange(desc(n))
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+rank_df %>% 
+  filter(rank %in% c(1,2,3)) %>%
+  count(nationality) %>% arrange(desc(n))
+
+```
+
+:::
+
+1240 Participants from the USA have been top 3 finishers. Across *all*
+races...
+
+:::
+
+
+::: callout-note
+### Question #3
+Which countries have had the most top-3 finishes in the
+**longest** distance race?
+
+Here we see we have ranks in one dataset, and race details in another!
+How do we do this now? We have to **join** the two data frames into one
+data frame, using a *common variable* that uniquely identifies
+observations in **both** datasets.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+```{r}
+#| layout-nrow: 2
+
+longest_races <- race_df %>%
+  slice_max(n = 5, order_by = distance) # Longest distance races
+longest_races
+
+longest_races %>%
+  left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
+  filter(rank %in% c(1:10)) %>% # Top 10 ranks
+  count(nationality) %>% arrange(desc(n))
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+
+longest_races <- race_df %>%
+  slice_max(n = 5, order_by = distance) # Longest distance races
+longest_races
+
+```
+
+```{webr-r}
+
+longest_races %>%
+  left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
+  filter(rank %in% c(1:10)) %>% # Top 10 ranks
+  count(nationality) %>% arrange(desc(n))
+
+```
+
+:::
+
+
+Wow....France has one the top 10 positions 26 times in the longest
+races... which take place in France, Thailand, Chad, Australia, and
+Portugal. So although the USA has the greatest number of top 10
+finishes, when it comes to the *longest* races, it is `r emoji::emoji("france")` *vive la France*!
+
+:::
+
+
+::: callout-note
+### Question #4
+What is the distribution of the finishing times, across all
+races and all ranks?
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+```{r}
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+rank_df %>%
+  gf_histogram(~ time_in_seconds, bins = 75) %>%
+  gf_labs(title = "Histogram of Race Times")
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+
+rank_df %>%
+  gf_histogram(~ time_in_seconds, bins = 75)  %>%
+  gf_labs(title = "Histogram of Race Times")
+
+```
+:::
+
+So the distribution is (very) roughly bell-shaped, spread over a 2X
+range. And some people may have dropped out of the race very early and
+hence we have a small bump close to *zero* time! The histogram shows
+three bumps...at least one reason is that the distances to be covered
+are not the same...but could there be other reasons? Like
+`altitude_gained` for example?
+:::
+
+
+::: callout-note
+### Question #5
+What is the distribution of race distances?
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+```{r}
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+race_df %>%
+  gf_histogram(~ distance, bins =  50) %>%
+  gf_labs(title = "Histogram of Race Distances")
+
+```
+
+Hmm...a closely clumped set of race distances, with some entries in
+between \[0-150\], but some are zero? Which are these?
+
+```{r}
+race_df %>%
+  filter(distance == 0)
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+
+race_df %>%
+  gf_histogram(~ distance, bins =  50) %>%
+  gf_labs(title = "Histogram of Race Distances")
+
+```
+
+Hmm...a closely clumped set of race distances, with some entries in
+between \[0-150\], but some are zero? Which are these?
+
+```{webr-r}
+
+race_df %>%
+  filter(distance == 0)
+
+```
+:::
+
+Curious...some of these zero-distance races have had participants too!
+Perhaps these were cancelled events...all of them are stated to be
+`100 mile` events...
+
+:::
+
+
+
+::: callout-note
+### Question #6
+For all races that have a distance around 150, what is the
+distribution of finishing times? Can these be split/facetted using
+`start_time` of the race (i.e. morning / evening) ?
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+Let's make a count of start times:
+
+```{r}
+
+race_times <- race_df %>%
+  count(start_time) %>% arrange(desc(n))
+race_times
+
+```
+
+Let's convert `start_time` into a `factor` with levels:
+early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400),
+afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
+
+```{r}
+#| label: Slicing_time_to_Qual
+# Demo purposes only!
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+race_start_factor <- race_df %>%
+  mutate(
+    start_day_time =
+      case_when(
+        start_time > hms("02:00:00") &
+          start_time <= hms("06:00:00") ~ "early_morning",
+        
+        start_time > hms("06:00:01") &
+          start_time <= hms("10:00:00") ~ "late_morning",
+        
+        start_time > hms("10:00:01") &
+          start_time <= hms("14:00:00") ~ "mid_day",
+        
+        start_time > hms("14:00:01") &
+          start_time <= hms("18:00:00") ~ "afternoon",
+        
+        start_time > hms("18:00:01") &
+          start_time <= hms("22:00:00") ~ "evening",
+        
+        start_time > hms("22:00:01") &
+          start_time <= hms("23:59:59") ~ "night",
+        
+        start_time >= hms("00:00:00") &
+          start_time <= hms("02:00:00") ~ "postmidnight",
+        
+        .default =  "other"
+      )
+  ) %>%
+  mutate(start_day_time = 
+           as_factor(start_day_time) %>%
+           fct_collapse(.f = ., 
+               night = c("night", "postmidnight")))
+##
+# Join with rank_df
+race_start_factor %>%
+  left_join(rank_df, by = "race_year_id") %>%
+  drop_na(time_in_seconds) %>%
+  gf_histogram(
+    ~ time_in_seconds,
+    bins = 75,
+    fill = ~ start_day_time,
+    color = ~ start_day_time,
+    alpha = 0.5
+  ) %>%
+  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y") %>%
+  gf_labs(title = "Race Times by Start-Time")
+
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+Let's make a count of start times:
+
+```{webr-r}
+
+race_times <- race_df %>%
+  count(start_time) %>% arrange(desc(n))
+race_times
+
+```
+
+Let's convert `start_time` into a `factor` with levels:
+early_morning(0200:0600), late_morning(0600:1000), midday(1000:1400),
+afternoon(1400: 1800), evening(1800:2200), and night(2200:0200)
+
+```{webr-r}
+#| label: Slicing_time_to_Qual
+# Demo purposes only!
+
+race_start_factor <- race_df %>%
+  mutate(
+    start_day_time =
+      case_when(
+        start_time > hms("02:00:00") &
+          start_time <= hms("06:00:00") ~ "early_morning",
+        
+        start_time > hms("06:00:00") &
+          start_time <= hms("10:00:00") ~ "late_morning",
+        
+        start_time > hms("10:00:00") &
+          start_time <= hms("14:00:00") ~ "mid_day",
+        
+        start_time > hms("14:00:00") &
+          start_time <= hms("18:00:00") ~ "afternoon",
+        
+        start_time > hms("18:00:00") &
+          start_time <= hms("22:00:00") ~ "evening",
+        
+        start_time > hms("22:00:00") &
+          start_time <= hms("23:59:59") ~ "night",
+        
+        start_time >= hms("00:00:0") &
+          start_time <= hms("02:00:00") ~ "postmidnight",
+        
+        .default =  "other"
+      )
+  ) %>%
+  mutate(start_day_time = 
+           as_factor(start_day_time) %>%
+           fct_collapse(.f = ., 
+               night = c("night", "postmidnight")))
+```
+
+```{webr-r}
+# Join with rank_df
+race_start_factor %>%
+  left_join(rank_df, by = "race_year_id") %>%
+  drop_na(time_in_seconds) %>%
+  gf_histogram(
+    ~ time_in_seconds,
+    bins = 75,
+    fill = ~ start_day_time,
+    color = ~ start_day_time,
+    alpha = 0.5
+  ) %>%
+  gf_facet_wrap(vars(start_day_time), ncol = 2, scales = "free_y")%>%
+  gf_labs(title = "Race Times by Start-Time")
+
+```
+
+:::
+
+
+We see that finish times tend to be longer for afternoon and evening
+start races; these are lower for early morning and night time starts.
+Mid-day starts show a curious double hump in finish times that should be
+studied.
+:::
+
+## {{< iconify entypo new >}} Distributions and Densities in the Wild
+
+Before we conclude, let us look at a real world dataset: populations of
+countries. This dataset was taken from Kaggle
+<https://www.kaggle.com/datasets/ulrikthygepedersen/populations>. Click
+on the icon below to save the file into a *subfolder* called `data` in
+your project folder:
+
+{{< downloadthis data/populations.csv dname=populations label="Download the Populations data" icon=database-fill-down type=info class=data-button id=populations >}}
+
+```{r}
+#| layout-nrow: 2
+pop <- read_csv("data/populations.csv")
+pop
+inspect(pop)
+
+```
+
+Let us plot densities/histograms for `value`:
+
+```{r}
+#| label: skewed-histogram
+#| layout-ncol: 2
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+##
+gf_histogram(~ value, data = pop, title = "Long Tailed Histogram") 
+##
+gf_density(~ value, data = pop, title = "Long Tailed Density")
+
+```
+
+These graphs convey very little to us: the data is very heavily skewed
+to the right and much of the chart is empty. There are many countries
+with small populations and a few countries with very large populations.
+Such distributions are also called **"long tailed"** distributions. To
+develop better insights with this data, we should transform the variable
+concerned, using say a "log" transformation:
+
+```{r}
+#| label: skewed-density
+#| layout-ncol: 2
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+gf_histogram(~ log10(value), data = pop, title = "Histogram with Log transformed x-variable") 
+##
+gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-variable")
+
+```
+
+Be prepared to transform your data with `log` or `sqrt` transformations
+when you see skewed distributions! Salaries, Instagram connections,
+number of customers vs Companies, net worth / valuation of Companies,
+extreme events on stock markets....all of these could have highly skewed
+distributions. In such a case, the standard statistics of mean/median/sd
+may not convey too much information.
+
+Several distribution shapes exist, here is an illustration of the 6 most common ones:
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-cap: Type_of_Distributions
+# Build dataset with different distributions
+library(hrbrthemes)
+data <- data.frame(
+  type = c( rep("edge peak", 1000), rep("comb", 1000), rep("normal", 1000), rep("uniform", 1000), rep("bimodal", 1000), rep("skewed", 1000) ),
+  value = c( rnorm(900), rep(3, 100), rnorm(360, sd=0.5), rep(c(-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75), 80), rnorm(1000), runif(1000), rnorm(500, mean=-2), rnorm(500, mean=2), abs(log(rnorm(1000))) )
+)
+
+# Represent it
+data %>%
+  ggplot( aes(x=value)) +
+    geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+    facet_wrap(~type, scale="free_x") +
+    theme_ipsum() +
+    theme(
+      panel.spacing = unit(0.1, "lines"),
+      axis.title.x=element_blank(),
+      axis.text.x=element_blank(),
+      axis.ticks.x=element_blank()
+    )
+```
+
+What insights could you develop based on these distribution shapes?\
+- *Bimodal*: Maybe two different systems or phenomena or regimes under which the data unfolds. Like our geyser above. Or a machine that works differently when cold and when hot. Intermittent faulty behaviour...\
+- *Comb*: Some specific Observations occur predominantly, in an otherwise even spread or observations. In a survey many respondents round off numbers to nearest 100 or 1000. Check the distribution of this [penguins dataset for carat values](https://raw.githubusercontent.com/tidyverse/ggplot2/main/data-raw/penguins.csv) which are suspiciously integer numbers in too many cases.\
+- *Edge Peak*: Could even be a data entry artifact!! All unknown / unrecorded observations are recorded as $999$ !!`r emoji::emoji("scream_cat")`\
+- *Normal*: Just what it says! Course Marks in a Univ cohort...\
+- *Skewed*: Income, or friends count in a set of people. Do UI/UX peasants have more followers on Insta than say CAP people?\
+- *Uniform*: The World is ~~not~~ flat. Anything can happen within a range. But not much happens outside! Sharp limits...
+
+## {{< iconify ph bell-simple-z-duotone >}} Z-scores
+
+Often when we compute wish to compare distributions with different
+values for means and standard deviations, we resort to a *scaling* of
+the variables that are plotted in the respective distributions.
+
+```{r}
+#| label: z-scores
+#| echo: false
+#| layout-ncol: 2
+library(TeachHist)
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+p1 <- TeachHistDens(Mean = 60, Sd = 5)
+p3 <- TeachHistDens(Mean = 10, Sd = 5)
+p2 <- TeachHistDens(Mean = 60, Sd = 15)
+p4 <- TeachHistDens(Mean = 10, Sd = 15)
+
+
+```
+
+Although the densities all look the same, they are are quite different!
+The x-axis in each case has *two scales*: one is the actual value of the
+x-variable, and the other is the *z-score* which is calculated as:
+
+$$
+z_x = \frac{x - \mu_{x}}{\sigma_x}
+$$
+
+With similar distributions (i.e. normal distributions), we see that the
+variation in density is the **same** at the same values of `z-score` for
+each variable. However since the $\mu_i$ and $\sigma_i$ are different,
+the *absolute* value of the `z-score` is different for each variable. In
+the first plot (from the top left), $z = 1$ corresponds to an absolute
+change of $5$ units; it is $15$ units in the plot directly below it.
+
+Our comparisons are done easily when we compare differences in
+probabilities at identical `z-scores`, or differences in `z-scores` at
+identical probabilities.
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+-   Histograms and Frequency Distributions are both used for
+    Quantitative data variables
+-   Whereas Histograms "dwell upon" **counts**, **ranges**, **means** and **standard deviations**
+-   Frequency Density plots "dwell upon" **probabilities** and
+    **densities**
+-   Ridge Plots are **density plots** used for describing one Quant and
+    one Qual variable (by inherent splitting)
+-   We can split all these plots on the basis of another Qualitative
+    variable.(Ridge Plots are already split)
+-   Long tailed distributions need care in visualization and in
+    inference making!
+
+## {{< iconify openmoji person >}} Your Turn
+
+<a href="./files/data/qdd-data.zip">
+<i class="fa-solid fa-database"></i> Datasets</a>
+
+1.  Click on the Dataset Icon above, and unzip that archive. Try to make
+    distribution plots with each of the three tools.
+2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
+3.  Old Faithful Data in R (Find it!)
+
+`inspect` the dataset in each case and develop a set of Questions, that
+can be answered by appropriate stat measures, or by using a chart to
+show the distribution.
+
+## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
+
+```{r}
+#| label: used-these
+#| echo: false
+#| include: false
+#| message: false
+#| warning: false
+library(usedthese)
+used_here()
+
+```
+
+## {{< iconify ooui references-rtl >}} References
+
+1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
+<https://tinlizzie.org/histograms/?s=09>\
+1. Minimal R using
+`mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
+1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
+
+::: {#refs style="font-size: 60%;"}
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("ggridges", "NHANES", "TeachHist",
+           "TeachingDemos", "visualize")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::

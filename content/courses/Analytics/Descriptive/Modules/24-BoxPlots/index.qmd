@@ -1,0 +1,815 @@
+---
+title: "\U0001F4CA Boxplots: Plotting Groups"
+subtitle: "Plotting Distributions over Categories"
+author: "Arvind V."
+date: 24/June/2024
+date-modified: "`r Sys.Date()`"
+abstract: "Quant and Qual Variable Graphs and their Siblings"
+order: 24
+image: preview.jpg
+image-alt: Image by rawpixel.com
+df-print: paged
+categories:
+- Qual Variables
+- Quant Variables
+- Box Plots
+- Violin Plots
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
+# editor: 
+#   markdown: 
+#     wrap: 72
+webr:
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+
+---
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+|                                                                                                 |                                                                                                    |                                                                                        |
+|------------------------|------------------------|------------------------|
+| <a href="./files/distributions.qmd"><i class="fa-brands fa-r-project"></i> R (Static Viz)</a>   | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| include: true
+#| message: false
+#| warning: false
+options(paged.print = TRUE)
+library(tidyverse)
+library(mosaic)
+library(ggformula)
+library(palmerpenguins) # Our new favourite dataset
+
+```
+
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(grateful)
+library(MKdescr)
+library(shinylive) # To create a Shiny app in a Quarto HTML doc
+# Will not work if webr is also used in the SAME Quarto doc!
+library(sysfonts)
+library(gfonts)
+library(kableExtra)
+# library(conflicted)
+# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
+
+## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
+
+| Variable #1 | Variable #2 | Chart Names |                    Chart Shape    | 
+|:-------------:|:--------------:|:------------------:|:--------------------:|:------:|
+|    Quant    |    Qual   | Box Plot | {{< iconify carbon box-plot size=4x >}} |
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page-inset-right
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+read_csv("../../../../../materials/Data/pronouns.csv") %>% 
+  filter(No == "1" | No == "4") %>% 
+  kbl() %>%
+  kable_paper("hover", full_width = T)
+  
+```
+
+
+## {{< iconify icons8 idea >}} Inspiration
+
+![Box Plot Inspiration](what-we-mean-when-we-say.jpeg){#fig-boxplot-inspiration}
+
+[Alice said, "I say what I mean and I mean what I say!"](https://www.reddit.com/r/EnglishLearning/comments/1abf1dg/comment/kjn85an/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) Are the rest of us so sure? What do we mean when we use any of the phrases above? How definite are we? There is a range of "sureness" and "unsureness"...and this is where we can use box plots like @fig-boxplot-inspiration to show that range of opinion.
+
+
+## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
+
+Box Plots are an extremely useful data visualization that gives us an idea of the distribution of a Quant variable, for each *level* of another Qual variable. The internal process of this plot is as follows:
+
+  - make groups of the Quant variable for each level of the Qual
+  - in each group, rank the Quant variable values in increasing order
+  - Calculate: `median`, `IQR`, `outliers`
+  - plot these as a vertical or horizontal box structure
+
+The box  can also be asymmetric "half plots" if needed...
+
+::: callout-note
+### Histograms and Box Plots
+Note how the histogram that dwells upon the `mean` and `standard deviation`, whereas the boxplot focuses on the `median` and `quartiles`.
+The former uses the *values* of the Quant variable, whereas the latter uses their *sequence number* or *ranks*. 
+:::
+
+Box plots are often used for example in HR operations to understand Salary distributions across grades of employees. Marks of students in competitive exams are also declared using Quartiles. 
+
+```{r}
+#| label: fig-boxplot-diagram
+#| echo: false
+#| fig-cap: "Box Plot Definitions"
+set.seed(123)
+MKdescr::illustrate.boxplot(rt(150, df = 10))
+
+```
+
+Box plots can show skew in distributions. In such cases the "bottom" and the "lid" of the box may not be the same size!
+
+::: {#fig-boxplots-with-skewness layout-ncol=2}
+
+![Box Plot and Skewness](../../../../../materials/images/Boxplots_with_skewness.png){#fig-three-boxplots}
+
+
+![Density and Skewness](../../../../../materials/images/Relationship_between_mean_and_median_under_different_skewness.png){#fig-distribution-skewness}
+
+Box Plot Discussions
+
+:::
+
+In the @fig-three-boxplots, we see the difference between boxplots that show *symmetric* and *skewed* distributions. The "lid" and the "bottom" of the box are not of similar width in distributions with significant skewness. 
+
+Compare these with the corresponding @fig-distribution-skewness.
+
+:::
+
+## {{< iconify grommet-icons test >}} Case Study-1: `gss_wages` dataset
+
+We will first look at Wage data from the General Social Survey (1974-2018) conducted in the USA, which is used to illustrate wage discrepancies by gender (while also considering respondent occupation, age, and education). This is available on [Vincent Arel-Bundock's superb repository of datasets](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Let us read into R *directly from the website*. 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+
+```{r}
+#| label: read_gss_wage_data
+#| message: false
+wages <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/stevedata/gss_wages.csv")
+
+```
+
+The data has automatically been read into the `webr` session, so you can continue on to the next code chunk!
+
+
+```{webr-r}
+#| context: setup
+# Read the data
+wages <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/stevedata/gss_wages.csv")
+
+```
+:::
+
+
+### {{< iconify file-icons influxdata >}} Examine the Data
+
+As per our Workflow, we will look at the data using all the three
+methods we have seen.
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+```{r}
+#| label: glimpse-wages
+glimpse(wages)
+
+```
+
+```{r}
+#| label: skim-wages
+skim(wages)
+
+```
+
+```{r}
+#| label: inspect-wages
+inspect(wages)
+```
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: glimpse-wages-webr
+glimpse(wages)
+
+```
+
+```{webr-r}
+#| label: skim-wages-webr
+skim(wages)
+
+```
+
+```{webr-r}
+#| label: inspect-wages-webr
+skim(wages)
+
+```
+
+:::
+
+
+::: callout-note
+### Data Dictionary for the `wages` dataset
+From the [dataset documentation page](https://vincentarelbundock.github.io/Rdatasets/doc/stevedata/gss_wages.html), we note that:
+
+-   This is a large dataset (61K rows), with 11 variables:\
+  - `year`(dbl): the survey year\
+  - `realrinc`(dbl): the respondent's base income (in constant 1986 USD\
+  - `age`(dbl): the respondent's age in years\
+  - `occ10`(dbl): respondent's occupation code (2010)\
+  - `occrecode`(chr): recode of the occupation code into one of 11 main categories\
+  - `prestg10`(dbl): respondent's occupational prestige score (2010)\
+  - `childs`(dbl): number of children (0-8)\
+  - `wrkstat`(chr): the work status of the respondent (full-time, part-time, temporarily not working, unemployed (laid off), retired, school, housekeeper, other). 8 levels.\ 
+  - `gender`(chr): respondent's gender (male or female). 2 levels.\
+  - `educcat`(chr): respondent's degree level (Less Than High School, High School, Junior College, Bachelor, or Graduate). 5 levels.\
+  - `maritalcat`(chr): respondent's marital status (Married, Widowed, Divorced, Separated, Never Married). 5 levels.\
+:::
+
+::: callout-note
+### Business Insights based on `wages` dataset
+- Fair amount of missing data; however with 61K rows, we can for the present simply neglect the missing data. 
+- Good mix of Qual and Quant variables
+:::
+
+::: callout-note
+### Hypothesis and Research Questions
+- The target variable for an experiment that resulted in this data might be the `realinc` variable, the resultant income of the individual. Which is numerical variable. 
+- Research Questions:
+  - What is the basic distribution of `realrinc`?
+  - Is `realrinc` affected by `gender`? 
+  - By `educcat`? By `maritalcat`?
+  - Is `realrinc` affected by `child`? 
+  - Do combinations of these factors have an effect on the target variable?
+  
+These should do for now! But we should make more questions when have seen some plots!
+
+:::
+
+### {{< iconify carbon clean >}} Data Munging
+ Since there are so many missing data in the target variable `realinc` *and* there is still enough data leftover, let us remove the rows containing missing data in that variable. 
+ 
+::: callout-important
+NOTE: This is not advised at all as a general procedure!! Data is valuable and there are better ways to manage this problem!
+:::
+
+```{r}
+#| label: data-cleanup
+
+wages_clean <- 
+  wages %>% 
+  tidyr::drop_na(realrinc) # choose column or leave blank to choose all
+
+```
+
+
+```{webr-r}
+
+wages_clean <- 
+  wages %>% 
+  tidyr::drop_na(realinc)
+
+```
+
+## {{< iconify carbon box-plot >}} Plotting Box Plots
+
+### Question-1: What is the basic distribution of `realrinc`?
+::: callout-note
+### Question-1: What is the basic distribution of `realrinc`?
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using ggformula
+
+```{r}
+#| label: realincome-ggformula
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
+  gf_labs(title = "Plot 1A: Income has a skewed distribution",
+          subtitle = "Many outliers on the high side")
+```
+### Using ggplot
+```{r}
+#| label: realincome-ggplot
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(y = realrinc, x = "Income")) +  # Dummy X-axis "variable"
+  labs(title = "Plot 1A: Income has a skewed distribution",
+          subtitle = "Many outliers on the high side")
+```
+### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+wages_clean %>% 
+  gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
+  gf_labs(title = "Plot 1A: Income has a skewed distribution",
+          subtitle = "Many outliers on the high side")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(y = realrinc, x = "Income")) +  # Dummy X-axis "variable"
+  labs(title = "Plot 1A: Income has a skewed distribution",
+          subtitle = "Many outliers on the high side")
+
+```
+
+
+
+:::
+### Business Insights-1
+- Income is a very skewed distribution, as might be expected. 
+- Presence of many higher-side outliers is noted. 
+
+:::
+
+
+
+### Question-2: Is `realrinc` affected by `gender`? 
+::: callout-note
+### Question-2: Is `realrinc` affected by `gender`? 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using ggformula
+```{r}
+#| label: fig-income-by-gender-ggformula
+#| layout-ncol: 3
+#| fig-cap: "Income by Gender"
+#| fig-subcap: 
+#|   - "Split by Gender"
+#|   - "With log income"
+#|   - "With log scale"
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  gf_boxplot(gender ~ realrinc) %>% 
+  gf_labs(title = "Plot 2A: Income by Gender")
+##
+wages_clean %>% 
+  gf_boxplot(gender ~ log10(realrinc)) %>% 
+  gf_labs(title = "Plot 2B: Log(Income) by Gender")
+##
+wages_clean %>% 
+  gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
+  gf_refine(scale_x_log10()) %>% 
+  gf_labs(title = "Plot 2C: Income filled by Gender, log scale")
+
+```
+
+### Using ggplot
+```{r}
+#| label: fig-income-by-gender-ggplot
+#| layout-ncol: 3
+#| fig-cap: "Income by Gender"
+#| fig-subcap: 
+#|   - "Split by Gender"
+#|   - "With log income"
+#|   - "With log scale"
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(y = gender, x = realrinc)) +
+  labs(title = "Plot 2A: Income by Gender")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(y = gender, x = log10(realrinc))) + 
+  labs(title = "Plot 2B: Log(Income) by Gender")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(y = gender, x = realrinc, fill = gender)) +
+  gf_refine(scale_x_log10()) +
+  labs(title = "Plot 2C: Income filled by Gender, log scale")
+
+```
+
+
+### web-r
+
+```{webr-r}
+
+wages_clean %>% 
+  gf_boxplot(gender ~ realrinc) %>% 
+  gf_labs(title = "Plot 2A: Income by Gender")
+##
+wages_clean %>% 
+  gf_boxplot(gender ~ log10(realrinc)) %>% 
+  gf_labs(title = "Plot 2B: Log(Income) by Gender")
+##
+wages_clean %>% 
+  gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
+  gf_refine(scale_x_log10()) %>% 
+  gf_labs(title = "Plot 2C: Income filled by Gender, log scale")
+
+```
+
+:::
+
+### Business Insights-2
+- Even when split by `gender`, `realincome` presents a skewed set of distributions.
+- The IQR for `male`s is smaller than the IQR for `female`s. There is less variation in the middle ranges of `realrinc` for men. 
+- log10 transformation helps to view and understand the regions of low `realrinc`. 
+- There are outliers on both sides, indicating that there may be many people who make very small amounts of money and large amounts of money in both `gender`s. 
+
+:::
+
+### Question-3: Is `realrinc` affected by `educcat`? 
+::: callout-note
+### Question-3: Is `realrinc` affected by `educcat`? 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using ggformula
+```{r}
+#| label: fig-income-by-educcat-ggformula
+#| layout-ncol: 2
+#| layout-nrow: 2
+#| fig-cap: "Income by Education Category"
+#| fig-subcap: 
+#|   - "Split by Education Category"
+#|   - "With log income"
+#|   - "With log scale"
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  gf_boxplot(educcat ~ realrinc) %>% 
+  gf_labs(title = "Plot 3A: Income by Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(educcat ~ log10(realrinc)) %>% 
+  gf_labs(title = "Plot 3B: Log(Income) by Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
+             fill = ~ educcat,
+             alpha = 0.3) %>% 
+  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted") %>% gf_labs(x = "Log Income", y = "Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ realrinc, 
+             fill = ~ educcat,
+             alpha = 0.5) %>% 
+  gf_refine(scale_x_log10()) %>% 
+  gf_labs(title = "Plot 3D: Income by Education Category, sorted",
+          subtitle = "Log Income Scale") %>% 
+  gf_labs(x = "Income", y = "Education Category")
+
+```
+### Using ggplot
+
+```{r}
+#| label: fig-income-by-educcat-ggplot
+#| layout-ncol: 2
+#| layout-nrow: 2
+#| fig-cap: "Income by Education Category"
+#| fig-subcap: 
+#|   - "Split by Education Category"
+#|   - "With log income"
+#|   - "With log scale"
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages_clean %>% 
+  ggplot() +
+  geom_boxplot(aes(realrinc, educcat)) + # (x,y) format
+  labs(title = "Plot 3A: Income by Education Category")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(log10(realrinc), educcat)) + 
+  labs(title = "Plot 3B: Log(Income) by Education Category")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(log(realrinc), 
+                   reorder(educcat, realrinc, FUN = median), 
+                   fill = educcat),
+               alpha = 0.3) + 
+  labs(title = "Plot 3C: Log(Income) by Education Category, sorted",
+       x = "Log Income", y = "Education Category")
+##
+wages_clean %>% 
+  ggplot() + 
+  geom_boxplot(aes(realrinc, 
+                   reorder(educcat, realrinc, FUN = median), 
+                   fill = educcat),
+               alpha = 0.3)+ 
+  scale_x_log10() + 
+  labs(title = "Plot 3D: Income by Education Category, sorted",
+       subtitle = "Log Income Scale",
+       x = "Income", y = "Education Category")
+
+```
+
+### web-r
+
+```{r}
+wages_clean %>% 
+  gf_boxplot(educcat ~ realrinc) %>% 
+  gf_labs(title = "Plot 3A: Income by Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(educcat ~ log10(realrinc)) %>% 
+  gf_labs(title = "Plot 3B: Log(Income) by Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
+             fill = ~ educcat,
+             alpha = 0.3) %>% 
+  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted") %>% gf_labs(x = "Log Income", y = "Education Category")
+##
+wages_clean %>% 
+  gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ realrinc, 
+             fill = ~ educcat,
+             alpha = 0.5) %>% 
+  gf_refine(scale_x_log10()) %>% 
+  gf_labs(title = "Plot 3D: Income by Education Category, sorted",
+          subtitle = "Log Income Scale") %>% 
+  gf_labs(x = "Income", y = "Education Category")
+
+```
+
+:::
+### Business Insights-3
+
+- `realrinc` rises with `educcat`, which is to be expected.
+- However, there are people with *very low* and *very high* income in all categories of `educcat`
+- Hence `educcat` *alone* may not be a good predictor for `realrinc`. 
+:::
+
+We can do similar work with the other Qual variables. Let us now see how we can use more than one Qual variable and answer the last hypothesis, Question 4.
+
+### Question-4: Is the target variable `realrinc` affected by combinations of Qual factors `gender`, `educcat`, `maritalcat` and `childs`?
+::: callout-important 
+This is a rather complex question and could take us deep into [Modelling](https://r4ds.had.co.nz/model-building.html). Ideally we ought to:\
+- take each Qual variable, explain its effect on the target variable\
+- **remove that effect** and model the remainder ( i.e. *residual*) with the next Qual variable\
+- Proceed in this way until we have a good model.\
+if we are going to do this manually. There are more modern [Modelling Workflows](workflows), that can do things much faster and without such manual tweaking. 
+:::
+
+So will simply plot box plots showing effects on the target variable of *combinations* of Qual variables taken two at a time. (We will of course use facetted box plots!)
+
+We will also drop NA values all around this time, to avoid seeing boxplots for undocumented categories.
+
+::: callout-note
+### Question-4: Is `realrinc` affected by combinations of factors?
+
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using ggformula
+```{r}
+#| label: fig-income-by-educcat-childs-ggformula
+#| layout-ncol: 2
+#| fig-cap: "Income and Other Qual Variables"
+#| fig-subcap: 
+#|   - "Split by Education Category and Family Size"
+#|   - "Split by Gender and Family Size"
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages %>% 
+  drop_na() %>% 
+  gf_boxplot(reorder(educcat, realrinc) ~ log10(realrinc),
+             fill = ~ educcat, 
+             alpha = 0.5) %>% 
+  gf_facet_wrap(vars(childs)) %>% 
+  gf_refine(scale_fill_brewer(type = "qual", palette = "Dark2")) %>% 
+  gf_labs(title = "Plot 4A: Log Income by Education Category and Family Size", x = "Log income", y = "No. of Children")
+##
+wages %>% 
+  drop_na() %>% 
+  mutate(childs = as_factor(childs)) %>% 
+  gf_boxplot(childs ~ log10(realrinc),
+             group = ~ childs,
+             fill = ~ childs, 
+             alpha = 0.5) %>% 
+  gf_facet_wrap(~ gender) %>% 
+  gf_refine(scale_fill_brewer(type = "qual", palette = "Set3")) %>% 
+  gf_labs(title = "Plot 4B: Log Income by Gender and Family Size",
+          x = "Log income",
+          y = "No. of Children")
+
+```
+
+
+### Using ggplot
+```{r}
+#| label: fig-income-by-educcat-childs-ggplot
+#| layout-ncol: 2
+#| fig-cap: "Income and Other Qual Variables"
+#| fig-subcap: 
+#|   - "Split by Education Category and Family Size"
+#|   - "Split by Gender and Family Size"
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages %>% 
+  drop_na() %>%
+  ggplot() + 
+  geom_boxplot(aes(log10(realrinc), reorder(educcat, realrinc),
+                   fill = educcat), # aes() closes here
+               alpha = 0.5) + 
+  facet_wrap(vars(childs)) +
+  scale_fill_brewer(type = "qual", palette = "Dark2") + 
+  labs(title = "Plot 4A: Log Income by Education Category and Family Size", x = "Log income", y = "No. of Children")
+##
+wages %>% 
+  drop_na() %>% 
+  mutate(childs = as_factor(childs)) %>% 
+  ggplot() + 
+  geom_boxplot(aes(log10(realrinc),childs,
+                 group = childs,
+                 fill = childs), # aes() closes here
+             alpha = 0.5) +
+  facet_wrap(vars(gender)) +
+  scale_fill_brewer(type = "qual", palette = "Set3") + 
+  labs(title = "Plot 4B: Log Income by Gender and Family Size",
+          x = "Log income",
+          y = "No. of Children")
+
+```
+
+### web-r
+
+```{webr-r}
+#| label: fig-income-by-educcat-childs-webr
+# Set graph theme
+theme_set(new = theme_custom())
+#
+wages %>% 
+  drop_na() %>% 
+  gf_boxplot(reorder(educcat, realrinc) ~ log10(realrinc),
+             fill = ~ educcat, 
+             alpha = 0.5) %>% 
+  gf_facet_wrap(vars(childs)) %>% 
+  gf_refine(scale_fill_brewer(type = "qual", palette = "Dark2")) %>% 
+  gf_labs(title = "Plot 4A: Log Income by Education Category and Family Size", x = "Log income", y = "No. of Children")
+##
+wages %>% 
+  drop_na() %>% 
+  mutate(childs = as_factor(childs)) %>% 
+  gf_boxplot(childs ~ log10(realrinc),
+             group = ~ childs,
+             fill = ~ childs, 
+             alpha = 0.5) %>% 
+  gf_facet_wrap(~ gender) %>% 
+  gf_refine(scale_fill_brewer(type = "qual", palette = "Set3")) %>% 
+  gf_labs(title = "Plot 4B: Log Income by Gender and Family Size",
+          x = "Log income",
+          y = "No. of Children")
+
+```
+
+:::
+
+### Business Insights-4
+- From @fig-income-by-educcat-childs-ggformula-1, we see that `realrinc` increases with `educcat`, across (almost) all family sizes `childs`. 
+- However, this trend breaks a little when family sizes `childs` is large, say >= 7. Be aware that the data observations for such large families may be sparse and this inference may not be necessarily valid.
+- From @fig-income-by-educcat-childs-ggformula-2, we see that the effect of `childs` on `realrinc` is different for each `gender`! For *females*, the income steadily drops with the number of children, whereas for *males* it actually increases up to a certain family size before decreasing again. 
+:::
+
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+-   Box Plots "dwell upon" **medians** and **Quartiles**
+-   Box Plots can show distributions of a Quant variable over levels of a Qual variable
+- This allows a comparison of box plots side by side to visibly detect differences in median and IQR across such levels
+
+
+## {{< iconify openmoji person >}} Your Turn
+
+<a href="./files/data/qdd-data.zip">
+<i class="fa-solid fa-database"></i> Datasets</a>
+
+1.  Click on the Dataset Icon above, and unzip that archive. Try to make
+    distribution plots with each of the three tools.
+2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
+3.  Old Faithful Data in R (Find it!)
+
+`inspect` the dataset in each case and develop a set of Questions, that
+can be answered by appropriate stat measures, or by using a chart to
+show the distribution.
+
+## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
+
+```{r}
+#| label: used-these
+#| echo: false
+#| include: false
+#| message: false
+#| warning: false
+library(usedthese)
+used_here()
+
+```
+
+## {{< iconify ooui references-rtl >}} References
+
+1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
+<https://tinlizzie.org/histograms/?s=09>\
+1. Minimal R using
+`mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
+1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
+
+::: {#refs style="font-size: 60%;"}
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("ggridges", "NHANES", "TeachHist",
+           "TeachingDemos", "visualize")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::
+

@@ -1,0 +1,224 @@
+---
+title: "\U0001F5FA Maps: Plotting Spatial Data"
+subtitle: "Maps"
+abstract: "Geospatial Data and how to use it with intent"
+date: 15 Aug 2022
+date-modified: "`r Sys.Date()`"
+order: 90
+image: preview.jpg
+image-alt: Photo by at infinity on Unsplash
+  
+categories:
+- Spatial Data
+- Maps
+- Static
+- Interactive
+- Choropleth Maps
+- Bubble Plots
+- Cartograms
+bibliography: 
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+| <a href="https://arvindvenkatadri.com/slides/R-for-Artists/06-spatial/06-Spatial-Data-in-R.html"><i class="fa-brands fa-r-project"></i> Spatial Data </a> | <a href="https://arvindvenkatadri.com/labs/r-for-artists/06-spatial/06-grammar-of-maps"><iconify-icon icon="emojione:world-map"></iconify-icon> Static Maps</a>  | {{< iconify carbon touch-interaction >}} <a href="https://r-for-artists.netlify.app/labs/06-spatial/playingwithleaflet"> Interactive Maps</a> |
+|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| include: true
+#| message: true
+#| warning: false
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+library(tmap)
+library(osmdata)
+library(rnaturalearth)
+
+```
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(grateful)
+
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+
+```
+
+
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
+
+First; let us watch a short, noisy video on maps:
+
+{{< video https://youtu.be/YH2sAbXv7p4 >}}
+
+## {{< iconify fxemoji japanesesymbolforbeginner >}} What kind of visualizations will we make?
+
+We will first understand the structure of spatial data and where to find
+it. For now, we will deal with **vector** spatial data; the discussion
+on **raster** data will be dealt with in another future module.
+
+We will get hands-on with making maps, both static and interactive.
+
+### {{< iconify openmoji world-map >}} Choropleth Map
+
+What does *choropleth*[^1] mean? And what kind of information could this
+map represent?
+
+[^1]: Etymology. **From Ancient Greek χώρα (khṓra, "location") + πλῆθος
+    (plêthos, "a great number") + English map**. First proposed in 1938
+    by American geographer John Kirtland Wright to mean "quantity in
+    area," although maps of the type have been used since the early 19th
+    century.
+
+<iframe width="100%" height="645" frameborder="0" src="https://observablehq.com/embed/2930afc559123cab?cells=chart">
+
+</iframe>
+
+### {{< iconify gis statistic-map >}} Bubble Map
+
+What information could this map below represent?
+
+<iframe width="100%" height="805" frameborder="0" src="https://observablehq.com/embed/9e3c148cb813bfbc?cells=chart">
+
+</iframe>
+
+Let us now look at the slides. Then we will understand how the R
+packages `sf`, `tmap` work to create maps, using data downloadable into
+R using `osmdata` ~~and `osmplotr`~~. We will also make interactive maps
+with `leaflet` and `mapview`; `tmap` is also capable of creating
+interactive maps.
+
+## {{< iconify icon-park me >}} Your Turn
+
+### {{< iconify cil animal >}} Animal and Bird Migration
+
+-   Head off to
+    [movebank.org](https://www.movebank.org/cms/movebank-main). Look at
+    a few species of interest and choose one.
+-   Download the data ( **ESRI Shapefile**). Note: You will get a .zip
+    file with a good many files in it. Save **all** of them, but read
+    only the `.shp` file into R.
+-   Import that into R using `sf_read()`
+-   See how you can plot locations, tracks and colour by
+    species....based on the data you download.
+-   For tutorial info: <https://movebankworkshopraleighnc.netlify.app/>
+
+### {{< iconify solar ufo-2-bold >}} UFO Sightings
+
+Here is a UFO Sighting dataset, containing location and text
+descriptions.
+<https://github.com/planetsig/ufo-reports/blob/master/csv-data/ufo-scrubbed-geocoded-time-standardized.csv>
+
+### {{< iconify devicon kaggle >}} Sales Data from kaggle
+
+Head off to [Kaggle](https://www.kaggle.com/) and search for
+`Geographical Sales` related data. Make both static and interactive maps
+with this data. Justify your decisions for type of map.
+
+## {{< iconify ooui references-ltr >}} References
+
+1. Hadley Wickham, Danielle Navarro and Thomas Lin
+Pedersen. *ggplot2: Elegant Graphics for Data Analysis*, <https://ggplot2-book.org/maps.html>\
+
+1. Robin Lovelace, Jakub Nowosad, Jannes Muenchow. *Geocomputation with R*, <https://r.geocompx.org/>\
+
+1. Emine Fidan. *Guide to Creating Interactive Maps in R*, <https://bookdown.org/eneminef/DRR_Bookdown/>\
+
+1. Nikita Voevodin. *R, Not the Best Practices*, <https://bookdown.org/voevodin_nv/R_Not_the_Best_Practices/maps.html>\
+
+1. Want to make a cute logo-like map? Try
+<https://prettymapp.streamlit.app>\
+
+::: {#refs style="font-size: 60%;"}
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("osmdata","sf","tmap", "rnaturalearth")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::

@@ -1,0 +1,498 @@
+---
+title: "\U0001F4CA Violins: Plotting Groups and Density"
+subtitle: ""
+author: "Arvind V."
+date: 15/Nov/2022
+date-modified: "`r Sys.Date()`"
+abstract: "Quant and Qual Variable Graphs and their Siblings"
+order: 28
+image: preview.jpg
+image-alt: Image by rawpixel.com
+df-print: paged
+categories:
+- Qual Variables
+- Quant Variables
+- Bar Charts
+- Column Charts
+- Histograms
+- Density Plots
+- Box Plots
+- Violin Plots
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+citation: true
+#suppress-bibliography: true
+# editor: 
+#   markdown: 
+#     wrap: 72
+webr:
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+
+---
+
+## {{< fa folder-open >}} Slides and Tutorials
+
+|                                                                                                 |                                                                                                    |                                                                                        |
+|------------------------|------------------------|------------------------|
+| <a href="./files/distributions.qmd"><i class="fa-brands fa-r-project"></i> R (Static Viz)</a>   | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+
+## {{< iconify noto-v1 package >}} Setting up R Packages
+
+```{r}
+#| label: setup
+#| include: true
+#| message: false
+#| warning: false
+options(paged.print = TRUE)
+library(tidyverse)
+library(mosaic)
+library(ggformula)
+
+#install.packages("remotes")
+#library(remotes)
+#remotes::install_github("wilkelab/ggridges")
+library(ggridges)
+library(skimr)
+
+library(palmerpenguins) # Our new favourite dataset
+
+```
+
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
+library(grateful)
+library(MKdescr)
+library(shinylive) # To create a Shiny app in a Quarto HTML doc
+# Will not work if webr is also used in the SAME Quarto doc!
+library(sysfonts)
+library(gfonts)
+library(kableExtra)
+# library(conflicted)
+# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
+
+## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
+
+| Variable #1 | Variable #2 | Chart Names |                    Chart Shape    | 
+|:-------------:|:--------------:|:------------------:|:--------------------:|:------:|
+|    Quant    |    (Qual)    |  Violin Plot  | {{< iconify carbon chart-violin-plot size=4x >}} |
+
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page-inset-right
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+read_csv("../../../../../materials/Data/pronouns.csv") %>% 
+  filter(No == "1") %>% 
+  kbl() %>%
+  kable_paper("hover", full_width = T)
+  
+```
+:::
+
+
+## {{< iconify icons8 idea >}} Inspiration
+
+::: {#fig-golf-drive-evolution layout-ncol=2}
+
+![](../../../../../materials/images/Golf-Drive-Distance-1983.png)
+
+![](../../../../../materials/images/Golf-Drive-distance-2017.png)
+Golf Drive Distance over the years
+
+:::
+
+### {{< iconify carbon chart-violin-plot >}} Violin Plots
+
+Often one needs to view **multiple densities** at the same time. Ridge
+plots of course give us one option, where we get densities of a *Quant*
+variable split by a *Qual* variable. Another option is to generate a
+density plot facetted into *small multiples* using a *Qual* variable.
+
+Yet another plot that allows comparison of multiple densities side by
+side is a **violin plot**. The violin plot combines the aspects of a
+*boxplot*(ranking of values, median, quantiles...) with a superimposed
+*density* plot. This allows us to look at medians, means, densities, and
+quantiles of a *Quant* variable with respect to another *Qual* variable.
+Let us see what this looks like!
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Using ggformula
+
+```{r}
+#| label: Violin plots with ggformula
+#| layout-ncol: 2
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+
+gf_violin(price ~ "All Diamonds", data = diamonds, 
+          draw_quantiles = c(0,.25,.50,.75)) %>%
+  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             color = ~ cut,
+             alpha = 0.3,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             colour = ~ cut,             
+             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_facet_wrap(vars(clarity)) %>%
+  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+```
+
+### Using ggplot
+
+```{r}
+#| label: Violin plots with ggplot
+#| layout-ncol: 2
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+diamonds %>% ggplot() + 
+  geom_violin(aes(y = price, x = ""),
+              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
+  labs(title = "Plot A: violin for Diamond Prices")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price),
+              draw_quantiles = c(0,.25,.50,.75)) + 
+  labs(title = "Plot B: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price, 
+                  color = cut, fill = cut),
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4) +
+  labs(title = "Plot C: Price by Cut")
+
+###
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), 
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4)  +  
+  facet_wrap(vars(clarity)) +
+  labs(title = "Plot D: Price by Cut facetted by Clarity") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))
+
+```
+
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+#| label: Violin plots with ggformula webr
+#| collapse: true
+
+gf_violin(price ~ "", data = diamonds, 
+          draw_quantiles = c(0,.25,.50,.75)) %>%
+  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
+
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_violin(price ~ cut,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot B: Price by Cut")
+
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             color = ~ cut,
+             alpha = 0.3,
+            draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_labs(title = "Plot C: Price by Cut")
+
+```
+
+```{webr-r}
+diamonds %>% 
+  gf_violin(price ~ cut, 
+             fill = ~ cut, 
+             colour = ~ cut,             
+             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
+  gf_facet_wrap(vars(clarity)) %>%
+  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+```
+
+```{webr-r}
+#| label: Violin plots with ggplot webr
+#| layout-ncol: 2
+#| collapse: true
+diamonds %>% ggplot() + 
+  geom_violin(aes(y = price, x = ""),
+              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
+  labs(title = "Plot A: violin for Diamond Prices")
+
+```
+
+```{webr-r}
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price),
+              draw_quantiles = c(0,.25,.50,.75)) + 
+  labs(title = "Plot B: Price by Cut")
+
+```
+
+```{webr-r}
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, price, 
+                  color = cut, fill = cut),
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4) +
+  labs(title = "Plot C: Price by Cut")
+
+```
+
+```{webr-r}
+diamonds %>% ggplot() + 
+  geom_violin(aes(cut, 
+                   price, 
+                   color = cut, fill = cut), 
+              draw_quantiles = c(0,.25,.50,.75),
+              alpha = 0.4)  +  
+  facet_wrap(vars(clarity)) +
+  labs(title = "Plot D: Price by Cut facetted by Clarity") +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))
+
+```
+
+:::
+
+::: callout-note
+### Business Insights from `diamond` Violin Plots
+
+The distribution for price is clearly *long-tailed* (skewed). The
+distributions also vary considerably based on both `cut` and `clarity`.
+These *Qual* variables clearly have a large effect on the prices of
+individual diamonds.
+:::
+
+
+
+## {{< iconify ph bell-simple-z-duotone >}} Z-scores
+
+Often when we compute wish to compare distributions with different
+values for means and standard deviations, we resort to a *scaling* of
+the variables that are plotted in the respective distributions.
+
+```{r}
+#| label: z-scores
+#| echo: false
+#| layout-ncol: 2
+library(TeachHist)
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+p1 <- TeachHistDens(Mean = 60, Sd = 5)
+p3 <- TeachHistDens(Mean = 10, Sd = 5)
+p2 <- TeachHistDens(Mean = 60, Sd = 15)
+p4 <- TeachHistDens(Mean = 10, Sd = 15)
+
+
+```
+
+Although the densities all look the same, they are are quite different!
+The x-axis in each case has *two scales*: one is the actual value of the
+x-variable, and the other is the *z-score* which is calculated as:
+
+$$
+z_x = \frac{x - \mu_{x}}{\sigma_x}
+$$
+
+With similar distributions (i.e. normal distributions), we see that the
+variation in density is the **same** at the same values of `z-score` for
+each variable. However since the $\mu_i$ and $\sigma_i$ are different,
+the *absolute* value of the `z-score` is different for each variable. In
+the first plot (from the top left), $z = 1$ corresponds to an absolute
+change of $5$ units; it is $15$ units in the plot directly below it.
+
+Our comparisons are done easily when we compare differences in
+probabilities at identical `z-scores`, or differences in `z-scores` at
+identical probabilities.
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+-   Histograms, Frequency Distributions, and Box Plots are used for
+    Quantitative data variables
+-   Histograms "dwell upon" **counts**, **ranges**, **means** and
+    **standard deviations**
+-   Frequency Density plots "dwell upon" **probabilities** and
+    **densities**
+-   Box Plots "dwell upon" **medians** and **Quartiles**
+-   Qualitative data variables can be plotted as **counts**, using Bar
+    Charts, or using Heat Maps
+-   Violin Plots help us to visualize multiple distributions at the same
+    time, as when we split a *Quant* variable wrt to the *levels* of a
+    *Qual* variable.
+-   Ridge Plots are **density plots** used for describing one Quant and
+    one Qual variable (by inherent splitting)
+-   We can split all these plots on the basis of another Qualitative
+    variable.(Ridge Plots are already split)
+-   Long tailed distributions need care in visualization and in
+    inference making!
+
+## {{< iconify openmoji person >}} Your Turn
+
+<a href="./files/data/qdd-data.zip">
+<i class="fa-solid fa-database"></i> Datasets</a>
+
+1.  Click on the Dataset Icon above, and unzip that archive. Try to make
+    distribution plots with each of the three tools.
+2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
+3.  Old Faithful Data in R (Find it!)
+
+`inspect` the dataset in each case and develop a set of Questions, that
+can be answered by appropriate stat measures, or by using a chart to
+show the distribution.
+
+## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
+
+```{r}
+#| label: used-these
+#| echo: false
+#| include: false
+#| message: false
+#| warning: false
+library(usedthese)
+used_here()
+
+```
+
+## {{< iconify ooui references-rtl >}} References
+
+1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
+<https://tinlizzie.org/histograms/?s=09>\
+1. Minimal R using
+`mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
+1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
+
+::: {#refs style="font-size: 60%;"}
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("ggridges", "NHANES", "TeachHist",
+           "TeachingDemos", "visualize")
+) %>%
+  knitr::kable(format = "simple")
+
+```
+:::
