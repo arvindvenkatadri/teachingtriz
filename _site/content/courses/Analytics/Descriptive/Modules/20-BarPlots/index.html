@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.555">
+<meta name="generator" content="quarto-1.5.47">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Arvind V.">
 <meta name="dcterms.date" content="2024-06-23">
-<title>Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors - 📊 Bar Plots: Plotting Counts</title>
+<title>📊 Bar Plots: Plotting Counts – Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +32,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -335,7 +335,7 @@ globalThis.qwebrCustomizedWebROptions = {
 };
 
 // Store cell data
-globalThis.qwebrCellDetails = [{"id":1,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"unnamed-chunk-1","autorun":"true","comment":"","fig-height":5,"classes":"","dpi":72,"context":"setup","out-width":"700px"},"code":"# Read the data\n# race_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv\")\n# rank_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv\")\ntaxi <- read.csv(\"https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv\")\n"},{"id":2,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"glimpse-taxi-webr","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"glimpse(taxi)"},{"id":3,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"skim-taxi-webr","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"skim(taxi)"},{"id":4,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"unnamed-chunk-4","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"## Convert `dow` and `month` into ordered factors\ntaxi <- taxi %>%\n  mutate(dow = factor(\n    dow,\n    levels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    labels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),ordered = TRUE\n  ),\n  \n  month = factor(month, levels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 labels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),ordered = TRUE))"},{"id":5,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"bar-charts-ggformula-webr","layout-ncol":"2","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"\ngf_bar(~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot A: Counts of Tips\")\n\nggplot(taxi)  + \n  geom_bar(aes(x = tip)) + \n  labs(title = \"Plot 1A: Counts of Tips\")"},{"id":6,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"unnamed-chunk-6","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"taxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Dodged Bar Chart\")\n##\ntaxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\")\n\n## Showing \"per capita\" percentages\ntaxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi %>% \n  gf_props(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")"},{"id":7,"options":{"editor-max-height":"","results":"markup","out-height":"","warning":"true","message":"true","fig-width":7,"read-only":"false","output":"true","fig-cap":"","label":"unnamed-chunk-7","autorun":"false","comment":"","fig-height":5,"classes":"","dpi":72,"context":"interactive","out-width":"700px"},"code":"gf_bar(~ hour, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot B: Counts of Tips by Hour\")\n##\ngf_bar(~ dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot C: Counts of Tips by Day of Week\")\n##\ngf_bar(~ month, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot D: Counts of Tips by Month\")\n\n##\ngf_bar(~ month | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot E: Counts of Tips by Day of Week and Month\")\n##\n## This may be too busy a graph...\ngf_bar(~ dow | hour, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot F: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Is this plot arrangement easy to grasp?\")\n## This is better!\ngf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot G: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Swapped the Facets\")  "}];
+globalThis.qwebrCellDetails = [{"id":1,"code":"# Read the data\n# race_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv\")\n# rank_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv\")\ntaxi <- read.csv(\"https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv\")\n","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"setup","results":"markup","output":"true","label":"unnamed-chunk-1","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"true","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":2,"code":"glimpse(taxi)","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","output":"true","label":"glimpse-taxi-webr","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":3,"code":"skim(taxi)","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","output":"true","label":"skim-taxi-webr","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":4,"code":"## Convert `dow` and `month` into ordered factors\ntaxi <- taxi %>%\n  mutate(dow = factor(\n    dow,\n    levels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    labels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),ordered = TRUE\n  ),\n  \n  month = factor(month, levels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 labels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),ordered = TRUE))","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","output":"true","label":"unnamed-chunk-4","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":5,"code":"\ngf_bar(~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot A: Counts of Tips\")\n\nggplot(taxi)  + \n  geom_bar(aes(x = tip)) + \n  labs(title = \"Plot 1A: Counts of Tips\")","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","layout-ncol":"2","output":"true","label":"bar-charts-ggformula-webr","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":6,"code":"taxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Dodged Bar Chart\")\n##\ntaxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\")\n\n## Showing \"per capita\" percentages\ntaxi %>% \n  gf_bar(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi %>% \n  gf_props(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","output":"true","label":"unnamed-chunk-6","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}},{"id":7,"code":"gf_bar(~ hour, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot B: Counts of Tips by Hour\")\n##\ngf_bar(~ dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot C: Counts of Tips by Day of Week\")\n##\ngf_bar(~ month, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot D: Counts of Tips by Month\")\n\n##\ngf_bar(~ month | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot E: Counts of Tips by Day of Week and Month\")\n##\n## This may be too busy a graph...\ngf_bar(~ dow | hour, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot F: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Is this plot arrangement easy to grasp?\")\n## This is better!\ngf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot G: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Swapped the Facets\")  ","options":{"out-width":"700px","message":"true","out-height":"","warning":"true","fig-cap":"","context":"interactive","results":"markup","output":"true","label":"unnamed-chunk-7","fig-width":7,"editor-max-height":"","fig-height":5,"autorun":"false","read-only":"false","dpi":72,"comment":"","classes":""}}];
 
 </script><script type="module">
 // Declare startupMessageQWebR globally
@@ -1048,12 +1048,12 @@ globalThis.qwebrExecuteCode = async function (
 }
 
 </script>
-<meta property="og:title" content="Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors - 📊 Bar Plots: Plotting Counts">
+<meta property="og:title" content="📊 Bar Plots: Plotting Counts – Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors">
 <meta property="og:description" content="Quant and Qual Variable Graphs and their Siblings">
 <meta property="og:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots/preview.jpg">
 <meta property="og:site_name" content="Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors">
 <meta property="og:image:alt" content="Image by rawpixel.com">
-<meta name="twitter:title" content="Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors - 📊 Bar Plots: Plotting Counts">
+<meta name="twitter:title" content="📊 Bar Plots: Plotting Counts – Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors">
 <meta name="twitter:description" content="Quant and Qual Variable Graphs and their Siblings">
 <meta name="twitter:image" content="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots/preview.jpg">
 <meta name="twitter:image:alt" content="Image by rawpixel.com">
@@ -1069,7 +1069,7 @@ globalThis.qwebrExecuteCode = async function (
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -1096,7 +1096,7 @@ globalThis.qwebrExecuteCode = async function (
   </li>  
 </ul>
 </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools">
+            <div class="quarto-navbar-tools">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -1106,13 +1106,13 @@ globalThis.qwebrExecuteCode = async function (
 </div>
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Teaching</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Data Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/listing.html">Descriptive Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/20-BarPlots/index.html">📊 Bar Plots: Plotting Counts</a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -1127,9 +1127,9 @@ globalThis.qwebrExecuteCode = async function (
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
  <span class="menu-text">Teaching</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1138,7 +1138,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Data Analytics</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1147,7 +1147,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Tools/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tools</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1176,7 +1176,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Descriptive/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Descriptive Analytics</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1295,7 +1295,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Inference/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Statistical Inference</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1360,17 +1360,23 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Modelling/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Inferential Modelling</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">
 <li class="sidebar-item">
- <span class="menu-text">content/courses/Analytics/Modelling/Modules/LinReg/LinReg.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling with Linear Regression</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
- <span class="menu-text">content/courses/Analytics/Modelling/Modules/LogReg/logistic.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LogReg/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling with Logistic Regression</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/Analytics/Modelling/Modules/ModelTimeSeries/index.html" class="sidebar-item-text sidebar-link">
@@ -1383,7 +1389,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Predictive/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Predictive Modelling</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1418,7 +1424,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Prescriptive/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Prescriptive Modelling</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1444,7 +1450,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/Workflow/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Workflow</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1463,7 +1469,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/R4Artists/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">R for Artists and Managers</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1564,7 +1570,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/ML4Artists/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ML for Artists and Managers</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1605,7 +1611,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">TRIZ for Problem Solving</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1637,7 +1643,7 @@ globalThis.qwebrExecuteCode = async function (
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/TRIZ4ProbSolving/Modules/37-What-Am-I-Thinking-Of/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">I Think, Fast and Slow</span></a>
+ <span class="menu-text">I Think, Therefore I am</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1700,7 +1706,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/MathModelsDesign/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Math Models in Design</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -1759,7 +1765,7 @@ globalThis.qwebrExecuteCode = async function (
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/NoCode/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Data Science with No Code</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -2273,9 +2279,9 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </div>
 </section><section id="inspiration" class="level2"><h2 class="anchored" data-anchor-id="inspiration">
 <iconify-icon inline="" icon="icons8:idea" aria-label="Icon idea from icons8 Iconify.design set." title="Icon idea from icons8 Iconify.design set."></iconify-icon> Inspiration</h2>
-<div id="fig-column-chart-inspiration" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-column-chart-inspiration" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-column-chart-inspiration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="capitals-vs-rest.jpeg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" data-glightbox="description: .lightbox-desc-1"><img src="capitals-vs-rest.jpeg" class="img-fluid figure-img"></a>
+<a href="capitals-vs-rest.jpeg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Capital Cities"><img src="capitals-vs-rest.jpeg" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-column-chart-inspiration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Capital Cities
@@ -3280,20 +3286,17 @@ Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino 
 </div>
 
 
-<div class="hidden" aria-hidden="true">
-<span class="glightbox-desc lightbox-desc-1">Figure&nbsp;1: Capital Cities</span>
-</div>
 </section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{v.2024,
   author = {V., Arvind},
   title = {📊 {Bar} {Plots:} {Plotting} {Counts}},
   date = {2024-06-23},
-  url = {https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots},
+  url = {https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots/},
   langid = {en},
   abstract = {Quant and Qual Variable Graphs and their Siblings}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-v.2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 V., Arvind. 2024. <span>“📊 Bar Plots: Plotting Counts.”</span> June 23,
-2024. <a href="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots">https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots</a>.
+2024. <a href="https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots/">https://av-quarto.netlify.app/content/courses/Analytics/Descriptive/Modules/20-BarPlots/</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -3473,18 +3476,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -3516,7 +3508,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/av-quarto\.netlify\.app");
@@ -3524,7 +3538,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -3987,30 +4001,37 @@ qwebrInstance.then(
     );  
   }
 );
-</script><script>var lightboxQuarto = GLightbox({"descPosition":"right","closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom"});
-window.onload = () => {
-  lightboxQuarto.on('slide_before_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    const href = trigger.getAttribute('href');
-    if (href !== null) {
-      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-      if (imgEl !== null) {
-        const srcAttr = imgEl.getAttribute("src");
-        if (srcAttr && srcAttr.startsWith("data:")) {
-          slideConfig.href = srcAttr;
-        }
-      }
-    } 
-  });
-
-  lightboxQuarto.on('slide_after_load', (data) => {
-    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-    if (window.Quarto?.typesetMath) {
-      window.Quarto.typesetMath(slideNode);
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"right","closeEffect":"zoom"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
     }
-  });
-
-};
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
           </script>
 
 
