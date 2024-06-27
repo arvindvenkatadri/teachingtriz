@@ -358,6 +358,8 @@ gf_histogram(~ price, data = diamonds, bins = 100) %>%
 
 ### Using ggformula
 ```{r}
+#| layout-ncol: 2
+#| message: false
 # Set graph theme
 theme_set(new = theme_custom())
 #
@@ -374,6 +376,7 @@ diamonds %>%
 
 ### Using ggplot
 ```{r}
+#| layout-ncol: 2
 #| message: false
 #| # Set graph theme
 theme_set(new = theme_custom())
@@ -550,267 +553,6 @@ library(shiny)
 runExample("01_hello")      # an interactive histogram
 
 ```
-
-
-### {{< iconify streamline nature-ecology-rainbow-arch-rain-colorful-rainbow-curve-half-circle >}} Ridge Plots
-
-Sometimes we may wish to show the distribution/density of a Quant
-variable, against several *levels* of a Qual variable. For instance, the
-prices of different items of furniture, based on the furniture "style"
-variable. Or the `sales` of a particular line of products, across
-different shops or cities. We did this with both histograms and
-densities, by colouring based on a Qual variable, and by facetting using
-a Qual variable. There is a third way, using what is called a *ridge 
-plot*. `ggformula` support this plot by importing/depending upon the `ggridges` package; however, `ggplot` itself appears to not have this capability. 
-
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
-### Using ggformula
-
-```{r}
-#| label: more-charts
-#| out-width: "80%"
-#| fig-align: "center"
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-
-gf_density_ridges(drv ~ hwy, fill = ~ drv, 
-                  alpha = 0.3, 
-                  rel_min_height = 0.005, data = mpg) %>% 
-  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-            scale_x_continuous(expand = c(0.01, 0))) %>% 
-  gf_labs(title = "Ridge Plot")
-
-```
-
-### {{< iconify noto-v1 spider-web >}} web-r
-
-```{webr-r}
-#| label: more-charts-webr
-
-gf_density_ridges(drv ~ hwy, fill = ~ drv, 
-                  alpha = 0.3, 
-                  rel_min_height = 0.005, data = mpg) %>% 
-  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-            scale_x_continuous(expand = c(0.01, 0))) %>% 
-  gf_labs(title = "Ridge Plot")
-
-
-```
-
-
-:::
-
-
-
-::: callout-note
-### Business Insights from `mpg` Ridge Plots
-
-This is another way of visualizing multiple distributions, of a Quant
-variable at different levels of a Qual variable. We see that the
-distribution of `hwy` mileage varies substantially with `drv` type.
-:::
-
-### {{< iconify carbon chart-violin-plot >}} Violin Plots
-
-Often one needs to view **multiple densities** at the same time. Ridge
-plots of course give us one option, where we get densities of a *Quant*
-variable split by a *Qual* variable. Another option is to generate a
-density plot facetted into *small multiples* using a *Qual* variable.
-
-Yet another plot that allows comparison of multiple densities side by
-side is a **violin plot**. The violin plot combines the aspects of a
-*boxplot*(ranking of values, median, quantiles...) with a superimposed
-*density* plot. This allows us to look at medians, means, densities, and
-quantiles of a *Quant* variable with respect to another *Qual* variable.
-Let us see what this looks like!
-
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
-### Using ggformula
-
-```{r}
-#| label: Violin plots with ggformula
-#| layout-ncol: 2
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-
-gf_violin(price ~ "All Diamonds", data = diamonds, 
-          draw_quantiles = c(0,.25,.50,.75)) %>%
-  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             color = ~ cut,
-             alpha = 0.3,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             colour = ~ cut,             
-             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_facet_wrap(vars(clarity)) %>%
-  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
-
-```
-
-### Using ggplot
-
-```{r}
-#| label: Violin plots with ggplot
-#| layout-ncol: 2
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% ggplot() + 
-  geom_violin(aes(y = price, x = ""),
-              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
-  labs(title = "Plot A: violin for Diamond Prices")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price),
-              draw_quantiles = c(0,.25,.50,.75)) + 
-  labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price, 
-                  color = cut, fill = cut),
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4) +
-  labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, 
-                   price, 
-                   color = cut, fill = cut), 
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4)  +  
-  facet_wrap(vars(clarity)) +
-  labs(title = "Plot D: Price by Cut facetted by Clarity") +
-  theme(axis.text.x = element_text(angle = 45,hjust = 1))
-
-```
-
-
-### {{< iconify noto-v1 spider-web >}} web-r
-
-```{webr-r}
-#| label: Violin plots with ggformula webr
-#| collapse: true
-
-gf_violin(price ~ "", data = diamonds, 
-          draw_quantiles = c(0,.25,.50,.75)) %>%
-  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
-
-```
-
-```{webr-r}
-diamonds %>% 
-  gf_violin(price ~ cut,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot B: Price by Cut")
-
-```
-
-```{webr-r}
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             color = ~ cut,
-             alpha = 0.3,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot C: Price by Cut")
-
-```
-
-```{webr-r}
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             colour = ~ cut,             
-             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_facet_wrap(vars(clarity)) %>%
-  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
-
-```
-
-```{webr-r}
-#| label: Violin plots with ggplot webr
-#| layout-ncol: 2
-#| collapse: true
-diamonds %>% ggplot() + 
-  geom_violin(aes(y = price, x = ""),
-              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
-  labs(title = "Plot A: violin for Diamond Prices")
-
-```
-
-```{webr-r}
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price),
-              draw_quantiles = c(0,.25,.50,.75)) + 
-  labs(title = "Plot B: Price by Cut")
-
-```
-
-```{webr-r}
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price, 
-                  color = cut, fill = cut),
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4) +
-  labs(title = "Plot C: Price by Cut")
-
-```
-
-```{webr-r}
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, 
-                   price, 
-                   color = cut, fill = cut), 
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4)  +  
-  facet_wrap(vars(clarity)) +
-  labs(title = "Plot D: Price by Cut facetted by Clarity") +
-  theme(axis.text.x = element_text(angle = 45,hjust = 1))
-
-```
-
-:::
-
-::: callout-note
-### Business Insights from `diamond` Violin Plots
-
-The distribution for price is clearly *long-tailed* (skewed). The
-distributions also vary considerably based on both `cut` and `clarity`.
-These *Qual* variables clearly have a large effect on the prices of
-individual diamonds.
-:::
-
 
 ## {{< iconify grommet-icons test >}} Case Study-2: `race` dataset
 
@@ -1407,8 +1149,9 @@ data %>%
 ```
 
 What insights could you develop based on these distribution shapes?\
+
 - *Bimodal*: Maybe two different systems or phenomena or regimes under which the data unfolds. Like our geyser above. Or a machine that works differently when cold and when hot. Intermittent faulty behaviour...\
-- *Comb*: Some specific Observations occur predominantly, in an otherwise even spread or observations. In a survey many respondents round off numbers to nearest 100 or 1000. Check the distribution of this [diamonds dataset for carat values](https://raw.githubusercontent.com/tidyverse/ggplot2/main/data-raw/diamonds.csv) which are suspiciously integer numbers in too many cases.\
+- *Comb*: Some specific Observations occur predominantly, in an otherwise even spread or observations. In a survey many respondents round off numbers to nearest 100 or 1000. Check the distribution of the diamonds dataset for carat values which are suspiciously integer numbers in too many cases.\
 - *Edge Peak*: Could even be a data entry artifact!! All unknown / unrecorded observations are recorded as $999$ !!`r emoji::emoji("scream_cat")`\
 - *Normal*: Just what it says! Course Marks in a Univ cohort...\
 - *Skewed*: Income, or friends count in a set of people. Do UI/UX peasants have more followers on Insta than say CAP people?\
@@ -1463,21 +1206,11 @@ identical probabilities.
 To complicate matters: Having said all that, the histogram is really a bar chart in disguise! You probably suspect that *the "bucketing" of the Quant variable is tantamount to creating a Qual variable*! Each bucket is a *level* in this fictitious bucketed *Quant* variable. 
 
 -   Histograms, Frequency Distributions, and Box Plots are used for
-    Quantitative data variables
+    Quantitative data variables\
 -   Histograms "dwell upon" **counts**, **ranges**, **means** and
     **standard deviations**
--   Frequency Density plots "dwell upon" **probabilities** and
-    **densities**
--   Box Plots "dwell upon" **medians** and **Quartiles**
--   Qualitative data variables can be plotted as **counts**, using Bar
-    Charts, or using Heat Maps
--   Violin Plots help us to visualize multiple distributions at the same
-    time, as when we split a *Quant* variable wrt to the *levels* of a
-    *Qual* variable.
--   Ridge Plots are **density plots** used for describing one Quant and
-    one Qual variable (by inherent splitting)
--   We can split all these plots on the basis of another Qualitative
-    variable.(Ridge Plots are already split)
+-   We can split histograms on the basis of another Qualitative
+    variable.
 -   Long tailed distributions need care in visualization and in
     inference making!
 
