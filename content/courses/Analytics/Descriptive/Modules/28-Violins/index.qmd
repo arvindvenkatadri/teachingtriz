@@ -172,14 +172,54 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 
 ## {{< iconify icons8 idea >}} Inspiration
 
-::: {#fig-golf-drive-evolution layout-ncol=2}
+```{r}
+#| label: inspiration-violin-plot
+#| echo: false
+library(hrbrthemes)
+library(patchwork)
 
-![](../../../../../materials/images/Golf-Drive-Distance-1983.png)
+data <- read.table("https://raw.githubusercontent.com/zonination/perceptions/master/probly.csv", header=TRUE, sep=",")
 
-![](../../../../../materials/images/Golf-Drive-distance-2017.png)
-Golf Drive Distance over the years
+# Data is at wide format, we need to make it 'tidy' or 'long'
+data <- data %>% 
+  gather(key="text", value="value") %>%
+  mutate(text = gsub("\\.", " ",text)) %>%
+  mutate(value = round(as.numeric(value),0)) %>%
+filter(text %in% c("Almost Certainly","Very Good Chance","We Believe","Likely","About Even", "Little Chance", "Chances Are Slight", "Almost No Chance"))
 
-:::
+# Box Plot
+p1 <- data %>%
+  mutate(text = fct_reorder(text, value)) %>% # Reorder data
+  ggplot( aes(x=text, y=value, fill=text, color=text)) +
+    geom_boxplot() +
+    scale_fill_viridis_d(aesthetics = c("colour", "fill")) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    ) +
+    coord_flip() + # This switch X and Y axis and allows to get the horizontal version
+    xlab("") +
+    ylab("Assigned Probability (%)")
+
+
+# Violin Plot
+p2 <- data %>%
+  mutate(text = fct_reorder(text, value)) %>% # Reorder data
+  ggplot( aes(x=text, y=value, fill=text, color=text)) +
+    geom_violin(width=2.1, size=0.2) +
+    scale_fill_viridis_d(aesthetics = c("colour", "fill")) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    ) +
+    coord_flip() + # This switch X and Y axis and allows to get the horizontal version
+    xlab("") +
+    ylab("Assigned Probability (%)")
+
+patchwork::wrap_plots(p1,p2, ncol = 2) + patchwork::plot_layout(axes = "collect")
+
+```
+Which is the plots above is more evocative of the underlying data?
 
 ### {{< iconify carbon chart-violin-plot >}} Violin Plots
 
@@ -379,50 +419,6 @@ individual diamonds.
 :::
 
 
-
-## {{< iconify ph bell-simple-z-duotone >}} Z-scores
-
-Often when we compute wish to compare distributions with different
-values for means and standard deviations, we resort to a *scaling* of
-the variables that are plotted in the respective distributions.
-
-```{r}
-#| label: z-scores
-#| echo: false
-#| layout-ncol: 2
-library(TeachHist)
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-p1 <- TeachHistDens(Mean = 60, Sd = 5)
-p3 <- TeachHistDens(Mean = 10, Sd = 5)
-p2 <- TeachHistDens(Mean = 60, Sd = 15)
-p4 <- TeachHistDens(Mean = 10, Sd = 15)
-
-
-```
-
-Although the densities all look the same, they are are quite different!
-The x-axis in each case has *two scales*: one is the actual value of the
-x-variable, and the other is the *z-score* which is calculated as:
-
-$$
-z_x = \frac{x - \mu_{x}}{\sigma_x}
-$$
-
-With similar distributions (i.e. normal distributions), we see that the
-variation in density is the **same** at the same values of `z-score` for
-each variable. However since the $\mu_i$ and $\sigma_i$ are different,
-the *absolute* value of the `z-score` is different for each variable. In
-the first plot (from the top left), $z = 1$ corresponds to an absolute
-change of $5$ units; it is $15$ units in the plot directly below it.
-
-Our comparisons are done easily when we compare differences in
-probabilities at identical `z-scores`, or differences in `z-scores` at
-identical probabilities.
-
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 -   Histograms, Frequency Distributions, and Box Plots are used for
@@ -458,18 +454,6 @@ identical probabilities.
 can be answered by appropriate stat measures, or by using a chart to
 show the distribution.
 
-## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
-
-```{r}
-#| label: used-these
-#| echo: false
-#| include: false
-#| message: false
-#| warning: false
-library(usedthese)
-used_here()
-
-```
 
 ## {{< iconify ooui references-rtl >}} References
 

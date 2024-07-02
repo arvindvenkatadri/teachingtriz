@@ -91,6 +91,33 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
   kable_paper("hover", full_width = T)
   
 
+library(hrbrthemes)
+data <- read.table("https://raw.githubusercontent.com/zonination/perceptions/master/probly.csv", header=TRUE, sep=",")
+
+# Data is at wide format, we need to make it 'tidy' or 'long'
+data <- data %>% 
+  gather(key="text", value="value") %>%
+  mutate(text = gsub("\\.", " ",text)) %>%
+  mutate(value = round(as.numeric(value),0)) 
+
+# %>%
+#   filter(text %in% c("Almost Certainly","Very Good Chance","We Believe","Likely","About Even", "Little Chance", "Chances Are Slight", "Almost No Chance"))
+
+# Plot
+p <- data %>%
+  mutate(text = fct_reorder(text, value)) %>% # Reorder data
+  ggplot( aes(x=text, y=value, fill=text, color=text)) +
+    geom_violin(width=2.1, size=0.2) +
+    scale_fill_viridis_d(aesthetics = c("colour", "fill")) +
+    theme_ipsum() +
+    theme(
+      legend.position="none"
+    ) +
+    coord_flip() + # This switch X and Y axis and allows to get the horizontal version
+    xlab("") +
+    ylab("Assigned Probability (%)")
+p
+
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
@@ -159,19 +186,6 @@ diamonds %>% ggplot() +
   facet_wrap(vars(clarity)) +
   labs(title = "Plot D: Price by Cut facetted by Clarity") +
   theme(axis.text.x = element_text(angle = 45,hjust = 1))
-
-
-library(TeachHist)
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-p1 <- TeachHistDens(Mean = 60, Sd = 5)
-p3 <- TeachHistDens(Mean = 10, Sd = 5)
-p2 <- TeachHistDens(Mean = 60, Sd = 15)
-p4 <- TeachHistDens(Mean = 10, Sd = 15)
-
 
 
 library(usedthese)
