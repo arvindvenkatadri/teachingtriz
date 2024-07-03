@@ -246,7 +246,7 @@ Each Qual variable potentially has many levels as we saw in the [Nature of Data]
 
 We will first look at at a dataset that speaks about taxi rides in Chicago in the year 2022. This is available on [Vincent Arel-Bundock's superb repository of datasets](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).Let us read into R *directly from the website*. 
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 
@@ -276,7 +276,7 @@ taxi <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/t
 As per our Workflow, we will look at the data using all the three
 methods we have seen.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -311,7 +311,7 @@ skim(taxi)
 
 ```
 
-```{r}
+```{webr-r}
 #| label: inspect-taxi-webr
 inspect(taxi)
 
@@ -351,45 +351,62 @@ choose **Qual** variables to count with! In each case, we will state a Hypothesi
 
 ### {{< iconify carbon clean >}} Data Munging
 
-We will keep the target variable `tip` in mind at all times. And convert the `dow`, `month` variables into factors beforehand.
+We will keep the target variable `tip` in mind at all times. And convert the `dow`, `local` and `month` variables into factors beforehand.
 
 ```{r}
 #| label: data-factor-conversion
 #| message: false
 
-## Convert `dow` and `month` into ordered factors
+## Convert `dow`, `local`, and `month` into ordered factors
 taxi <- taxi %>%
-  mutate(dow = factor(
-    dow,
+  mutate(dow = factor(dow,
     levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-    labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),ordered = TRUE
-  ),
-  
-  month = factor(month, levels = c("Jan", "Feb", "Mar", "Apr"),
-                 labels = c("Jan", "Feb", "Mar", "Apr"),ordered = TRUE))
+    labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+    ordered = TRUE),
+    ##
+    local = factor(local,
+                   levels = c("no", "yes"),
+                   labels = c("no", "yes"),
+                   ordered = TRUE),
+    ##
+  month = factor(month, 
+                 levels = c("Jan", "Feb", "Mar", "Apr"),
+                 labels = c("Jan", "Feb", "Mar", "Apr"),
+                 ordered = TRUE))
+taxi
+
 ```
 
 
 ```{webr-r}
-## Convert `dow` and `month` into ordered factors
+## Convert `dow`, `local`, and `month` into ordered factors
 taxi <- taxi %>%
-  mutate(dow = factor(
-    dow,
+  mutate(dow = factor(dow,
     levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-    labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),ordered = TRUE
-  ),
-  
-  month = factor(month, levels = c("Jan", "Feb", "Mar", "Apr"),
-                 labels = c("Jan", "Feb", "Mar", "Apr"),ordered = TRUE))
+    labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+    ordered = TRUE),
+    ##
+    local = factor(local,
+                   levels = c("no", "yes"),
+                   labels = c("no", "yes"),
+                   ordered = TRUE),
+    ##
+  month = factor(month, 
+                 levels = c("Jan", "Feb", "Mar", "Apr"),
+                 labels = c("Jan", "Feb", "Mar", "Apr"),
+                 ordered = TRUE))
+taxi %>% head()
 
 ```
+
+
 
 ### {{< iconify el question-sign >}} Question-1: Do more people `tip` than not?
 
 ::: callout-note
 ### Question-1: Do more people `tip` than not?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 
@@ -449,7 +466,7 @@ ggplot(taxi)  +
 
 ::: callout-note
 ### Question-2: Does the `tip` depend upon whether the trip is `local` or not?
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 ```{r}
@@ -553,7 +570,8 @@ taxi %>%
 
 ::: callout-note
 ### Question-3: Do some cab `company`-ies get more `tips` than others?
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 ```{r}
@@ -642,7 +660,9 @@ taxi %>%
 ### {{< iconify el question-sign >}} Question-4: Does a `tip` depend upon the `distance`, `hour` of day, and `dow` and `month`? 
 ::: callout-note
 ### Question-4: Does a `tip` depend upon the `distance`, `hour` of day, and `dow` and `month`?
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+
 ### Using ggformula
 
 ```{r}

@@ -5,7 +5,7 @@ author: "Arvind V."
 date: 15/Oct/2023
 date-modified: "`r Sys.Date()`"
 abstract: "Who is the Fairest of them All?"
-order: 20
+order: 10
 image: preview.png
 image-alt: Image by rawpixel.com
 categories:
@@ -23,11 +23,11 @@ editor:
   markdown: 
     wrap: 72
 webr:
-  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula', 'palmerpenguins']
+  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula']
 ---
 
 ## {{< iconify mdi web-check >}} Using web-R
-This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure ( like in an old-fashioned library) with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
+This tutorial uses `web-r` that allows you to run all code within your browser, on all devices. Most code chunks herein are formatted in a tabbed structure (like in an old-fashioned library) with duplicated code. The tabs in front have regular R code that will work when copy-pasted in your RStudio session. The tab "behind" has the `web-R` code that can work directly in your browser, and can be modified as well. The R code is also there to make sure you have original code to go back to, when you have made several modifications to the code on the `web-r` tabs and need to compare your code with the original!
 
 #### Keyboard Shortcuts
 
@@ -47,7 +47,6 @@ This tutorial uses `web-r` that allows you to run all code within your browser, 
 
 library(tidyverse)
 library(mosaic)
-library(palmerpenguins) # dataset "penguins"
 library(skimr)
 library(kableExtra)
 
@@ -66,6 +65,15 @@ library(grateful)
 # library(conflicted)
 # conflicts_prefer(dplyr::filter, dplyr::last, dplyr::glimpse, base::max)
 ```
+
+```{webr-r}
+#| context: setup
+# Read the data
+docVisits <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv")
+
+```
+
+
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} How do we Grasp Data?
 
@@ -144,7 +152,7 @@ start with the `dplyr` package from the tidyverse, the `skimr` package,
 then the `mosaic` package. We will look at the summary outputs from
 these and learn how to interpret them.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 #### Using dpylr::glimpse()
 
@@ -159,11 +167,11 @@ glimpse(mpg)
 ::: callout-note
 #### Descriptive Stat Summary from `dplyr::glimpse()`
 
-Very crisp output, giving us the size of the dataset (234 X 11) and the
-nature of the variable columns, along with their first few entries. The
-`chr` variables are usually *Categorical/Qualitative*, the `int` or
-`dbl` (double precision) are usually *Numerical/Quantitative*. But be
-careful! *Verify that this is as per your intent, interpret the variables and modify their encoding as needed.*
+- Very crisp output, giving us the size of the dataset (234 X 11) and the
+nature of the variable columns, along with their first few entries. 
+- The `chr` variables are usually *Categorical/Qualitative*.
+- The `int` or `dbl` (double precision) are usually *Numerical/Quantitative*. 
+- But be careful! *Verify that this is as per your intent, interpret the variables and modify their encoding as needed.*
 :::
 
 #### Using skimr::skim()
@@ -249,6 +257,21 @@ mpg_describe$quantitative
 
 ```
 
+
+#### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+mpg %>% glimpse()
+```
+
+```{webr-r}
+mpg %>% mosaic::inspect()
+```
+
+```{webr-r}
+mpg %>% skimr::skim()
+```
+
 :::
 
 ## {{< iconify grommet-icons test >}} Case Study-2
@@ -269,7 +292,7 @@ read it into R.
 
 The `read_csv()` command from R package `readr` allows us to read both locally saved data on our hard disk, or data available in a shared
 folder online.
-Avoid using the `read.csv()` from base R, though it will show up in your code auto-complete set of options! 
+**Avoid using the `read.csv()` from base R **, though it will show up in your code auto-complete set of options! 
 :::
 
 ```{r}
@@ -278,7 +301,7 @@ Avoid using the `read.csv()` from base R, though it will show up in your code au
 # https://vincentarelbundock.github.io/Rdatasets
 # 
 # read_csv can read data directly from the net
-# 
+# Don't use read.csv()
 docVisits <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv")
 
 ```
@@ -316,7 +339,7 @@ docVisits %>%
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 #### Using dplyr::glimpse()
 
@@ -394,6 +417,21 @@ similarly to the output from `skim`. Is there any missing data? Both
 the dataset.
 :::
 
+#### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+docVisits %>% glimpse()
+```
+
+```{webr-r}
+docVisits %>% inspect()
+```
+
+```{webr-r}
+docVisits %>% skim()
+```
+
+
 :::
 
 ## {{< iconify mdi-light group >}} {{< iconify mdi counting-5 >}} Groups and Counts of Qualitative Variables
@@ -406,18 +444,19 @@ variables. Another good idea to examine datasets is to look at *counts, proporti
 
 We typically do this with the `dplyr` package from the `tidyverse`.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### diamonds dataset
 
 ```{r}
 #| label: diamonds-counts-and-tables
 
-diamonds %>% count(cut)
-diamonds %>% count(color)
+diamonds %>% dplyr::count(cut)
+diamonds %>% mosaic::count(color) # does the same thing! Counts!
 diamonds %>% count(clarity)
 
 ### All combinations of cut, color, clarity
+### Overwhelming??
 diamonds %>% 
   count(across(where(is.ordered)))
 
@@ -483,6 +522,26 @@ docVisits %>% count(health)
 
 :::
 
+### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+diamonds %>% mosaic::count(color)
+```
+
+```{webr-r}
+docVisits %>% count(illness)
+```
+
+```{webr-r}
+diamonds %>% 
+  count(across(where(is.ordered)))
+```
+
+```{webr-r}
+docVisits %>% 
+  count(across(where(is.character)))
+```
+
+
 :::
 
 ## {{< iconify vaadin group >}} {{< iconify carbon summary-kpi >}} Groups and Summaries of Quantitative Variables
@@ -493,7 +552,7 @@ Note that we have *Qualitative* variables as well in a typical dataset. These Qu
 
 Let us work through these ideas for both our familiar datasets.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### diamonds dataset
 
@@ -507,10 +566,20 @@ diamonds %>%
   group_by(clarity, color) %>% 
   summarize(average_price = mean(price), count = n())
 
+# Perhaps the best method for us!
+diamonds %>% 
+  mosaic::favstats(price ~ clarity, data = .) # Don't use fav_stats with formula!!!
+
+# Be aware of the first column format here!
+diamonds %>% 
+  mosaic::favstats(price ~ clarity + cut, data = .) # Don't use fav_stats with formula!!!
+
 ```
 ::: callout-note
 ### Business Insights from Grouped Quant Summaries (`diamonds`)
-We have a good range of mean_prices over `clarity` and `cut`. The number of groups are large enough (>> 7!) to warrant a chart, which we will make in our next module on [Distributions](.../../../22-Histograms/index.qmd).
+- We have a good range of mean_prices over `clarity` and `cut`. The number of groups are large enough (>> 7!) to warrant a chart, which we will make in our next module on [Distributions](.../../../22-Histograms/index.qmd).
+- Mean `price` varies quite some based on `clarity`; and also on *combinations* of `clarity:cut`. This should point to the existence of some [*interaction effect*](https://www.jmp.com/en_in/statistics-knowledge-portal/what-is-multiple-regression/mlr-with-interactions.html) when modelling for price. 
+
 
 :::
 
@@ -522,15 +591,23 @@ We have a good range of mean_prices over `clarity` and `cut`. The number of grou
 docVisits %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
-
+##
 docVisits %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
-
-docVisits %>% group_by(freepoor,nchronic) %>% 
+##
+docVisits %>% 
+  group_by(freepoor,nchronic) %>% 
   summarise(mean_income = mean(income),
             average_visits = mean(visits),
             count = n())
+##
+docVisits %>% 
+  mosaic::favstats(income ~ gender, data = .) # Don't use fav_stats with formula!!!
+##
+docVisits %>% 
+  mosaic::favstats(income ~ freepoor + nchronic, data = .) # Don't use fav_stats with formula!!!
+
 ```
 ::: callout-note
 ### Business Insights from Grouped Quant Summaries (`docVisits`)
@@ -539,6 +616,26 @@ Clearly the people who are `freepoor` ( On Govt Insurance) AND with a chronic co
 
 :::
 
+
+### {{< iconify noto-v1 spider-web >}} web-r
+
+```{webr-r}
+diamonds %>% 
+  group_by(clarity) %>% 
+  summarize(average_price = mean(price), count = n())
+##
+diamonds %>% 
+  group_by(clarity, color) %>% 
+  summarize(average_price = mean(price), count = n())
+##
+docVisits %>% 
+  mosaic::favstats(income ~ gender, data = .)
+##
+docVisits %>% 
+  mosaic::favstats(income ~ freepoor + nchronic, data = .)
+
+
+```
 :::
 
 
@@ -633,7 +730,8 @@ Use the `kable` set of commands to make a smart-looking of the data and the outp
 
 Make these part of your *Workflow*.
 
-## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
+::: {.content-hidden when-format="html"}
+## {{< iconify ri slash-commands-2>}} R Commands Used Here
 
 ```{r}
 #| label: used-these
@@ -644,6 +742,7 @@ library(usedthese)
 used_here()
 
 ```
+:::
 
 
 ## {{< iconify ooui references-rtl >}} References

@@ -3,6 +3,8 @@ library(tidyverse)
 library(mosaic)
 library(ggformula)
 library(skimr)
+##
+library(crosstable) # Fast stats for multiple variables in table form
 
 
 library(checkdown)
@@ -97,7 +99,12 @@ inspect(diamonds)
 theme_set(new = theme_custom())
 ##
 gf_histogram(~ price, data = diamonds) %>%
-  gf_labs(title = "Plot 1A: Diamond Prices",caption = "ggformula") 
+  gf_labs(title = "Plot 1A: Diamond Prices",
+          caption = "ggformula")
+## More bins
+gf_histogram(~ price, data = diamonds, bins = 100) %>%
+  gf_labs(title = "Plot 1B: Diamond Prices",
+          caption = "ggformula")
 
 
 ## Set graph theme
@@ -108,387 +115,101 @@ ggplot(data = diamonds) +
   geom_histogram(aes(x = price)) +
   labs(title = "Plot 1A: Diamond Prices",
        caption = "ggplot")
+## More bins
+ggplot(data = diamonds) + 
+  geom_histogram(aes(x = price), bins = 100) +
+  labs(title = "Plot 1B: Diamond Prices",
+       caption = "ggplot")
 
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 diamonds %>% 
   gf_histogram(~ carat) %>%
   gf_labs(title = "Plot 2A: Carats of Diamonds",
           caption = "ggformula")
+## More bins
+diamonds %>% 
+  gf_histogram(~ carat, bins = 100) %>%
+  gf_labs(title = "Plot 2B: Carats of Diamonds",
+          caption = "ggformula")
 
+theme_set(new = theme_custom())
+#
 diamonds %>% 
   ggplot() + 
   geom_histogram(aes(x = carat)) + 
   labs(title = "Plot 2A: Carats of Diamonds",
           caption = "ggplot")
+## More bins
+diamonds %>% 
+  ggplot() + 
+  geom_histogram(aes(x = carat), bins = 100) + 
+  labs(title = "Plot 2A: Carats of Diamonds",
+          caption = "ggplot")
+
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+gf_histogram(~ price, fill = ~ cut, data = diamonds) %>%
+  gf_labs(title = "Plot 3A: Diamond Prices",caption = "ggformula") 
+###
+diamonds %>% 
+  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
+  gf_labs(title = "Plot 3B: Prices by Cut",
+          caption = "ggformula")
+###
+diamonds %>% 
+  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
+  gf_facet_wrap(~ cut) %>%
+  gf_labs(title = "Plot 3C: Prices by Filled and Facetted by Cut",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+###
+diamonds %>% 
+  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>% 
+  gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot 3D: Prices Filled and Facetted by Cut", 
+          subtitle = "Free y-scale",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+diamonds %>% ggplot() + 
+  geom_histogram(aes(x = price, fill = cut), alpha = 0.3) + 
+  labs(title = "Plot 3A: Prices by Cut", caption = "ggplot")
+##
+diamonds %>% 
+  ggplot() + 
+  geom_histogram(aes(x = price, fill = cut), 
+                 colour = "black", alpha = 0.3) + 
+  labs(title = "Plot 3B: Prices filled by Cut",caption = "ggplot")
+##
+diamonds  %>% ggplot() + 
+  geom_histogram(aes(price, fill = cut),
+                 colour = "black", alpha = 0.3) +
+  facet_wrap(facets = vars(cut)) + 
+  labs(title = "Plot 3C: Prices by Filled and Facetted by Cut",
+       caption = "ggplot") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+##
+diamonds  %>% ggplot() + 
+  geom_histogram(aes(price, fill = cut), 
+                 colour = "black", alpha = 0.3) +
+  facet_wrap(facets = vars(cut), scales = "free_y") +
+  labs(title = "Plot D: Prices by Filled and Facetted by Cut",
+       subtitle = "Free y-scale",
+       caption = "ggplot") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 install.packages("shiny")
 library(shiny)
 runExample("01_hello")      # an interactive histogram
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-gf_bar(~ cut, data = diamonds) %>%
-  gf_labs(title = "Plot A: Diamonds Counts of different Cuts")
-
-
-###
-diamonds %>% 
-  gf_bar( ~ cut, 
-          fill = ~ cut) %>%
-  gf_labs(title = "Plot B: Diamonds Counts filled by Cut")
-
-
-###
-diamonds %>% 
-  gf_bar( ~ cut, 
-          fill = ~ clarity, 
-          position = "stack",
-          alpha = 0.3) %>%
-  gf_labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
-          subtitle = "Stacked Bar Chart")
-
-###
-diamonds %>% 
-  gf_bar( ~ cut, 
-          fill = ~ clarity, 
-          position = "dodge",
-          color = "black") %>%
-  gf_refine(scale_fill_viridis_d(option = "turbo")) %>% # inferno, magma, cividis...etc
-  gf_labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
-          subtitle = "Dodged Bar Chart",
-          caption = "Turbo Palette from Viridis set")
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% gf_bar( ~ cut, 
-                     fill = ~ clarity, 
-                     position = "dodge", 
-                     colour = "black") %>%
-  gf_facet_wrap(vars(color),scales = "free_y") %>%
-  gf_refine(scale_fill_viridis_d(option = "turbo")) %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1))) %>%
-  gf_labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
-          subtitle = "Dodged Bar Chart Facetted by Color",
-          caption = "Turbo Palette from Viridis set")
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-ggplot(diamonds)  + 
-  geom_bar(aes(cut)) + 
-  labs(title = "Plot A: Diamonds Counts of different Cuts")
-
-
-###
-diamonds %>% 
-  ggplot() + 
-  geom_bar(aes(cut, fill = cut) ) + 
-  labs(title = "Plot B: Diamonds Counts filled by Cut")
-
-
-###
-diamonds %>% 
-  ggplot() + 
-  geom_bar(aes(cut, fill = clarity), 
-               position = "stack",
-               alpha = 0.3) + 
-  labs(title = "Plot C: Diamonds Counts by Cut filled by Clarity",
-       subtitle = "Stacked Bar Chart")
-
-###
-diamonds %>% 
-  ggplot() + 
-  geom_bar(aes(cut, fill = clarity), 
-               position = "dodge",
-               color = "black") + 
-  scale_fill_viridis_d(option = "turbo") +  # inferno, magma, cividis...etc
-  labs(title = "Plot D: Diamonds Counts by Cut filled by Clarity",
-       subtitle = "Dodged Bar Chart",
-       caption = "Turbo Palette from Viridis set")
-
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% 
-  ggplot() + 
-  geom_bar(aes(cut, fill = clarity), 
-               position = "dodge", 
-               colour = "black") +
-  facet_wrap(vars(color), scales = "free_y") + 
-  scale_fill_viridis_d(option = "turbo") +
-  theme(axis.text.x = element_text(angle = 45,hjust = 1)) + 
-  labs(title = "Plot E: Diamonds Counts by Cut filled by Clarity",
-       subtitle = "Dodged Bar Chart Facetted by Color",
-       caption = "Turbo Palette from Viridis set")
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% 
-  gf_bar(~ cut) %>% # performs counts based on `cut` (Qual variable)
-                # default y-axis labelling is "count"
-                
-  gf_labs(title = "Bar Plot Counts internally")
-###
-
-diamonds %>% 
-  # count gives a default variable called `n`
-  # We rename it to "counts". 
-  # Note the quotation marks in the naming ceremony below
-  count(cut, name = "How_Many") %>% 
-  
-  # gf_col needs counted data
-  # we use the (re)named variable counts vs cut
-  gf_col(How_Many ~ cut) %>% 
-  gf_labs(title = "Column Plot needs pre-counted data")
-
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-gf_props(~ substance,
-  data = mosaicData::HELPrct, fill = ~ sex,
-  position = "dodge"
-) %>%
-  gf_labs(title = "Plotting Proportions using gf_props")
-###
-gf_percents(~ substance,
-  data = mosaicData::HELPrct, fill = ~ sex,
-  position = "dodge"
-)%>%
-  gf_labs(title = "Plotting Percentages using gf_percents")
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-
-gf_density(~ price, data = diamonds) %>%
-  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
-
-###
-diamonds %>% gf_density(~ price, 
-                          fill = ~ cut, 
-                          color = ~ cut,
-                          alpha = 0.3) %>%
-  gf_refine(scale_color_viridis_d(option = "magma",
-                                  aesthetics = c("colour", "fill"))) %>%
-  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
-
-###
-diamonds %>% gf_density(~ price,
-                          fill = ~ cut) %>%
-  gf_facet_wrap(vars(cut)) %>%
-  gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",caption = "ggformula") 
-
-###
-diamonds %>% gf_density(~ price,
-                          fill = ~ cut, 
-                        color = "black") %>% 
-  gf_facet_wrap(vars(cut), scales = "free_y", nrow = 2) %>%
-  gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
-          subtitle = "Free y-scale", caption = "ggformula") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
-
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% ggplot() + 
-  geom_density(aes(price)) +
-  labs(title = "Plot A: Diamond Prices",caption = "ggplot")
-
-###
-diamonds %>% ggplot() + 
-  geom_density(aes(price, 
-                   fill = cut, 
-                   color = cut),
-                   alpha = 0.3) +
-  scale_color_viridis_d(option = "magma",
-                        aesthetics = c("colour", "fill")) + 
-  labs(title = "Plot B: Prices by Cut",caption = "ggplot")
-
-###
-diamonds %>% ggplot() + 
-  geom_density(aes(price,
-                   fill = cut)) + 
-  facet_wrap(vars(cut)) + 
-  labs(title = "Plot C: Prices by Filled and Facetted by Cut",
-      caption = "ggplot") 
-
-###
-diamonds %>% ggplot() + 
-  geom_density(aes(price,
-                   fill = cut), 
-                   color = "black") + 
-  facet_wrap(vars(cut), scales = "free_y", nrow = 2) + 
-  labs(title = "Plot D: Prices Filled and Facetted by Cut", 
-          subtitle = "Free y-scale", caption = "ggplot") + 
-  theme(axis.text.x = element_text(angle = 45,hjust = 1))
-
-
-
-set.seed(2020)
-MKdescr::illustrate.boxplot(rnorm(50, mean = 3, sd = 2))
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-gf_boxplot(price ~ "All Diamonds", data = diamonds) %>% 
-  gf_labs(title = "Plot A: Boxplot for Diamond Prices")
-
-###
-diamonds %>% 
-  gf_boxplot(price ~ cut) %>% 
-  gf_labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% 
-  gf_boxplot(price ~ cut, 
-             fill = ~ cut, 
-             color = ~ cut,
-             alpha = 0.3) %>% 
-  gf_labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% 
-  gf_boxplot(price ~ cut, 
-             fill = ~ cut, 
-             colour = ~ cut,             
-             alpha = 0.3) %>% 
-  gf_facet_wrap(vars(clarity)) %>%
-  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% ggplot() + 
-  geom_boxplot(aes(y = price)) + # note: y, not x
-  labs(title = "Plot A: Boxplot for Diamond Prices")
-
-###
-diamonds %>% ggplot() + 
-  geom_boxplot(aes(cut, price)) + 
-  labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_boxplot(aes(cut, 
-                   price, 
-                   color = cut, fill = cut), alpha = 0.4) +
-  labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_boxplot(aes(cut, 
-                   price, 
-                   color = cut, fill = cut), alpha = 0.4)  +  
-  facet_wrap(vars(clarity)) +
-  labs(title = "Plot D: Price by Cut facetted by Clarity") +
-  theme(axis.text.x = element_text(angle = 45,hjust = 1))
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-
-gf_density_ridges(drv ~ hwy, fill = ~ drv, 
-                  alpha = 0.3, 
-                  rel_min_height = 0.005, data = mpg) %>% 
-  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-            scale_x_continuous(expand = c(0.01, 0))) %>% 
-  gf_labs(title = "Ridge Plot")
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-
-gf_violin(price ~ "All Diamonds", data = diamonds, 
-          draw_quantiles = c(0,.25,.50,.75)) %>%
-  gf_labs(title = "Plot A: Violin plot for Diamond Prices")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             color = ~ cut,
-             alpha = 0.3,
-            draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% 
-  gf_violin(price ~ cut, 
-             fill = ~ cut, 
-             colour = ~ cut,             
-             alpha = 0.3,draw_quantiles = c(0,.25,.50,.75)) %>% 
-  gf_facet_wrap(vars(clarity)) %>%
-  gf_labs(title = "Plot D: Price by Cut facetted by Clarity") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-diamonds %>% ggplot() + 
-  geom_violin(aes(y = price, x = ""),
-              draw_quantiles = c(0,.25,.50,.75)) + # note: y, not x
-  labs(title = "Plot A: violin for Diamond Prices")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price),
-              draw_quantiles = c(0,.25,.50,.75)) + 
-  labs(title = "Plot B: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, price, 
-                  color = cut, fill = cut),
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4) +
-  labs(title = "Plot C: Price by Cut")
-
-###
-diamonds %>% ggplot() + 
-  geom_violin(aes(cut, 
-                   price, 
-                   color = cut, fill = cut), 
-              draw_quantiles = c(0,.25,.50,.75),
-              alpha = 0.4)  +  
-  facet_wrap(vars(clarity)) +
-  labs(title = "Plot D: Price by Cut facetted by Clarity") +
-  theme(axis.text.x = element_text(angle = 45,hjust = 1))
 
 
 race_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
@@ -508,6 +229,21 @@ skim(rank_df)
 # inspect(race_df) # does not work with hms and difftime variables
 inspect(rank_df)
 
+
+race_df %>% 
+  favstats(~ distance, data = .)
+##
+race_df %>% 
+  favstats(~ participants, data = .)
+##
+rank_df %>% 
+  drop_na() %>% 
+  favstats(time_in_seconds ~ gender, data = .)
+
+
+## library(crosstable)
+crosstable(time_in_seconds + age ~ gender, data = rank_df) %>% 
+  crosstable::as_flextable()
 
 race_df %>% count(country) %>% arrange(desc(n))
 rank_df %>% count(nationality) %>% arrange(desc(n))
@@ -564,6 +300,7 @@ theme_set(new = theme_custom())
 ##
 
 race_start_factor <- race_df %>%
+  filter(distance == 0) %>%  # Races that actually took place
   mutate(
     start_day_time =
       case_when(
@@ -661,10 +398,27 @@ library(TeachHist)
 theme_set(new = theme_custom())
 ##
 
-p1 <- TeachHistDens(Mean = 60, Sd = 5)
-p3 <- TeachHistDens(Mean = 10, Sd = 5)
-p2 <- TeachHistDens(Mean = 60, Sd = 15)
-p4 <- TeachHistDens(Mean = 10, Sd = 15)
+p1 <- TeachHistDens(Mean = 60, Sd = 5, VLine1 = 70, AxisFontSize = 14)
+xpnorm(mean = 60, sd = 5, q = 70)
+# p3 <- TeachHistDens(Mean = 10, Sd = 5)
+# p2 <- TeachHistDens(Mean = 60, Sd = 15)
+# xpnorm(mean = 60, sd = 15, q = 70)
+# # p4 <- TeachHistDens(Mean = 10, Sd = 15)
+
+
+
+library(TeachHist)
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+# p1 <- TeachHistDens(Mean = 60, Sd = 5,VLine1 = 70)
+# xpnorm(mean = 60, sd = 5, q = 70)
+# p3 <- TeachHistDens(Mean = 10, Sd = 5)
+p2 <- TeachHistDens(Mean = 60, Sd = 15, VLine1 = 70,AxisFontSize = 14)
+xpnorm(mean = 60, sd = 15, q = 70)
+# # p4 <- TeachHistDens(Mean = 10, Sd = 15)
 
 
 
@@ -677,7 +431,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggridges", "NHANES", "TeachHist",
+  pkgs = c("crosstable","ggridges", "NHANES", "TeachHist",
            "TeachingDemos", "visualize")
 ) %>%
   knitr::kable(format = "simple")

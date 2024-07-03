@@ -1,6 +1,5 @@
 library(tidyverse)
 library(mosaic)
-library(palmerpenguins) # dataset "penguins"
 library(skimr)
 library(kableExtra)
 
@@ -47,7 +46,7 @@ mpg_describe$quantitative
 # https://vincentarelbundock.github.io/Rdatasets
 # 
 # read_csv can read data directly from the net
-# 
+# Don't use read.csv()
 docVisits <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/AER/DoctorVisits.csv")
 
 
@@ -72,11 +71,12 @@ skim(docVisits) %>% kbl()
 
 inspect(docVisits)
 
-diamonds %>% count(cut)
-diamonds %>% count(color)
+diamonds %>% dplyr::count(cut)
+diamonds %>% mosaic::count(color) # does the same thing! Counts!
 diamonds %>% count(clarity)
 
 ### All combinations of cut, color, clarity
+### Overwhelming??
 diamonds %>% 
   count(across(where(is.ordered)))
 
@@ -108,19 +108,35 @@ diamonds %>%
   group_by(clarity, color) %>% 
   summarize(average_price = mean(price), count = n())
 
+# Perhaps the best method for us!
+diamonds %>% 
+  mosaic::favstats(price ~ clarity, data = .) # Don't use fav_stats with formula!!!
+
+# Be aware of the first column format here!
+diamonds %>% 
+  mosaic::favstats(price ~ clarity + cut, data = .) # Don't use fav_stats with formula!!!
+
 
 docVisits %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
-
+##
 docVisits %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
-
-docVisits %>% group_by(freepoor,nchronic) %>% 
+##
+docVisits %>% 
+  group_by(freepoor,nchronic) %>% 
   summarise(mean_income = mean(income),
             average_visits = mean(visits),
             count = n())
+##
+docVisits %>% 
+  mosaic::favstats(income ~ gender, data = .) # Don't use fav_stats with formula!!!
+##
+docVisits %>% 
+  mosaic::favstats(income ~ freepoor + nchronic, data = .) # Don't use fav_stats with formula!!!
+
 
 mpg %>% 
   head(10) %>%

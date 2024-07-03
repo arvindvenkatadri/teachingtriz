@@ -22,7 +22,7 @@ citation: true
 #   markdown: 
 #     wrap: 72
 webr:
-  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+  packages: ['crosstable','readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
 
 ---
 
@@ -44,6 +44,8 @@ library(tidyverse)
 library(mosaic)
 library(ggformula)
 library(skimr)
+##
+library(crosstable) # Fast stats for multiple variables in table form
 
 ```
 
@@ -198,14 +200,14 @@ different. **Bar Charts** show counts of observations with respect to a **Qualit
 ## {{< iconify grommet-icons test >}} Case Study-1: `diamonds` dataset
 
 We will first look at at a dataset that is directly available in R, the
-`diamonds` dataset.
+`diamonds` dataset. We have seen this dataset before in the module on [Descriptive Statistics](../10-FavStats/index.qmd), so we can quickly familiarise ourselves with it. 
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
 As per our Workflow, we will look at the data using all the three
 methods we have seen.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -263,6 +265,9 @@ inspect(diamonds)
     54K entries.
 :::
 
+## {{< iconify  material-symbols lab-research >}} Hypothesis and Research Questions
+Let us formulate a few Questions about this dataset. At some point, we might develop a hunch or two, and these would become our hypotheses to investigate. This is an iterative process!
+
 ::: callout-note
 ### Hypothesis and Research Questions
 - The `target variable` for an experiment that resulted in this data might be the `price` variable. Which is a numerical Quant variable.\
@@ -285,7 +290,7 @@ Let's plot some histograms to answer each of the Hypothesis questions above.
 ::: callout-note
 ### Question-1: What is the distribution of the target variable `price`?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 
@@ -354,7 +359,7 @@ gf_histogram(~ price, data = diamonds, bins = 100) %>%
 ::: callout-note
 ### Question-1: Question-2: What is the distribution of the predictor variable `carat`?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 ```{r}
@@ -424,7 +429,7 @@ diamonds %>%
 
 ### Does a `price` distribution vary based upon type of `cut`, `clarity`, and `color`?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### Using ggformula
 ```{r}
@@ -546,8 +551,8 @@ that more than just `cut` determines the `price` of a diamond.
 Type in your Console:
 
 ```{r}
-#| echo: fenced
 #| eval: false
+#| echo: fenced
 install.packages("shiny")
 library(shiny)
 runExample("01_hello")      # an interactive histogram
@@ -569,7 +574,7 @@ GitHub](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/202
 Nowak's data are [also available on
 GitHub](https://github.com/BjnNowak/UltraTrailRunning).
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -596,9 +601,10 @@ rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesd
 
 Let us look at the dataset using all our three methods:
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
+We will stick with just `glimpse` for this time, and not use `skim` or `inspect` in the interest of brevity:
 
 ```{r}
 #| label: glimpse-race-data
@@ -609,21 +615,49 @@ glimpse(rank_df)
 
 ```{r}
 #| label: glimpse-race-data-1
+#| include: false
 skim(race_df)
 
 ```
 
 ```{r}
 #| label: glimpse-race-data-2
+#| include: false
 skim(rank_df)
 
 ```
 
 ```{r}
 #| label: inspect-race
+#| include: false
 # inspect(race_df) # does not work with hms and difftime variables
 inspect(rank_df)
 
+```
+We can also try our new friend `mosaic::favstats`:
+```{r}
+#| label: race-favstats
+race_df %>% 
+  favstats(~ distance, data = .)
+##
+race_df %>% 
+  favstats(~ participants, data = .)
+##
+rank_df %>% 
+  drop_na() %>% 
+  favstats(time_in_seconds ~ gender, data = .)
+
+```
+::: callout-note
+### Introducing `crosstable`
+`mosaic::favstats` allows to summarise just one variable at a time. On occasion we may need to see summaries of several Quant variables, over levels of Qual variables. This is where the package `crosstable` is so effective: not how `crosstable` also conveniently uses the **fomular interface** that we are getting accustomed to. 
+:::
+
+```{r}
+#| label: race-crosstable
+## library(crosstable)
+crosstable(time_in_seconds + age ~ gender, data = rank_df) %>% 
+  crosstable::as_flextable()
 ```
 
 
@@ -679,13 +713,15 @@ inspect(rank_df)
 
 ### {{< iconify fluent-mdl2 explore-data >}} EDA with `race` datasets
 
+### {{< iconify el question-sign >}} Question-1: Max. Races and participants
+
 ::: callout-note
 
 ### Question #1
 Which countries host the maximum number of races? Which
 countries send the maximum number of participants??
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 
@@ -710,12 +746,14 @@ are also the countries that send the maximum number of participants,
 naturally!
 :::
 
+### {{< iconify el question-sign >}} Question-2: Max. Winners
+
 ::: callout-note
 ### Question #2
 Which countries have the maximum number of winners (top 3
 ranks)?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 
@@ -742,6 +780,7 @@ races...
 
 :::
 
+### {{< iconify el question-sign >}} Question-3: Which countries have had the most top-3 finishes?
 
 ::: callout-note
 ### Question #3
@@ -753,7 +792,7 @@ How do we do this now? We have to **join** the two data frames into one
 data frame, using a *common variable* that uniquely identifies
 observations in **both** datasets.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 
@@ -800,13 +839,14 @@ finishes, when it comes to the *longest* races, it is `r emoji::emoji("france")`
 
 :::
 
+### {{< iconify el question-sign >}} Question-4: What is the distribution of the finishing times?
 
 ::: callout-note
 ### Question #4
 What is the distribution of the finishing times, across all
 races and all ranks?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -840,12 +880,13 @@ are not the same...but could there be other reasons? Like
 `altitude_gained` for example?
 :::
 
+### {{< iconify el question-sign >}} Question-5: What is the distribution of race distances?
 
 ::: callout-note
 ### Question #5
 What is the distribution of race distances?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -896,14 +937,14 @@ Perhaps these were cancelled events...all of them are stated to be
 :::
 
 
-
+### {{< iconify el question-sign >}} Question-6: What is the distribution of finishing times for race distance around 150?
 ::: callout-note
 ### Question #6
 For all races that have a distance around 150, what is the
 distribution of finishing times? Can these be split/facetted using
 `start_time` of the race (i.e. morning / evening) ?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
 ### {{< iconify la r-project >}} R
 
@@ -930,6 +971,7 @@ theme_set(new = theme_custom())
 ##
 
 race_start_factor <- race_df %>%
+  filter(distance == 0) %>%  # Races that actually took place
   mutate(
     start_day_time =
       case_when(
@@ -1164,23 +1206,46 @@ values for means and standard deviations, we resort to a *scaling* of
 the variables that are plotted in the respective distributions.
 
 ```{r}
-#| label: z-scores
+#| label: z-scores-1
 #| echo: false
-#| layout-ncol: 2
+#| layout-nrow: 2
+#| column: body-outset-right
 library(TeachHist)
 
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
 
-p1 <- TeachHistDens(Mean = 60, Sd = 5)
-p3 <- TeachHistDens(Mean = 10, Sd = 5)
-p2 <- TeachHistDens(Mean = 60, Sd = 15)
-p4 <- TeachHistDens(Mean = 10, Sd = 15)
+p1 <- TeachHistDens(Mean = 60, Sd = 5, VLine1 = 70, AxisFontSize = 14)
+xpnorm(mean = 60, sd = 5, q = 70)
+# p3 <- TeachHistDens(Mean = 10, Sd = 5)
+# p2 <- TeachHistDens(Mean = 60, Sd = 15)
+# xpnorm(mean = 60, sd = 15, q = 70)
+# # p4 <- TeachHistDens(Mean = 10, Sd = 15)
 
 
 ```
 
+```{r}
+#| label: z-scores-2
+#| echo: false
+#| layout-nrow: 2
+#| column: body-outset-right
+library(TeachHist)
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+# p1 <- TeachHistDens(Mean = 60, Sd = 5,VLine1 = 70)
+# xpnorm(mean = 60, sd = 5, q = 70)
+# p3 <- TeachHistDens(Mean = 10, Sd = 5)
+p2 <- TeachHistDens(Mean = 60, Sd = 15, VLine1 = 70,AxisFontSize = 14)
+xpnorm(mean = 60, sd = 15, q = 70)
+# # p4 <- TeachHistDens(Mean = 10, Sd = 15)
+
+
+```
 Although the densities all look the same, they are are quite different!
 The x-axis in each case has *two scales*: one is the actual value of the
 x-variable, and the other is the *z-score* which is calculated as:
@@ -1228,18 +1293,21 @@ To complicate matters: Having said all that, the histogram is really a bar chart
 can be answered by appropriate stat measures, or by using a chart to
 show the distribution.
 
-## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
+::: {.content-hidden when-format="html"}
+## {{< iconify ri slash-commands-2>}} R Commands Used Here
 
 ```{r}
 #| label: used-these
 #| echo: false
-#| include: false
+#| include: true
 #| message: false
 #| warning: false
 library(usedthese)
 used_here()
 
 ```
+:::
+
 
 ## {{< iconify ooui references-rtl >}} References
 
@@ -1259,7 +1327,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggridges", "NHANES", "TeachHist",
+  pkgs = c("crosstable","ggridges", "NHANES", "TeachHist",
            "TeachingDemos", "visualize")
 ) %>%
   knitr::kable(format = "simple")
