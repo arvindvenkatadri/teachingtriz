@@ -23,7 +23,7 @@ editor:
   markdown: 
     wrap: 72
 webr:
-  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula']
+  packages: ['readr', 'dplyr','forcats','mosaic', 'skimr', 'ggformula']
 ---
 
 ## {{< iconify mdi web-check >}} Using web-R
@@ -48,6 +48,7 @@ This tutorial uses `web-r` that allows you to run all code within your browser, 
 library(tidyverse)
 library(mosaic)
 library(skimr)
+library(knitr)
 library(kableExtra)
 
 
@@ -114,6 +115,80 @@ book is: **Aggregation**
 Let us get some inspiration from Brad Pitt, from the movie [Moneyball](https://www.netflix.com/in/title/70201437), which is about applying Data Analytics to the game of baseball.
 
 {{< video https://youtu.be/PlKDQqKh03Y >}}
+And then, an example from a more sombre story:
+
+```{r}
+#| echo: false
+#| label: tbl-table-1
+literacy <- readxl::read_xlsx("../../../../../materials/Data/US_literacy_SETables.xlsx",sheet = "S1",skip = 3) %>% 
+  select(-c(2,3),-contains("S.E.")) %>% 
+  rename("Numbers" = `...1`,
+         "BelowLevel1" = `Estimate...4`,
+         "Level1" = `Estimate...6`,
+         "Level2" = `Estimate...8`,
+         "Level3" = `Estimate...10`,
+         "Level4/5" = `Estimate...12`) %>% 
+  filter(str_detect(pattern = "Number",Numbers))
+
+literacy %>% 
+  kbl(caption = "US Population: Reading and Numeracy Levels", digits = 2,
+      align = "c",centering = T,
+      col.names = c("Year", "Below Level #1", "Level #1", "Level #2", "Level #3", "Levels #4 and #5")) %>% 
+  kable_paper(full_width = F, html_font = "Noto") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), position = "float_right") %>% 
+  column_spec(2:4, bold = T) %>%
+  row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>% 
+    footnote(general = "SOURCE: U.S. Department of Education, National Center for Education Statistics, Program for the International Assessment of Adult Competencies (PIAAC), U.S. PIAAC 2017, U.S. PIAAC 2012/2014.")
+```
+
+This ghastly-looking @tbl-table-1 examines U.S. adults with **low English literacy and numeracy skills**—or low-skilled adults—at two points in the 2010s, in the years 2012/20141 and 2017, using data from the Program for the [International Assessment of Adult Competencies (PIAAC)](https://gpseducation.oecd.org/Home). As can be seen the summary table is quite surprising in absolute terms, for a developed country like the US, and the numbers have *increased* from 2012/2014 to 2017!
+
+So why do we need to summarise data? Summarization is an act of *throwing away data to make more sense*, as stated by [@stigler2016] and also in the movie by [Brad Pitt aka Billy Beane](https://www.netflix.com/in/title/70201437). **To summarize is to understand**. Add to that the fact that our [Working Memories can hold maybe 7 items](https://www.wikiwand.com/en/The_Magical_Number_Seven,_Plus_or_Minus_Two), so it means information retention too.
+
+And if we don't summarise? [Jorge Luis Borges](https://www.wikiwand.com/en/Jorge_Luis_Borges), in a fantasy short story published in 1942, titled [“Funes the Memorious,”](https://www.sas.upenn.edu/~cavitch/pdf-library/Borges_FunesTheMemorious.pdf) he described a man, Ireneo Funes, who found after an accident that he could remember absolutely everything. He could reconstruct every day in the smallest detail, and he could even later reconstruct the reconstruction, but he was incapable of understanding. Borges wrote, “To think is to **forget details, generalize, make abstractions**. In the teeming world of Funes, there were only details.” (emphasis mine)
+
+Aggregation can yield great gains above the individual components in data. Funes was big data without Statistics.
+
+## {{< iconify fe beginner >}} What graphs / numbers will we see today?
+
+| Variable #1 | Variable #2 |       Chart Names        |                                                                             "Chart Shape"                                                                              |
+|:-----------:|:-----------:|:------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     All     |     All     | Tables and Stat Measures | {{< iconify material-symbols table-chart-outline size=4x >}} {{< iconify tabler ruler-measure size=4x >}} {{< iconify lucide square-sigma size=4x >}}|
+
+Before we plot a single chart, it is wise to take a look at several numbers that summarize the dataset under consideration. What might these be? Some obviously useful numbers are:
+
+-   Dataset length: How many rows/observations?
+-   Dataset breadth: How many columns/variables?
+-   How many Quant variables?
+-   How many Qual variables?
+-   Quant variables: min, max, mean, median, sd
+-   Qual variables: levels, counts per level
+-   Both: means, medians for each level of a Qual variable...
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+::: column-page-inset-right
+```{r}
+#| message: false
+#| echo: false
+#| warning: false
+read_csv("../../../../../materials/Data/pronouns.csv") %>% 
+  #filter(No == "1") %>% 
+  kbl() %>%
+  kable_paper(c("striped","hover","responsive"), full_width = T)
+  
+```
+:::
+
+We will obviously choose *all* variables in the dataset, unless they are unrelated ones such as `row number` or `ID` which (we think) may not contribute any information and we can disregard.
+
+## {{< iconify mdi food-processor-outline >}} How do these Summaries Work?
+
+Inspecting the `min`, `max`,`mean`, `median` and `sd` of each of the Quant variables tells us straightaway what the ranges of the variables are, and if there are some outliers, which could be normal, or maybe due to data entry error! Comparing two Quant variables for their ranges also tells us that we may have to $scale/normalize$ them for computational ease, if one variable has large numbers and the other has very small ones.
+
+With Qual variables, we understand the `levels` within each, and understand the total number of combinations of the levels across these. `Counts` **across levels, and across combinations of levels** tells us whether the data has sufficient readings for graphing, inference, and decision-making, of if certain levels/classes of data are under or over represented. For both types of variables, we need to keep an eye open for data entries that are *missing*! This may point to data gathering errors, which may be fixable. Or we will have to take a decision to let go of that entire observation (i.e. a row). Or even do what is called *imputation* to fill in values that are based on the other values in the same column, which sounds like we are making up data, but isn't so really. 
+
+And this may also tell us if we are witnessing a [Simpson's Paradox situation](../30-Correlations/index.qmd#simpsons-paradox).  You may have to decide on what to do with this data sparseness, or just check your biases!
 
 ## {{< iconify grommet-icons test >}} Case Study-1
 
@@ -125,7 +200,7 @@ of the R packages that we have loaded with the `library()` command.
 It is usually a good idea to make crisp business-like tables, for the
 data itself, and the *schema* as revealed by one of the outputs of the
 three methods to be presented below. There are many methods to do this; 
-one of the simplest and effective ones is to use the `kable` set of commands from the `knitr` and `kableExtra` packages:
+one of the simplest and effective ones is to use the `kable` set of commands from the `knitr` and [`kableExtra` package](https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html )package:
 
 ```{r}
 #| label: kable-for-data-1
@@ -143,7 +218,6 @@ mpg %>%
                 full_width = F, position = "center")
 
 ```
-
 
 Next we will look at a few *favourite statistics* or
 "favstats" that we can derive from data. R is full of packages that can
@@ -165,7 +239,6 @@ glimpse(mpg)
 ```
 
 ::: callout-note
-#### Descriptive Stat Summary from `dplyr::glimpse()`
 
 - Very crisp output, giving us the size of the dataset (234 X 11) and the
 nature of the variable columns, along with their first few entries. 
@@ -173,6 +246,7 @@ nature of the variable columns, along with their first few entries.
 - The `int` or `dbl` (double precision) are usually *Numerical/Quantitative*. 
 - But be careful! *Verify that this is as per your intent, interpret the variables and modify their encoding as needed.*
 :::
+
 
 #### Using skimr::skim()
 
@@ -196,7 +270,6 @@ skimr::skim(mpg) # explicitly stating package name
 Taken together, we have the following:
 
 ::: callout-note
-### Descriptive Stat Summary from `skimr::skim()`
 
 -   A *Data Summary*: it lists the dimensions of the `mpg` dataset: 234
     rows and 11 columns. 6 columns are character formatted, the
@@ -227,7 +300,6 @@ inspect(mpg)
 ```
 
 ::: callout-note
-### Descriptive Stat Summary from `mosaic::inspect()`
 
 We see that the output of `mosaic::inspect()` is organized as follows:
 
@@ -261,7 +333,7 @@ mpg_describe$quantitative
 #### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-mpg %>% glimpse()
+mpg %>% dplyr::glimpse()
 ```
 
 ```{webr-r}
@@ -273,6 +345,56 @@ mpg %>% skimr::skim()
 ```
 
 :::
+
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary and Munging
+Using `skim`/`inspect`/`glimpse`, we can put together a (brief) data dictionary as follows:
+
+::: callout-note
+### Qualitative Data
+- `model`(chr): Car model name
+- `manufacturer`(chr): Car maker name
+- `fl`(chr): fuel type
+- `drv`(chr): type of drive(front, rear, 4W)
+- `class`(chr): type of vehicle ( sedan, pickup...)
+- `trans`(chr): type of transmission ( auto, manual..)
+
+:::
+
+::: callout-note
+### Quantitative Data
+- `hwy`(int): Highway Mileage
+- `cty`(int): City Mileage
+- `cyl`(int): Number of Cylinders. How do we understand this variable? Should this be Qual?
+- `displ`(dbl): Engine piston displacement
+- `year`(int): Year of model
+
+:::
+
+
+We see that there are certain variables that must be converted to **factors** for analytics purposes, since they are unmistakably **Qualitative** in nature. Let us do that now, for use later:
+
+
+```{r}
+mpg_modified <- mpg %>% 
+  dplyr::mutate(cyl = as_factor(cyl),
+                fl = as_factor(fl),
+                drv = as_factor(drv),
+                class = as_factor(class),
+                trans = as_factor(trans))
+glimpse(mpg_modified)
+
+```
+
+```{webr-r}
+mpg_modified <- mpg %>% 
+  dplyr::mutate(cyl = as_factor(cyl),
+                fl = as_factor(fl),
+                drv = as_factor(drv),
+                class = as_factor(class),
+                trans = as_factor(trans))
+glimpse(mpg_modified)
+
+```
 
 ## {{< iconify grommet-icons test >}} Case Study-2
 
@@ -360,21 +482,6 @@ Always document your data with variable descriptions when you share it, a **data
 :::
 
 
-| Variable   | Description                                                                                                     |
-|------------|------------------------------------------------------------|
-| visits     | Number of doctor visits in past 2 weeks.                                                                        |
-| gender     | Factor indicating gender.                                                                                       |
-| age        | Age in years divided by 100.                                                                                    |
-| income     | Annual income in tens of thousands of dollars.                                                                  |
-| illness    | Number of illnesses in past 2 weeks.                                                                            |
-| reduced    | Number of days of reduced activity in past 2 weeks due to illness or injury.                                    |
-| health     | General health questionnaire score using Goldberg's method.                                                     |
-| private    | Factor. Does the individual have private health docVisits?                                                      |
-| freepoor   | Factor. Does the individual have free government health docVisits due to low income?                            |
-| freerepat  | Factor. Does the individual have free government health docVisits due to old age, disability or veteran status? |
-| nchronic   | Factor. Is there a chronic condition not limiting activity?                                                     |
-| lchronic   | Factor. Is there a chronic condition limiting activity?                                                         |
-
 #### Using skimr::skim()
 
 ```{r}
@@ -415,7 +522,9 @@ We see that the output of `mosaic::inspect()` is organized very
 similarly to the output from `skim`. Is there any missing data? Both
 `skim` and `mosaic` report on the data completion for each variable in
 the dataset.
+
 :::
+
 
 #### {{< iconify noto-v1 spider-web >}} web-r
 
@@ -434,6 +543,49 @@ docVisits %>% skim()
 
 :::
 
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
+
+| Variable   | Description                                                                                                     |
+|------------|------------------------------------------------------------|
+| visits     | Number of doctor visits in past 2 weeks.                                                                        |
+| gender     | Factor indicating gender.                                                                                       |
+| age        | Age in years divided by 100.                                                                                    |
+| income     | Annual income in tens of thousands of dollars.                                                                  |
+| illness    | Number of illnesses in past 2 weeks.                                                                            |
+| reduced    | Number of days of reduced activity in past 2 weeks due to illness or injury.                                    |
+| health     | General health questionnaire score using Goldberg's method.                                                     |
+| private    | Factor. Does the individual have private health docVisits?                                                      |
+| freepoor   | Factor. Does the individual have free government health docVisits due to low income?                            |
+| freerepat  | Factor. Does the individual have free government health docVisits due to old age, disability or veteran status? |
+| nchronic   | Factor. Is there a chronic condition not limiting activity?                                                     |
+| lchronic   | Factor. Is there a chronic condition limiting activity?                                                         |
+
+Here too, we should convert the variables that are obviously Qualitative into *factors*, ordered or otherwise:
+
+```{r}
+docVisits_modified <-  docVisits %>% 
+  mutate(gender = as_factor(gender),
+         private = as_factor(private),
+         freepoor = as_factor(freepoor),
+         freerepat = as_factor(freerepat),
+         nchronic = as_factor(nchronic),
+         lchronic = as_factor(lchronic))
+docVisits_modified
+```
+
+
+```{webr-r}
+docVisits_modified <-  docVisits %>% 
+  mutate(gender = as_factor(gender),
+         private = as_factor(private),
+         freepoor = as_factor(freepoor),
+         freerepat = as_factor(freerepat),
+         nchronic = as_factor(nchronic),
+         lchronic = as_factor(lchronic))
+glimpse(docVisits_modified)
+
+```
+
 ## {{< iconify mdi-light group >}} {{< iconify mdi counting-5 >}} Groups and Counts of Qualitative Variables
 
 What is the most important dialogue uttered in the movie ["Sholay"](https://youtu.be/chi9hsfYcDE)?
@@ -446,32 +598,32 @@ We typically do this with the `dplyr` package from the `tidyverse`.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
-### diamonds dataset
+### mpg dataset
 
 ```{r}
-#| label: diamonds-counts-and-tables
+#| label: mpg-counts-and-tables
 
-diamonds %>% dplyr::count(cut)
-diamonds %>% mosaic::count(color) # does the same thing! Counts!
-diamonds %>% count(clarity)
+mpg_modified %>% dplyr::count(cyl)
+mpg_modified %>% mosaic::count(drv) # does the same thing! Counts!
+mpg_modified %>% count(fl)
 
 ### All combinations of cut, color, clarity
 ### Overwhelming??
-diamonds %>% 
-  count(across(where(is.ordered)))
+mpg_modified %>% 
+  count(across(where(is.factor)))
 
 ```
 
 ::: callout-note
-### Business Insights from Groups and Counts (`diamonds`)
+### Business Insights from Groups and Counts (`mpg`)
 
-We see that the groups for each level of `cut`, `color`, and `clarity`
-are not the same size: for instance the group with the "ideal" cut is
-largest at 21K observations, and "fair" has only 1.6K observations.
+- We see that the groups for each level of `cyl`, `drv`, and `fl`
+are not the same size: for instance the group with [the "r"-level `fl` type](https://stackoverflow.com/q/25548656) is
+largest at 168 observations, and the "r"-level  in `drv` has only 25 observations.
 
-Group counts based on `color` are also not balanced, and nor are those
-for `clarity`. Counting all combinations of these three `factors` also
-shows imbalanced counts.
+- Group counts based on `cyl` are also not balanced.
+
+- Counting all combinations of these three `factors` shows counts of 1 for several combination and does not lead to any decent amount of aggregation. 
 
 These aspects may need to be factored into downstream modelling or
 machine learning tasks. (Usually by stratification wrt levels of the
@@ -518,22 +670,21 @@ docVisits %>% count(health)
 
 - The factors are too numerous for a combination count table to very useful..
 
-- Counting by `illness` and `health` does show that these two columns have a limited set of integer entries across over 5000 rows!! So these can be thought of as factors if needed in the analysis.
+- Counting by `illness` and `health` does show that these two columns have a limited set of integer entries across over 5000 rows!! So these can be thought of as factors if needed in the analysis. So not every integer variable is necessaily a number!!
 
 :::
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
-diamonds %>% mosaic::count(color)
+ mpg_modified %>% mosaic::count(cyl)
 ```
 
 ```{webr-r}
-docVisits %>% count(illness)
+docVisits_modified %>% count(illness)
 ```
 
 ```{webr-r}
-diamonds %>% 
-  count(across(where(is.ordered)))
+docVisits_modified %>% count(health)
 ```
 
 ```{webr-r}
@@ -554,31 +705,32 @@ Let us work through these ideas for both our familiar datasets.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
 
-### diamonds dataset
+### mpg dataset
 
 ```{r}
-#| label: mean-price-over-Qual-vars
-diamonds %>% 
-  group_by(clarity) %>% 
-  summarize(average_price = mean(price), count = n())
+#| label: mean-hwy-over-Qual-vars
+mpg_modified %>% 
+  group_by(cyl) %>% 
+  summarize(average_hwy = mean(hwy), count = n())
 
-diamonds %>% 
-  group_by(clarity, color) %>% 
-  summarize(average_price = mean(price), count = n())
+mpg_modified %>% 
+  group_by(cyl, fl) %>% 
+  summarize(average_hwy = mean(hwy), count = n())
 
 # Perhaps the best method for us!
-diamonds %>% 
-  mosaic::favstats(price ~ clarity, data = .) # Don't use fav_stats with formula!!!
+mpg_modified %>% 
+  mosaic::favstats(hwy ~ cyl, data = .) # Don't use fav_stats with formula!!!
 
 # Be aware of the first column format here!
-diamonds %>% 
-  mosaic::favstats(price ~ clarity + cut, data = .) # Don't use fav_stats with formula!!!
+mpg_modified %>% 
+  mosaic::favstats(hwy ~ cyl + fl, data = .) # Don't use fav_stats with formula!!!
 
 ```
 ::: callout-note
-### Business Insights from Grouped Quant Summaries (`diamonds`)
-- We have a good range of mean_prices over `clarity` and `cut`. The number of groups are large enough (>> 7!) to warrant a chart, which we will make in our next module on [Distributions](.../../../22-Histograms/index.qmd).
-- Mean `price` varies quite some based on `clarity`; and also on *combinations* of `clarity:cut`. This should point to the existence of some [*interaction effect*](https://www.jmp.com/en_in/statistics-knowledge-portal/what-is-multiple-regression/mlr-with-interactions.html) when modelling for price. 
+### Business Insights from Grouped Quant Summaries (`mpg`)
+- We have quite some variation of mean_hwy mileage over `cyl` , though the groups/level are quite imbalanced. This is of course a small dataset. 
+- The number of groups are large enough (>> 7!) to warrant a chart, which we will make in our next module on [Distributions](.../../../22-Histograms/index.qmd).
+- Mean `price` varies quite some based on `cyl`and `fl`. Some groups are non-existent, hence we see "NA" and "NaN" in the output of `mosaic::favstats`.; and also on *combinations* of `cyl:fl`. This should point to the existence of some [*interaction effect*](https://www.jmp.com/en_in/statistics-knowledge-portal/what-is-multiple-regression/mlr-with-interactions.html) when modelling for price. 
 
 
 :::
@@ -588,24 +740,24 @@ diamonds %>%
 ```{r}
 #| label: summaries-over-levels-of-Qual
 
-docVisits %>%
+docVisits_modified %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
 ##
-docVisits %>%
+docVisits_modified %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
 ##
-docVisits %>% 
+docVisits_modified %>% 
   group_by(freepoor,nchronic) %>% 
   summarise(mean_income = mean(income),
             average_visits = mean(visits),
             count = n())
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ gender, data = .) # Don't use fav_stats with formula!!!
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ freepoor + nchronic, data = .) # Don't use fav_stats with formula!!!
 
 ```
@@ -620,18 +772,18 @@ Clearly the people who are `freepoor` ( On Govt Insurance) AND with a chronic co
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-diamonds %>% 
-  group_by(clarity) %>% 
-  summarize(average_price = mean(price), count = n())
+
+mpg_modified %>% 
+  mosaic::favstats(hwy ~ cyl, data = .) # Don't use fav_stats with formula!!!
 ##
-diamonds %>% 
-  group_by(clarity, color) %>% 
-  summarize(average_price = mean(price), count = n())
+mpg_modified %>% 
+  mosaic::favstats(hwy ~ cyl + fl, data = .) # Don't use fav_stats with formula!!!
+
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ gender, data = .)
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ freepoor + nchronic, data = .)
 
 
@@ -658,9 +810,9 @@ and it's reported schema!
 :::
 
 As stated earlier, it is usually a good idea to make crisp business-like tables, for the data itself, and of the *schema* as revealed by one of the outputs of the
-three methods presented above. There are many methods to do this; one of
+three methods (`glimpse/skim/inspect`) presented above. There are many table-making methods in R to do this; one of
 the simplest and effective ones is to use the `kable` set of commands
-from the `knitr` package that we have installed already:
+from the `knitr` and `kableExtra` packages that we have installed already:
 
 ```{r}
 #| label: kable-for-data-2
@@ -723,10 +875,9 @@ Let us take a small test with the `mpg` dataset:
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-The three methods given here give us a very comprehensive look into the
-**structure** of the dataset. 
-
-Use the `kable` set of commands to make a smart-looking of the data and the outputs of any of the three methods. 
+- The three methods (glimpse/skim/inspect) given here give us a very comprehensive look into the **structure** of the dataset. 
+- The `favstats` method allows us to compute a whole lot of metrics for *Quant variables* for each level of one or more *Qual variables. 
+- Use the `kable` set of commands to make a smart-looking of the data and the outputs of any of the three methods. 
 
 Make these part of your *Workflow*.
 

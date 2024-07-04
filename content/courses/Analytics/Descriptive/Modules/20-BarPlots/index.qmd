@@ -239,7 +239,7 @@ bar charts show *categorical data*, such as shirt-sizes, or apples, bananas, car
 
 Bar are used to show "counts" and "tallies" with respect to Qual variables: they answer the question `How Many?`. For instance, in a survey, how many people vs Gender? In a Target Audience survey on *Weekly Consumption*, how many low, medium, or high expenditure people?
 
-Each Qual variable potentially has many levels as we saw in the [Nature of Data](../05-NatureofData/index.qmd#what-are-data-types). For instance, in the above example on Weekly Expenditure, `low`, `medium` and `high` were levels for the Qual variable `Expenditure`. Bar charts perform internal **counts** for each *level* of the Qual variable under consideration. The Bar Plot is then a set of *disjoint* bars representing these counts; see the icon above, and then that for histograms!! The X-axis is the set of *levels* in the Qual variable, and the Y-axis represents the counts for each level.
+Each Qual variable potentially has many levels as we saw in the [Nature of Data](../05-NatureData/index.qmd#what-are-data-types). For instance, in the above example on Weekly Expenditure, `low`, `medium` and `high` were levels for the Qual variable `Expenditure`. Bar charts perform internal **counts** for each *level* of the Qual variable under consideration. The Bar Plot is then a set of *disjoint* bars representing these counts; see the icon above, and then that for histograms!! The X-axis is the set of *levels* in the Qual variable, and the Y-axis represents the counts for each level.
 
 
 ## {{< iconify grommet-icons test >}} Case Study-1: Chicago Taxi Rides dataset
@@ -262,7 +262,7 @@ The data has automatically been read into the `webr` session, so you can continu
 
 ```{webr-r}
 #| context: setup
-# Read the data
+# Read the data. Always use base-R. 
 # race_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
 # rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
 taxi <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv")
@@ -358,7 +358,7 @@ We will keep the target variable `tip` in mind at all times. And convert the `do
 #| message: false
 
 ## Convert `dow`, `local`, and `month` into ordered factors
-taxi <- taxi %>%
+taxi_modified <- taxi %>%
   mutate(dow = factor(dow,
     levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
     labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
@@ -373,14 +373,14 @@ taxi <- taxi %>%
                  levels = c("Jan", "Feb", "Mar", "Apr"),
                  labels = c("Jan", "Feb", "Mar", "Apr"),
                  ordered = TRUE))
-taxi
+taxi_modified %>% glimpse()
 
 ```
 
 
 ```{webr-r}
 ## Convert `dow`, `local`, and `month` into ordered factors
-taxi <- taxi %>%
+taxi_modified <- taxi %>%
   mutate(dow = factor(dow,
     levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
     labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
@@ -395,7 +395,7 @@ taxi <- taxi %>%
                  levels = c("Jan", "Feb", "Mar", "Apr"),
                  labels = c("Jan", "Feb", "Mar", "Apr"),
                  ordered = TRUE))
-taxi %>% head()
+taxi_modified %>% glimpse()
 
 ```
 
@@ -417,7 +417,7 @@ taxi %>% head()
 theme_set(new = theme_custom())
 ##
 
-gf_bar(~ tip, data = taxi) %>%
+gf_bar(~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 1A: Counts of Tips")
 
 ```
@@ -430,7 +430,7 @@ gf_bar(~ tip, data = taxi) %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
-ggplot(taxi)  + 
+ggplot(taxi_modified)  + 
   geom_bar(aes(x = tip)) + 
   labs(title = "Plot 1A: Counts of Tips")
 
@@ -442,10 +442,10 @@ ggplot(taxi)  +
 #| label: bar-charts-ggformula-webr
 #| layout-ncol: 2
 
-gf_bar(~ tip, data = taxi) %>%
+gf_bar(~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot A: Counts of Tips")
 
-ggplot(taxi)  + 
+ggplot(taxi_modified)  + 
   geom_bar(aes(x = tip)) + 
   labs(title = "Plot 1A: Counts of Tips")
 
@@ -474,23 +474,23 @@ ggplot(taxi)  +
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "dodge") %>% 
   gf_labs(title = "Plot 2A: Dodged Bar Chart")
 ##
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "stack") %>% 
   gf_labs(title = "Plot 2B: Stacked Bar Chart",
           subtitle = "Can we spot per group differences in proportions??")
 
 ## Showing "per capita" percentages
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = "Plot 2C: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!")
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
-taxi %>% 
+taxi_modified %>% 
   gf_props(~ local, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = "Plot 2D: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!")
@@ -504,24 +504,24 @@ taxi %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
-taxi %>%
+taxi_modified %>%
   ggplot() +
   geom_bar(aes(x = local, fill = tip), position = "dodge") +
   labs(title = "Plot 2A:Dodged Bar Chart")
 ##
-taxi %>%
+taxi_modified %>%
   ggplot() +
   geom_bar(aes(x = local, fill = tip), position = "stack") +
   labs(title = "Plot 2B: Stacked Bar Chart", subtitle = "Can we spot per group differences in proportions??")
 
 ## Showing "per capita" percentages
-taxi %>% 
+taxi_modified %>% 
   ggplot() +
   geom_bar(aes(x = local, fill = tip), position = "fill") +
   labs(title = "Plot 2C: Filled Bar Chart", subtitle = "Shows Per group differences in Proportions!")
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
-taxi %>%
+taxi_modified %>%
   ggplot() +
   geom_bar(aes(x = local, fill = tip), position = "fill") +
   labs(title = "Plot 2D: Filled Bar Chart", subtitle = "Shows Per group differences in Proportions!",
@@ -532,23 +532,23 @@ taxi %>%
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "dodge") %>% 
   gf_labs(title = "Dodged Bar Chart")
 ##
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "stack") %>% 
   gf_labs(title = "Stacked Bar Chart",
           subtitle = "Can we spot per group differences in proportions??")
 
 ## Showing "per capita" percentages
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = " Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!")
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
-taxi %>% 
+taxi_modified %>% 
   gf_props(~ local, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = " Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!")
@@ -579,25 +579,25 @@ taxi %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
   gf_labs(title = "Plot 2A: Dodged Bar Chart") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ##
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "stack") %>% 
   gf_labs(title = "Plot 2B: Stacked Bar Chart",
           subtitle = "Can we spot per group differences in proportions??") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
-taxi %>% 
+taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = "Plot 2C: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
-taxi %>% 
+taxi_modified %>% 
   gf_props(~ company, fill = ~ tip, position = "fill") %>% 
   gf_labs(title = "Plot 2D: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
@@ -611,20 +611,20 @@ taxi %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
-taxi %>% 
+taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "dodge") + 
   labs(title = "Plot 2A: Dodged Bar Chart") + 
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ##
-taxi %>% 
+taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "stack") +
   labs(title = "Plot 2B: Stacked Bar Chart",
        subtitle = "Can we spot per group differences in proportions??") +
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
-taxi %>% 
+taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "fill") +
   labs(title = "Plot 2C: Filled Bar Chart",
@@ -632,7 +632,7 @@ taxi %>%
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
-taxi %>% 
+taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "fill") +
   labs(title = "Plot 2D: Filled Bar Chart",
@@ -650,7 +650,7 @@ taxi %>%
 
 ### Business Insights-3
 - Using `stack`, `dodge`, and `fill` in bar plots gives us different ways of looking at the sets of counts;
-- `fill`: gives us a per-group proportion of another Qual variable for a chosen Qual variable. This chart view is useful in [Inference for Proportions](../../../Inference/Modules/190-TwoProp/two-props.qmd);
+- `fill`: gives us a per-group proportion of another Qual variable for a chosen Qual variable. This chart view is useful in [Inference for Proportions](../../../Inference/Modules/190-TwoProp/index.qmd);
 - Most cab `company`-ies have similar usage, if you neglect the `other` category of `company`;
 - Does seem that of all the `company`-ies, `tips` are not so good for the `Flash Cab` company. A driver issue? Or are the cars too old? Or don't they offer service everywhere?
 
@@ -673,25 +673,25 @@ taxi %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ## 
-gf_bar(~ hour, fill = ~ tip, data = taxi) %>%
+gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot B: Counts of Tips by Hour")
 ##
-gf_bar(~ dow, fill = ~ tip, data = taxi) %>%
+gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot C: Counts of Tips by Day of Week")
 ##
-gf_bar(~ month, fill = ~ tip, data = taxi) %>%
+gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot D: Counts of Tips by Month")
 
 ##
-gf_bar(~ month | dow, fill = ~ tip, data = taxi) %>%
+gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot E: Counts of Tips by Day of Week and Month")
 ##
 ## This may be too busy a graph...
-gf_bar(~ dow | hour, fill = ~ tip, data = taxi) %>%
+gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ## This is better!
-gf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%
+gf_bar(~ hour | dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot G: Counts of Tips by Hour and Day of Week",
           subtitle = "Swapped the Facets")  
 ```
@@ -705,34 +705,34 @@ gf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%
 ## Set graph theme
 theme_set(new = theme_custom())
 ## 
-ggplot(data = taxi) + 
+ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(hour)) + 
   labs(title = "Plot B: Counts of Tips by Hour")
 ##
-ggplot(data = taxi) + 
+ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(dow)) + 
   labs(title = "Plot C: Counts of Tips by Day of Week")
 ##
-ggplot(data = taxi) + 
+ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(month)) + 
   labs(title = "Plot D: Counts of Tips by Month")
 ##
-ggplot(data = taxi) + 
+ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_grid(rows = vars(dow), cols = vars(month)) + 
   labs(title = "Plot E: Counts of Tips by Day of Week and Month")
 ##
 ## This may be too busy a graph...
-ggplot(data = taxi) +
+ggplot(data = taxi_modified) +
   geom_bar(aes(x = dow, fill = tip)) +
   facet_wrap(vars(hour)) + 
   labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ## This is better!
-ggplot(data = taxi) +
+ggplot(data = taxi_modified) +
   geom_bar(aes(x = hour, fill = tip)) +
   facet_wrap(vars(dow)) +           
   labs(title = "Plot G: Counts of Tips by Hour and Day of Week",
@@ -744,21 +744,21 @@ ggplot(data = taxi) +
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-gf_bar(~ hour, fill = ~ tip, data = taxi) %>%
+gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot B: Counts of Tips by Hour")
 ##
-gf_bar(~ dow, fill = ~ tip, data = taxi) %>%
+gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot C: Counts of Tips by Day of Week")
 ##
-gf_bar(~ month, fill = ~ tip, data = taxi) %>%
+gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot D: Counts of Tips by Month")
 
 ##
-gf_bar(~ month | dow, fill = ~ tip, data = taxi) %>%
+gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot E: Counts of Tips by Day of Week and Month")
 ##
 ## This may be too busy a graph...
-gf_bar(~ dow | hour, fill = ~ tip, data = taxi) %>%
+gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ## This is better!
