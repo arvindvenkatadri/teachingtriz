@@ -167,8 +167,7 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 
 ## {{< iconify  mdi chart-bell-curve >}} What is a "Density Plot"?
 
-As we saw earlier, **Histograms** are best to show the distribution of raw **Quantitative data**, by displaying the number of values that fall within defined
-ranges, often called *buckets* or *bins*. 
+As we saw earlier, **Histograms** are best to show the distribution of raw **Quantitative data**, by displaying the number of values that fall within defined ranges, often called *buckets* or *bins*. 
 
 Sometimes it is useful to consider a chart where the *bucket width* shrinks to zero! 
 
@@ -334,38 +333,46 @@ penguins %>% ggplot() +
 ```{webr-r}
 #| label: density-charts-ggformula-webr
 
-gf_density(~ price, data = penguins) %>%
-  gf_labs(title = "Plot A: Diamond Prices",caption = "ggformula")
+penguins <- penguins %>% drop_na()
+
+gf_density( ~ body_mass_g, data = penguins) %>%
+  gf_labs(title = "Plot A: Penguin Masses", caption = "ggformula")
 
 ```
 
 ```{webr-r}
-penguins %>% gf_density(~ price, 
-                          fill = ~ cut, 
-                          color = ~ cut,
-                          alpha = 0.3) %>%
-  gf_refine(scale_color_viridis_d(option = "magma",
-                                  aesthetics = c("colour", "fill"))) %>%
-  gf_labs(title = "Plot B: Prices by Cut",caption = "ggformula")
+penguins %>% 
+  gf_density( ~ body_mass_g, fill = ~ species, 
+                             color = "black") %>%
+  gf_refine(scale_color_viridis_d(option = "magma", 
+            aesthetics = c("colour", "fill"))) %>%
+  gf_labs(title = "Plot B: Penguin Body Mass by Species", 
+          caption = "ggformula")
 
 ```
 
 ```{webr-r}
-penguins %>% gf_density(~ price,
-                          fill = ~ cut) %>%
-  gf_facet_wrap(vars(cut)) %>%
-  gf_labs(title = "Plot C: Prices by Filled and Facetted by Cut",caption = "ggformula") 
+penguins %>%
+  gf_density(
+    ~ body_mass_g,
+    fill = ~ species,
+    color = "black",
+    alpha = 0.3
+  ) %>%
+  gf_facet_wrap(vars(sex)) %>%
+  gf_labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex", caption = "ggformula")
 
 ```
 
 ```{webr-r}
-penguins %>% gf_density(~ price,
-                          fill = ~ cut, 
-                        color = "black") %>% 
-  gf_facet_wrap(vars(cut), scales = "free_y", nrow = 2) %>%
-  gf_labs(title = "Plot D: Prices Filled and Facetted by Cut", 
-          subtitle = "Free y-scale", caption = "ggformula") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+
+penguins %>%
+  gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
+  gf_facet_wrap(vars(sex), scales = "free_y", nrow = 2) %>%
+  gf_labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
+          subtitle = "Free y-scale",
+          caption = "ggformula") %>%
+  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
 
 
 ```
@@ -404,7 +411,7 @@ penguins %>% ggplot() +
 
 ```{webr-r}
 penguins %>% ggplot() + 
-  geom_density(aes(x = body_mass_g, fill = ~ species, 
+  geom_density(aes(x = body_mass_g, fill = species, 
                    color = "black")) + 
   facet_wrap(vars(sex), scales = "free_y", nrow = 2) + 
   labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex", 
@@ -416,7 +423,7 @@ penguins %>% ggplot() +
 :::
 
 ::: callout-note
-### Business Insights from `diamond` Densities
+### Business Insights from `penguin` Densities
 
 Pretty much similar conclusions as with histograms. Although densities
 may not be used much in business contexts, they are *better* than
@@ -490,6 +497,8 @@ distribution of `hwy` mileage varies substantially with `drv` type.
 
 
 ## {{< iconify grommet-icons test >}} Case Study-2: 
+
+To be created !!
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 

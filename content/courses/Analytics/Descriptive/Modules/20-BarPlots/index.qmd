@@ -246,7 +246,7 @@ Each Qual variable potentially has many levels as we saw in the [Nature of Data]
 
 We will first look at at a dataset that speaks about taxi rides in Chicago in the year 2022. This is available on [Vincent Arel-Bundock's superb repository of datasets](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).Let us read into R *directly from the website*. 
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### {{< iconify la r-project >}} R
 
@@ -266,7 +266,52 @@ The data has automatically been read into the `webr` session, so you can continu
 # race_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
 # rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
 taxi <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv")
+##
 
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 
 ```
 :::
@@ -276,7 +321,7 @@ taxi <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/t
 As per our Workflow, we will look at the data using all the three
 methods we have seen.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -406,7 +451,7 @@ taxi_modified %>% glimpse()
 ::: callout-note
 ### Question-1: Do more people `tip` than not?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 
@@ -466,7 +511,7 @@ ggplot(taxi_modified)  +
 
 ::: callout-note
 ### Question-2: Does the `tip` depend upon whether the trip is `local` or not?
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 ```{r}
@@ -571,7 +616,7 @@ taxi_modified %>%
 ::: callout-note
 ### Question-3: Do some cab `company`-ies get more `tips` than others?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 ```{r}
@@ -643,6 +688,33 @@ taxi_modified %>%
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
+```{webr-r}
+
+taxi_modified %>% 
+  gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
+  gf_labs(title = "Plot 2A: Dodged Bar Chart") %>% 
+  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
+##
+taxi_modified %>% 
+  gf_bar(~ company, fill = ~ tip, position = "stack") %>% 
+  gf_labs(title = "Plot 2B: Stacked Bar Chart",
+          subtitle = "Can we spot per group differences in proportions??") %>% 
+  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
+## Showing "per capita" percentages
+taxi_modified %>% 
+  gf_bar(~ company, fill = ~ tip, position = "fill") %>% 
+  gf_labs(title = "Plot 2C: Filled Bar Chart",
+          subtitle = "Shows Per group differences in Proportions!") %>% 
+  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
+## Showing "per capita" percentages
+## Better labelling of Y-axis
+taxi_modified %>% 
+  gf_props(~ company, fill = ~ tip, position = "fill") %>% 
+  gf_labs(title = "Plot 2D: Filled Bar Chart",
+          subtitle = "Shows Per group differences in Proportions!") %>% 
+  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
+
+```
 
 
 
@@ -661,7 +733,7 @@ taxi_modified %>%
 ::: callout-note
 ### Question-4: Does a `tip` depend upon the `distance`, `hour` of day, and `dow` and `month`?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 

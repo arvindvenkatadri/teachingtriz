@@ -221,7 +221,7 @@ patchwork::wrap_plots(p1,p2, ncol = 2) + patchwork::plot_layout(axes = "collect"
 ```
 Which is the plots above is more evocative of the underlying data?
 
-### {{< iconify carbon chart-violin-plot >}} Violin Plots
+## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
 Often one needs to view **multiple densities** at the same time. Ridge
 plots of course give us one option, where we get densities of a *Quant*
@@ -234,6 +234,46 @@ side is a **violin plot**. The violin plot combines the aspects of a
 *density* plot. This allows us to look at medians, means, densities, and
 quantiles of a *Quant* variable with respect to another *Qual* variable.
 Let us see what this looks like!
+
+```{r}
+#| label: fig-normal-violins
+#| fig-cap: "Violins for Normal Variables"
+#| echo: false
+#| warning: false
+## Set graph theme
+theme_set(new = theme_custom())
+##
+library(ggnormalviolin)
+library(ggplot2)
+library(ggnormalviolin)
+
+# Make data
+d <- data.frame(
+  dist = c("A", "B", "C", "D"),
+  dist_mean = c(80, 90, 110, 130),
+  dist_sd = c(15, 10, 25, 5)
+) %>% 
+  mutate(variable = pmap(list(dist_mean, dist_sd),rnorm(500)))
+
+d
+# Make base plot
+p <- ggplot(data = d, 
+            aes(x = dist,
+                mu = dist_mean,
+                sigma = dist_sd,
+                fill = dist)) +
+  theme(legend.position = "none")
+
+
+# Add normal violins
+p + geom_normalviolin(p_lower_tail = 0.05, p_upper_tail = 0.05) +
+  labs(title = "Violin Plots of 4 Normal Distributed Variables",
+       subtitle = "Means and Standard Deviations are Different",
+       caption = glue::glue("Tail Regions are highlighted", " p <= 0.05"),
+       x = "Qual Variable Level",
+       y = "Quant Variable Values")
+```
+In @fig-normal-violins, the plots show (very artificial!) distributions of a *single Quant variable* across *levels* of another **Qual variable**. At each level of the Qual variable along the X-axis, we have a violin plot showing the density 
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
@@ -473,7 +513,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggridges", "NHANES", "TeachHist",
+  pkgs = c("ggnormalviolin","ggridges", "NHANES", "TeachHist",
            "TeachingDemos", "visualize")
 ) %>%
   knitr::kable(format = "simple")

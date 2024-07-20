@@ -212,7 +212,7 @@ Compare these with the corresponding @fig-distribution-skewness.
 
 We will first look at Wage data from the General Social Survey (1974-2018) conducted in the USA, which is used to illustrate wage discrepancies by gender (while also considering respondent occupation, age, and education). This is available on [Vincent Arel-Bundock's superb repository of datasets](https://vincentarelbundock.github.io/Rdatasets/articles/data.html). Let us read into R *directly from the website*. 
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
 
@@ -240,7 +240,7 @@ wages <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/stevedata/
 As per our Workflow, we will look at the data using all the three
 methods we have seen.
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
 ```{r}
@@ -337,14 +337,10 @@ wages_clean <-
 
 ```
 
-
 ```{webr-r}
-
-wages_clean <- 
-  wages %>% 
-  tidyr::drop_na(realinc)
-
+wages_clean <-  wages %>% tidyr::drop_na(realinc)
 ```
+
 
 ## {{< iconify carbon box-plot >}} Plotting Box Plots
 
@@ -353,7 +349,7 @@ wages_clean <-
 ::: callout-note
 ### Question-1: What is the basic distribution of `realrinc`?
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 
@@ -383,12 +379,14 @@ wages_clean %>%
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
   gf_labs(title = "Plot 1A: Income has a skewed distribution",
           subtitle = "Many outliers on the high side")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>%  
   ggplot() + 
   geom_boxplot(aes(y = realrinc, x = "Income")) +  # Dummy X-axis "variable"
   labs(title = "Plot 1A: Income has a skewed distribution",
@@ -474,15 +472,18 @@ wages_clean %>%
 
 ```{webr-r}
 
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(gender ~ realrinc) %>% 
   gf_labs(title = "Plot 2A: Income by Gender")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(gender ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 2B: Log(Income) by Gender")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
   gf_refine(scale_x_log10()) %>% 
   gf_labs(title = "Plot 2C: Income filled by Gender, log scale")
@@ -503,7 +504,7 @@ wages_clean %>%
 ::: callout-note
 ### Question-3: Is `realrinc` affected by `educcat`? 
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 ```{r}
@@ -590,22 +591,26 @@ wages_clean %>%
 
 ### web-r
 
-```{r}
-wages_clean %>% 
+```{webr-r}
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(educcat ~ realrinc) %>% 
   gf_labs(title = "Plot 3A: Income by Education Category")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(educcat ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 3B: Log(Income) by Education Category")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
              fill = ~ educcat,
              alpha = 0.3) %>% 
   gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted") %>% gf_labs(x = "Log Income", y = "Education Category")
 ##
-wages_clean %>% 
+wages %>% 
+  tidyr::drop_na(realrinc) %>% 
   gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ realrinc, 
              fill = ~ educcat,
              alpha = 0.5) %>% 
@@ -643,7 +648,7 @@ We will also drop NA values all around this time, to avoid seeing boxplots for u
 ### Question-4: Is `realrinc` affected by combinations of factors?
 
 
-::: {.panel-tabset .nav-pills style="background: whitesmoke; border: 1px solid"}
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
 ### Using ggformula
 ```{r}

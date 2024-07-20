@@ -1,10 +1,10 @@
 ---
 title: <iconify-icon icon="emojione-monotone:passenger-ship"></iconify-icon> Proportion
-subtitle: "Rescuing Jack"
+subtitle: "Rescuing Jack **and** Rose"
 abstract: Associations between Qual variables
 date: 26-April-2024
 date-modified: "`r Sys.Date()`"
-weight: 35
+order: 35
 summary: "Associations between Qual Variables"
 tags:
 - Qual data
@@ -20,7 +20,7 @@ library(downloadthis)
 library(knitr)
 library(kableExtra)
 library(resampledata)
-
+library(tinytable)
 ```
 
 ## {{< iconify fe beginner >}} What graphs will we see today?
@@ -53,9 +53,11 @@ According to [World Bank](https://datatopics.worldbank.org/sdgatlas/goal-3-good-
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
-We saw with [Bar Charts](../20-BarCharts/index.qmd) that when we deal with single Qual variables, we perform *counts* for each *level* of the variable. What is there are two Quals? Or even more?
+We saw with [Bar Charts](../20-BarCharts/index.qmd) that when we deal with single Qual variables, we perform *counts* for each *level* of the variable. 
 
-The answer is to take them pair-wise and make all combinations of *levels* for both and calculate counts for these. This is called a **Contingency Table**. 
+What if there are two Quals? Or even more?
+
+The answer is to take them pair-wise, make all combinations of *levels* for both and calculate counts for these. This is called a **Contingency Table**. 
 
 ::: callout-important
 ## What is a Contingency Table?
@@ -73,7 +75,7 @@ Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 
 :::
  
-The Contingency Table is then plotted in a chart called the *Mosaic Chart*.
+The Contingency Table is then plotted in a chart called the *Mosaic Chart*. Let us develop our intuition for a Contingency Table first, and arrive at the mosaic chart. 
 
 
 ## {{< iconify fluent people-list-28-filled >}} Dataset: General Social Survey 2002
@@ -105,6 +107,9 @@ gss2002 %>% download_this(output_name = "GSS2002", output_extension = ".csv", bu
 ![GSS2002 Data Summary #1](../../../../materials/images/Orange/gss-summary-1.png){#fig-gss-data-summary-1}
 
 ![GSS2002 Data Summary #2](../../../../materials/images/Orange/gss-summary-2.png){#fig-gss-data-summary-2}
+
+General Social Survey 2002 Dataset
+
 :::
 ### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
 
@@ -135,6 +140,7 @@ are all Qual variables! Let us choose just two Qual variables from this dataset,
 
 ```{r}
 #| label: fig-sample-contingency-table
+#| fig-cap: "Contingency Table"
 #| echo: false
 # data("GSS2002", package = "resampledata")
 gss2002 <- GSS2002 %>% 
@@ -143,17 +149,28 @@ gss2002 <- GSS2002 %>%
 
 mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
   addmargins() %>% 
-  kableExtra::kbl(caption = "Contingency Table for General Social Survey 2002") %>%
-  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
+  as_tibble() %>% 
+  pivot_wider(id_cols = DeathPenalty, names_from = Education, values_from = n) %>% 
+  tt() %>% 
+  style_tt(color = "grey") %>% 
+  style_tt(i = 1, j = 2, color = "black", bold = TRUE, background = "yellow") %>% 
+  style_tt(i = 2, j = 5, color = "black", bold = TRUE, background = "yellow")
 
 ```
+
+How was this computed? 
+So $117$ is the number of people who `Left HS` *and* `Favor` the death penalty, and $71$ is the count for `Bachelors` who `Oppose` the death penalty. And so on. 
 
 Now then, how does one plot a set of data that looks like this, a matrix? No column is a single variable, nor is each row a single observation, which is what we understand with the idea of [tidy data](../01-NatureofData/index.qmd#what-are-data-types).
 
 The answer is provided in *the very shape of the data*: we plot this as a set of *tiles*, where 
 $$ \pmb{area~of~tile \sim count} $$
-In this way we *recursively* partition off a (usually) square area into vertical and horizontal pieces whose area is proportional to the count at a specific combination of levels of the two Qual variables.
+In this way we *recursively* partition off a (usually) square area into vertical and horizontal pieces whose area is proportional to the count at a specific combination of levels of the two Qual variables. So we might follow the process as shown below:\
 
+- Take the bottom row of per-column totals and create vertical rectangles with these widths\
+- Take the individual counts in the rows and partition each rectangle based in the counts in these rows.\ 
+
+Let us do this step by step. 
 
 ### {{< iconify material-symbols query-stats >}} Research Questions
 ::: callout-note
@@ -168,13 +185,16 @@ Let us plot the mosaic chart in two steps: we now choose Qual variables `Educati
 ![GSS Mosaic Chart Step #1 ](../../../../materials/images/Orange/gss-mosaic-chart-1.png){#fig-gss-mosaic-chart-step1}
 
 
-This first split shows the various levels of `Education` and their counts as widths. This splitting corresponds to the bottom ROW of the @fig-sample-contingency-table.  HS is clearly the largest subgroup in `Education` . 
-
 ![GSS Mosaic Chart Step #2](../../../../materials/images/Orange/gss-mosaic-chart-2.png){#fig-gss-mosaic-chart-step2}
+
+Mosaic Chart for GSS Data
 
 :::
 
-In this second step, the columns from @fig-gss-mosaic-chart-step1 are sliced horizontally into tiles, in proportion to the number of people in each `Education` category/level who support/do not support `DeathPenalty`. This is done in proportion to all the entries in each COLUMN. 
+
+The first split shows the various levels of `Education` and their counts as widths. *Order is alphabetical!* This splitting corresponds to the bottom ROW of the @fig-sample-contingency-table.  HS is clearly the largest subgroup in `Education`.
+
+In the second step, the columns from @fig-gss-mosaic-chart-step1 are sliced horizontally into tiles, in proportion to the number of people in each `Education` category/level who support/do not support `DeathPenalty`. This is done in proportion to all the entries in each COLUMN. 
 
 :::
 
@@ -225,7 +245,7 @@ Does not seem to have a mosaic diagram capability.
 :::
 
 ## {{< iconify game-icons iceberg size=3x >}} Dataset: Titanic
-Ok, let us see if we can rescue Jack. Here is the `titanic` data. 
+Ok, let us see if we can rescue Jack also. Here is the `titanic` data. 
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
