@@ -335,7 +335,7 @@ globalThis.qwebrCustomizedWebROptions = {
 };
 
 // Store cell data
-globalThis.qwebrCellDetails = [{"id":1,"options":{"context":"setup","fig-height":5,"results":"markup","label":"unnamed-chunk-1","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"true","editor-max-height":"","comment":"","fig-width":7},"code":"# Read the data. Always use base-R. \n# race_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv\")\n# rank_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv\")\ntaxi <- read.csv(\"https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv\")\n##\n\ntheme_custom <- function(){ \n    font <- \"Roboto Condensed\"   #assign font family up front\n    \n    theme_classic(base_size = 14) %+replace%    #replace elements we want to change\n    \n    theme(\n      panel.grid.minor = element_blank(),    #strip minor gridlines\n      text = element_text(family = font),\n      #text elements\n      plot.title = element_text(             #title\n                   family = font,            #set font family\n                   #size = 20,               #set font size\n                   face = 'bold',            #bold typeface\n                   hjust = 0,                #left align\n                   #vjust = 2                #raise slightly\n                   margin=margin(0,0,10,0)\n),               \n      \n      plot.subtitle = element_text(          #subtitle\n                   family = font,            #font family\n                   #size = 14,                #font size\n                   hjust = 0,\n                   margin=margin(2,0,5,0)\n),               \n      \n      plot.caption = element_text(           #caption\n                   family = font,            #font family\n                   size = 8,                 #font size\n                   hjust = 1),               #right align\n      \n      axis.title = element_text(             #axis titles\n                   family = font,            #font family\n                   size = 10                 #font size\n),\n      \n      axis.text = element_text(              #axis text\n                   family = font,            #axis family\n                   size = 8)               #font size\n    )\n}\n\n# Set graph theme\ntheme_set(new = theme_custom())\n#"},{"id":2,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"glimpse-taxi-webr","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"glimpse(taxi)"},{"id":3,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"skim-taxi-webr","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"skim(taxi)"},{"id":4,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"inspect-taxi-webr","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"inspect(taxi)"},{"id":5,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"unnamed-chunk-5","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"## Convert `dow`, `local`, and `month` into ordered factors\ntaxi_modified <- taxi %>%\n  mutate(dow = factor(dow,\n    levels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    labels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    ordered = TRUE),\n    ##\n    local = factor(local,\n                   levels = c(\"no\", \"yes\"),\n                   labels = c(\"no\", \"yes\"),\n                   ordered = TRUE),\n    ##\n  month = factor(month, \n                 levels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 labels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 ordered = TRUE))\ntaxi_modified %>% glimpse()"},{"id":6,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"bar-charts-ggformula-webr","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","layout-ncol":"2","editor-max-height":"","comment":"","fig-width":7},"code":"\ngf_bar(~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot A: Counts of Tips\")\n\nggplot(taxi_modified)  + \n  geom_bar(aes(x = tip)) + \n  labs(title = \"Plot 1A: Counts of Tips\")"},{"id":7,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"unnamed-chunk-7","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"taxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Dodged Bar Chart\")\n##\ntaxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\")\n\n## Showing \"per capita\" percentages\ntaxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi_modified %>% \n  gf_props(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")"},{"id":8,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"unnamed-chunk-8","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Plot 2A: Dodged Bar Chart\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n##\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Plot 2B: Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n## Showing \"per capita\" percentages\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \"Plot 2C: Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi_modified %>% \n  gf_props(~ company, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \"Plot 2D: Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))"},{"id":9,"options":{"context":"interactive","fig-height":5,"results":"markup","label":"unnamed-chunk-9","out-width":"700px","classes":"","out-height":"","read-only":"false","dpi":72,"fig-cap":"","output":"true","warning":"true","message":"true","autorun":"false","editor-max-height":"","comment":"","fig-width":7},"code":"gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot B: Counts of Tips by Hour\")\n##\ngf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot C: Counts of Tips by Day of Week\")\n##\ngf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot D: Counts of Tips by Month\")\n\n##\ngf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot E: Counts of Tips by Day of Week and Month\")\n##\n## This may be too busy a graph...\ngf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot F: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Is this plot arrangement easy to grasp?\")\n## This is better!\ngf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot G: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Swapped the Facets\")  "}];
+globalThis.qwebrCellDetails = [{"code":"# Read the data. Always use base-R. \n# race_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv\")\n# rank_df <- read.csv(\"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv\")\ntaxi <- read.csv(\"https://vincentarelbundock.github.io/Rdatasets/csv/modeldata/taxi.csv\")\n##\n\ntheme_custom <- function(){ \n    font <- \"Roboto Condensed\"   #assign font family up front\n    \n    theme_classic(base_size = 14) %+replace%    #replace elements we want to change\n    \n    theme(\n      panel.grid.minor = element_blank(),    #strip minor gridlines\n      text = element_text(family = font),\n      #text elements\n      plot.title = element_text(             #title\n                   family = font,            #set font family\n                   #size = 20,               #set font size\n                   face = 'bold',            #bold typeface\n                   hjust = 0,                #left align\n                   #vjust = 2                #raise slightly\n                   margin=margin(0,0,10,0)\n),               \n      \n      plot.subtitle = element_text(          #subtitle\n                   family = font,            #font family\n                   #size = 14,                #font size\n                   hjust = 0,\n                   margin=margin(2,0,5,0)\n),               \n      \n      plot.caption = element_text(           #caption\n                   family = font,            #font family\n                   size = 8,                 #font size\n                   hjust = 1),               #right align\n      \n      axis.title = element_text(             #axis titles\n                   family = font,            #font family\n                   size = 10                 #font size\n),\n      \n      axis.text = element_text(              #axis text\n                   family = font,            #axis family\n                   size = 8)               #font size\n    )\n}\n\n# Set graph theme\ntheme_set(new = theme_custom())\n#","options":{"warning":"true","context":"setup","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"unnamed-chunk-1","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"true"},"id":1},{"code":"glimpse(taxi)","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"glimpse-taxi-webr","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":2},{"code":"skim(taxi)","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"skim-taxi-webr","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":3},{"code":"inspect(taxi)","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"inspect-taxi-webr","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":4},{"code":"## Convert `dow`, `local`, and `month` into ordered factors\ntaxi_modified <- taxi %>%\n  mutate(dow = factor(dow,\n    levels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    labels = c(\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"),\n    ordered = TRUE),\n    ##\n    local = factor(local,\n                   levels = c(\"no\", \"yes\"),\n                   labels = c(\"no\", \"yes\"),\n                   ordered = TRUE),\n    ##\n  month = factor(month, \n                 levels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 labels = c(\"Jan\", \"Feb\", \"Mar\", \"Apr\"),\n                 ordered = TRUE))\ntaxi_modified %>% glimpse()","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"unnamed-chunk-5","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":5},{"code":"\ngf_bar(~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot A: Counts of Tips\")\n\nggplot(taxi_modified)  + \n  geom_bar(aes(x = tip)) + \n  labs(title = \"Plot 1A: Counts of Tips\")","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"bar-charts-ggformula-webr","layout-ncol":"2","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":6},{"code":"taxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Dodged Bar Chart\")\n##\ntaxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\")\n\n## Showing \"per capita\" percentages\ntaxi_modified %>% \n  gf_bar(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi_modified %>% \n  gf_props(~ local, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \" Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\")","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"unnamed-chunk-7","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":7},{"code":"\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"dodge\") %>% \n  gf_labs(title = \"Plot 2A: Dodged Bar Chart\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n##\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"stack\") %>% \n  gf_labs(title = \"Plot 2B: Stacked Bar Chart\",\n          subtitle = \"Can we spot per group differences in proportions??\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n## Showing \"per capita\" percentages\ntaxi_modified %>% \n  gf_bar(~ company, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \"Plot 2C: Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))\n## Showing \"per capita\" percentages\n## Better labelling of Y-axis\ntaxi_modified %>% \n  gf_props(~ company, fill = ~ tip, position = \"fill\") %>% \n  gf_labs(title = \"Plot 2D: Filled Bar Chart\",\n          subtitle = \"Shows Per group differences in Proportions!\") %>% \n  gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"unnamed-chunk-8","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":8},{"code":"gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot B: Counts of Tips by Hour\")\n##\ngf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot C: Counts of Tips by Day of Week\")\n##\ngf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot D: Counts of Tips by Month\")\n\n##\ngf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot E: Counts of Tips by Day of Week and Month\")\n##\n## This may be too busy a graph...\ngf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%\n  gf_labs(title = \"Plot F: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Is this plot arrangement easy to grasp?\")\n## This is better!\ngf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%\n  gf_labs(title = \"Plot G: Counts of Tips by Hour and Day of Week\",\n          subtitle = \"Swapped the Facets\")  ","options":{"warning":"true","context":"interactive","read-only":"false","out-width":"700px","dpi":72,"comment":"","label":"unnamed-chunk-9","classes":"","fig-cap":"","output":"true","message":"true","editor-max-height":"","out-height":"","results":"markup","fig-width":7,"fig-height":5,"autorun":"false"},"id":9}];
 
 </script><script type="module">
 // Declare startupMessageQWebR globally
@@ -1109,7 +1109,7 @@ globalThis.qwebrExecuteCode = async function (
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Teaching</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Data Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/listing.html">Descriptive Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/20-BarPlots/index.html">📊 Bar Plots: Plotting Counts</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../../content/courses/listing.html">Teaching</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Data Analytics for Managers</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/listing.html">Descriptive Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/20-BarPlots/index.html">📊 Bar Plots: Plotting Counts</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -1127,7 +1127,7 @@ globalThis.qwebrExecuteCode = async function (
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+            <a href="../../../../../../content/courses/listing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Teaching</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -1137,7 +1137,7 @@ globalThis.qwebrExecuteCode = async function (
 <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/Analytics/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Data Analytics</span></a>
+ <span class="menu-text">Data Analytics for Managers</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -1616,7 +1616,7 @@ globalThis.qwebrExecuteCode = async function (
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../../../../../content/courses/TRIZ4ProbSolving/listing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">TRIZ for Problem Solving</span></a>
+ <span class="menu-text">TRIZ for Problem Solvers</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -1779,103 +1779,103 @@ globalThis.qwebrExecuteCode = async function (
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/01-NatureofData/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🕶 Data</span></a>
+ <span class="menu-text"><iconify-icon icon="icon-park-twotone:data-user" width="1.2em" height="1.2em"></iconify-icon> Data</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/05-IntroductiontoOrange/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🟠 Orange</span></a>
+ <span class="menu-text"><iconify-icon icon="ph:orange-bold"></iconify-icon> Orange</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/10-SummaryStats/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🕶 Summaries</span></a>
+ <span class="menu-text"><iconify-icon icon="carbon:summary-kpi" width="1.2em" height="1.2em"></iconify-icon> Summaries</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/20-BarCharts/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">👨🏻‍👩🏻‍👦🏻‍👧🏻Counts</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/20-Counts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="eos-icons:counting" width="1.2em" height="1.2em"></iconify-icon> Counts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/22-Histograms/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🕶 Quantity</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/22-Quantity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="fluent-mdl2:quantity" width="1.2em" height="1.2em"></iconify-icon> Quantity</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/28-BoxPlotsViolins/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🐢 Groups</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/28-Groups/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="lucide:group" width="1.2em" height="1.2em"></iconify-icon> Groups</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/30-ScatterPlots/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🏃 Change</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/30-Change/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="icon-park-outline:change" width="1.2em" height="1.2em"></iconify-icon> Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/32-LinePlots/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🏃 Rhythm</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/32-Rhythm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="nonicons:variable-16" width="1.2em" height="1.2em"></iconify-icon> Rhythm</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/35-MosaicCharts/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><iconify-icon icon="emojione-monotone:passenger-ship"></iconify-icon> Proportion</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/35-Proportions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="icon-park-outline:proportional-scaling"></iconify-icon> Proportions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/40-SankeyCharts/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../../../content/courses/NoCode/Modules/40-Flows/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><iconify-icon icon="maki:watermill"></iconify-icon> Flow</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/50-PiesDonutsParliaments/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Share</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/50-Shares/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="dashicons:share" width="1.2em" height="1.2em"></iconify-icon> Shares</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/54-Trees/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Structure</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/54-Structures/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="tabler:hierarchy-3" width="1.2em" height="1.2em"></iconify-icon> Structure</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/60-LollipopsBumpsRadars/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Rank</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/60-Rankings/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="ph:ranking-bold" width="1.2em" height="1.2em"></iconify-icon> Ranking</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/70-Maps/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Space</span></a>
+ <span class="menu-text"><iconify-icon icon="gis:proj-geo" width="1.2em" height="1.2em"></iconify-icon> Space</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/80-Time/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Time</span></a>
+ <span class="menu-text"><iconify-icon icon="fluent-mdl2:hour-glass" width="1.2em" height="1.2em"></iconify-icon> Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../../../../../content/courses/NoCode/Modules/100-Networks/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Networks</span></a>
+ <span class="menu-text"><iconify-icon icon="bx:network-chart" width="1.2em" height="1.2em"></iconify-icon> Networks</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../../../../content/courses/NoCode/Modules/140-SurveyData/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><iconify-icon icon="game-icons:tortoise" width="1.2em" height="1.2em"></iconify-icon> Surveys</span></a>
+  <a href="../../../../../../content/courses/NoCode/Modules/140-Surveys/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><iconify-icon icon="wpf:survey" width="1.2em" height="1.2em"></iconify-icon> Surveys</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -2171,7 +2171,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
   };
   
 }
-</script><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Teaching</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Data Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/listing.html">Descriptive Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/20-BarPlots/index.html">📊 Bar Plots: Plotting Counts</a></li></ol></nav><div class="quarto-title">
+</script><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../../content/courses/listing.html">Teaching</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/listing.html">Data Analytics for Managers</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/listing.html">Descriptive Analytics</a></li><li class="breadcrumb-item"><a href="../../../../../../content/courses/Analytics/Descriptive/Modules/20-BarPlots/index.html">📊 Bar Plots: Plotting Counts</a></li></ol></nav><div class="quarto-title">
 <h1 class="title">📊 Bar Plots: Plotting Counts</h1>
 <p class="subtitle lead">How much data does a man need?</p>
   <div class="quarto-categories">
@@ -4006,7 +4006,7 @@ qwebrInstance.then(
     );  
   }
 );
-</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"right","closeEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"right"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
