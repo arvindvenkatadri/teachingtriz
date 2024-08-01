@@ -1,11 +1,11 @@
 ---
 title: <iconify-icon icon="icon-park-outline:proportional-scaling"></iconify-icon> Proportions
 subtitle: "Rescuing Jack **and** Rose"
-abstract: Associations between Qual variables
+abstract: Single and Nested Proportions with Qual Variables
 date: 26-April-2024
 date-modified: "`r Sys.Date()`"
 order: 35
-summary: "Associations between Qual Variables"
+summary: ""
 tags:
 - Qual data
 - Mosaic Charts
@@ -21,13 +21,14 @@ library(knitr)
 library(kableExtra)
 library(resampledata)
 library(tinytable)
+library(embedr) # Embed Audio Files
 ```
 
 ## {{< iconify fe beginner >}} What graphs will we see today?
 
 | Variable #1 | Variable #2 | Chart Names |                    Chart Shape                    |
 |:-------------:|:--------------:|:------------------:|:--------------------:|
-|    Qual   |    Qual     |  Mosaic Charts | {{< iconify carbon chart-marimekko size=4x >}} |
+|    Qual   |    Qual     |  Pies, and Mosaic Charts | {{< iconify teenyicons pie-chart-solid size=4x >}} {{< iconify carbon chart-marimekko size=4x >}} |
 
 ## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
 
@@ -47,20 +48,74 @@ read_csv("../../../../materials/Data/pronouns.csv") %>%
 
 ## {{< iconify icons8 idea >}} Inspiration
 
+::: {#fig-proportion-inspiration layout-ncol=2}
+
+![Obesity across the World](../../../../materials/images/VORO_Obesity-Rates_Site.jpg){#fig-pie-inspiration}
+
+
 ![Covid Deaths <https://datatopics.worldbank.org/sdgatlas/goal-3-good-health-and-well-being?lang=en> ](images/covid-deaths.png){#fig-mosaic-inspiration}
 
-According to [World Bank](https://datatopics.worldbank.org/sdgatlas/goal-3-good-health-and-well-being?lang=enS), six countries (India, Russia, Indonesia, United States, Brazil, and Mexico) accounted for over 60 percent of the total additional deaths in the first two years of the pandemic.
+Depicting Proportions
+:::
+
+From @fig-pie-inspiration, it is seen that Egypt, Qatar, and the United States are the only countries with a population greater than 1 million on this list. Poor food habits are once again a factor, with some cultural differences. In Egypt, high food inflation has pushed residents to low-cost high-calorie meals. To combat food insecurity, the government subsidizes bread, wheat flour, sugar and cooking oil, many of which are the ingredients linked to weight gain. In Qatar, a country with one of the highest per capita GDPs in the world, a genetic predisposition towards obesity and sedentary lifestyles worsen the impact of rich diets. And in the U.S., bigger portions are one of the many reasons cited for rampant adult and child obesity. For example, Americans ate 20% more calories in the year 2000 than they did in 1983. They consume 195 lbs of meat annually compared to 138 lbs in 1953. And their grain intake has increased 45% since 1970.
+
+It’s worth noting however that this dataset is based on BMI values, which do not fully account for body types with larger bone and muscle mass.
+
+
+From @fig-mosaic-inspiration, according to [World Bank](https://datatopics.worldbank.org/sdgatlas/goal-3-good-health-and-well-being?lang=enS), six countries (India, Russia, Indonesia, United States, Brazil, and Mexico) accounted for over 60 percent of the total additional deaths in the first two years of the pandemic.
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
-We saw with [Bar Charts](../20-BarCharts/index.qmd) that when we deal with single Qual variables, we perform *counts* for each *level* of the variable. 
+We saw with [Bar Charts](../20-Counts/index.qmd) that when we deal with single Qual variables, we perform *counts* for each *level* of the variable. For a single Qual variable, even with multiple levels ( e.g. `Education Status`: High school, College, Post-Graduate, PhD), we can count the observations as with Bar Charts and plot Pies. 
 
 What if there are two Quals? Or even more?
 
-The answer is to take them pair-wise, make all combinations of *levels* for both and calculate counts for these. This is called a **Contingency Table**. 
+The answer is to take them pair-wise, make all combinations of *levels* for both and calculate counts for these. This is called a **Contingency Table**. Then we plot that table. We'll see. 
 
-::: callout-important
-## What is a Contingency Table?
+
+## {{< iconify teenyicons pie-chart-solid >}} Plotting Pies
+Let us deal with single Qual variables first. 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+### Using Orange
+
+Let us the same dataset as is used in the RAWgraphs tutorial (to follow):
+
+{{< downloadthis ../../../../materials/Data/compositionGDP.csv dname="GDP" label="Download the GDP dataset" icon="database-fill-down" type="info" >}}
+
+Can you find the Pie Chart Widget in Orange? Let us do this "live" in class and test our new-found Orange skills!
+
+### Using RAWgraphs
+{{< video https://youtu.be/ZmUPGSXnSpk >}}
+
+Download this RAWgraphs project workflow and open it in RAWgraphs.
+
+{{< downloadthis rawgraphs/TutorialPieChart.rawgraphs dname="rawgraphs-workflow-pie" label="Download RAWgraphs Pie Chart Workflow" icon="database-fill-down" type="info" >}}
+
+::: callout-note
+Note the shape of data here: it is wide!
+:::
+
+### Using DataWrapper
+
+<https://academy.datawrapper.de/article/24-how-to-create-a-pie-chart>
+
+:::
+
+The problem is that humans are pretty bad at reading angles. This
+ubiquitous chart is much vilified in the industry and `bar charts` that
+we have seen earlier, are viewed as better options. On the other hand,
+pie charts are ubiquitous in design and business circles, and are very much accepted! Do also read this spirited defense of pie charts here.
+<https://speakingppt.com/why-tufte-is-flat-out-wrong-about-pie-charts/>
+
+## {{< iconify icon-park-outline nested-arrows >}} Plotting Nested Proportions
+
+When we want to visualize proportions based on Multiple Qual variables, we are looking at what [Claus Wilke](https://clauswilke.com/dataviz/nested-proportions.html) calls *nested proportions*: groups within groups. Making counts with combinations of levels for two Qual variables gives us a data structure called a *Contingency Table*, which we will use to build our plot for nested proportions
+
+
+### {{< iconify mdi rain-chance >}} What is a [Contingency](https://www.pagebypagebooks.com/P_G_Wodehouse/Right_Ho_Jeeves/Chapter_13_p2.html) Table?
+
 From [Wolfram
 Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 
@@ -72,8 +127,6 @@ Alpha](https://www.wolframalpha.com/input/?i=contingency+table):
 > frequency of two variables the **observed frequencies** of which are
 > arranged into $r$ rows and $c$ columns. The intersection of a row and
 > a column of a contingency table is called a **cell**.
-
-:::
  
 The Contingency Table is then plotted in a chart called the *Mosaic Chart*. Let us develop our intuition for a Contingency Table first, and arrive at the mosaic chart. 
 
@@ -96,6 +149,9 @@ gss2002 %>% download_this(output_name = "GSS2002", output_extension = ".csv", bu
 
 ```
 
+Here is the Orange workflow:
+
+{{< downloadthis orange/orange-mosaic-chart.ows dname="mosaic-chart" label="Download the Orange Mosaic Chart Workflow" icon="database-fill-down" type="info" >}}
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
@@ -159,6 +215,7 @@ mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>%
 ```
 
 How was this computed? 
+
 So $117$ is the number of people who `Left HS` *and* `Favor` the death penalty, and $71$ is the count for `Bachelors` who `Oppose` the death penalty. And so on. 
 
 Now then, how does one plot a set of data that looks like this, a matrix? No column is a single variable, nor is each row a single observation, which is what we understand with the idea of [tidy data](../01-NatureofData/index.qmd#what-are-data-types).
@@ -225,6 +282,8 @@ The description of the Orange widget for mosaic charts is [here.](https://orange
 
 Let us take a very sadly famous data set (no, not `iris` again `r emoji::emoji("scream_cat")`), but `titanic` and examine it in Orange.
 
+We will reuse this workflow:
+
 {{< downloadthis orange/orange-mosaic-chart.ows dname="mosaic-chart" label="Download the Orange Mosaic Chart Workflow" icon="database-fill-down" type="info" >}}
 
 
@@ -245,7 +304,7 @@ Does not seem to have a mosaic diagram capability.
 :::
 
 ## {{< iconify game-icons iceberg size=3x >}} Dataset: Titanic
-Ok, let us see if we can rescue Jack also. Here is the `titanic` data. 
+Ok, let us see if we can rescue Jack also. Here is the `titanic` data. Use the `Datasets` widget in Orange to get it. 
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
@@ -253,7 +312,10 @@ Ok, let us see if we can rescue Jack also. Here is the `titanic` data.
 
 ![Titanic Data Table](../../../../materials/images/Orange/titanic-data-table.png){#fig-titanic-data-table}
 
-![Titanic Data Table](../../../../materials/images/Orange/titanic-data-summary.png){#fig-titanic-data-summary}
+![Titanic Data Summary Stats](../../../../materials/images/Orange/titanic-data-summary.png){#fig-titanic-data-summary}
+
+Titanic Data
+
 :::
 
 There were 2201 passengers, as per this dataset. 
@@ -294,7 +356,7 @@ So sadly Jack is far more likely to have died than Rose.
 ![Titanic Mosaic Chart #2](../../../../materials/images/Orange/titanic-mosaic-survived-status.png){#fig-titanic-mosaic-2}
 
 Crew has seen deaths in large numbers, as seen by the large [*negative* residual]{style="color: red;"} for crew-survivals. 
-First Class passengers have had speedy access to the boats and have survived in larger proportions than say second or third class. There is a large [*positive* residual]{style="color: blue;"} for first-class survivals. 
+[First Class passengers have had speedy access to the boats](https://youtu.be/kQ8WsD9AGX4) and have survived in larger proportions than say second or third class. There is a large [*positive* residual]{style="color: blue;"} for first-class survivals. 
 
 Rose travelled `first class` and Jack was `third class`. So again the odds are stacked against him. 
 
@@ -346,7 +408,7 @@ The sum of all the squared Pearson residuals is the chi-square statistic, χ2, u
 :::
 
 ::: callout-note
-## {{< iconify tdesign cat size = 2x >}} χ2-Test for the Cat-egorically Curious
+## {{< iconify tdesign cat size = 2x >}} χ2-Test for the [Cat](https://cataas.com/cat)-egorically Curious
 For the intrepid and insatiably curious, there is an *intuitive explanation*, and *some hand-calculations and walk-through* of the Contingency table and the χ2-test  [here.](../../../Analytics/Inference/Modules/190-TwoProp/index.qmd#observed-statistic-the-x2-metric)
 
 :::
@@ -386,20 +448,20 @@ Let us plot the mosaic chart:
 ![Household Tasks Distribution Raw Data](../../../../materials/images/Orange/household-mosaic-initial.png){#fig-household-tasks-mosaic}
 :::
 
-This data looks fine all right, but this mosaic plot looks bewildering, utterly dumbfounding, and is of course wrong. The reason for this is that the basic `HouseTasks.csv` data is **pre-aggregated**: we have a neat column of counts *already* in the `Freq` data. Each combination of Qual factors has *exactly one count*, hence all tiles are the same size. 
+This data looks fine all right, but this mosaic plot looks bewildering, utterly dumbfounding, and is of course wrong. The reason for this is that the basic `HouseTasks.csv` data is **pre-aggregated**: we have a neat column of counts *already* in the `Freq` data. Each combination of Qual factors has *exactly one count/row/observation*, hence all tiles are the same size.
 
-And why is this a problem? Orange expects data to be *purely categorical*  for the Mosaic Chart and does it own counting internally. It is not able to sensibly use this `Freq` column. Orange simply counts categories here, which are of course utterly symmetric and unique and of no use. 
+And why is this a problem? Orange expects data to be *purely categorical*  for the Mosaic Chart and does it own counting internally. It is not able to sensibly use this `Freq` column. Orange simply counts categories here, which are of course utterly symmetric, unique, and of no use. Bah!
 
 ::: callout-note
 ## Stat Figures and Stats
-Most, if not all,  statistical graphs do some **internal computation**. For instance the bar chart performs counts vs Qual variables; a Histogram both bins the Quant variable, and counts for entries in each bin. This is a good thing, people, but it does mean that the data needs to be in specific format before using it for plots. 
+Most, if not all,  statistical graphs do some **internal computation**. For instance the bar chart performs counts vs Qual variables; a Histogram both bins the Quant variable, and counts for entries in each bin. This is a good thing, peasants, but it does mean that the data needs to be in specific format before using it for plots. Cultivate that. 
 :::
 
 So now what? We need to (wait for it):
 
 - `uncount` the data `r emoji::emoji("scream_cat")` `r emoji::emoji("scream_cat")` `r emoji::emoji("scream_cat")`
 - How? Take each combination of Quals `Who` and `Task`
-- Repeat ( i.e copy-paste) that combo line as many times as the value in `Freq`
+- Repeat (i.e. copy-paste) that combo line as many times as the value in `Freq`
 - (optionally) Deleting the `Freq` column, or at least not using it further
 
 All this is (to the best of my ability) **not possible** in any of [these trifling tools](https://storymirror.com/read/gujarati/poem/uuntt-khe/sf6dazbo) that we are using here, and can be done in a jiffy in R or Python. Didn't I tell you coding was far far far far simpler? Oh, these peasants. 
@@ -440,7 +502,7 @@ In general, if you want to spot association, look for serious amounts of colour 
 ### [Clothing and Intelligence Rating of Children!!](https://vincentarelbundock.github.io/Rdatasets/doc/vcdExtra/Gilby.html)
 Are well-dressed students actually smarter? Isn't that the exact reverse with SMI faculty? Or ...?
 
-{{< downloadthis data/Gilby.csv dname="mosaic-chart" label="Download the Gilby Study dataset" icon="database-fill-down" type="info" >}}
+{{< downloadthis data/Gilby.csv dname="gilby" label="Download the Gilby Study dataset" icon="database-fill-down" type="info" >}}
 
 :::
 
@@ -454,14 +516,16 @@ Are well-dressed students actually smarter? Isn't that the exact reverse with SM
 ::: callout-note
 
 ### [Are Emily and Greg More Employable Than Lakisha and Jamal?](https://vincentarelbundock.github.io/Rdatasets/doc/AER/ResumeNames.html)
-This dataset was generated as part of a landmark study done by [Marianne Bertrand and Senthil Mullainathan](https://sci-hub.se/10.1257/0002828042002561). Read the 
-description therein to really understand how you can *prove causality* with a well-crafted research experiment. 
+Are first names a basis for racial discrimination, in the US?
+
+This dataset was generated as part of a landmark research study done by [Marianne Bertrand and Senthil Mullainathan](https://sci-hub.se/10.1257/0002828042002561). Read the 
+description therein to really understand how you can ***prove causality*** with a well-crafted research experiment. 
 {{< downloadthis data/ResumeNames.csv dname="ResumeNames" label="Download the Resume Name dataset" icon="database-fill-down" type="info" >}}
 :::
 
 ## {{< iconify mingcute thought-line >}} Wait, But Why?
 
-- We can detect *correlation* between Quant variables using the [scatter plots and regression lines](../30-ScatterPlots/index.qmd)
+- We can detect *correlation* between Quant variables using the [scatter plots and regression lines](../30-Change/index.qmd)
 - And we can detect *association* between Qual variables using mosaics and sieves (which we did not see here, but is possible in Orange)
 - Your project primary research data may be pure Qualitative too, as with a Questionnaire / Survey instrument. 
 - One such Qual variable therein will be your [target variable](https://orangedatamining.com/blog/machine-learning-jargon/) 
@@ -492,6 +556,16 @@ For more tutorial information, head off to [Visualizing Survey Data (in R).](../
 1. Nice Chi-square interactive story at <https://statisticalstories.xyz/chi-square>
 
 2. A different graph on Housework Inequality, but the same story! <https://datatopics.worldbank.org/sdgatlas/goal-5-gender-equality?lang=en#c4>
+
+## References
+
+1. CATAAS: Cat as a service. <https://cataas.com>. Please bookmark this. 
+
+2. Yet another [Shipwreck story](https://www.lyrics.com/lyric-lf/329129/Gordon+Lightfoot/Wreck+of+the+Edmund+Fitzgerald). 
+
+`r embedr::embed_audio("../../../../materials/music/The Wreck of the Edmund Fitzgerald.mp3")` 
+
+
 
 
 

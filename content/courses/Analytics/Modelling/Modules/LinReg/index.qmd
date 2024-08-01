@@ -1166,14 +1166,22 @@ housing_lm_tidy
 Plotting this is simple too:
 
 ```{r}
+#| layout-ncol: 2
 housing_lm_tidy %>%
   gf_col(estimate ~ term, fill = ~ term, width = 0.25) %>% 
   gf_hline(yintercept = 0) %>% 
   gf_errorbar(conf.low + conf.high ~ term, 
               width = 0.1, 
-              title = "Model Estimates with Confidence Intervals") 
+              title = "Model Bar Plot for Estimates with Confidence Intervals") 
+##
+housing_lm_tidy %>% 
+  gf_pointrange(estimate + conf.low + conf.high ~ term,
+                title = "Model Point Range Plot for Estimates with Confidence Intervals")
 
 ```
+The point-range plot helps to avoid what has been called ["within-the-bar bias"](https://graphics.cs.wisc.edu/Papers/2014/CG14/Preprint.pdf). The estimate is just a value, which we might plot as a *bar* or as a *point*, with uncertainty error-bars.
+
+Values **within the bar** are not more likely!! This is the bias that the point-range plot avoids. 
 
 ### {{< iconify ic twotone-rule >}} Checks for Constant Variance/Heteroscedasticity
 
