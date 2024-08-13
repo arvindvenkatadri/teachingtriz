@@ -1,5 +1,5 @@
 ---
-title: "\U0001F4CE Scatter Plots: Plotting Correlations"
+title: <iconify-icon icon="icon-park-outline:change" width="1.2em" height="1.2em"></iconify-icon> Scatter Plots - Plotting Change"
 subtitle: "Correlations"
 author: "Arvind V."
 date: 22/Nov/2022
@@ -135,6 +135,7 @@ library(epoxy)
 library(grateful)
 library(sysfonts)
 library(gfonts)
+library(downloadthis)
 
 ```
 
@@ -918,9 +919,11 @@ penguins %>%
   drop_na() %>% 
   gf_point(body_mass_g  ~ flipper_length_mm, colour = ~ species) %>% 
   gf_smooth(method = "lm") %>% 
+  gf_refine(scale_colour_brewer(palette = "Accent")) %>% 
   gf_labs(title = "Scatter Plot with Marginal Densities") %>% 
   ggExtra::ggMarginal(type = "density", groupColour = TRUE, 
-                      groupFill = TRUE, margins = "both")
+                      groupFill = TRUE, margins = "both") 
+  
 
 
 ```
@@ -938,10 +941,97 @@ Head off to this interactive game website where you can play with correlations!
   
 See how the overall correlation/regression line slopes upward, whereas that for the individual groups slopes downward!! This is an example of Simpson's Paradox!
 
+## {{< iconify bi person-up >}} Your Turn
+
+1.  Try to play this online [Correlation Game](https://openintro.shinyapps.io/correlation_game/).
+
+::: callout-note
+### 2. School Expenditure and Grades.
+
+{{< downloadthis data/CASchools.csv dname="CASchools" label="Download the School Data" icon="database-fill-down" type="info" >}}
+:::
+
+::: callout-note
+### 3. Gas Prices and Consumption
+
+As described [here](https://vincentarelbundock.github.io/Rdatasets/doc/AER/OECDGas.html). Note the `log-transformed` Quant data...why do you reckon this was done in the data set itself?
+
+{{< downloadthis data/OECDGas.csv dname="OECDGas" label="Download the Gas Consumption Data" icon="database-fill-down" type="info" >}}
+:::
+
+::: callout-note
+### 4. [Horror Movies](https://notawfulandboring.blogspot.com/2024/04/using-pulse-rates-to-determine-scariest.html) (Bah.You awful people..)
+
+{{< downloadthis data/HorrorMoviedata.csv dname="HorrorMoviedata" label="Download the Horror Movie Data" icon="database-fill-down" type="info" >}}
+:::
+
+::: callout-note
+### 6. [Food Delivery Times](https://vincentarelbundock.github.io/Rdatasets/doc/modeldata/deliveries.html)
+
+{{< downloadthis data/deliveries.csv dname="deliveries" label="Download the Food Delivery Data" icon="database-fill-down" type="info" >}}
+:::
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+-   Scatter Plots, when they show "linear" clouds, tell us that there is some relationship between two Quant variables we have just plotted
+-   If so, then if one is the [target variable](https://orangedatamining.com/blog/machine-learning-jargon/) you are trying to [**design for**]{style="background: yellow;"}, then the other [independent, or controllable, variable](https://www.scribbr.com/methodology/independent-and-dependent-variables/) is something you might want to [**design with**]{style="background: yellow;"}.
+
+:::callout-important
+Target variables are usually plotted on the Y-axis, while Predictor variables are on the X-Axis, in a Scatter Plot. Why?
+Because $y = mx + c$ ! 
+:::
+
+-  Correlation scores are good indicators of things that are, well, related. While one variable may not necessarily **cause** another, a good correlation score may indicate how to chose a good predictor.
+- That is something we will see when we examine [Linear Regression](../../../Modelling/Modules/LinReg/index.qmd)
+-   Always, always, plot and test your data! Both numerical summaries as tables, and graphical summaries as charts, are necessary! See below!!
+
+::: callout-warning
+### And How about these datasets?
+
+```{r}
+#| label: datasaurus
+#| echo: false
+#| message: false
+library(tidyverse)
+library(datasauRus)
+##
+datasaurus_dozen %>%
+group_by(dataset) %>%
+summarize(
+mean_x    = mean(x),
+mean_y    = mean(y),
+std_dev_x = sd(x),
+std_dev_y = sd(y),
+corr_x_y  = cor(x, y)) %>% 
+kbl() %>% 
+kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+datasaurus_dozen %>%
+ggplot(aes(x, y)) +
+geom_point() +
+theme_minimal() +
+facet_wrap( ~ dataset, ncol = 6) +
+coord_fixed()
+
+```
+
+Yes, you did want to plot that cute T-Rex, didn't you? Here is the data then!!
+
+```{r, echo = FALSE}
+datasaurus_dozen %>% download_this(output_name = "datasaurus", output_extension = ".csv", button_label = "DataSaurus Dirty Dozen", button_type = "default", icon = "fa fa-save",   class = "hvr-sweep-to-left")
+```
+:::
+
+::: callout-warning
+-   Can selling more ice-cream make people drown?
+-   Use your head about pairs of variables. Do not fall into this [trap](https://pedermisager.org/blog/why_does_correlation_not_equal_causation/))
+:::
+
+
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
-Our workflow for evaluating correlations between target variable and
-several other predictor variables uses several packages such as `GGally`, `corrplot`, `correlation`, and of course `mosaic` for correlation tests. We will explore more R code for these in the tutorials @sec-slides-and-tutorials.
+Scatter Plots give a us sense of change; whether it is linear or non-linear. We can get an idea of correlation between variables with a scatter plot. Our workflow for evaluating correlations between target variable and several other predictor variables uses several packages such as `GGally`, `corrplot`, `correlation`, and of course `mosaic` for correlation tests.
 
 
 ## {{< iconify ooui references-ltr >}} References

@@ -1,5 +1,5 @@
 ---
-title: "\U0001F4CA Boxplots: Plotting Groups"
+title: <iconify-icon icon="lucide:group" width="1.2em" height="1.2em"></iconify-icon> Boxplots - Plotting Groups 
 subtitle: "Plotting Distributions over Categories"
 author: "Arvind V."
 date: 24/June/2024
@@ -65,6 +65,7 @@ library(gfonts)
 library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
 
 ```
 
@@ -160,6 +161,7 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 
 [Alice said, "I say what I mean and I mean what I say!"](https://www.reddit.com/r/EnglishLearning/comments/1abf1dg/comment/kjn85an/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) Are the rest of us so sure? What do we mean when we use any of the phrases above? How definite are we? There is a range of "sureness" and "unsureness"...and this is where we can use box plots like @fig-boxplot-inspiration to show that range of opinion.
 
+Maybe it is time for a box plot on uh, shades[^2] of meaning for ~~Jane Austen~~ Gen-Z phrases! Bah.
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
@@ -633,11 +635,14 @@ We can do similar work with the other Qual variables. Let us now see how we can 
 
 ### {{< iconify el question-sign >}} Question-4: Is the target variable `realrinc` affected by combinations of Qual factors `gender`, `educcat`, `maritalcat` and `childs`?
 ::: callout-important 
-This is a rather complex question and could take us deep into [Modelling](https://r4ds.had.co.nz/model-building.html). Ideally we ought to:\
+This is a rather complex question and could take us deep into [Modelling](https://r4ds.had.co.nz/model-building.html). Ideally we ought to:
+
 - take each Qual variable, explain its effect on the target variable\
 - **remove that effect** and model the remainder ( i.e. *residual*) with the next Qual variable\
 - Proceed in this way until we have a good model.\
-if we are going to do this manually. There are more modern [Modelling Workflows](workflows), that can do things much faster and without such manual tweaking. 
+if we are going to do this manually. 
+
+There are more modern [Modelling Workflows](workflows), that can do things much faster and without such manual tweaking. 
 :::
 
 So will simply plot box plots showing effects on the target variable of *combinations* of Qual variables taken two at a time. (We will of course use facetted box plots!)
@@ -764,26 +769,89 @@ wages %>%
 :::
 
 
+## {{< iconify ic outline-gpp-good>}} Are the Differences Significant?
+
+::: callout-important
+### Hunches and Hypotheses
+In data analysis, we always want to know[^1], as in life, how important things are, whether they **matter**. To do this, we make up hunches, or more precisely, *Hypotheses*. We make two in fact: 
+
+$H_0$: *Nothing is happening*;\
+$H_a$: ("a" for Alternate): *Something is happening and it is important enough to pay attention to*. 
+
+We then [***pretend*** that $H_0$ is true](https://youtu.be/ciS5GikZ5Jo){style="background: yellow;"} and ask that our data prove us wrong; if it does, *we reject $H_0$ in favour of $H_a$*. 
+
+This is a very important idea of *Hypothesis Testing* which helps you justify your hunch. We will study this when we do Stats Tests for [Differences between two means](../../../Inference/Modules/110-TwoMeans/index.qmd), and [those between more than two means](../../../Inference/Modules/130-ThreeMeansOrMore/index.qmd). 
+
+:::
+
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+- Box plots are a  powerful statistical graphic that give us a combined view of data ranges, quartiles, medians, and outliers. 
+- Box plots can [compare `groups` within our Quant variable, based on `levels` of a Qual variable]{style="background: yellow;"}. This is a very common and important task in research! 
+- In your design research, you would have numerical Quant data that is accompanied by categorical Qual data pertaining to groups within your target audience. 
+- Analyzing for **differences** in the Quant across levels of the Qual (e.g household expenditure across groups of people) is a vital step in justifying time, effort, and money for further actions in your project. Don't faff this. 
+- Box plots are ideal for visualizing statistical tests for difference in *mean* values across groups (t-test and ANOVA).
+
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 -   Box Plots "dwell upon" **medians** and **Quartiles**
--   Box Plots can show distributions of a Quant variable over levels of a Qual variable
-- This allows a comparison of box plots side by side to visibly detect differences in median and IQR across such levels
+-   Box Plots can show distributions of a Quant variable over *levels* of a Qual variable
+- This allows a comparison of box plots side by side to visibly detect differences in medians and IQRs across such levels.
 
 
-## {{< iconify openmoji person >}} Your Turn
+## {{< iconify bi person-up >}} Your Turn
 
-<a href="./files/data/qdd-data.zip">
-<i class="fa-solid fa-database"></i> Datasets</a>
+Here are a couple of datasets that you might want to analyze with box plots:
 
-1.  Click on the Dataset Icon above, and unzip that archive. Try to make
-    distribution plots with each of the three tools.
-2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
-3.  Old Faithful Data in R (Find it!)
+::: callout-note
+### Insurance Data
 
-`inspect` the dataset in each case and develop a set of Questions, that
-can be answered by appropriate stat measures, or by using a chart to
-show the distribution.
+{{< downloadthis data/insurance.csv dname="insurance" label="Download the Insurance data" icon="database-fill-down" type="info" >}}
+
+:::
+
+::: callout-note
+
+### Political Donations 
+
+{{< downloadthis data/donations.csv dname="donations" label="Download the Donations data" icon="database-fill-down" type="info" >}}
+
+:::
+::: callout-note
+
+### UFO Encounters 
+
+```{r}
+#| echo: false
+ufo_sightings <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-25/ufo_sightings.csv")
+
+ufo_sightings %>% download_this(output_name = "UFO", output_extension = ".csv", button_label = "UFO Sighting data", button_type = "default", icon = "fa fa-save")
+```
+
+The data dictionary for this dataset is here at the [TidyTuesday Website.](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-06-25). The TidyTuesday Website is a treasure trove of interesting datasets!
+
+:::
+::: callout-note
+
+### GPT-based Language detectors are biased against non-native English writers.
+
+```{r}
+#| echo: false
+detectors <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-07-18/detectors.csv")
+
+detectors %>% download_this(output_name = "AI_Dectectors", output_extension = ".csv", button_label = "AI Dectector data", button_type = "default", icon = "fa fa-save")
+
+```
+
+
+What story can you tell, and deduction can you make from @fig-ai-detectors-are-biased below? How would you [replicate it](https://www.rawgraphs.io/learning/how-to-make-a-violin-plot)? What would you add?
+
+![AI Detectors](../../../../../materials/images/ai-bias.png){#fig-ai-detectors-are-biased}
+:::
+
+
 
 ## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
 
@@ -800,11 +868,25 @@ used_here()
 
 ## {{< iconify ooui references-rtl >}} References
 
-1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
-<https://tinlizzie.org/histograms/?s=09>\
-1. Minimal R using
-`mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
-1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
+
+1. Bevans, R. (2023, June 22). *An Introduction to t Tests | Definitions, Formula and Examples*. Scribbr. <https://www.scribbr.com/statistics/t-test/>
+
+1. Brown, Angus. (2008). *The Strange Origins of the t-test*. Physiology News | No. 71 | Summer 2008| <https://static.physoc.org/app/uploads/2019/03/22194755/71-a.pdf>
+
+1. Stephen T. Ziliak.(2008). *Guinnessometrics: The Economic
+Foundation of “Student’s” t*. Journal of Economic Perspectives—Volume 22, Number 4—Fall 2008—Pages 199–216. <https://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.22.4.199>
+
+1. <https://quillette.com/2024/08/03/xy-athletes-in-womens-olympic-boxing-paris-2024-controversy-explained-khelif-yu-ting/>
+
+1. Senefeld JW, Lambelet Coleman D, Johnson PW, Carter RE, Clayburn AJ, Joyner MJ. *Divergence in Timing and Magnitude of Testosterone Levels Between Male and Female Youths*. JAMA. 2020;324(1):99–101. doi:10.1001/jama.2020.5655. <https://jamanetwork.com/journals/jama/fullarticle/2767852>
+
+1. Doriane Lambelet Coleman.(2017) *Sex in Sport, 80 Law and Contemporary Problems*. Available at: <https://scholarship.law.duke.edu/lcp/vol80/iss4/5>
+
+[^1]:“Ah, Misha, he has a stormy spirit. His mind is in bondage. He is haunted by a great, unsolved doubt. He is one of those who don't want millions, but an answer to their questions.”
+― Fyodor Dostoevsky, The Brothers Karamazov: A Novel in Four Parts With Epilogue
+
+[^2]: The term *throwing a shade* can be found in Jane Austen's novel Mansfield Park (1814). Young Edmund Bertram is displeased with a dinner guest's disparagement of the uncle who took her in: "With such warm feelings and lively spirits it must be difficult to do justice to her affection for Mrs. Crawford, without throwing a shade on the Admiral."
+
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations

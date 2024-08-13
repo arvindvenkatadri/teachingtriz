@@ -1,5 +1,5 @@
 ---
-title: "\U0001F4CA Bar Plots: Plotting Counts"
+title: "\U0001F4CA Bar Plots: Plotting Counts and Proportions"
 subtitle: "How much data does a man need?"
 author: "Arvind V."
 date: 23/Jun/2024
@@ -67,7 +67,7 @@ library(gfonts)
 library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
-
+library(downloadthis)
 ```
 
 ```{r}
@@ -884,13 +884,10 @@ gf_percents(~ substance,
 ```
 
 :::
+## {{< iconify openmoji person >}} Are the differences in Proportion Significant?
 
-## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+To be Written Up.
 
--   Qualitative data variables can be plotted as **counts**, using Bar
-    Charts
--   `gf_col` and `gf_bar` provide Bar charts; `gf_bar` performs `counts` internally, whereas `gf_col` requires pre-counted data.
--  Using `facets` allows us to view counts of one Qual variable *split over* two other Qual variables
 
 ## {{< iconify openmoji person >}} Your Turn
 
@@ -899,15 +896,66 @@ gf_percents(~ substance,
 
 1.  Click on the Dataset Icon above, and unzip that archive. Try to make
     Bar plots with each of them, using one or more Qual variables.
+    
 2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
+
+```{r}
+#| label: data download
+#| echo: false
+airbnb <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv", header=TRUE)
+
+apartments <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv", header=T, sep=",") %>% select(GrLivArea, SalePrice)
+
+```
+
+3.  AiRbnb Price Data on the French Riviera:
+
+```{r, echo = FALSE}
+airbnb %>% download_this(output_name = "airbnb",output_extension = ".csv", button_label = "AiRbnb data", button_type = "default", icon = "fa fa-save")
+```
+
+4.  Apartment price vs ground living area:
+
+```{r, echo = FALSE}
+apartments %>% download_this(output_name = "apartments", output_extension = ".csv", button_label = "Apartment Data", button_type = "default", icon = "fa fa-save",   class = "hvr-sweep-to-left")
+```
+<br>
+
+5.  Fertility: This rather large and interesting Fertility related dataset from <https://vincentarelbundock.github.io/Rdatasets/csv/AER/Fertility.csv>
+
+{{< downloadthis data/Fertility.csv dname="Fertility" label="Download the Fertility Data" icon="database-fill-down" type="info" >}}
+
 
 `glimpse` / `skim` / `inspect` the dataset in each case and develop a set of Questions, that
 can be answered by appropriate stat measures, or by using a chart to
 show the distribution.
 
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+-   Always ~~count your chickens~~ count your data before you model or infer!
+-   Counts first give you an absolute sense of how much data you have.
+-   Counts by different Qual variables give you a sense of the **combinations** you have in your data: $(Male/Female) * (Income-Status) * (Old/Young) * (Urban/Rural)$ (Say 2 \* 3 \* 2 \* 2 = 24 combinations of data)
+-   Counts then give an idea whether your data is lop-sided: do you have too many observations of one category(level) and too few of another category(level) in a given Qual variable?
+-   Balance is important in order to draw decent inferences
+-   And for ML algorithms, to train them properly.
+-   Since the X-axis in bar charts is *Qualitative* (the bars don't touch, remember!) it is possible to sort the bars at will, based on the levels within the Qualitative variables. See the approx [Zipf's Law distribution](https://www.wikiwand.com/en/Zipf%27s_law) for the English alphabet below:
+
+![Zipf's Law](../../../../../materials/images/zipf.png){#fig-zipfs-law}
+
+In @fig-zipfs-law, the letters of the alphabet are "levels" within a Qualitative variable, and these levels have been sorted based on the frequency or count!
+
+## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
+
+-   Qualitative data variables can be plotted as **counts**, using Bar
+    Charts
+-   `gf_col` and `gf_bar` provide Bar charts; `gf_bar` performs `counts` internally, whereas `gf_col` requires pre-counted data.
+-  Using `facets` allows us to view counts of one Qual variable *split over* two other Qual variables
+
 ## {{< iconify ooui references-rtl >}} References
 
-1. 
+1. Daniel Kaplan and Randall Pruim. *ggformula: Formula Interface for ggplot2 (full version)*. <https://www.mosaic-web.org/ggformula/articles/pkgdown/ggformula-long.html>
+
 
 ::: {#refs style="font-size: 60%;"}
 

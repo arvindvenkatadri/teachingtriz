@@ -1,4 +1,3 @@
-options(paged.print = TRUE)
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -21,6 +20,7 @@ library(gfonts)
 library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
 
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
@@ -420,6 +420,11 @@ p2 <- TeachHistDens(Mean = 60, Sd = 15, VLine1 = 70,AxisFontSize = 14)
 xpnorm(mean = 60, sd = 15, q = 70)
 # # p4 <- TeachHistDens(Mean = 10, Sd = 15)
 
+
+
+airbnb <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv", header=TRUE)
+
+apartments <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/2_TwoNum.csv", header=T, sep=",") %>% select(GrLivArea, SalePrice)
 
 
 library(usedthese)
