@@ -1,5 +1,6 @@
 ---
-title: "\U0001F409 Likert Plots: Plotting Survey Data"
+title: <iconify-icon icon="wpf:survey" width="1.2em" height="1.2em"></iconify-icon> Surveys
+subtitle: "Extra Cheese with my 5-insect pizza, please!"
 author: "Arvind V."
 date: 27/Dec/2022
 date-modified: "`r Sys.Date()`"
@@ -35,14 +36,10 @@ library(mosaic) # Our trusted friend
 library(skimr)
 library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
-library(ggmosaic) # Mosaic Plots
 library(resampledata) # More datasets
 
 library(sjPlot) # Likert Scale Plots
 library(sjlabelled) # Creating Labelled Data for Likert Plots
-
-library(ggpubr) # Colours, Themes and new geometries in ggplot
-library(ca) # Correspondence Analysis, for use some day
 
 ## Making Tables
 library(kableExtra) # html styled tables
@@ -122,13 +119,19 @@ theme_set(new = theme_custom())
 
 ```
 
-## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-In many business situations, we perform say *customer surveys* to get
+## {{< iconify icons8 idea >}} Inspiration
+
+To be Found !!
+
+
+## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
+
+In many business and design situations, we perform say *customer surveys* to get
 [Likert Scale](https://www.simplypsychology.org/likert-scale.html) data,
 where several respondents rate a product or a service on a scale of
 `Very much like`, `somewhat like`, `neutral`, `Dislike` and
-`Very much dislike,` for example.
+`Very much dislike,` for example. These are then plotted in a chart to get a distribution of opinions for each question in the survey. 
 
 ## {{< iconify fluent likert-16-regular >}} Plots for Survey Data
 
@@ -149,7 +152,7 @@ following questions,
 4.  "Will you continue to use the QuickEZ app?"
 
 where each questions is to be answered on a scale of : "always",
-"often", "sometimes","never".
+"often", "sometimes","rarely", "never".
 :::
 
 Such data may look for example as follows:
@@ -161,7 +164,7 @@ Such data may look for example as follows:
 
 #library(sjlabelled
 set.seed(42)
-score_labels = c("always", "often", "sometimes","never") # numerically 1:4
+score_labels = c("always", "often", "rarely", "never") # numerically 1:5
 question_labels <- c("Have your heard of the QuickEZ app?",
                      "Do you use the QuickEZ app?",
                      "Do you find it easy to use the QuickEZ app?",
@@ -170,12 +173,12 @@ quickez_data <-
   # Create toy survey data
   # 200 responses to 5 questions
   # responses on Likert Scale
-  # 1:4 = "never", "sometimes","often","always")
+  # 1:5 = "always", "often", "rarely", "never"
   # 
   tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.2, 0.2, 0.5, 0.1)),
+                             prob = c(0.2, 0.2, 0.4, 0.2)),
          q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
-                             prob = c(0.3, 0.3, 0.3, 0.1)),
+                             prob = c(0.3, 0.2, 0.2, 0.3)),
          q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
                              prob = c(0.2, 0.1, 0.1, 0.6)),
          q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
@@ -208,16 +211,15 @@ plot** and it looks like this:
 # Set graph theme
 theme_set(new = theme_custom())
 
-plot_likert(quickez_data, title = "Summary of QuickEZ Questionnaire",
+plot_likert(quickez_data, title = "Summary of QuickEZ App Questionnaire",
             #sort.frq = "" # Try "pos.desc" good news on top!
-            reverse.colors = TRUE,
+            reverse.colors = TRUE, catcount = 4,
             show.prc.sign = TRUE
             ) 
 ```
 
 Based on this chart, since it looks like about half the survey
-respondents have not heard of our app, we need more publicity, and many
-do not find it easy to use 😿, so we have serious re-design and user
+respondents have not heard of our app, we need more publicity, and many do not find it easy to use 😿, so we have serious re-design and user
 testing to do !! But at least those who have managed to get past the
 hurdles are stating they will continue to use the app, so it does the
 job, but we can make it easier to use.
@@ -417,6 +419,11 @@ items. An example from the field of medical diagnosis is the opinions of
 two specialists on a common set of patients. However, that is for a more
 advanced course!
 
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+- Likert plots are like stacked bar-charts aligned horizontally. They are useful to indicate aspects like opinion, belief, and habits. 
+- The scale for Likert data is [**ordinal**](../05-NatureData/index.qmd#how-do-we-spot-data-variable-types): it should not be assumed that the points on the Likert scale ("never", "sometimes","often","always") are *separated by the same distance*. 
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 How are the Likert Plots for Survey data different from Bar Plots? Not very much inherently; we can view the Likert Charts as a set of stacked bar charts, based on Likert-scale response counts. At a pinch we can make a Likert Plot with vanilla bar graphs, but the elegance  and power of the packages `sjPlot` and `sjlabelled` is undeniable.
@@ -434,27 +441,27 @@ There are several questions here for each "area" of preference for edible insect
 
 ## {{< iconify ooui references-ltr >}} References
 
-1.  Mine Cetinkaya-Rundel and Johanna Hardin. *An Introduction to Modern
-    Statistics*, Chapter 4.
-    <https://openintro-ims.netlify.app/explore-categorical.html>\
+1. What is a Likert Scale? <https://www.surveymonkey.com/mp/likert-scale/>
 
-2.  Using the `strcplot` command from `vcd`,
-    <https://cran.r-project.org/web/packages/vcd/vignettes/strucplot.pdf>\
+1. Rickards, G., Magee, C., & Artino, A. R., Jr (2012). *You Can't Fix by Analysis What You've Spoiled by Design: Developing Survey Instruments and Collecting Validity Evidence*. Journal of graduate medical education, 4(4), 407–410. <https://doi.org/10.4300/JGME-D-12-00239.1>
 
-3.  Creating Frequency Tables with `vcd`,
-    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/A_creating.html>\
+1. Jamieson, S. (2004). Likert scales: how to (ab)use them. Medical Education, 38(12), 1217–1218. <doi:10.1111/j.1365-2929.2004.02012.x> 
 
-4.  Creating mosaic plots with `vcd`,
-    <https://cran.r-project.org/web/packages/vcdExtra/vignettes/D_mosaics.html>\
+1. Mark Bounthavong. (May 16, 2019). *Communicating data effectively with data visualization – Part 15 (Diverging Stacked Bar Chart for Likert scales)*. <https://mbounthavong.com/blog/2019/5/16/communicating-data-effectively-with-data-visualization-part-15-divergent-stacked-bar-chart-for-likert-scales>
 
-5.  Michael Friendly, *Corrgrams: Exploratory displays for correlation
-    matrices*. The American Statistician August 19, 2002 (v1.5).
-    <https://www.datavis.ca/papers/corrgram.pdf>\
+1. Anthony R. Artino Jr., Jeffrey S. La Rochelle, Kent J. Dezee & Hunter
+Gehlbach (2014). *Developing questionnaires for educational research: AMEE Guide No. 87, Medical Teacher, 36:6, 463-474, DOI:10.3109/0142159X.2014.889814
+To link to this article: https://doi.org/10.3109/0142159X.2014.889814
 
-6.  [Visualizing Categorical Data in
-    R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
-    
-7. H. Riedwyl & M. Schüpbach (1994), Parquet diagram to plot contingency tables. In F. Faulbaum (ed.), Softstat '93: Advances in Statistical Software, 293--299. Gustav Fischer, New York.
+1. Naomi B. Robbins, Richard M. Heiberger. *Plotting Likert and Other Rating Scales*. Section on Survey Research Methods – JSM 2011. [PDF Available here](https://www.montana.edu/msse/Old_Data_analysis/Likert%20Survey%20Graphs.pdf)
+
+
+## {{< iconify streamline book-reading >}} Additional Readings
+
+1. Daniel Lüdecke. (2024-05-13). *Plotting Likert Scales with sjPlot*. <https://cran.r-project.org/web/packages/sjPlot/vignettes/plot_likert_scales.html>
+
+1. Joseph Larmarange. *Plot Likert-type items with gglikert()*. <https://cran.r-project.org/web/packages/ggstats/vignettes/gglikert.html>
+
 
 
 ::: {#refs style="font-size: 60%;"}

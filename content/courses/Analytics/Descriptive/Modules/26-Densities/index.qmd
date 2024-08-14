@@ -1,5 +1,5 @@
 ---
-title: "\U0001F4CA Densities: Plotting Distributions"
+title: <iconify-icon icon="clarity:bell-curve-line" width="1.2em" height="1.2em"></iconify-icon> Densities
 subtitle: "The Hills are Shadows, said Tennyson"
 author: "Arvind V."
 date: 22/Jun/2024
@@ -40,7 +40,7 @@ webr:
 #| include: true
 #| message: false
 #| warning: false
-options(paged.print = TRUE)
+
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -74,6 +74,7 @@ library(gfonts)
 library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
 
 ```
 
@@ -165,6 +166,18 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 ```
 :::
 
+## {{< iconify icons8 idea >}} Inspiration
+```{r}
+#| echo: false
+theme_set(new = theme_custom())
+lincoln_weather %>% 
+  gf_density_ridges_gradient(Month ~ `Max Temperature [F]`,
+                             group = ~ Month) %>% 
+  gf_refine(scale_fill_viridis_c(name = "Temperature [F]", option = "B")) %>% 
+  gf_labs(title = "Weather in Lincoln, Nebraska")
+```
+[April is the cruelest month](https://www.poetryfoundation.org/poems/47311/the-waste-land), said T.S Eliot. But December in Nebraska must be tough.
+
 ## {{< iconify  mdi chart-bell-curve >}} What is a "Density Plot"?
 
 As we saw earlier, **Histograms** are best to show the distribution of raw **Quantitative data**, by displaying the number of values that fall within defined ranges, often called *buckets* or *bins*. 
@@ -181,7 +194,7 @@ histograms, especially with default bucket widths. The *chunkiness* that we see 
 ## {{< iconify grommet-icons test >}} Case Study-1: `penguins` dataset
 
 We will first look at at a dataset that is directly available in R, the
-`penguins` dataset.
+`penguins` dataset. Data were collected and made available by [Dr. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) and the [Palmer Station, Antarctica LTER](https://pallter.marine.rutgers.edu/), a member of the [Long Term Ecological Research Network](https://lternet.edu/).
 
 ### {{< iconify file-icons influxdata >}} Examine the Data
 
@@ -220,20 +233,41 @@ skim(penguins)
 
 :::
 
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
 
 ::: callout-note
-### Business Insights on Examining the `penguins` dataset
+### Qualitative Data
+- `sex`: male and female penguins
+- `island`: they have **islands** to themselves!!
+- `species`: Three adorable types!
 
--   This is a smallish dataset (344 rows, 8 columns).
--   There are several Qualitative variables: `species`, `island` and
-    `sex`. These have 3, 3, and 2 levels respectively. They are all `<fct>`, i.e. factors. 
+::: {.column-margin}
+![Penguin Species](../../../../../materials/images/penguins.png){#fig-penguin-species}
+:::
 
--   `bill_length_mm`, `bill_length_mm`, `flipper_length_mm`, and `body_mass_g  ` are
-    Quantitative variables.
--   There are a few missing values in `sex`(11 missing entries) and all the Quant variables (2 missing entries each).
 :::
 
 
+::: callout-note
+### Quantitative Data
+- `bill_length_mm`: The length of the penguins' bills
+- `bill_depth_mm`: See the picture!!
+- `flipper_length_mm`: Flippers! Penguins have "hands"!!
+- `body_mass_gm`: Grams? Grams??? Why, these penguins are like human babies!!`r emoji::emoji("heart")`
+
+::: {.column-margin}
+![Penguin Features](../../../../../materials/images/culmen_depth.png){#fig-penguin-features}
+:::
+:::
+
+
+
+
+### Business Insights on Examining the `penguins` dataset
+
+-   This is a smallish dataset (344 rows, 8 columns).
+-   There are a few missing values in `sex`(11 missing entries) and all the Quant variables (2 missing entries each).
+:::
 
 
 ### {{< iconify mdi chart-bell-curve >}} Plotting Densities
@@ -516,17 +550,31 @@ To be created !!
 
 ## {{< iconify openmoji person >}} Your Turn
 
-<a href="./files/data/qdd-data.zip">
-<i class="fa-solid fa-database"></i> Datasets</a>
+::: callout-note
+### Star Trek Books\
+```{r echo=FALSE}
 
-1.  Click on the Dataset Icon above, and unzip that archive. Try to make
-    distribution plots with each of the three tools.
-2.  A dataset from calmcode.io <https://calmcode.io/datasets.html>
-3.  Old Faithful Data in R (Find it!)
+library(rtrek)
+star_trek_books <- stBooks
+star_trek_books %>% download_this(output_name = "star_trek_books", output_extension = ".csv", button_label = "Start Trek Book data", button_type = "default", icon = "fa fa-save")
 
-`inspect` the dataset in each case and develop a set of Questions, that
-can be answered by appropriate stat measures, or by using a chart to
-show the distribution.
+```
+
+Which would be the `Group By` variables here? And what would you summarize? With which function?
+:::
+
+::: callout-note
+### Math Anxiety! Hah!
+```{r echo=FALSE}
+
+library(resampledata3)
+data(MathAnxiety)
+MathAnxiety %>% 
+ download_this(output_name = "MathAnxiety", output_extension = ".csv", button_label = "Math Anxiety data", button_type = "default", icon = "fa fa-save")
+
+```
+:::
+
 
 ## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
 

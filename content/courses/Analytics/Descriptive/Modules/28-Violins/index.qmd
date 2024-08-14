@@ -1,5 +1,5 @@
 ---
-title: "\U0001F4CA Violins: Plotting Groups and Densities"
+title: <iconify-icon icon="material-symbols:light-group-rounded" width="1.2em" height="1.2em"></iconify-icon> Groups and Densities
 subtitle: ""
 author: "Arvind V."
 date: 15/Nov/2022
@@ -12,10 +12,6 @@ df-print: paged
 categories:
 - Qual Variables
 - Quant Variables
-- Bar Charts
-- Column Charts
-- Histograms
-- Density Plots
 - Box Plots
 - Violin Plots
 bibliography: 
@@ -48,14 +44,7 @@ options(paged.print = TRUE)
 library(tidyverse)
 library(mosaic)
 library(ggformula)
-
-#install.packages("remotes")
-#library(remotes)
-#remotes::install_github("wilkelab/ggridges")
-library(ggridges)
 library(skimr)
-
-library(palmerpenguins) # Our new favourite dataset
 
 ```
 
@@ -219,7 +208,8 @@ p2 <- data %>%
 patchwork::wrap_plots(p1,p2, ncol = 2) + patchwork::plot_layout(axes = "collect")
 
 ```
-Which is the plots above is more evocative of the underlying data?
+
+Which is the plots above is more evocative of the underlying data? The one which looks like a combo box-plot + density is probably giving us a greater sense of the spread of the data than the good old box plot.
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
@@ -236,8 +226,23 @@ quantiles of a *Quant* variable with respect to another *Qual* variable.
 Let us see what this looks like!
 
 ```{r}
+#| echo: false
+#| warning: false
+
+# Make data
+d <- data_frame(
+  dist = c("A", "B", "C", "D"),
+  dist_mean = c(80, 90, 110, 130),
+  dist_sd = c(15, 10, 25, 5)
+) %>% 
+  mutate(variable = pmap(list(dist_mean, dist_sd), rnorm(500)))
+
+```
+
+
+```{r}
 #| label: fig-normal-violins
-#| fig-cap: "Violins for Normal Variables"
+#| fig-cap: "Violin Plots for Normal Variables" 
 #| echo: false
 #| warning: false
 ## Set graph theme
@@ -245,17 +250,7 @@ theme_set(new = theme_custom())
 ##
 library(ggnormalviolin)
 library(ggplot2)
-library(ggnormalviolin)
 
-# Make data
-d <- data.frame(
-  dist = c("A", "B", "C", "D"),
-  dist_mean = c(80, 90, 110, 130),
-  dist_sd = c(15, 10, 25, 5)
-) %>% 
-  mutate(variable = pmap(list(dist_mean, dist_sd),rnorm(500)))
-
-d
 # Make base plot
 p <- ggplot(data = d, 
             aes(x = dist,
@@ -273,7 +268,11 @@ p + geom_normalviolin(p_lower_tail = 0.05, p_upper_tail = 0.05) +
        x = "Qual Variable Level",
        y = "Quant Variable Values")
 ```
-In @fig-normal-violins, the plots show (very artificial!) distributions of a *single Quant variable* across *levels* of another **Qual variable**. At each level of the Qual variable along the X-axis, we have a violin plot showing the density 
+
+
+In @fig-normal-violins, the plots show (very artificial!) distributions of a *single Quant variable* across *levels* of another **Qual variable**. At each level of the Qual variable along the X-axis, we have a violin plot showing the density.
+
+## {{< iconify grommet-icons test >}} Case Study-1: `diamonds` dataset
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 

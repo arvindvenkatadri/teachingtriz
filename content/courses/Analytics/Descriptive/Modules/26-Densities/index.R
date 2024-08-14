@@ -1,4 +1,3 @@
-options(paged.print = TRUE)
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -26,6 +25,7 @@ library(gfonts)
 library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
 
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
@@ -90,6 +90,13 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
   kbl() %>%
   kable_paper("hover", full_width = T)
   
+
+theme_set(new = theme_custom())
+lincoln_weather %>% 
+  gf_density_ridges_gradient(Month ~ `Max Temperature [F]`,
+                             group = ~ Month) %>% 
+  gf_refine(scale_fill_viridis_c(name = "Temperature [F]", option = "B")) %>% 
+  gf_labs(title = "Weather in Lincoln, Nebraska")
 
 glimpse(penguins)
 
@@ -180,6 +187,19 @@ gf_density_ridges(drv ~ hwy, fill = ~ drv,
   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
             scale_x_continuous(expand = c(0.01, 0))) %>% 
   gf_labs(title = "Ridge Plot")
+
+
+
+library(rtrek)
+star_trek_books <- stBooks
+star_trek_books %>% download_this(output_name = "star_trek_books", output_extension = ".csv", button_label = "Start Trek Book data", button_type = "default", icon = "fa fa-save")
+
+
+
+library(resampledata3)
+data(MathAnxiety)
+MathAnxiety %>% 
+ download_this(output_name = "MathAnxiety", output_extension = ".csv", button_label = "Math Anxiety data", button_type = "default", icon = "fa fa-save")
 
 
 library(usedthese)
