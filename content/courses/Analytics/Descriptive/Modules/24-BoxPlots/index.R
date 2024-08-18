@@ -110,6 +110,8 @@ wages_clean %>%
   gf_labs(title = "Plot 1A: Income has a skewed distribution",
           subtitle = "Many outliers on the high side")
 
+
+
 # Set graph theme
 theme_set(new = theme_custom())
 #

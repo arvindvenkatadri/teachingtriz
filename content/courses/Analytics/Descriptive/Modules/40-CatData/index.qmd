@@ -231,8 +231,9 @@ From the `{vcd package}` vignette:
 -   Cross-Tabular Count Data
 
 Let us first see examples of each.
-
+:::{.column-body-outset-right}
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 ### Case Form
 
 From Michael Friendly [Discrete Data Analysis and
@@ -248,21 +249,35 @@ Visualization](http://ddar.datavis.ca/pages/home) :
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
-
+::::{.columns}
+:::{.column}
 ```{r}
-#| label: case-form-data
-#| layout: [[20],[80]]
+#| label: arthritis-table
+#| eval: false
 
 class(Arthritis)
-
 # Tibble as HTML for presentation
 Arthritis %>%  
   head(10) %>% 
-  kbl(caption = "Case Form: Arthritis Treatments and Effects<br> First 10 Observations", centering = TRUE) %>%
-  kable_classic_2(html_font = "Cambria", full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
-
+  kbl(caption = "Case Form: Arthritis Treatments 
+      and Effects<br> First 10 Observations", 
+      centering = TRUE) %>%
+  kable_classic_2(html_font = "Cambria", 
+                  full_width = F) %>% 
+  kable_styling(
+    bootstrap_options = 
+        c("striped", "hover", "responsive"))
 ```
+
+:::
+:::{.column}
+```{r}
+#| ref.label: arthritis-table
+#| echo: false
+```
+:::
+::::
+
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 
@@ -281,7 +296,6 @@ Arthritis %>%
 
 ```
 
-------------------------------------------------------------------------
 :::
 
 The `Arthritis` data set has three factors and two *integer* variables.
@@ -310,9 +324,12 @@ information.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### {{< iconify la r-project >}} R
+::::{.columns}
+:::{.column}
 
 ```{r}
-
+#| label: GSS-table
+#| eval: false
 str(GSS)
 
 # Tibble as HTML for presentation
@@ -322,9 +339,18 @@ GSS %>%
   kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 
 ```
+:::
 
-------------------------------------------------------------------------
+::: {.column}
+```{r}
+#| ref.label: GSS-table
+#| echo: false
 
+```
+
+
+:::
+::::
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
@@ -350,14 +376,25 @@ Table Form Data can be a `matrix`, `array` or `table object`, whose
 elements are the frequencies in an **n-way table**. The variable names
 (factors) and their levels are given by `dimnames(X)`.
 
+::::{.columns}
+:::{.column}
 ```{r}
 #| label:  Table-Form
+#| eval: false
 
 HairEyeColor
 class(HairEyeColor)
 
 ```
+:::
+:::{.column}
 
+```{r}
+#| ref.label: Table-Form
+#| echo: false
+```
+
+:::
 `HairEyeColor` is a "two-way" table, consisting of **two tables**, one
 for `Sex = Female` and the other for `Sex = Male`. The total number of
 observations is `sum(X)`. The number of dimensions of the table is
@@ -425,6 +462,7 @@ HairEyeColor %>%
   kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
 
 ```
+:::
 :::
 
 ## {{< iconify carbon chart-3d >}} Simple Plots for Categorical Data
@@ -842,18 +880,52 @@ command yet!
 `ggmosaic` takes a tibble with Qualitative variables, internally
 computes the counts/table, and plots the mosaic plot:
 
-```{r mosaic-plot,warning=FALSE}
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: gss2002
+#| eval: false
+gss2002
+```
+:::
+
+::: {.column}
+```{r}
+#| ref.label: gss2002
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| label: ggmosaic-plot
+#| eval: false
 #library(ggmosaic)
 #
 # Set graph theme
 theme_set(new = theme_custom())
-
-gss2002
+##
 ggplot(data = gss2002) +
-  ggmosaic::geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty))
+  ggmosaic::geom_mosaic(
+      aes(x = product(DeathPenalty, Education), 
+          fill = DeathPenalty))
 
 ```
+:::
+
+::: {.column}
+```{r}
+#| ref.label: ggmosaic-plot
+#| echo: false
+```
+
+:::
+::::
+
 
 #### Using ggformula
 
@@ -863,11 +935,12 @@ has been developed using this [Stackoverflow
 post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2).
 
 ```{r}
-#| label: marimekko
+#| label: gss_summary_ggformula
 #| fig-height: 6
 #| fig-asp: 0.816
 #| message: false
 #| warning: false
+
 
 # Reference
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
@@ -888,6 +961,16 @@ gss_summary <- gss2002 %>%
   ungroup()
 gss_summary
 
+```
+
+
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| label: ggformula-marimekko
+#| eval: false
 # This works but is not very intuitive...
 gf_col(edu_prop ~ Education, data = gss_summary,
        width = ~ edu_count, # Not typically used in a column chart
@@ -905,10 +988,17 @@ gf_col(edu_prop ~ Education, data = gss_summary,
                 space = "free_x") %>% 
   
   gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) 
-
-  
-
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: ggformula-marimekko
+#| echo: false
+```
+
+:::
+::::
+
 
 #### **Actual** and **Expected** Contingency Tables
 
@@ -966,12 +1056,24 @@ None.
 ### {{< iconify material-symbols query-stats >}} Research Questions
 ::: callout-note
 ### Q.1. What is the dependence of `survived` upon `sex`?
+:::: {.columns}
+::: {.column}
 ```{r}
-
+#| label: vcd-titanic-1
+#| eval: false
 vcd::structable(Survived ~ Sex, data = titanic) %>% 
   vcd::mosaic(gp = shading_max)
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: vcd-titanic-1
+#| echo: false 
+```
+
+:::
+::::
 
 Note the huge imbalance in `survived` with `sex`: men have clearly perished in larger numbers than women. Which is why the colouring by the Pearson Residuals show large [*positive* residuals]{style="color: blue;"} for men who died, and large [*negative* residuals]{style="color: red;"} for women who died. 
 
@@ -981,12 +1083,23 @@ So sadly Jack is far more likely to have died than Rose.
 
 ::: callout-note
 ### Q.2. How does `Survived` depend upon `Class`?
+:::: {.columns}
+::: {.column}
 ```{r}
-
+#| label: vcd-titanic-2
+#| eval: false
 vcd::structable(Survived ~ Class, data = titanic) %>% 
   vcd::mosaic(gp = shading_max)
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: vcd-titanic-2
+#| echo: false 
+```
+:::
+::::
 
 Crew has seen deaths in large numbers, as seen by the large [*negative* residual]{style="color: red;"} for crew-survivals. 
 [First Class passengers have had speedy access to the boats](https://youtu.be/kQ8WsD9AGX4) and have survived in larger proportions than say second or third class. There is a large [*positive* residual]{style="color: blue;"} for first-class survivals. 
@@ -1036,49 +1149,99 @@ This data is already in Contingency Table form (without the margin totals)!
 -   `Task`: (chr) Task? Which task? Can't you see I'm tired?
 :::
 
-
+:::: {.columns}
+::: {.column}
 ```{r}
-#| label: balloon-plot-using-ggpubr
+#| label: balloon-plot-1
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 ##
 ggpubr::ggballoonplot(housetasks, fill = "value", 
-                      #ggtheme = theme_pubr()
+                      ggtheme = theme_pubr()
                       ) +
   scale_fill_viridis_c(option = "C") +
   labs(title = "A Balloon Plot for Categorical Data")
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: balloon-plot-1
+#| echo: false 
+```
+
+:::
+::::
+
 
 And repeat with the familiar `HairEyeColor` dataset:
 
+:::: {.columns}
+::: {.column}
 ```{r}
-#| label: Balloon-Plots-2
-#| layout: [[20], [40], [40]]
-#| column: page-inset-right
-
+#| label: HairEyeColor-tibble
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 
 df <- as_tibble(HairEyeColor)
 df
+```
+
+:::
+::: {.column}
+```{r}
+#| ref.label: HairEyeColor-tibble
+#| echo: false 
+```
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: balloon-plot-2
+#| eval: false
 ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
               fill = "n",
-              #ggtheme = theme_pubr()
+              ggtheme = theme_pubr()
               ) +
   scale_fill_viridis_c(option = "C") + 
   labs(title = "Balloon Plot")
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: balloon-plot-2
+#| echo: false 
+```
+:::
+::::
 
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: balloon-plot-3
+#| eval: false
 # Balloon Plot with facetting
 ggballoonplot(df, x = "Hair", y = "Eye", size = "n",
               fill = "n", facet.by = "Sex",
-              #ggtheme = theme_pubr()
+              ggtheme = theme_pubr()
               ) +
   scale_fill_viridis_c(option = "C") + 
-  labs(title = "Balloon Plot with Facetting", 
+  labs(title = "Balloon Plot with Facetting by Sex", 
        subtitle = "Hair and Eye Color")
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: balloon-plot-3
+#| echo: false 
+```
+:::
+::::
 
 Note the somewhat different syntax with `ggballoonplot`: the variable
 names are enclosed in quotes.
