@@ -31,6 +31,7 @@ citation: true
 #| include: true
 #| echo: true
 #| message: false
+knitr::opts_chunk$set(tidy = "styler")
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -53,7 +54,6 @@ library(patchwork) # Arrange your plots
 #| label: Extra Pedagogical Packages
 #| echo: false
 #| message: false
-
 library(checkdown)
 library(epoxy)
 library(grateful)
@@ -158,8 +158,11 @@ alternative, called a `fan chart` which we will explore here.
 Base R has a simple `pie` command that does the job. Let's create some
 toy data first:
 
+:::: {.columns}
+::: {.column}
 ```{r}
-#| layout-ncol: 2
+#| label: base-pie
+#| eval: false
 pie_data <- tibble(
   sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
   
@@ -183,6 +186,16 @@ pie(
   )
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: base-pie
+#| echo: false
+```
+
+:::
+::::
+
 
 ### Using ggformula
 
@@ -190,6 +203,7 @@ We create a bar chart or a column chart as appropriate, with bars filled by cate
 Then the `coord_polar(theta = "y")` converts the bar plot into a pie. 
 
 ```{r}
+#| label: ggformula-pie
 #| layout-ncol: 2
 #| layout-nrow: 2
 
@@ -223,6 +237,7 @@ gf_bar(data = mpg,
   gf_refine(coord_polar(theta = "y"))
 
 ```
+
 
 ### Using echarts4r
 
@@ -288,7 +303,11 @@ The `fan plot` (from the `plotrix` package) displays numerical values as
 arcs of **overlapping sectors**. This allows for more effective
 comparison:
 
-```{r,echo=TRUE}
+:::: {.columns}
+:::{.column}
+```{r}
+#| label: fan-plot
+#| eval: false
   
 # Set graph theme
 theme_set(new = theme_custom())
@@ -310,7 +329,17 @@ plotrix::fan.plot(
 )
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: fan-plot
+#| echo: false
+```
 
+
+
+:::
+::::
 There is no fan plot possible with `echarts4r`, as far as I know.
 
 ### The `Donut` Chart
@@ -423,8 +452,12 @@ itself momentarily. (Always remember that `ggformula` is a simplified
 and intuitive method that runs on **top** of `ggplot`.) We will use the
 `waffle` package.
 
-```{r}
 
+:::: {.columns}
+:::{.column}
+```{r}
+#| label: toy-data-waffle
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 
@@ -435,7 +468,23 @@ library(waffle)
 df <- tibble(group = LETTERS[1:3],
                  value = c(25, 20, 35))
 df
+```
+:::
+:::{.column}
 
+```{r}
+#| ref.label: toy-data-waffle
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+:::{.column}
+```{r}
+#| label: waffle-plot
+#| eval: false
 # Waffle plot
 # Using ggplot, sadly not yet ggformula
 ggplot(df, aes(fill = group, values = value)) +
@@ -454,23 +503,34 @@ ggplot(df, aes(fill = group, values = value)) +
   theme_void()
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: waffle-plot
+#| echo: false
+```
+:::
+::::
 
 ## {{< iconify fa6-solid people-roof >}} Parliament Charts
 
 The package `ggpol` offers an interesting visualization in the shape of
 a array of "seats" in a parliament. (There is also a package called
-`ggparliament` which in my opinion is a bit cumbersome, having a two
-step procedure to convert data into "parliament form" etc. )
+`ggparliament` which in my opinion is a bit cumbersome, having a two-step procedure to convert data into "parliament form" etc. )
 
+:::: {.columns}
+:::{.column}
 ```{r}
 #| label: using-ggpol
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
 
-df <- tibble(group = LETTERS[1:3],
-                 value = c(25, 20, 35))
-
+# Same toy dataset
+# df <- tibble(group = LETTERS[1:3],
+#                  value = c(25, 20, 35))
+#                  
 # Parliament Plot
 ggplot(df) +
   ggpol::geom_parliament(aes(seats = value, 
@@ -486,6 +546,14 @@ ggplot(df) +
 
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: using-ggpol
+#| echo: false
+```
+:::
+::::
 
 ## Trees, Dendrograms, and Circle Packings
 
@@ -519,32 +587,86 @@ Website](http://r-graph-gallery.com/index.html) :
 >     clustering divides a set of individuals in group according to
 >     their similarity. Its result can be visualized as a tree.
 
-```{r,  message=FALSE,warning=FALSE}
-
-# Set graph theme
-theme_set(new = theme_custom())
-
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: dendrogram-data
+#| eval: false
 # create an edge list data frame giving the hierarchical structure of your individuals
 d1 <- tibble(from = "origin", to = paste("group", seq(1,5), sep = ""))
 d2 <- tibble(from = rep(d1$to, each=5), to = paste("subgroup", seq(1,25), sep="_"))
 edges <- rbind(d1, d2)
 edges
-
-# Create a graph object 
-mygraph1 <- tidygraph::as_tbl_graph( edges )
- 
-# Basic tree
-p1 <- ggraph(mygraph1, layout = 'dendrogram', circular = TRUE) + 
-  geom_edge_diagonal() +
-  geom_node_point() +
-  theme_void()
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: dendrogram-data
+#| echo: false
 
 ```
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: graph-object
+#| eval: false
+# Create a graph object 
+mygraph1 <- tidygraph::as_tbl_graph(edges)
+mygraph1
+```
+:::
+
+::: {.column}
 
 ```{r}
+#| ref.label: graph-object
+#| echo: false
 
+```
+:::
+::::
+
+
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| label: dendrogram
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
+# Basic tree
+ggraph(mygraph1, layout = 'dendrogram', 
+       circular = TRUE) + 
+  geom_edge_diagonal() +
+  geom_node_point(size = 3) +
+  geom_node_label(aes(label = name),
+                  size = 3, repel = TRUE) +
+  theme(aspect.ratio = 1)
+
+```
+:::
+::: {.column}
+
+```{r}
+#| ref.label: dendrogram
+#| echo: false
+```
+
+:::
+::::
+
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| label: org-chart-data
+#| eval: false
 
 # create a data frame 
 data <- tibble(
@@ -555,49 +677,121 @@ data <- tibble(
  
 # transform it to a edge list!
 edges_level1_2 <- data %>% 
-  select(level1, level2) %>% unique %>% rename(from=level1, to=level2)
+  select(level1, level2) %>% 
+  unique %>% 
+  rename(from=level1, to=level2)
 
 edges_level2_3 <- data %>% 
-  select(level2, level3) %>% unique %>% rename(from=level2, to=level3)
+  select(level2, level3) %>% 
+  unique %>% 
+  rename(from=level2, to=level3)
 
 edge_list <- rbind(edges_level1_2, edges_level2_3)
 edge_list
 
-# Now we can plot that
-mygraph2 <- as_tbl_graph(edge_list)
-p2 <- ggraph(mygraph2, layout = 'dendrogram', circular = FALSE) + 
-  geom_edge_diagonal() +
-  geom_node_point() +
-  theme_void()
-
 ```
-
+:::
+::: {.column}
 ```{r}
-
-p1 + p2 + theme(aspect.ratio = 1)
-
+#| ref.label: org-chart-data
+#| echo: false
 ```
+
+:::
+::::
+
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: graph-object-2
+#| eval: false
+
+mygraph2 <- as_tbl_graph(edge_list)
+mygraph2
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: graph-object-2
+#| echo: false
+```
+:::
+::::
+
+
+
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: graph-2
+#| eval: false
+# Set graph theme
+theme_set(new = theme_custom())
+# Now we can plot that
+ggraph(mygraph2, layout = 'dendrogram', circular = FALSE) + 
+  geom_edge_diagonal() +
+  geom_node_point(size = 3) +
+  geom_node_label(aes(label = name), repel = TRUE) + 
+  theme_void()
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: graph-2
+#| echo: false
+```
+:::
+::::
+
+
+
+
 
 ### Circle Packing
 
+:::: {.columns}
+::: {.column}
 ```{r}
-#| warning: FALSE
-#| message: FALSE
-library(tidygraph)
-library(ggraph)
+#| label: graph-flare
+#| eval: false
+graph_flare <- tbl_graph(flare$vertices, flare$edges)
+graph_flare
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: graph-flare
+#| echo: false
+```
+:::
+::::
 
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: plot-flare
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
-
-graph <- tbl_graph(flare$vertices, flare$edges)
 set.seed(1)
-ggraph(graph, 'circlepack', weight = size) + 
-  geom_node_circle(aes(fill = as_factor(depth)), size = 0.25, n = 50) + 
-  coord_fixed() +
-  scale_fill_discrete(name = "Depth") +
-  theme_void()
+ggraph(graph_flare, 'circlepack', weight = size) +
+geom_node_circle(aes(fill = as_factor(depth)), size = 0.25, n = 50) +
+coord_fixed() +
+scale_fill_discrete(name = "Depth") +
+theme_void()
 
 ```
+:::
+::: {.column}
+```{r}
+#| ref.label: plot-flare
+#| echo: false
+```
+:::
+::::
 
 ## {{< iconify bi person-up >}} Your Turn
 

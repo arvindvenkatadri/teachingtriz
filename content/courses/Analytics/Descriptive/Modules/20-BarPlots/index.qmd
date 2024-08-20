@@ -40,6 +40,7 @@ webr:
 #| include: true
 #| message: false
 #| warning: false
+knitr::opts_chunk$set(tidy = "formatr", tidy.opts = list(blank = FALSE, width.cutoff = 30))
 library(tidyverse)
 library(mosaic)
 library(ggformula)
@@ -68,6 +69,7 @@ library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
 library(downloadthis)
+knitr::opts_chunk$set(tidy = "styler")
 
 ```
 
@@ -263,6 +265,7 @@ The data has automatically been read into the `webr` session, so you can continu
 
 ```{webr-r}
 #| context: setup
+#| 
 # Read the data. Always use base-R. 
 # race_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
 # rank_df <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
@@ -424,6 +427,7 @@ taxi_modified %>% glimpse()
 
 
 ```{webr-r}
+#| context: setup
 ## Convert `dow`, `local`, and `month` into ordered factors
 taxi_modified <- taxi %>%
   mutate(dow = factor(dow,
@@ -1137,12 +1141,13 @@ Both are useful!
 
 ::: callout-note
 ### And we can plot Proportions and Percentages too!
-Also check out `gf_props` and `gf_percents` ! These are also very useful `ggformula` functions!
+
+We have already seen `gf_props` in our two case studies above. Also check out `gf_percents` ! These are both very useful `ggformula` functions!
 
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: props-chart
+#| label: props-chart-1
 #| eval: false
 
 ## Set graph theme
@@ -1158,7 +1163,35 @@ gf_props(~ substance,
 
 :::{.column}
 ```{r}
-#| ref.label: props-chart
+#| ref.label: props-chart-1
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: props-chart-2
+#| eval: false
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
+
+gf_props(~ substance,
+  data = mosaicData::HELPrct, fill = ~ sex,
+  position = "fill") %>% #<<
+  gf_labs(title = "Plotting Proportions using gf_props")
+```
+
+
+:::
+
+:::{.column}
+```{r}
+#| ref.label: props-chart-2
 #| echo: false
 ```
 
@@ -1170,9 +1203,13 @@ gf_props(~ substance,
 ```{r}
 #| label: percents-chart
 #| eval: false
+
 gf_percents(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,
   position = "dodge") %>%
+  gf_refine(
+    scale_y_continuous(
+      labels = scales::label_percent(scale=1))) %>% 
   gf_labs(title = "Plotting Percentages using gf_percents")
 
 ```

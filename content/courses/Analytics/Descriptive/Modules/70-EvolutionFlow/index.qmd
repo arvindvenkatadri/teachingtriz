@@ -38,7 +38,7 @@ citation: true
 library(tidyverse)
 library(ggstream)
 library(ggformula)
-
+# knitr::opts_chunk$set(tidy = "styler")
 # remotes::install_github("corybrunson/ggalluvial@main", build_vignettes = TRUE)
 library(ggalluvial)
 library(ggsankeyfier)
@@ -235,14 +235,22 @@ says:
 > **Sankey Diagram**. If each variable is a point in time it will
 > resemble an **Alluvial diagram**.
 
-![](images/sankey.png){fig-align="center" width="800"}
+
+::: {#fig-elephants layout-ncol=2}
+![ggsankey aesthetics](images/sankey.png){#fig-ggsankey}
+
+![ggsankeyfier aesthetics](images/important_aspects.svg){#fig-sankeyfier}
+
+Geometric Aesthetics from two Sankey Plot Packages
+:::
+
 
 -   The Qualitative variables being connected are mapped to
     `stages/axes`
 -   Each *level* within a Qual variable is mapped to
     `nodes / strata / lodes`;
 -   And the connections between the `strata` of the `axes` are called
-    `flows / links / alluvia`.\
+    `flows / edges / links / alluvia`.\
 
 Such diagrams are best used when you want to show a many-to-many mapping
 between two domains or multiple paths through a set of stages E.g
@@ -264,13 +272,13 @@ For the next few charts, there are (as yet) no equivalents in
 `ggformula`. Hence we will use `ggplot`.
 :::
 
-### {{< iconify pajamas issue-type-test-case >}} Case Study-1: Titanic Dataset
+## {{< iconify pajamas issue-type-test-case >}} Case Study-1: Titanic Dataset
 
+::::{.columns}
+:::{.column}
 ```{r}
-#| label: more-charts
-#| warning: false
-#| message: false
-#| layout-ncol: 2
+#| label: titanic-data
+#| eval: false
 
 # library(ggalluvial)
 data("Titanic")
@@ -278,6 +286,17 @@ Titanic <- Titanic %>% as_tibble()
 Titanic
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: titanic-data
+#| echo: false
+```
+
+
+:::
+::::
+
 
 ::: callout-note
 ## Table Form Data
@@ -293,10 +312,13 @@ practically all this while. You will find examples of on the
 :::
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-#### Using ggplot
+### Using ggplot
 
+::::{.columns}
+:::{.column}
 ```{r}
-
+#| label: titanic-plot
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 
@@ -337,6 +359,17 @@ Titanic %>% ggplot(data = .,
           "Stratified by demographics and survival")
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: titanic-plot
+#| echo: false
+```
+
+:::
+::::
+
+
 
 > Here is how the package `ggalluvial` defines the elements of a typical
 > alluvial plot:
@@ -360,7 +393,66 @@ Titanic %>% ggplot(data = .,
 >     strata at each end of the plot or connecting the flows on either
 >     side of the center stratum.
 
-#### Using echarts4r
+
+
+### Using ggsankeyfier
+
+The `ggsankeyfier` also plots alluvial and sankey diagrams. Just for variety, we will convert the Titanic data to `long` form and then plot it with `ggsankeyfier`. 
+
+::::{.columns}
+:::{.column}
+```{r}
+#| label: titanic-long
+#| eval: false
+Titanic %>% 
+  as_tibble() %>% 
+  ggsankeyfier::pivot_stages_longer(data=.,
+      stages_from = c("Class", "Sex", "Age", "Survived"),
+      values_from = "n",
+      additional_aes_from = "Survived") -> Titanic_long
+Titanic_long
+
+```
+:::
+:::{.column}
+```{r}
+#| ref.label: titanic-long
+#| echo: false
+```
+
+:::
+::::
+
+
+This data is in long form, with `stages` defining the *axes* in the graph, and the `node` variable giving us *levels* within each (Qualitative) axis. The `edge_id` labels **both ends** (from and to) of each `connector` or edge/flow/alluvium.
+Let us plot this now:
+
+::::{.columns}
+:::{.column}
+```{r}
+#| label: titanic-ggsankeyfier
+#| eval: false
+Titanic_long %>% 
+  ggplot(aes(x = stage, y = n, 
+             group = node, connector = connector, 
+             edge_id = edge_id)) +
+    geom_sankeynode(v_space = "auto") +
+    geom_sankeyedge(aes(fill = Survived), v_space = "auto") +
+  labs(x = "")
+
+```
+:::
+:::{.column}
+
+```{r}
+#| ref.label: titanic-ggsankeyfier
+#| echo: false
+```
+
+:::
+::::
+
+### Using echarts4r
 
 Let us make an interactive graph for this dataset using `echarts4`.\
 
@@ -419,6 +511,8 @@ structure used by this package is different:
 
 Phew! seems like too much work to do...I wonder if good, old-fashioned
 `pivot-longer` will get us here...
+
+
 :::
 
 ## {{< iconify icon-park-outline chart-histogram >}} Chord Diagram
@@ -428,8 +522,6 @@ Phew! seems like too much work to do...I wonder if good, old-fashioned
 We will explore this diagram when we explore network graphs with the
 `tidygraph` and `ggraph` packages.
 
-#### Using ggsankeyfier !!
-To be Written Up.
 
 ## {{< iconify icon-park-outline chart-histogram >}} Dumbbell Plots
 
@@ -439,14 +531,16 @@ Let us take our previously loaded `health` dataset and plot just the change in e
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### Using ggformula
-```{r}
-#| layout-ncol: 2
 
+::::{.columns}
+:::{.column}
+
+```{r}
+#| label: health-data
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
-
 ##
-
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018
   filter(Year %in% c(2010, 2018)) %>%
@@ -459,7 +553,29 @@ health_2010_2018 <- health %>%
     names_prefix = "Year",
     values_from = public_health_expenditure_pc_gdp
   )
+health_2010_2018
 
+```
+
+:::
+:::{.column}
+```{r}
+#| ref.label: health-data
+#| echo: false
+```
+
+:::
+::::
+
+
+::::{.columns}
+:::{.column}
+```{r}
+#| label: health-plot-1
+#| eval: false
+# Set graph theme
+theme_set(new = theme_custom())
+##
 health_2010_2018 %>%   
   # remove NA data across the data set
   drop_na() %>%
@@ -474,9 +590,32 @@ health_2010_2018 %>%
            colour = ~ "2018") %>%
   gf_point(Entity ~ Year2010,
            colour = ~ "2010")
+```
 
-## Can we do better?
 
+
+
+
+:::
+:::{.column}
+```{r}
+#| ref.label: health-plot-1
+#| echo: false
+```
+
+:::
+::::
+
+
+::::{.columns}
+:::{.column}
+```{r}
+#| label: health-plot-2
+#| eval: false
+## Can we do better? Sort the bars, improve axis ticks, title..
+# Set graph theme
+theme_set(new = theme_custom())
+##
 health_2010_2018 %>%
     # remove NA data across the data set
   drop_na() %>%
@@ -502,7 +641,8 @@ health_2010_2018 %>%
     xlab = "Health Expenditure as Percentage of GDP",
     ylab = "Country",
 title = "Healthcare Budgets Changes between 2010 to 2018",
-subtitle = "Bars are Sorted"
+subtitle = "Bars are Sorted",
+caption = "And the X-Axis is in percentage"
   ) %>% 
   gf_refine(scale_x_continuous(
     breaks = scales::breaks_width(2), 
@@ -512,6 +652,20 @@ subtitle = "Bars are Sorted"
   )
             
 ```
+
+
+
+
+:::
+:::{.column}
+```{r}
+#| ref.label: health-plot-2
+#| echo: false
+```
+
+:::
+::::
+
 
 ### Using ggplot
 
@@ -588,8 +742,12 @@ health_2010_2018 %>%
 
 :::
 
+## {{< iconify mingcute thought-line >}} Wait, But Why?
 
-
+- Changes can be over `time`, or over "space"
+- In the latter case, we can think of some Quantity changing over (multiple levels of) multiple Qualitative variables. E.g. `Sales` over `Product Type` over `Showroom Location` over `Festival Season`...
+- When a *single Quant* varies over *a single multi-level Qual*, the Chord Diagram may be simpler than the Sankey/Alluvial. E.g `Bird` migration across `Multiple Locations`. This can even show bidirectional changes. ( Sankeys with loops are also possible, however)
+- When you have a Quant that changes over only *one two-level Qual variable*, the Dumbbell plot becomes an option.
 
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
@@ -598,11 +756,9 @@ We see that we can visualize "evolutions" over time and space. The
 evolutions can represent changes in the **quantities** of things, or
 their **categorical** affiliations or groups.
 
-What business data would you depict in this way? Revenue streams?
-Employment? Expenditures over time and market? There are many
-possibilities!
+What business/design data would you depict in this way? Revenue streams? Employment? Expenditures over time and market? Migration? App usage patterns? There are many possibilities!
 
-Note also that the [Bump Charts](/content/courses/Analytics/Descriptive/Modules/80-Ranking/ranking.qmd#bump-charts) are a special case of alluvial/sankey charts where each node connects/flows to one other node.
+Note also that the [Bump Charts](/content/courses/Analytics/Descriptive/Modules/80-Ranking/index.qmd#bump-charts) are a special case of Alluvial/Sankey charts where each node connects/flows to **only** one other node.
 
 :::{.hidden}
 ```{.d2}
@@ -655,7 +811,7 @@ user -> network.portal.UI: access {
 :::
 
 
-## Your Turn
+## {{< iconify openmoji person >}} Your Turn
 
 1.  Within the `ggalluvial` package are two datasets, `majors` and
     `vaccinations`. Plot alluvial charts for both of these.

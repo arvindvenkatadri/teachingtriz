@@ -167,7 +167,7 @@ theme_set(new = theme_custom())
 
 | Variable #1 | Variable #2 | Chart Names |                    Chart Shape    | 
 |:-------------:|:--------------:|:------------------:|:--------------------:|:------:|
-|    Quant    |    Qual   | Line Chart, CandleStick Plot, Heatmap| {{< iconify flowbitechart-line-down-outline size=4x >}} {{< iconify teenyicons candle-chart-solid size=4x >}} {{< iconify icon-park mosaic size=4x >}}|
+|    Quant    |    Qual   | Line Chart, CandleStick Plot, Heatmap| {{< iconify flowbite chart-line-down-outline size=4x >}} {{< iconify teenyicons candle-chart-solid size=4x >}} {{< iconify carbon heat-map-03 size=4x >}}|
 
 ## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
 
@@ -182,7 +182,7 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
   kable_paper("hover", full_width = T)
   
 ```
-
+:::
 
 ## {{< iconify icons8 idea >}} Inspiration
 
@@ -295,14 +295,28 @@ This can be easily plotted using base R:
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
+
+::::{.columns}
+:::{.column}
 ```{r}
 #| label: base-R-ts-plot
 #| message: false
+#| eval: false
 
 # Base R
 plot(AirPassengers)
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: base-R-ts-plot
+#| echo: false
+```
+:::
+
+::::
+
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
 #| label: ts-plot-webr
@@ -355,11 +369,22 @@ ChickWeight_ts <- stats::ts(ChickWeight_ts$weight,
 str(ChickWeight_ts)
 ```
 
+::::{.columns}
+:::{.column}
 ```{r}
+#| label: base-chickweight-plot
+#| eval: false
 plot(ChickWeight_ts) # Using base-R
 
 ```
-
+:::
+:::{.column}
+```{r}
+#| ref.label: base-chickweight-plot
+#| echo: false
+```
+:::
+::::
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 
@@ -403,17 +428,13 @@ familiar `tibble` structure opens up new possibilities.\
     numerical time-series data like `GDP`, `Population`, `Imports`,
     `Exports` for multiple countries as with the `gapminder`[^1]data we
     saw earlier).
--   It also allows for data processing with `dplyr` such as filtering
-    and summarizing.\
 
 [^1]: https://www.gapminder.org/data/
 
-::: column-margin
 #### `gapminder` data
 
 ```{r}
 #| echo: false
-#| column: margin
 library(gapminder)
 gapminder %>% select(country, year, gdpPercap, 
                      pop, lifeExp, everything()) %>% 
@@ -421,9 +442,9 @@ head(5) %>%
 kbl()
 
 ```
-
-:::
-
+-   It also allows for data processing with `dplyr` such as filtering
+    and summarizing.\
+    
 Let us read and inspect in the `US births data` from 2000 to 2014.
 Download this data by clicking on the icon below, and saving the
 downloaded file in a sub-folder called `data` inside your project.
@@ -477,9 +498,11 @@ We will now plot this using `ggformula`. Using the separate
 `year/month/week` and `day_of_week / day_of_month` columns, we can plot
 births over time, colouring by `day_of_week`, for example:
 
+::::{.columns}
+:::{.column}
 ```{r}
-#| label: using ggformula
-#| layout-ncol: 2
+#| label: using-ggformula-1
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -493,7 +516,6 @@ births_2000_2014 %>%
            subtitle = "Over the Years") %>% 
   gf_theme(scale_colour_distiller(palette = "Paired")) 
 
-
 # Grouping by date_of_month
 births_2000_2014 %>% 
   gf_line(births ~ year, 
@@ -505,6 +527,18 @@ births_2000_2014 %>%
 
 
 ```
+:::
+
+
+:::{.column}
+```{r}
+#| ref.label: using-ggformula-1
+#| echo: false
+```
+
+:::
+::::
+
 
 Not particularly illuminating. This is because the data is **daily** and
 we have considerable variation over time, and here we have too much data
@@ -699,7 +733,13 @@ births_2000_2014_weekly %>%
 
 Instead of looking at multiple overlapping time series graphs, we could split these up into `small multiples` or *facets* and **still retain** the overall picture that is offered by the overlapping graphs. The trick here is the **highlight** one of the graphs at a time, while keeping *all other* graphs in the background. We can do this with the `gghighlight` package.
 
+:::{.column-body-outset-right}
+
+::::{.columns}
+:::{.column}
 ```{r}
+#| label: gghighlight-1
+#| eval: false
 #library(gghighlight)
 
 # Set graph theme
@@ -708,7 +748,9 @@ theme_set(new = theme_custom())
 births_2000_2014_monthly
 ###
 births_2000_2014_monthly %>% ggplot() + 
-  geom_line(aes(y = mean_monthly_births,x = year, group = month)) +
+  geom_line(aes(y = mean_monthly_births,
+                x = year, 
+                group = month)) +
   labs(x = "Year", y  ="Mean Monthly Births over the Years", 
        title = "Mean Births by Month", 
        caption = "Using gghighlight package") +
@@ -722,8 +764,21 @@ births_2000_2014_monthly %>% ggplot() +
   facet_wrap(vars(month))
 
 ```
-
+:::
+:::{.column}
 ```{r}
+#| ref.label: gghighlight-1
+#| echo: false
+```
+
+:::
+::::
+
+::::{.columns}
+:::{.column}
+```{r}
+#| label: gghighlight-2
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -745,6 +800,18 @@ births_2000_2014_weekly %>% ggplot() +
   facet_wrap(vars(day_of_week))
 
 ```
+
+:::
+:::{.column}
+```{r}
+#| ref.label: gghighlight-2
+#| echo: false
+```
+
+:::
+::::
+
+:::
 
 ::: callout-note
 ### Why are fewer babies born on weekends?
@@ -789,6 +856,7 @@ this with `ggformula/ggplot` as we have done before, and with now with
 
 ```{r}
 #| eval: false
+#| include: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -801,21 +869,32 @@ births_tibble_timeseries %>%
 
 ```
 
+::::{.columns}
+:::{.column}
 ```{r}
-#| label: Time-series-timetk
-
+#| label: time-series-timetk
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 
 births_tibble_timeseries %>%
-  timetk::plot_time_series(.date_var = date, 
-                           .value = births, 
-                           .interactive = FALSE, 
-                           .title = "Births over Time",
-                           .x_lab = "Time",
-                           .y_lab = "Births")
+  timetk::plot_time_series(
+    .date_var = date, 
+    .value = births, 
+    .interactive = FALSE, 
+    .title = "Births over Time",
+    .x_lab = "Time",
+    .y_lab = "Births")
+```
+:::
+:::{.column}
+```{r}
+#| ref.label: time-series-timetk
+#| echo: false
 ```
 
+:::
+::::
 ### {{< iconify icon-park database-time >}} `tsibble` data
 
 Finally, we have `tsibble` ("time series tibble") format data, which
@@ -833,8 +912,10 @@ Here is Robert Hyndman's video introducing tsibbles:
 {{< video https://youtu.be/EwjvA2OcdHs >}}
 
 The package `tsibbledata` contains several ready made `tsibble` format
-data. [Run `data(package = "tsibbledata")` in your Console to find out
-about these.]{.aside} Let us try `PBS`, which is a dataset containing
+data. Run `data(package = "tsibbledata")` in your Console to find out
+about these.
+
+Let us try `PBS`, which is a dataset containing
 Monthly Medicare prescription data in Australia.
 
 ```{r}
@@ -846,8 +927,10 @@ glimpse(PBS)
 
 ```
 
-[Data Description:]{.underline} This is a large-ish dataset:[Run `PBS`
-in your console]{.aside}
+### Data Dictionary
+:::callout-note
+[Data Description:]{.underline} This is a large-ish dataset.Run `PBS`
+in your console)
 
 -   67K observations
 -   336 combinations of `key` variables (`Concession`, `Type`, `ATC1`,
@@ -856,11 +939,12 @@ in your console]{.aside}
 -   the time index variable is called `Month`, formatted as `yearmonth`,
     a new type of variable introduced in the `tsibble` package.
 
+
 Note that there are multiple **Quantitative variables**
 (`Scripts`,`Cost`), each sliced into 336 time-series, a feature which is
 not supported in the `ts` format, but is supported in a `tsibble`. The
-**Qualitative Variables** are described below. [Type `help("PBS")` in
-your Console.]{.aside}
+**Qualitative Variables** are described below. (Type `help("PBS")` in
+your Console.)
 
 The data is dis-aggregated/grouped using four `keys`:\
 - `Concession`: Concessional scripts are given to pensioners,
@@ -871,14 +955,19 @@ net subsidies are provided to individuals exceeding this amount.\
 - `ATC1`: Anatomical Therapeutic Chemical index (level 1). 15 types\
 - `ATC2`: Anatomical Therapeutic Chemical index (level 2). 84 types,
 nested inside `ATC1`.
+:::
+
 
 Let us simply plot `Cost` over time:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Using ggformula
 
+::::{.columns}
+:::{.column}
 ```{r}
 #| label:  PBS-Cost-ggformula
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -888,6 +977,15 @@ PBS %>%
   gf_line(title = "PBS Costs vs time", caption = "ggformula") 
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: PBS-Cost-ggformula
+#| echo: false
+```
+
+:::
+::::
 
 ### Using ggplot
 
@@ -931,7 +1029,11 @@ We will do that in the @sec-slides-and-tutorials.
 How about a heatmap? We can cook up a categorical variable based on the
 number of births (low, fine, high) and use that to create a heatmap:
 
+::::{.columns}
+:::{.column}
 ```{r}
+#| label:  births-heat-map
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -962,6 +1064,35 @@ births_2000_2014 %>%
 
 ```
 
+:::
+:::{.column}
+```{r}
+#| ref.label: births-heat-map
+#| echo: false
+```
+
+:::
+::::
+
+Note how both X and Y axis seem to be a `time`-oriented variable in a heatmap!
+
+## {{< iconify icon-park me >}} Your Turn
+
+1.  Choose some of the datasets in the `tsdl` and in the `tsibbledata`
+    packages. (Install and load them first! ) Plot basic, filtered and
+    model-based graphs for these and interpret.
+    
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+- Many datasets show quantities varying over time. These are called **time-series** data. 
+- The X-axis in these cases becomes a `time` axis.
+- Time-series data come in many different formats!
+- The time-aspect in a dataset creates for two *dimensions* of data-aggregation and averaging: One based on factors as before, and a new one based on intervals of time
+- We are interested in **decomposing** a time-series into *averages*, *trends*, *seasonal components*, and random variations
+- We are also interested in **modelling** a time-series as additive or multiplicative time-series, using techniques such as Holt-Winters, and ARIMA
+- And of course we are interested in forecasting!
+
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
 We have seen a good few data formats for time series, and how to work
@@ -976,11 +1107,6 @@ In the Tutorial @sec-slides-and-tutorials, we will explore:
 -   Producing Interactive Plots for Time Series
 -   **modelling** and **forecasting** of time series.
 
-## {{< iconify icon-park me >}} Your Turn
-
-1.  Choose some of the datasets in the `tsdl` and in the `tsibbledata`
-    packages. (Install and load them first! ) Plot basic, filtered and
-    model-based graphs for these and interpret.
 
 ## {{< iconify ooui references-ltr >}} References
 
