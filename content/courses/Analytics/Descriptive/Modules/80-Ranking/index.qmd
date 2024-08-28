@@ -111,7 +111,8 @@ theme_custom <- function(){
     
     theme(
       panel.grid.minor = element_blank(),    #strip minor gridlines
-      
+      text = element_text(family = font),
+
       #text elements
       plot.title = element_text(             #title
                    family = font,            #set font family
@@ -119,15 +120,13 @@ theme_custom <- function(){
                    face = 'bold',            #bold typeface
                    hjust = 0,                #left align
                    #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
+                   margin=margin(0,0,10,0)),               
       
       plot.subtitle = element_text(          #subtitle
                    family = font,            #font family
                    #size = 14,                #font size
                    hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
+                   margin=margin(2,0,5,0)),               
       
       plot.caption = element_text(           #caption
                    family = font,            #font family
@@ -136,19 +135,23 @@ theme_custom <- function(){
       
       axis.title = element_text(             #axis titles
                    family = font,            #font family
-                   size = 10                 #font size
-),
+                   size = 10),               #font size
       
       axis.text = element_text(              #axis text
                    family = font,            #axis family
-                   size = 8)               #font size
-    )
+                   size = 8),                #font size
+    
+      legend.text = element_text(
+                    family = font,           
+                    size = 8)               
+      )
 }
 
 # Set graph theme
 theme_set(new = theme_custom())
 
 ```
+
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs are we going to see today?
 
@@ -235,6 +238,45 @@ ggplot(df1) +
  
 ```
 
+### Using ggalt
+
+Yes, R has ( nearly) everything, including a `geom_lollipop` command: Here!
+
+```{r}
+#| layout-ncol: 2
+#| layout-nrow: 2
+
+#library(ggalt)
+# Set graph theme
+theme_set(new = theme_custom())
+
+###
+ggplot(df1) +
+  geom_lollipop(aes(x = rank, y = product), 
+                point.size = 3, horizontal = F) +
+  labs(title = "What is this BS chart?")
+##
+ggplot(df1) +
+  geom_lollipop(aes(y = rank, x = product), 
+                point.size = 3,, horizontal = F) +
+  labs(title = "Yeah, but I want this horizontal...")
+##
+ggplot(df1) +
+  geom_lollipop(aes(y = rank, x = product), 
+                point.size = 3, horizontal = T) +
+  labs(title = "This also looks like BS")
+##
+ggplot(df1) +
+  geom_lollipop(aes(x = rank, 
+                    y = reorder(product,rank),
+                    colour = product), stroke = 2,
+                point.size = 3, horizontal = T) + 
+  labs(title = "Now you're talking", 
+       x = "Rank", y = "Product")
+
+
+```
+
 :::
 
 ::: callout-note
@@ -301,7 +343,8 @@ theme_set(new = theme_custom())
 
 ## With Wide Form Data
 ## 
-df2 %>% gf_segment(product + product ~ rank_year1 + rank_year2 ) %>% 
+df2 %>% 
+  gf_segment(product + product ~ rank_year1 + rank_year2 ) %>% 
   gf_point(product ~ rank_year1, size = 3, colour = "#123456") %>% 
   gf_point(product ~ rank_year2, size = 3, colour = "#bad744") %>% gf_labs(x = "Rank", y = "Product")
 
