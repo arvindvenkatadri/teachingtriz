@@ -1,13 +1,13 @@
 ---
 title: "\U0001F0CF Inference for a Single Mean"
 subtitle: "“The more I love humanity in general, the less I love man in particular. ― Fyodor Dostoyevsky, The Brothers Karamazov"
+author: Arvind V. 
 date: 10/Nov/2022
 date-modified: "`r Sys.Date()`"
 abstract: "Inference Tests to check the significance of a single Mean"
 order: 100
 categories:
 - t.test
-- Linear Model
 - Inference
 - Bootstrap
 - Null Distributions
@@ -15,8 +15,26 @@ categories:
 bibliography: 
   - grateful-refs.bib
 citation: true
+filters: 
+  - gadenbuie/tachyons
 #suppress-bibliography: true
 ---
+
+```{r}
+#| echo: false
+#| message: false
+#| eval: false
+library(despair)
+despair::motivate()
+```
+
+:::: {.pa4}
+::: {.athelas .ml0 .mt0 .pl4 .black-90 .bl .bw2 .b--blue}
+[…neither let us despair over how small our successes are. For however much our successes fall short of our desire, our efforts aren't in vain when we are farther along today than yesterday.]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
+
+[ --- John Calvin]{.f6 .ttu .tracked .fs-normal}
+:::
+::::
 
 ## {{< iconify noto-v1 package >}} Setting up R packages
 
@@ -25,15 +43,13 @@ citation: true
 #| include: true
 #| message: false
 #| warning: false
-knitr::opts_chunk$set(echo = TRUE,message = TRUE,warning = TRUE, fig.align = "center")
-options(digits=2)
 library(tidyverse)
 library(mosaic)
+library(ggformula)
 library(infer)
 ### Dataset from Chihara and Hesterberg's book (Second Edition)
 library(resampledata)
 library(openintro) # datasets
-library(explore) # New, Easy package for Stats Test and Viz, and other things
 
 ```
 
@@ -48,6 +64,7 @@ library(epoxy)
 library(TeachHist)
 library(TeachingDemos)
 library(grateful)
+library(explore) # New, Easy package for Stats Test and Viz, and other things
 
 ```
 
@@ -75,8 +92,10 @@ theme_custom <- function(){
     theme_classic(base_size = 14) %+replace%    #replace elements we want to change
     
     theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
       text = element_text(family = font),
+            
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+
       #text elements
       plot.title = element_text(             #title
                    family = font,            #set font family
@@ -116,129 +135,115 @@ theme_set(new = theme_custom())
 ```
 
 
-## Introduction
+## {{< iconify fxemoji japanesesymbolforbeginner >}} Introduction
+In this module, we will answer a basic Question:
 
-We saw from the diagram created by Allen Downey that *there is only one
-test* [^1]! We will now use this philosophy to develop a technique that
-allows us to mechanize several *Statistical Models* in that way, with
-nearly identical code.
+::: callout-note
+### Research Question
+Is the mean of the random data sample equal to zero, or not?
+:::
 
-We will use two packages in R, `mosaic` to develop our intuition for
-what are called **bootstrap randomization** based statistical tests.
-(There is also a more recent package called `infer` in R which can do
-pretty much all of this, including visualization. In my opinion, the
-code is a little too high-level and does not offer quite the detailed
-insight that the `mosaic` package does).
+Recall that the `mean` is the first of our [Summary Statistics](../../../Descriptive/Modules/10-FavStats/index.qmd). We wish to know more about the mean of our data sample.
+
+We will do this is in several ways, based on the assumptions we are willing to adopt about our data. 
+First we will use a toy dataset with one "imaginary" sample, normally distributed and made up of 50 observations. Since we ["know the answer"]{.bg-yellow .black} we will be able to build up some belief in the tests and procedures, which we will dig into to form our intuitions
+
+We will then use a real-world dataset to make inferences on the means of Quant variables therein, and decide what that could tell us.
+
+## {{< iconify mdi:thought-bubble-outline >}} Statistical Inference is almost an Attitude!
+
+As we will notice, the process of Statistical Inference is an attitude: [**ain't nothing happenin'!**]{.bg-yellow .athelas .black} We look at data that we might have received or collected ourselves, and look at it with this attitude, seemingly, of some disbelief. We *state* either that:
+
+a) there is really nothing happening with our research question, and that anything we see in the data is the outcome of random chance. 
+b) the value/statistic indicated by the data is off the mark and ought to be something else.
+
+We then calculate how slim the chances are of [the data showing up like that]{.bg-washed-green .black}, **given our belief**. It is a distance measurement of sorts. If those chances are too low, then that might alter our belief. This is the attitude that lies at the heart of *Hypothesis Testing*.
+
+::: callout-important
+The *calculation of chances* is both a logical, and a possible procedure since we are dealing with **samples** from a *population*. If many other samples give us quite different estimates, then we would discredit the one we derive from it. 
+:::
+
+Each test we perform will mechanize this attitude in different ways, based on assumptions and conveniences. (And history)
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Toy data
 
-First we will use a toy dataset with three "imaginary" samples,
-$x, y, y2$. Each is normally distributed and made up of 50 observations.
-
-We start by creating a function that will allow us to produce samples of
-a given size (N) with a specified mean (mu) and standard deviation (sd).
-
-```{r data_genr}
-rnorm_fixed  <- function(N, mu = 0, sd = 1) {
-  scale(rnorm(N))* sd + mu
-}
-```
-
-We create three variables: x ( explanatory) and y, y2 ( dependent ).
-
-```{r toy_data}
-#| layout-ncol: 3
-#| column: body-outset-right
+:::: {.columns}
+::: {.column width="60%"}
+```{r}
+#| label: toy-data
+#| eval: false
 set.seed(40) # for replication
+#
+# Data as individual vectors 
+# ( for t.tests etc)
+y <- rnorm(50, mean = 2, sd = 2)
 
-# Data as vectors ( for t.tests etc)
-x <- rnorm_fixed(50, mu = 0.0, sd = 1) #explanatory
-y <- rnorm_fixed(50, mu = 0.3, sd = 2) # dependent #1
-y2 <- rnorm_fixed(50, mu = 0.5, sd = 1.5) # dependent #2
+# And as tibble too 
+mydata <- tibble(y = y)
+mydata
 
-# Make a tibble with all variables
-mydata_wide <- tibble(x = x, y = y, y2 = y2)
-
-# Long form data
-mydata_long <- 
-  mydata_wide %>%
-  pivot_longer(., cols = c(x,y,y2), 
-               names_to = "group", 
-               values_to = "value")
-
-# Long form data with only dependent variables
-mydata_long_y <- 
-  mydata_wide %>% 
-  select(-x) %>% 
-  pivot_longer(., cols = c(y,y2), 
-               names_to = "group", 
-               values_to = "value")
-mydata_wide
-mydata_long
-mydata_long_y
 ```
 
-## "Signed Rank" Values
-
-Most statistical tests use the **actual values** of the data variables.
-However, in some *non-parametric* statistical tests, the data are used
-in **rank-transformed** sense/order. In some cases the **signed-rank**
-of the data values is used instead of the data itself.
-
-Signed Rank is calculated as follows:\
-1. Take the absolute value of each observation in a sample\
-2. Place the <u>*ranks*</u> in order of (absolute magnitude). The
-smallest number has *rank = 1* and so on.\
-3. Give each of the ranks the sign of the original observation ( + or -
-)
-
-```{r signed_rank_function}
-signed_rank <- function(x) {sign(x) * rank(abs(x))}
+:::
+::: {.column width="40%"}
+```{r}
+#| ref.label: toy-data
+#| echo: false
 ```
+:::
+::::
 
-## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for a Single Mean
 
-A series of tests deal with one mean value of a sample. The idea is to
-evaluate whether that mean is representative of the mean of the
-underlying population. Depending upon the nature of the (single)
-variable, the test that can be used are as follows:
-
-```{mermaid}
-%%| echo: false
-flowchart TD
-    A[Inference for Single Mean] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n]
-    B --> C{OK?}
-    C -->|Yes\n Parametric| D[t.test]
-    D <-->F[Linear Model\n with Data] 
-    C -->|No\n Non-Parametric| E[wilcox.test]
-    E <--> G[Linear Model\n with\n Signed-Ranks of Data]
-    C -->|No\n Non-Parametric| P[Bootstrap]
-    P <--> Q[Linear Model\n with Signed-Rank\n with Bootstrap]
- 
-```
 
 ## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+:::: {.columns}
+::: {.column width="60%"}
 
 ```{r}
-#| label: charting-data
-
+#| label: charting-data-1
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 #
-mydata_long %>% 
-  gf_density(~ value, group = ~ group, fill = ~ group) %>% 
+mydata %>% 
+  gf_density(~ y) %>% 
   gf_fitdistr(dist = "dnorm") %>% 
-  gf_facet_wrap(vars(group)) %>% 
   gf_labs(title = "Densities of Original Data Variables",
           subtitle ="Compared with Normal Density")
 ```
+
+:::
+::: {.column width="40%"}
+```{r}
+#| ref.label: charting-data-1
+#| echo: false
+```
+:::
+::::
+
+
 ::: callout-note
 ### Observations from Density Plots
-- All variables appear to be zero mean\
-- $x$ seems to have lower $sd$ than the other two
+- The variable $y$ appear to be centred around 2\
+- It does not seem to be normally distributed...
 :::
 
-### Testing Assumptions in the Data
+### Research Question
+Research Questions are always about the population! Here goes:
+
+::: callout-note
+### Research Question
+Could the mean of the population, from which y has been drawn, be zero?
+:::
+
+### Assumptions
+
+::: callout-note
+### Testing for Normality
+The y-variable does not appear to be normally distributed. This would affect the test we can use to make inferences about the population mean.  
+There are formal tests for normality too. We will do them in the next case study. For now, let us proceed naively. 
+:::
+
 
 ### Inference
 
@@ -248,56 +253,69 @@ mydata_long %>%
 
 A. Model
 
-A single number predicts y:
-
-$$ 
-y = \beta_0 + \beta_1*x \\
-$$ $$
-\\and\ further \\
-$$ $$
-y = \beta_0\
-$$
-
-and the second term vanishes, since "there is no x": all the x-values
-are made equal to zero in the linear model for a **single variable** !!
-The NULL Hypothesis therefore is:
+$$ mean(y) = \beta_0 $$ and further $\beta_0\ = 0$.
+We formulate "our disbelief" in a *NULL Hypothesis*, as follows:
 
 $$
 \ H_0: \beta_0 = 0
 $$
-
-Note that if we **want** the NULL hypothesis to be that the mean is
-other than zero, we can use
+Note that if we think that the mean is other than zero, we can use the NULL hypothesis to be:
 
 $$
 H_0:\ \beta_0 = \mu \ne 0
-$$ the `lm(...., mu = some_number, ..)` parameter in the command in the
-code.
+$$
 
 B. Code
 
-If we compare the `t.test` with the appropriate `lm` model:
-
 ```{r t_test_one_mean}
 # t-test
-t1 <- t.test(y, mu = 0, alternative = "two.sided") %>% broom::tidy()
-print(t1)
-
+t1 <- mosaic::t_test(
+          y, # Name of variable
+          mu = 0, # belief of population mean
+          alternative = "two.sided") %>% # Check both sides
+  
+  broom::tidy() # Make results presentable, and plottable!!
+t1
 ```
 
-So even though y has a mean of 0.3, the confidence intervals straddle
-zero, and hence we cannot reject the NULL hypothesis that the true
-population, of which y is a sample, could have mean=0.
+::: callout-important
+### What are Confidence Intervals?
+Recall how we calculated means, standard deviations from data (samples). If we could measure the entire population, then there would be no uncertainty in our estimates for means and sd-s. Since we are forced to sample, we can only estimate population parameters based on the sample estimates and state how much off we might be.
+
+Confidence intervals for means are given by:
+
+$$ CI = mean ~ {\pm ~ constant * {sd/\sqrt{n}}}$$
+**Assuming** the y is normally-distributed, the $constant = 1.96$ for confidence level of 95%. What that means is that if we take multiple such samples like $y$ from the population, their means will land within the confidence intervals 95% of the time. Uff..!
+:::
+
+So $y$ has a mean of $2$, and the estimate is $2.045689$. The confidence intervals do not straddle zero. The *chances* that this particular value of mean ($2.045689$) would randomly occur **under the assumption that the mean is zero**, are exceedingly slim, $p.value = 1.425495e-08$. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have $mean = 0$. 
+
 
 #### Wilcoxon's Signed-Rank Test
+::: Callout-note
 
-Since we are dealing with the **mean**, the *sign* of the rank becomes
-important to use, in the case of a non-parametric single mean test.
+#### "Signed Rank" Values: A Small Digression
+When the Quant variable we want to test for is *not normally* distributed, we need to think of other ways to perform our inference. Our assumption about *normality* has been invalidated.  
+Most statistical tests use the **actual values** of the data variables. However, in these cases where assumptions are invalidated, the data are used in **rank-transformed** sense/order. In some cases the **signed-rank** of the data values is used instead of the data itself. The signed ranks are then tested to see if there are more of one polarity than the other, roughly speaking, and how probable this could be. 
+
+Signed Rank is calculated as follows:
+
+1. Take the absolute value of each observation in a sample\
+2. Place the <u>*ranks*</u> in order of (absolute magnitude). The
+smallest number has *rank = 1* and so on.\
+3. Give each of the ranks the sign of the original observation ( + or -)
+
+```{r signed_rank_function}
+signed_rank <- function(x) {sign(x) * rank(abs(x))}
+```
+:::
+
+Since we are dealing with the **mean**, the *sign* of the rank becomes important to use.
 
 A. Model
 
 $$
-signed\_rank(y) = \beta_0
+mean(signed\_rank(y)) = \beta_0
 $$
 
 $$
@@ -308,86 +326,190 @@ B. Code
 
 ```{r Wilcoxon_Signed_Rank_test_One_Mean}
 # Standard Wilcoxon Signed_Rank Test
-w1 <- wilcox.test(y)
-w1
-# Wilcoxon test with lm
-w2 <- lm(signed_rank(y) ~ 1 , data = mydata_wide)
-w2
+t2 <- wilcox.test(y, # variable name
+                  mu = 0, # belief
+                  alternative = "two.sided",
+                  conf.int = TRUE,
+                  conf.level = 0.95) %>% 
+  broom::tidy()
+t2
 
+# Can also do this equivalently
 # t-test with signed_rank data
-w3 <- t.test(signed_rank(y))
-w3
+t3 <- t.test(signed_rank(y),
+             mu = 0,
+             alternative = "two.sided",
+             conf.int = TRUE,
+             conf.level = 0.95) %>% 
+  broom::tidy()
+t3
 ```
 
-#### Linear Model
+Again, the `confidence intervals` do not straddle $0$, and we need to reject the belief that the mean is close to zero. 
+
+::: callout-note
+Note how the Wilcoxon Test reports results about y, even though it computes with $signed-rank(y)$.
+The "equivalent t-test" with signed-rank data cannot do this, and uses "rank" data, but reports the same result.
+:::
+
+#### Using Permutation and Bootstrap
+We saw from the diagram created by Allen Downey that *there is only one test* [^1]! We will now use this philosophy to develop a technique that allows us to mechanize several *Statistical Models* in that way, with nearly identical code.
+
+We can use two packages in R, `mosaic` to develop our intuition for what are called **permutation** based statistical tests; and a more recent package called `infer` in R which can do pretty much all of this, including visualization. 
+
+(In my opinion however, the code with `infer` is a little too verbose for us now, and does not offer quite the detailed, but quick insight that the `mosaic` package does). So let us stick with `mosaic` for now. 
+
+We will do a permutation test first, and then a bootstrap test. 
 
 ```{r}
-
-# linear model
-lm1 <- lm(y ~ 1, data = mydata_wide)
-lm1 %>% summary()
-lm1 %>% confint()
-```
-
-The confidence intervals for both the `t.test` and the `lm` model are
-identical.
-
-t-test confidence intervals: `r t1$conf.int`\
-linear model confidence intervals: `r confint(lm1)`
-
-#### Using bootstrap
-TBW
-
-#### Plots
-
-We can plot the y data both original and ranked to see where the mean
-lies in each case. The approximation to the true $\beta_0$ ( is good
-when the number of observations $n >=50$. Lindoloev has a <u>[simulation on
-this.](https://lindeloev.github.io/tests-as-linear/simulations/simulate_wilcoxon.html)</u>.
-We can also plot the model using *lm* for both the original data and the
-sign-ranked data.
-
-```{r Mean_Related_Plots}
-t1
+#| label: permutation-test-1
 # Set graph theme
 theme_set(new = theme_custom())
 #
-p1 <- ggplot(mydata_wide, aes( x = 0, y = y)) +
-  geom_point(alpha = 0.4) +
-  geom_segment(data = t1, aes(y = estimate, 
-                   yend = estimate, 
-                   x = -0.2, xend = 0.2)) + 
-  labs(title = "Student's\n t-Test")
+# Calculate exact mean
+obs_mean <- mean( ~ y, data = mydata)
+belief1 <- 0 # What we think the mean is
+obs_diff_mosaic <- obs_mean - belief1
+obs_diff_mosaic
+## Steps in Permutation Test
+## Repeatedly Shuffle polarities of data observations
+## Take means
+## Compare all means with the real-world observed one
+null_dist_mosaic <- mosaic::do(4999) * 
+  mean( ~ y * 
+          sample(c(-1, 1), # +/- 1s multiply y
+            length(y),# How many +/- 1s?
+            replace = T), # select with replacement
+        data = mydata)
+head(null_dist_mosaic)
+## Plot this NULL distribution
+gf_histogram(
+  ~ mean,
+  data = null_dist_mosaic,
+  fill = ~ (mean >= obs_diff_mosaic),
+  bins = 50, title = "Distribution of Means under Null Hypothesis",
+  subtitle = "Why is the mean of the means zero??") %>%
+  gf_labs(x = "Calculated Random Means",
+          y = "How Often do these occur?") %>% 
+  gf_vline(xintercept = obs_diff_mosaic, colour = "red")
 
-# t-test using linear model
-p2 <- ggplot(mydata_wide, aes( x = 0, y = y)) +
-  geom_point(alpha = 0.4) +
-  geom_segment(aes(y = lm(y ~ 1)$coefficient, 
-                   yend = lm(y ~ 1)$coefficient, 
-                   x = -0.2, xend = 0.2)) + 
-  labs(title = "Student's\n t-Test \n using lm")
-
-# Wilcoxon test, using signed-ranks of data
-p3 <- ggplot(mydata_wide, aes( x = 0, y = signed_rank(y))) +
-  geom_point(alpha = 0.4) +
-  geom_segment(aes(y = mean(signed_rank(y)), yend = mean(signed_rank(y)), x = -0.2, xend = 0.2)) + 
-  labs(title = "Wilcoxon \nSigned-Rank\n Test")
-
-# Wilcoxon test, using signed-ranks of data, and lm
-p4 <- ggplot(mydata_wide, aes( x = 0, y = signed_rank(y))) +
-  geom_point(alpha = 0.4) +
-  geom_segment(aes(y = lm(signed_rank(y) ~1)$coefficient, 
-                   yend = lm(signed_rank(y) ~1)$coefficient, 
-                   x = -0.2, xend = 0.2)) + 
-  labs(title = "Wilcoxon \n Signed-Rank \n Test with lm")
-
-
-patchwork::wrap_plots(p1,p2,p3,p4, nrow = 2, guides = "collect")
-
+# p-value
+# Null distributions are always centered around zero. Why?
+prop(~ mean >= obs_diff_mosaic, 
+     data = null_dist_mosaic)
 ```
+
+
+We mechanize our belief that $mean(y) ~ 0$ by shuffling the polarities of the y observations randomly 4999 times to generate other samples from the population $y$ could have come from[^2]. If these samples can frequently achieve means larger than that of y, then there is nothing special about y! 
+
+We see that here that **chances** that the randomly generated means can exceed our real-world mean are about $0$! So the mean is definitely different from $0$. 
+
+Let us try the bootstrap test now:
+
+```{r}
+#| label: bootstrap-test-1
+# Set graph theme
+theme_set(new = theme_custom())
+##
+## Resample with replacement from the one sample of 50
+## Calculate the mean each time
+null_toy_bs <- mosaic::do(4999) * 
+  mean( ~ sample(y,
+            replace = T), # select with replacement
+        data = mydata)
+
+## Plot this NULL distribution
+gf_histogram(
+  ~ mean,
+  data = null_toy_bs,
+  bins = 50, 
+  title = "Distribution of Bootstrap Means") %>%
+  gf_labs(x = "Calculated Random Means",
+          y = "How Often do these occur?") %>% 
+  gf_vline(xintercept = ~ belief1, colour = "red") 
+
+prop(~ mean >= belief1, 
+     data = null_toy_bs) +
+  prop(~ mean <= - belief1, 
+     data = null_toy_bs)
+```
+::: callout-note
+### Permutation vs Bootstrap
+There is a difference between the two. 
+The *bootstrap test* uses the sample at hand to generate many similar samples *without access to the population*, and calculates the statistic needed (i.e. mean). No Hypothesis is stated. The distribution of bootstrap samples looks "similar" to that we might obtain by repeatedly sampling the population itself. (centred around a population parameter, i.e. $\mu$)
+
+The *permutation test*generates many permutations of the data and generates appropriates measures/statistics *under the NULL hypothesis*. Which is why the permutation test has a NULL distribution centered at $0$ in this case, our NULL hypothesis. 
+
 :::
 
-All the tests assert that the mean of y is not significantly different from zero. 
+#### Intuitive
+
+Yes, the t-test works, but what is really happening under the hood of the t-test? The inner mechanism of the t-test can be stated in the following steps:
+
+1. Calculate the `mean` of the sample $\bar{y}$.
+2. Calculate the `sd` of the sample, and, assuming the sample is normally distributed, calculate the `standard error` (i.e. $\frac{sd}{\sqrt{n}}$)
+3. Take the difference between the sample mean $\bar{y}$ and our expected/believed population mean $\mu$. 
+4. We expect that the population mean ought to be within the `confidence interval` of the sample mean $\bar{y}$.
+5. For a normally distributed sample, the confidence interval is given by $\pm1.96 * standarderror$, to be 95% sure that the sample mean is a good estimate for the population mean. 
+5. Therefore if the difference between actual and believed is far beyond the confidence interval, hmm...we cannot think our belief is correct and we change our opinion. 
+
+Let us translate that mouthful into calculations!
+
+```{r}
+mean_belief_pop <- 0.0 # Assert our belief
+# Sample Mean
+mean_y <- mean(y)
+mean_y
+## Sample standard error
+std_error <- sd(y)/sqrt(length(y))
+std_error
+## Confidence Interval of Observed Mean
+conf_int <- tibble(ci_low = mean_y - 1.96*std_error, ci_high = mean_y + 1.96*std_error)
+conf_int
+## Difference between actual and believed mean
+mean_diff <- mean_y - mean_belief_pop
+mean_diff
+## Test Statistic
+t <- mean_diff/std_error
+t
+```
+
+We see that the difference between means is 6.78 times the std_error! At a distance of 1.96 (either way) the probability of this data happening by chance already drops to 5%!! At this distance of 6.78, we would have negligible probability of this data occurring by chance!
+
+How can we visualize this?
+
+```{r}
+#| echo: false
+#| message: true
+## Set graph theme
+theme_set(new = theme_custom())
+##
+gf_dhistogram(~ y, data = mydata, 
+    title = "Distributions for Data and Estimates",
+    subtitle = "Sample Mean also has a distribution!") %>% 
+  gf_fitdistr() %>% 
+  gf_vline(xintercept = ~ mean_y, color = "blue") %>% 
+  gf_dist(dist = "norm", params = list(mean = mean_y, sd = std_error)) %>% 
+  gf_vline(xintercept = ~ ci_low,data = conf_int) %>% 
+  gf_vline(xintercept = ~ ci_high,data = conf_int) %>% 
+
+  gf_vline(xintercept = mean_y - 6.78 * std_error, color = "red")
+```
+
+```{r}
+#| echo: false
+#| message: true
+#| layout-ncol: 2
+## Set graph theme
+theme_set(new = theme_custom())
+##
+xpnorm(mean = mean_y, sd = std_error, q = mean_y - 6.785596 * std_error,lower.tail = T) 
+
+
+
+```
+
+:::
 
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Exam data
@@ -399,9 +521,54 @@ data("exam_grades")
 exam_grades
 ```
 
+
+### Research Question
+There are quite a few Quant variables in the data. Let us choose `course_grade` as our variable of interest. What might we wish to find out?
+
+::: callout-note
+### Research Question
+In *general*, the Teacher in this class is overly generous with grades [[unlike others we know of](https://www.linkedin.com/in/arvindvenkatadri)]{.bg-washed-red}, and so the average `course-grade` is equal to 80% !!
+:::
+
+
 ### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+```{r}
+#| label: charting-data-2
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+exam_grades %>% 
+  gf_density(~ course_grade) %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_labs(title = "Density of Course Grade",
+          subtitle ="Compared with Normal Density")
+```
+
+Hmm...data looks normally distributed. But this time we will not merely trust our eyes, but do a test for it. 
 
 ### Testing Assumptions in the Data
+
+::: callout-note
+### Is the data normally distributed?
+```{r}
+stats::shapiro.test(x = exam_grades$course_grade) %>% 
+  broom::tidy()
+
+```
+The [Shapiro-Wilkes Test]{} tests whether a data variable is normally distributed or not. Without digging into the maths of it, let us say it makes the assumption that the variable **is** so distributed and then computes the probability of how likely this is. So a **high** `p-value` ($0.47$) is a good thing here. 
+
+When we have *large* Quant variables ( i.e. with length >= 5000), the `shapiro.test` does not work, and we use an Anderson-Darling[^3] test to confirm normality:
+
+```{r}
+library(nortest)
+# Especially when we have >= 5000 observations
+nortest::ad.test(x = exam_grades$course_grade) %>% 
+  broom::tidy()
+```
+So `course_grade` is a normally-distributed variable. There are *no* exceptional students! Hmph!
+
+:::
 
 ### Inference
 
@@ -409,23 +576,175 @@ exam_grades
 
 #### t.test
 
+A. Model
+
+$$ mean(coursegrade) = \beta_0$$ and further $\beta_0\ = 0$.
+
+As before, we formulate "our (dis)belief" in a *NULL Hypothesis*, as follows:
+
+$$
+\ H_0: \beta_0 = 80
+$$
+
+B. Code
+
+```{r t_test_one_mean-2}
+# t-test
+t4 <- mosaic::t_test(
+          exam_grades$course_grade, # Name of variable
+          mu = 80, # belief
+          alternative = "two.sided") %>% # Check both sides
+broom::tidy()
+t4
+```
+So, we can reject the NULL Hypothesis that the average grade is 80!! 
+
 #### Wilcoxon test
+```{r t_test_one_mean-3}
+# t-test
+t5 <- wilcox.test(
+          exam_grades$course_grade, # Name of variable
+          mu = 90, # belief
+          alternative = "two.sided",
+          conf.int = TRUE,
+          conf.level = 0.95) %>% # Check both sides
+  
+  broom::tidy() # Make results presentable, and plottable!!
+t5
+```
+This test too suggests that the average course grade is different from 80.
 
-#### Linear Model
-
-#### Using Bootstrap
-
-#### Plots
-
+::: callout-note
+### Why compare on both sides?
+Note that we have computed whether the average `course_grade` is generally **different** from 80 for this Teacher. We could have computed whether it is greater, or lesser than 80 ( or any other number too). Read [this article](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-what-are-the-differences-between-one-tailed-and-two-tailed-tests/) for why it is better to do a "two.sided" test in most cases. 
 :::
 
 
+#### Using Permutation and Bootstrap
+
+```{r}
+#| label: permutation-test-2
+# Set graph theme
+theme_set(new = theme_custom())
+#
+# Calculate exact mean
+obs_mean_grade = mean( ~ course_grade, data = exam_grades)
+belief <- 80
+obs_grade_diff <- belief - obs_mean_grade
+## Steps in a Permutation Test
+## Repeatedly Shuffle polarities of data observations
+## Take means
+## Compare all means with the real-world observed one
+null_dist_grade <- mosaic::do(4999) * 
+  mean( ~ (course_grade - belief) * 
+          sample(c(-1, 1), # +/- 1s multiply y
+            length(course_grade),# How many +/- 1s?
+            replace = T), # select with replacement
+        data = exam_grades)
+
+## Plot this NULL distribution
+gf_histogram(
+  ~ mean,
+  data = null_dist_grade,
+  fill = ~ (mean >= obs_grade_diff),
+  bins = 50, 
+  title = "Distribution of Permuted Difference-Means under Null Hypothesis",
+  subtitle = "Why is the mean of the means zero??") %>%
+  gf_labs(x = "Calculated Random Means",
+          y = "How Often do these occur?") %>% 
+  gf_vline(xintercept = obs_grade_diff, colour = "red") %>% gf_vline(xintercept = - obs_grade_diff, colour = "red")
+
+# p-value
+# Permutation distributions are always centered around zero. Why?
+prop(~ mean >= obs_grade_diff, 
+     data = null_dist_grade) +
+  prop(~ mean <= - obs_grade_diff, 
+     data = null_dist_grade)
+```
+
+And let us now do the bootstrap test:
+
+```{r}
+#| label: bootstrap-test-2
+null_grade_bs <- mosaic::do(4999) * 
+  mean( ~ sample(course_grade,
+            replace = T), # select with replacement
+        data = exam_grades)
+
+## Plot this NULL distribution
+gf_histogram(
+  ~ mean,
+  data = null_grade_bs,
+  fill = ~ (mean >= obs_grade_diff),
+  bins = 50, 
+  title = "Distribution of Bootstrap Means") %>%
+  gf_labs(x = "Calculated Random Means",
+          y = "How Often do these occur?") %>% 
+  gf_vline(xintercept = ~ belief, colour = "red") 
+
+prop(~ mean >= belief, 
+     data = null_grade_bs) +
+  prop(~ mean <= - belief, 
+     data = null_grade_bs)
+```
+
+The permutation test shows that we are not able to "generate" the *believed* mean-difference with any of the permutations. Likewise with the bootstrap, we are not able to hit the believed mean with any of the bootstrap samples. 
+
+Hence there is no reason to believe that the belief (80) might be a reasonable one and we stick with our NULL Hypothesis that the mean is not equal to 80. 
+
+
+:::
+
+## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for a Single Mean
+
+A series of tests deal with one mean value of a sample. The idea is to
+evaluate whether that mean is representative of the mean of the
+underlying population. Depending upon the nature of the (single)
+variable, the test that can be used are as follows:
+
+```{mermaid}
+%%| echo: false
+%%| fig-align: center
+
+flowchart TD
+    A[Inference for Single Mean] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n or\n Anderson-Darling Test]
+    B --> C{OK?}
+    C -->|Yes\n Parametric| D[t.test]
+    C -->|No\n Non-Parametric| E[wilcox.test]
+    E <--> G[t.test\n with\n Signed-Ranks of Data]
+    C -->|No\n Non-Parametric| P[Bootstrap]
+    C -->|No\n Non-Parametric| Q[Permutation]
+ 
+```
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+ - We can only sample from a population, and calculate sample statistics
+ - But we still want to know about *population parameters*
+ - All our tests and measures of uncertainty with samples are aimed at obtaining a confident measure of a population parameter. 
+ - Means are the first on the list!
+
+
+
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
-TBW
+
+- If samples are normally distributed, we use a t.test.
+- Else we try *non-parametric* tests such as the Wilcoxon test.
+- Since we now have compute power at our fingertips, we can leave off considerations of normality and simply proceed with either a permutation or a boostrap test. 
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
 1. OpenIntro Modern Statistics, [Chapter #17](https://openintro-ims.netlify.app/inference-one-prop.html)
+
+1. Michael Clark & Seth Berry. *Models Demystified: A Practical Guide from t-tests to Deep Learning*. <https://m-clark.github.io/book-of-models/>
+
+1. University of Warwickshire. *SAMPLING: Searching for the Approximation Method use to Perform rational inference by Individuals and Groups*. <https://sampling.warwick.ac.uk/#Overview>
+
+
+## {{< iconify streamline book-reading >}} Additional Readings
+
+1. <https://mine-cetinkaya-rundel.github.io/quarto-tip-a-day/posts/21-diagrams/>
+
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
@@ -448,5 +767,9 @@ cite_packages(
 
 
 [^1]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
+
+[^2]: <https://stats.stackexchange.com/q/171748> 
+
+[^3]: <https://www.r-bloggers.com/2021/11/anderson-darling-test-in-r-quick-normality-check/>
 
 

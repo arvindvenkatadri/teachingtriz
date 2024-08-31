@@ -118,13 +118,10 @@ flowchart TD
     A[Inference for Two Independent Means] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n Variances: Fisher F-test var.test]
     B --> C{OK?}
     C -->|Yes, both\n Parametric| D[t.test]
-    D <-->F[Linear Model\n Method] 
     C -->|Yes, but not variance\n Parametric| W[t.test with\n Welch Correction]
-    W<-->F
     C -->|No\n Non-Parametric| E[wilcox.test]
     E <--> G[Linear Model\n with\n Signed-Ranks]
     C -->|No\n Non-Parametric| P[Bootstrap\n or\n Permutation]
-    P <--> Q[Linear Model\n with Signed-Rank\n with Permutation]
  
 ```
 
@@ -216,7 +213,7 @@ hypothesis is that the data *are* from a normal distribution. We will
 also look at Q-Q plots for both variables:
 
 ```{r}
-#| layout-ncol: 3
+#| layout-ncol: 2
 #| results: hold
 #| warning: false
 
@@ -244,21 +241,31 @@ boys_AMAS <- MathAnxiety %>%
 girls_AMAS <- MathAnxiety %>% 
   filter(Gender== "Girl") %>% 
   select(AMAS)
-##
+```
+
+:::: {.columns}
+::: {.column width="60%"}
+
+```{r}
+#| label: shapiro-test-1
+#| eval: false
 shapiro.test(boys_AMAS$AMAS)
 shapiro.test(girls_AMAS$AMAS)
 
 ```
 
-The distributions for anxiety scores for boys and girls are almost
-normal, visually speaking. With the Shapiro-Wilk test we find that the
-scores for `girls` **are** normally distributed, but the `boys` scores
-are not so.
+:::
+::: {.column width="40%"}
+```{r}
+#| ref.label: shapiro-test-1
+#| echo: false
+```
+:::
+::::
+The distributions for anxiety scores for boys and girls are almost normal, visually speaking. With the Shapiro-Wilk test we find that the scores for `girls` **are** normally distributed, but the `boys` scores are not so. Sigh.
 
 ::: callout-note
-The `p.value` obtained in the `shapiro.wilk` test suggests the chances
-of the data, **given** the Assumption that they are normally
-distributed.
+The `p.value` obtained in the `shapiro.wilk` test suggests the chances of the data, **given** the Assumption that they are normally distributed.
 :::
 
 We see that MathAnxiety contains discrete-level scores for anxiety for
@@ -531,15 +538,18 @@ part is the `p.value` under NULL!!
 :::
 
 ```{r}
-#| layout: [[15,40,40, 5]]
 
-# Set graph theme
-theme_set(new = theme_custom())
-#
 null_dist_amas <- 
   do(4999) * diffmean(data = MathAnxiety, AMAS ~ shuffle(Gender))
 null_dist_amas
-###
+```
+
+
+```{r}
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
 gf_histogram(data = null_dist_amas, ~ diffmean, bins = 25) %>%
   gf_vline(xintercept = obs_diff_amas, colour = "red",
            title = "Null Distribution by Permutation", 
@@ -551,9 +561,12 @@ gf_ecdf(data = null_dist_amas, ~ diffmean) %>%
            title = "Null Distribution by Permutation", 
            subtitle = "Cumulative Density") %>% 
   gf_labs(x = "Difference in Means")
-###
-1-prop1(~ diffmean <= obs_diff_amas, data = null_dist_amas)
 
+```
+
+
+```{r}
+1-prop1(~ diffmean <= obs_diff_amas, data = null_dist_amas)
 
 ```
 
@@ -628,7 +641,7 @@ the YRBSS was conducted.The `yrbss` dataset is part of the `openintro` package. 
 ## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 ```{r}
-#| label: Data Case Study 2
+#| label: Data-Case-Study-2
 #| column: page-inset-right
 #| results: hold
 data(yrbss,package = "openintro")
@@ -659,17 +672,18 @@ First, histograms, densities and counts of the variable we are
 interested in:
 
 ```{r}
-#| label: EDA RQ1-1
-#| layout-ncol: 3
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
+#| label: EDA-RQ1-1
 
 yrbss_select_gender <- yrbss %>% 
   select(weight, gender) %>% 
   drop_na(weight) # Sadly dropping off NA data
-###
+```
+
+```{r}
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+##
 yrbss_select_gender %>%
   gf_density( ~ weight,
               fill = ~ gender,
@@ -681,7 +695,9 @@ yrbss_select_gender %>%
               fill = ~ gender,
               alpha = 0.5,
               title = "Highschoolers' Weights by Gender") 
-###
+```
+
+```{r}
 yrbss_select_gender %>% count(gender)
 
 ```
@@ -697,15 +713,7 @@ of checks:\
 -   Are the data normally distributed?\
 -   Are the data variances similar?
 
-Let us also complete a visual check for normality, with plots since we
-cannot do a `shapiro.test`:
-
-::: callout-note
-### Shapiro-Wilks Test
-
-The longest data it can take (in R) is 5000. Since our data is longer,
-we will cannot use this procedure and have to resort to visual means.
-:::
+We will complete a visual check for normality with plots, and since we cannot do a `shapiro.test` we can use the Anderson-Darling test.
 
 Let us plot frequency distribution and Q-Q plots[^6] for both variables.
 
@@ -745,6 +753,12 @@ Distributions are not too close to normal...perhaps a hint of a
 rightward skew, suggesting that there are some obese students.
 
 No real evidence (visually) of the variables being normally distributed.
+
+```{r}
+library(nortest)
+nortest::ad.test(male_student_weights$weight)
+nortest::ad.test(female_student_weights$weight)
+```
 
 ### B. {{< iconify mdi sigma-lower >}} Check for Variances
 
@@ -1338,7 +1352,7 @@ Clearly there is a serious effect of Physical Exercise on the body weights of st
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-We have learnt how to perform inference for independent means.\
+- We have learnt how to perform inference for independent means.\
 - We have looked at the conditions that make the regular `t.test` possible, and learnt what to do if the conditions of normality and equal variance are not met.\
 - We have also looked at how these tests can be understood as
 manifestations of the *linear model*, with data and sign-ranked data.\
@@ -1363,8 +1377,6 @@ manifestations of the *linear model*, with data and sign-ranked data.\
 [^5]: <https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
 
 [^6]: <https://stats.stackexchange.com/questions/92374/testing-large-dataset-for-normality-how-and-is-it-reliable>
-
-[^7]: <https://stats.stackexchange.com/q/113337>
 
 [^8]: <https://en.wikipedia.org/wiki/Dummy_variable_(statistics)>
 
