@@ -1228,7 +1228,7 @@ Research Question
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Could the mean of the population, from which y has been drawn, be zero?</p>
+<p>Could the mean of the population <span class="math inline">\(\mu\)</span>, from which y has been drawn, be zero?</p>
 </div>
 </div>
 </section><section id="assumptions" class="level3"><h3 class="anchored" data-anchor-id="assumptions">Assumptions</h3>
@@ -1257,12 +1257,12 @@ There are formal tests for normality too. We will do them in the next case study
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>A. Model</p>
-<p><span class="math display">\[ mean(y) = \beta_0 \]</span> and further <span class="math inline">\(\beta_0\ = 0\)</span>. We formulate “our disbelief” in a <em>NULL Hypothesis</em>, as follows:</p>
+<p>We have <span class="math inline">\(mean(y) = \bar{y}.\)</span> We formulate “our disbelief” of <span class="math inline">\(\bar{y}\)</span> with a <em>NULL Hypothesis</em>, <span class="bg-yellow athelas black"><strong>about the population</strong></span> as follows:</p>
 <p><span class="math display">\[
-\ H_0: \beta_0 = 0
-\]</span> Note that if we think that the mean is other than zero, we can use the NULL hypothesis to be:</p>
+\ H_0: \mu = 0
+\]</span> And the alternative hypothesis, again <span class="bg-yellow athelas black"><strong>about the population</strong></span> as</p>
 <p><span class="math display">\[
-H_0:\ \beta_0 = \mu \ne 0
+H_a:\mu \ne 0
 \]</span></p>
 <p>B. Code</p>
 <div class="cell">
@@ -1294,10 +1294,16 @@ What are Confidence Intervals?
 <div class="callout-body-container callout-body">
 <p>Recall how we calculated means, standard deviations from data (samples). If we could measure the entire population, then there would be no uncertainty in our estimates for means and sd-s. Since we are forced to sample, we can only estimate population parameters based on the sample estimates and state how much off we might be.</p>
 <p>Confidence intervals for means are given by:</p>
-<p><span class="math display">\[ CI = mean ~ {\pm ~ constant * {sd/\sqrt{n}}}\]</span> <strong>Assuming</strong> the y is normally-distributed, the <span class="math inline">\(constant = 1.96\)</span> for confidence level of 95%. What that means is that if we take multiple such samples like <span class="math inline">\(y\)</span> from the population, their means will land within the confidence intervals 95% of the time. Uff..!</p>
+<p><span class="math display">\[
+\begin{eqnarray*}
+CI &amp; = &amp; \bar{y} ~ {\pm ~ constant * Standard Error}\\
+&amp; = &amp; \bar{y} ~ {\pm ~ 1.96 * {sd/\sqrt{n}}}
+\end{eqnarray*}
+\]</span></p>
+<p><strong>Assuming</strong> the y is normally-distributed, the <span class="math inline">\(constant = 1.96\)</span> for confidence level of 95%. What that means is that if we take multiple such samples like <span class="math inline">\(y\)</span> from the population, <span class="bg-light-pink black athelas"><strong>their means</strong> (which are random)</span> will land within <span class="math inline">\(CI\)</span> of <span class="bg-light-green black athelas">the population mean (which is fixed!)</span> 95% of the time. Uff…! May remind you of <a href="https://www.wikiwand.com/en/articles/Buffon's_needle_problem">Buffon’s Needle</a>…</p>
 </div>
 </div>
-<p>So <span class="math inline">\(y\)</span> has a mean of <span class="math inline">\(2\)</span>, and the estimate is <span class="math inline">\(2.045689\)</span>. The confidence intervals do not straddle zero. The <em>chances</em> that this particular value of mean (<span class="math inline">\(2.045689\)</span>) would randomly occur <strong>under the assumption that the mean is zero</strong>, are exceedingly slim, <span class="math inline">\(p.value = 1.425495e-08\)</span>. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have <span class="math inline">\(mean = 0\)</span>.</p>
+<p>So <span class="math inline">\(\bar{y}\)</span> i.e.&nbsp;the <code>estimate</code> is <span class="math inline">\(2.045689\)</span>. The confidence intervals do not straddle zero. The <em>chances</em> that this particular value of mean (<span class="math inline">\(2.045689\)</span>) would randomly occur <strong>under the assumption that <span class="math inline">\(\mu\)</span> is zero</strong>, are exceedingly slim, <span class="math inline">\(p.value = 1.425495e-08\)</span>. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have mean <span class="math inline">\(\mu = 0\)</span>.</p>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <section id="signed-rank-values-a-small-digression" class="level4 Callout-note"><h4 class="anchored" data-anchor-id="signed-rank-values-a-small-digression">“Signed Rank” Values: A Small Digression</h4>
@@ -1374,8 +1380,9 @@ Note
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <p>We saw from the diagram created by Allen Downey that <em>there is only one test</em> <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>! We will now use this philosophy to develop a technique that allows us to mechanize several <em>Statistical Models</em> in that way, with nearly identical code.</p>
 <p>We can use two packages in R, <code>mosaic</code> to develop our intuition for what are called <strong>permutation</strong> based statistical tests; and a more recent package called <code>infer</code> in R which can do pretty much all of this, including visualization.</p>
-<p>(In my opinion however, the code with <code>infer</code> is a little too verbose for us now, and does not offer quite the detailed, but quick insight that the <code>mosaic</code> package does). So let us stick with <code>mosaic</code> for now.</p>
-<p>We will do a permutation test first, and then a bootstrap test.</p>
+<p>(In my opinion however, the code with <code>infer</code> is a little too verbose for us now, and does not offer quite the detailed, but quick insight that the <code>mosaic</code> package does). So let us stick with <code>mosaic</code> for now. We will do a permutation test first, and then a bootstrap test.</p>
+<p>For the Permutation test, we mechanize our belief that <span class="math inline">\(\mu = 0\)</span> by <em>shuffling the polarities of the y observations</em> randomly 4999 times to generate other samples from the population <span class="math inline">\(y\)</span> could have come from<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. If these samples can frequently achieve <span class="math inline">\(\bar{y_i} \leq 0\)</span>, then we might believe that the population mean may be 0!</p>
+<p>We see that the means here that <strong>chances</strong> that the randomly generated means can exceed our real-world mean are about <span class="math inline">\(0\)</span>! So the mean is definitely different from <span class="math inline">\(0\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Set graph theme</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
@@ -1392,78 +1399,90 @@ Note
 <span id="cb10-2"><a href="#cb10-2"></a><span class="do">## Repeatedly Shuffle polarities of data observations</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="do">## Take means</span></span>
 <span id="cb10-4"><a href="#cb10-4"></a><span class="do">## Compare all means with the real-world observed one</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>null_dist_mosaic <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
-<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">mean</span>( <span class="sc">~</span> y <span class="sc">*</span> </span>
-<span id="cb10-7"><a href="#cb10-7"></a>          <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="co"># +/- 1s multiply y</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>            <span class="fu">length</span>(y),<span class="co"># How many +/- 1s?</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a>        <span class="at">data =</span> mydata)</span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="fu">head</span>(null_dist_mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-5"><a href="#cb10-5"></a>y <span class="sc">*</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="co"># +/- 1s multiply y</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>            <span class="fu">length</span>(y),<span class="co"># How many +/- 1s?</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>            <span class="at">replace =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code> [1] -2.95547807 -2.99236565  0.28083140 -0.34188009 -1.35685383  0.60754080
+ [7] -0.84297320 -5.48982989 -1.42344128  0.61773144  1.86109562  0.44985335
+[13] -3.61799252  1.01569932  2.90538787  3.99926619 -2.93405920 -2.75210399
+[19] -5.40698191 -0.07092304 -4.65624420  0.81142578  5.22256917  0.22534766
+[25] -0.92036596  3.46431196 -1.22067886  2.66413472  3.52171231 -1.70733910
+[31] -3.58230314  0.56348079  0.44024532 -4.87668456  1.53034091 -3.22439428
+[37]  0.91694127 -2.48553814 -1.36521578 -3.71874666 -4.68831014  2.63111439
+[43] -6.09088972  1.63505893  0.96787647  2.79433127 -5.13931511 -4.54046592
+[49] -0.25711331  2.72176652</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>null_dist_mosaic <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">mean</span>( <span class="sc">~</span> y <span class="sc">*</span> </span>
+<span id="cb12-3"><a href="#cb12-3"></a>          <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="co"># +/- 1s multiply y</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>            <span class="fu">length</span>(y),<span class="co"># How many +/- 1s?</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>        <span class="at">data =</span> mydata)</span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="fu">head</span>(null_dist_mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.04887297","_rn_":"1"},{"1":"-0.18691146","_rn_":"2"},{"1":"0.42603557","_rn_":"3"},{"1":"-0.56653535","_rn_":"4"},{"1":"0.25740278","_rn_":"5"},{"1":"0.25467310","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.1869115","_rn_":"1"},{"1":"0.4260356","_rn_":"2"},{"1":"-0.5665353","_rn_":"3"},{"1":"0.2574028","_rn_":"4"},{"1":"0.2546731","_rn_":"5"},{"1":"-0.2020928","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="do">## Plot this NULL distribution</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">gf_histogram</span>(</span>
-<span id="cb11-3"><a href="#cb11-3"></a>  <span class="sc">~</span> mean,</span>
-<span id="cb11-4"><a href="#cb11-4"></a>  <span class="at">data =</span> null_dist_mosaic,</span>
-<span id="cb11-5"><a href="#cb11-5"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_diff_mosaic),</span>
-<span id="cb11-6"><a href="#cb11-6"></a>  <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">title =</span> <span class="st">"Distribution of Means under Null Hypothesis"</span>,</span>
-<span id="cb11-7"><a href="#cb11-7"></a>  <span class="at">subtitle =</span> <span class="st">"Why is the mean of the means zero??"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb11-8"><a href="#cb11-8"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
-<span id="cb11-9"><a href="#cb11-9"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_mosaic, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="do">## Plot this NULL distribution</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">gf_histogram</span>(</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="sc">~</span> mean,</span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="at">data =</span> null_dist_mosaic,</span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_diff_mosaic),</span>
+<span id="cb13-6"><a href="#cb13-6"></a>  <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">title =</span> <span class="st">"Distribution of Means under Null Hypothesis"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="at">subtitle =</span> <span class="st">"Why is the mean of the means zero??"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_diff_mosaic, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/permutation-test-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="index_files/figure-html/permutation-test-1-1.png" class="img-fluid figure-img" width="2100"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># p-value</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="co"># Null distributions are always centered around zero. Why?</span></span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> obs_diff_mosaic, </span>
-<span id="cb12-4"><a href="#cb12-4"></a>     <span class="at">data =</span> null_dist_mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># p-value</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co"># Null distributions are always centered around zero. Why?</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> obs_diff_mosaic, </span>
+<span id="cb14-4"><a href="#cb14-4"></a>     <span class="at">data =</span> null_dist_mosaic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>prop_TRUE 
         0 </code></pre>
 </div>
 </div>
-<p>We mechanize our belief that <span class="math inline">\(mean(y) ~ 0\)</span> by shuffling the polarities of the y observations randomly 4999 times to generate other samples from the population <span class="math inline">\(y\)</span> could have come from<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. If these samples can frequently achieve means larger than that of y, then there is nothing special about y!</p>
-<p>We see that here that <strong>chances</strong> that the randomly generated means can exceed our real-world mean are about <span class="math inline">\(0\)</span>! So the mean is definitely different from <span class="math inline">\(0\)</span>.</p>
 <p>Let us try the bootstrap test now:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Set graph theme</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="do">##</span></span>
-<span id="cb14-4"><a href="#cb14-4"></a><span class="do">## Resample with replacement from the one sample of 50</span></span>
-<span id="cb14-5"><a href="#cb14-5"></a><span class="do">## Calculate the mean each time</span></span>
-<span id="cb14-6"><a href="#cb14-6"></a>null_toy_bs <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
-<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">mean</span>( <span class="sc">~</span> <span class="fu">sample</span>(y,</span>
-<span id="cb14-8"><a href="#cb14-8"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
-<span id="cb14-9"><a href="#cb14-9"></a>        <span class="at">data =</span> mydata)</span>
-<span id="cb14-10"><a href="#cb14-10"></a></span>
-<span id="cb14-11"><a href="#cb14-11"></a><span class="do">## Plot this NULL distribution</span></span>
-<span id="cb14-12"><a href="#cb14-12"></a><span class="fu">gf_histogram</span>(</span>
-<span id="cb14-13"><a href="#cb14-13"></a>  <span class="sc">~</span> mean,</span>
-<span id="cb14-14"><a href="#cb14-14"></a>  <span class="at">data =</span> null_toy_bs,</span>
-<span id="cb14-15"><a href="#cb14-15"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
-<span id="cb14-16"><a href="#cb14-16"></a>  <span class="at">title =</span> <span class="st">"Distribution of Bootstrap Means"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb14-17"><a href="#cb14-17"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
-<span id="cb14-18"><a href="#cb14-18"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-19"><a href="#cb14-19"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> belief1, <span class="at">colour =</span> <span class="st">"red"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Set graph theme</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="do">##</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="do">## Resample with replacement from the one sample of 50</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="do">## Calculate the mean each time</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>null_toy_bs <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
+<span id="cb16-7"><a href="#cb16-7"></a>  <span class="fu">mean</span>( <span class="sc">~</span> <span class="fu">sample</span>(y,</span>
+<span id="cb16-8"><a href="#cb16-8"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>        <span class="at">data =</span> mydata)</span>
+<span id="cb16-10"><a href="#cb16-10"></a></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="do">## Plot this NULL distribution</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a><span class="fu">gf_histogram</span>(</span>
+<span id="cb16-13"><a href="#cb16-13"></a>  <span class="sc">~</span> mean,</span>
+<span id="cb16-14"><a href="#cb16-14"></a>  <span class="at">data =</span> null_toy_bs,</span>
+<span id="cb16-15"><a href="#cb16-15"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
+<span id="cb16-16"><a href="#cb16-16"></a>  <span class="at">title =</span> <span class="st">"Distribution of Bootstrap Means"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
+<span id="cb16-18"><a href="#cb16-18"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-19"><a href="#cb16-19"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> belief1, <span class="at">colour =</span> <span class="st">"red"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/bootstrap-test-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="index_files/figure-html/bootstrap-test-1-1.png" class="img-fluid figure-img" width="2100"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> belief1, </span>
-<span id="cb15-2"><a href="#cb15-2"></a>     <span class="at">data =</span> null_toy_bs) <span class="sc">+</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> belief1, </span>
-<span id="cb15-4"><a href="#cb15-4"></a>     <span class="at">data =</span> null_toy_bs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> belief1, </span>
+<span id="cb17-2"><a href="#cb17-2"></a>     <span class="at">data =</span> null_toy_bs) <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> belief1, </span>
+<span id="cb17-4"><a href="#cb17-4"></a>     <span class="at">data =</span> null_toy_bs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>prop_TRUE 
         1 </code></pre>
@@ -1496,22 +1515,22 @@ Permutation vs Bootstrap
 </ol>
 <p>Let us translate that mouthful into calculations!</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>mean_belief_pop <span class="ot">&lt;-</span> <span class="fl">0.0</span> <span class="co"># Assert our belief</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a><span class="co"># Sample Mean</span></span>
-<span id="cb17-3"><a href="#cb17-3"></a>mean_y <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
-<span id="cb17-4"><a href="#cb17-4"></a>mean_y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>mean_belief_pop <span class="ot">&lt;-</span> <span class="fl">0.0</span> <span class="co"># Assert our belief</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="co"># Sample Mean</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a>mean_y <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
+<span id="cb19-4"><a href="#cb19-4"></a>mean_y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 2.045689</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="do">## Sample standard error</span></span>
-<span id="cb19-2"><a href="#cb19-2"></a>std_error <span class="ot">&lt;-</span> <span class="fu">sd</span>(y)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">length</span>(y))</span>
-<span id="cb19-3"><a href="#cb19-3"></a>std_error</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="do">## Sample standard error</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>std_error <span class="ot">&lt;-</span> <span class="fu">sd</span>(y)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">length</span>(y))</span>
+<span id="cb21-3"><a href="#cb21-3"></a>std_error</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 0.3014752</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="do">## Confidence Interval of Observed Mean</span></span>
-<span id="cb21-2"><a href="#cb21-2"></a>conf_int <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">ci_low =</span> mean_y <span class="sc">-</span> <span class="fl">1.96</span><span class="sc">*</span>std_error, <span class="at">ci_high =</span> mean_y <span class="sc">+</span> <span class="fl">1.96</span><span class="sc">*</span>std_error)</span>
-<span id="cb21-3"><a href="#cb21-3"></a>conf_int</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="do">## Confidence Interval of Observed Mean</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>conf_int <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">ci_low =</span> mean_y <span class="sc">-</span> <span class="fl">1.96</span><span class="sc">*</span>std_error, <span class="at">ci_high =</span> mean_y <span class="sc">+</span> <span class="fl">1.96</span><span class="sc">*</span>std_error)</span>
+<span id="cb23-3"><a href="#cb23-3"></a>conf_int</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1519,15 +1538,15 @@ Permutation vs Bootstrap
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="do">## Difference between actual and believed mean</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>mean_diff <span class="ot">&lt;-</span> mean_y <span class="sc">-</span> mean_belief_pop</span>
-<span id="cb22-3"><a href="#cb22-3"></a>mean_diff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="do">## Difference between actual and believed mean</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>mean_diff <span class="ot">&lt;-</span> mean_y <span class="sc">-</span> mean_belief_pop</span>
+<span id="cb24-3"><a href="#cb24-3"></a>mean_diff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 2.045689</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="do">## Test Statistic</span></span>
-<span id="cb24-2"><a href="#cb24-2"></a>t <span class="ot">&lt;-</span> mean_diff<span class="sc">/</span>std_error</span>
-<span id="cb24-3"><a href="#cb24-3"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="do">## Test Statistic</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>t <span class="ot">&lt;-</span> mean_diff<span class="sc">/</span>std_error</span>
+<span id="cb26-3"><a href="#cb26-3"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>[1] 6.785596</code></pre>
 </div>
@@ -1574,8 +1593,8 @@ Permutation vs Bootstrap
 <iconify-icon inline="" icon="pajamas:issue-type-test-case" aria-label="Icon issue-type-test-case from pajamas Iconify.design set." title="Icon issue-type-test-case from pajamas Iconify.design set."></iconify-icon> Case Study #2: Exam data</h2>
 <p>Let us now choose a dataset from the <code>openintro</code> package:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">data</span>(<span class="st">"exam_grades"</span>)</span>
-<span id="cb32-2"><a href="#cb32-2"></a>exam_grades</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">data</span>(<span class="st">"exam_grades"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2"></a>exam_grades</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1602,14 +1621,14 @@ Research Question
 </section><section id="inspecting-and-charting-data-1" class="level3"><h3 class="anchored" data-anchor-id="inspecting-and-charting-data-1">
 <iconify-icon inline="" icon="carbon:chart-3d" aria-label="Icon chart-3d from carbon Iconify.design set." title="Icon chart-3d from carbon Iconify.design set."></iconify-icon> Inspecting and Charting Data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># Set graph theme</span></span>
-<span id="cb33-2"><a href="#cb33-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
-<span id="cb33-3"><a href="#cb33-3"></a><span class="co">#</span></span>
-<span id="cb33-4"><a href="#cb33-4"></a>exam_grades <span class="sc">%&gt;%</span> </span>
-<span id="cb33-5"><a href="#cb33-5"></a>  <span class="fu">gf_density</span>(<span class="sc">~</span> course_grade) <span class="sc">%&gt;%</span> </span>
-<span id="cb33-6"><a href="#cb33-6"></a>  <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb33-7"><a href="#cb33-7"></a>  <span class="fu">gf_labs</span>(<span class="at">title =</span> <span class="st">"Density of Course Grade"</span>,</span>
-<span id="cb33-8"><a href="#cb33-8"></a>          <span class="at">subtitle =</span><span class="st">"Compared with Normal Density"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># Set graph theme</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="co">#</span></span>
+<span id="cb35-4"><a href="#cb35-4"></a>exam_grades <span class="sc">%&gt;%</span> </span>
+<span id="cb35-5"><a href="#cb35-5"></a>  <span class="fu">gf_density</span>(<span class="sc">~</span> course_grade) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-6"><a href="#cb35-6"></a>  <span class="fu">gf_fitdistr</span>(<span class="at">dist =</span> <span class="st">"dnorm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-7"><a href="#cb35-7"></a>  <span class="fu">gf_labs</span>(<span class="at">title =</span> <span class="st">"Density of Course Grade"</span>,</span>
+<span id="cb35-8"><a href="#cb35-8"></a>          <span class="at">subtitle =</span><span class="st">"Compared with Normal Density"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/charting-data-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="index_files/figure-html/charting-data-2-1.png" class="img-fluid figure-img" width="2100"></a></p>
@@ -1630,8 +1649,8 @@ Is the data normally distributed?
 </div>
 <div class="callout-body-container callout-body">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>stats<span class="sc">::</span><span class="fu">shapiro.test</span>(<span class="at">x =</span> exam_grades<span class="sc">$</span>course_grade) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-2"><a href="#cb34-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>stats<span class="sc">::</span><span class="fu">shapiro.test</span>(<span class="at">x =</span> exam_grades<span class="sc">$</span>course_grade) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-2"><a href="#cb36-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1643,10 +1662,10 @@ Is the data normally distributed?
 <p>The <span>Shapiro-Wilkes Test</span> tests whether a data variable is normally distributed or not. Without digging into the maths of it, let us say it makes the assumption that the variable <strong>is</strong> so distributed and then computes the probability of how likely this is. So a <strong>high</strong> <code>p-value</code> (<span class="math inline">\(0.47\)</span>) is a good thing here.</p>
 <p>When we have <em>large</em> Quant variables ( i.e.&nbsp;with length &gt;= 5000), the <code>shapiro.test</code> does not work, and we use an Anderson-Darling<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> test to confirm normality:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="fu">library</span>(nortest)</span>
-<span id="cb35-2"><a href="#cb35-2"></a><span class="co"># Especially when we have &gt;= 5000 observations</span></span>
-<span id="cb35-3"><a href="#cb35-3"></a>nortest<span class="sc">::</span><span class="fu">ad.test</span>(<span class="at">x =</span> exam_grades<span class="sc">$</span>course_grade) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-4"><a href="#cb35-4"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="fu">library</span>(nortest)</span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co"># Especially when we have &gt;= 5000 observations</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a>nortest<span class="sc">::</span><span class="fu">ad.test</span>(<span class="at">x =</span> exam_grades<span class="sc">$</span>course_grade) <span class="sc">%&gt;%</span> </span>
+<span id="cb37-4"><a href="#cb37-4"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1675,13 +1694,13 @@ Is the data normally distributed?
 \]</span></p>
 <p>B. Code</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># t-test</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a>t4 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">t_test</span>(</span>
-<span id="cb36-3"><a href="#cb36-3"></a>          exam_grades<span class="sc">$</span>course_grade, <span class="co"># Name of variable</span></span>
-<span id="cb36-4"><a href="#cb36-4"></a>          <span class="at">mu =</span> <span class="dv">80</span>, <span class="co"># belief</span></span>
-<span id="cb36-5"><a href="#cb36-5"></a>          <span class="at">alternative =</span> <span class="st">"two.sided"</span>) <span class="sc">%&gt;%</span> <span class="co"># Check both sides</span></span>
-<span id="cb36-6"><a href="#cb36-6"></a>broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
-<span id="cb36-7"><a href="#cb36-7"></a>t4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># t-test</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>t4 <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">t_test</span>(</span>
+<span id="cb38-3"><a href="#cb38-3"></a>          exam_grades<span class="sc">$</span>course_grade, <span class="co"># Name of variable</span></span>
+<span id="cb38-4"><a href="#cb38-4"></a>          <span class="at">mu =</span> <span class="dv">80</span>, <span class="co"># belief</span></span>
+<span id="cb38-5"><a href="#cb38-5"></a>          <span class="at">alternative =</span> <span class="st">"two.sided"</span>) <span class="sc">%&gt;%</span> <span class="co"># Check both sides</span></span>
+<span id="cb38-6"><a href="#cb38-6"></a>broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
+<span id="cb38-7"><a href="#cb38-7"></a>t4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1694,16 +1713,16 @@ Is the data normally distributed?
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="co"># t-test</span></span>
-<span id="cb37-2"><a href="#cb37-2"></a>t5 <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(</span>
-<span id="cb37-3"><a href="#cb37-3"></a>          exam_grades<span class="sc">$</span>course_grade, <span class="co"># Name of variable</span></span>
-<span id="cb37-4"><a href="#cb37-4"></a>          <span class="at">mu =</span> <span class="dv">90</span>, <span class="co"># belief</span></span>
-<span id="cb37-5"><a href="#cb37-5"></a>          <span class="at">alternative =</span> <span class="st">"two.sided"</span>,</span>
-<span id="cb37-6"><a href="#cb37-6"></a>          <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb37-7"><a href="#cb37-7"></a>          <span class="at">conf.level =</span> <span class="fl">0.95</span>) <span class="sc">%&gt;%</span> <span class="co"># Check both sides</span></span>
-<span id="cb37-8"><a href="#cb37-8"></a>  </span>
-<span id="cb37-9"><a href="#cb37-9"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="co"># Make results presentable, and plottable!!</span></span>
-<span id="cb37-10"><a href="#cb37-10"></a>t5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># t-test</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a>t5 <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(</span>
+<span id="cb39-3"><a href="#cb39-3"></a>          exam_grades<span class="sc">$</span>course_grade, <span class="co"># Name of variable</span></span>
+<span id="cb39-4"><a href="#cb39-4"></a>          <span class="at">mu =</span> <span class="dv">90</span>, <span class="co"># belief</span></span>
+<span id="cb39-5"><a href="#cb39-5"></a>          <span class="at">alternative =</span> <span class="st">"two.sided"</span>,</span>
+<span id="cb39-6"><a href="#cb39-6"></a>          <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb39-7"><a href="#cb39-7"></a>          <span class="at">conf.level =</span> <span class="fl">0.95</span>) <span class="sc">%&gt;%</span> <span class="co"># Check both sides</span></span>
+<span id="cb39-8"><a href="#cb39-8"></a>  </span>
+<span id="cb39-9"><a href="#cb39-9"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="co"># Make results presentable, and plottable!!</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a>t5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -1729,47 +1748,47 @@ Why compare on both sides?
 </div>
 <div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># Set graph theme</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
-<span id="cb38-3"><a href="#cb38-3"></a><span class="co">#</span></span>
-<span id="cb38-4"><a href="#cb38-4"></a><span class="co"># Calculate exact mean</span></span>
-<span id="cb38-5"><a href="#cb38-5"></a>obs_mean_grade <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> course_grade, <span class="at">data =</span> exam_grades)</span>
-<span id="cb38-6"><a href="#cb38-6"></a>belief <span class="ot">&lt;-</span> <span class="dv">80</span></span>
-<span id="cb38-7"><a href="#cb38-7"></a>obs_grade_diff <span class="ot">&lt;-</span> belief <span class="sc">-</span> obs_mean_grade</span>
-<span id="cb38-8"><a href="#cb38-8"></a><span class="do">## Steps in a Permutation Test</span></span>
-<span id="cb38-9"><a href="#cb38-9"></a><span class="do">## Repeatedly Shuffle polarities of data observations</span></span>
-<span id="cb38-10"><a href="#cb38-10"></a><span class="do">## Take means</span></span>
-<span id="cb38-11"><a href="#cb38-11"></a><span class="do">## Compare all means with the real-world observed one</span></span>
-<span id="cb38-12"><a href="#cb38-12"></a>null_dist_grade <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
-<span id="cb38-13"><a href="#cb38-13"></a>  <span class="fu">mean</span>( <span class="sc">~</span> (course_grade <span class="sc">-</span> belief) <span class="sc">*</span> </span>
-<span id="cb38-14"><a href="#cb38-14"></a>          <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="co"># +/- 1s multiply y</span></span>
-<span id="cb38-15"><a href="#cb38-15"></a>            <span class="fu">length</span>(course_grade),<span class="co"># How many +/- 1s?</span></span>
-<span id="cb38-16"><a href="#cb38-16"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
-<span id="cb38-17"><a href="#cb38-17"></a>        <span class="at">data =</span> exam_grades)</span>
-<span id="cb38-18"><a href="#cb38-18"></a></span>
-<span id="cb38-19"><a href="#cb38-19"></a><span class="do">## Plot this NULL distribution</span></span>
-<span id="cb38-20"><a href="#cb38-20"></a><span class="fu">gf_histogram</span>(</span>
-<span id="cb38-21"><a href="#cb38-21"></a>  <span class="sc">~</span> mean,</span>
-<span id="cb38-22"><a href="#cb38-22"></a>  <span class="at">data =</span> null_dist_grade,</span>
-<span id="cb38-23"><a href="#cb38-23"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_grade_diff),</span>
-<span id="cb38-24"><a href="#cb38-24"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
-<span id="cb38-25"><a href="#cb38-25"></a>  <span class="at">title =</span> <span class="st">"Distribution of Permuted Difference-Means under Null Hypothesis"</span>,</span>
-<span id="cb38-26"><a href="#cb38-26"></a>  <span class="at">subtitle =</span> <span class="st">"Why is the mean of the means zero??"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb38-27"><a href="#cb38-27"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
-<span id="cb38-28"><a href="#cb38-28"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb38-29"><a href="#cb38-29"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_grade_diff, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">%&gt;%</span> <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span> obs_grade_diff, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># Set graph theme</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="fu">theme_set</span>(<span class="at">new =</span> <span class="fu">theme_custom</span>())</span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="co">#</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a><span class="co"># Calculate exact mean</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a>obs_mean_grade <span class="ot">=</span> <span class="fu">mean</span>( <span class="sc">~</span> course_grade, <span class="at">data =</span> exam_grades)</span>
+<span id="cb40-6"><a href="#cb40-6"></a>belief <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb40-7"><a href="#cb40-7"></a>obs_grade_diff <span class="ot">&lt;-</span> belief <span class="sc">-</span> obs_mean_grade</span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="do">## Steps in a Permutation Test</span></span>
+<span id="cb40-9"><a href="#cb40-9"></a><span class="do">## Repeatedly Shuffle polarities of data observations</span></span>
+<span id="cb40-10"><a href="#cb40-10"></a><span class="do">## Take means</span></span>
+<span id="cb40-11"><a href="#cb40-11"></a><span class="do">## Compare all means with the real-world observed one</span></span>
+<span id="cb40-12"><a href="#cb40-12"></a>null_dist_grade <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
+<span id="cb40-13"><a href="#cb40-13"></a>  <span class="fu">mean</span>( <span class="sc">~</span> (course_grade <span class="sc">-</span> belief) <span class="sc">*</span> </span>
+<span id="cb40-14"><a href="#cb40-14"></a>          <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="co"># +/- 1s multiply y</span></span>
+<span id="cb40-15"><a href="#cb40-15"></a>            <span class="fu">length</span>(course_grade),<span class="co"># How many +/- 1s?</span></span>
+<span id="cb40-16"><a href="#cb40-16"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
+<span id="cb40-17"><a href="#cb40-17"></a>        <span class="at">data =</span> exam_grades)</span>
+<span id="cb40-18"><a href="#cb40-18"></a></span>
+<span id="cb40-19"><a href="#cb40-19"></a><span class="do">## Plot this NULL distribution</span></span>
+<span id="cb40-20"><a href="#cb40-20"></a><span class="fu">gf_histogram</span>(</span>
+<span id="cb40-21"><a href="#cb40-21"></a>  <span class="sc">~</span> mean,</span>
+<span id="cb40-22"><a href="#cb40-22"></a>  <span class="at">data =</span> null_dist_grade,</span>
+<span id="cb40-23"><a href="#cb40-23"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_grade_diff),</span>
+<span id="cb40-24"><a href="#cb40-24"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
+<span id="cb40-25"><a href="#cb40-25"></a>  <span class="at">title =</span> <span class="st">"Distribution of Permuted Difference-Means under Null Hypothesis"</span>,</span>
+<span id="cb40-26"><a href="#cb40-26"></a>  <span class="at">subtitle =</span> <span class="st">"Why is the mean of the means zero??"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb40-27"><a href="#cb40-27"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
+<span id="cb40-28"><a href="#cb40-28"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-29"><a href="#cb40-29"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> obs_grade_diff, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">%&gt;%</span> <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span> obs_grade_diff, <span class="at">colour =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/permutation-test-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="index_files/figure-html/permutation-test-2-1.png" class="img-fluid figure-img" width="2100"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># p-value</span></span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="co"># Permutation distributions are always centered around zero. Why?</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> obs_grade_diff, </span>
-<span id="cb39-4"><a href="#cb39-4"></a>     <span class="at">data =</span> null_dist_grade) <span class="sc">+</span></span>
-<span id="cb39-5"><a href="#cb39-5"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> obs_grade_diff, </span>
-<span id="cb39-6"><a href="#cb39-6"></a>     <span class="at">data =</span> null_dist_grade)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="co"># p-value</span></span>
+<span id="cb41-2"><a href="#cb41-2"></a><span class="co"># Permutation distributions are always centered around zero. Why?</span></span>
+<span id="cb41-3"><a href="#cb41-3"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> obs_grade_diff, </span>
+<span id="cb41-4"><a href="#cb41-4"></a>     <span class="at">data =</span> null_dist_grade) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> obs_grade_diff, </span>
+<span id="cb41-6"><a href="#cb41-6"></a>     <span class="at">data =</span> null_dist_grade)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>prop_TRUE 
         0 </code></pre>
@@ -1777,31 +1796,31 @@ Why compare on both sides?
 </div>
 <p>And let us now do the bootstrap test:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>null_grade_bs <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
-<span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">mean</span>( <span class="sc">~</span> <span class="fu">sample</span>(course_grade,</span>
-<span id="cb41-3"><a href="#cb41-3"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
-<span id="cb41-4"><a href="#cb41-4"></a>        <span class="at">data =</span> exam_grades)</span>
-<span id="cb41-5"><a href="#cb41-5"></a></span>
-<span id="cb41-6"><a href="#cb41-6"></a><span class="do">## Plot this NULL distribution</span></span>
-<span id="cb41-7"><a href="#cb41-7"></a><span class="fu">gf_histogram</span>(</span>
-<span id="cb41-8"><a href="#cb41-8"></a>  <span class="sc">~</span> mean,</span>
-<span id="cb41-9"><a href="#cb41-9"></a>  <span class="at">data =</span> null_grade_bs,</span>
-<span id="cb41-10"><a href="#cb41-10"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_grade_diff),</span>
-<span id="cb41-11"><a href="#cb41-11"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
-<span id="cb41-12"><a href="#cb41-12"></a>  <span class="at">title =</span> <span class="st">"Distribution of Bootstrap Means"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb41-13"><a href="#cb41-13"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
-<span id="cb41-14"><a href="#cb41-14"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb41-15"><a href="#cb41-15"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> belief, <span class="at">colour =</span> <span class="st">"red"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>null_grade_bs <span class="ot">&lt;-</span> mosaic<span class="sc">::</span><span class="fu">do</span>(<span class="dv">4999</span>) <span class="sc">*</span> </span>
+<span id="cb43-2"><a href="#cb43-2"></a>  <span class="fu">mean</span>( <span class="sc">~</span> <span class="fu">sample</span>(course_grade,</span>
+<span id="cb43-3"><a href="#cb43-3"></a>            <span class="at">replace =</span> T), <span class="co"># select with replacement</span></span>
+<span id="cb43-4"><a href="#cb43-4"></a>        <span class="at">data =</span> exam_grades)</span>
+<span id="cb43-5"><a href="#cb43-5"></a></span>
+<span id="cb43-6"><a href="#cb43-6"></a><span class="do">## Plot this NULL distribution</span></span>
+<span id="cb43-7"><a href="#cb43-7"></a><span class="fu">gf_histogram</span>(</span>
+<span id="cb43-8"><a href="#cb43-8"></a>  <span class="sc">~</span> mean,</span>
+<span id="cb43-9"><a href="#cb43-9"></a>  <span class="at">data =</span> null_grade_bs,</span>
+<span id="cb43-10"><a href="#cb43-10"></a>  <span class="at">fill =</span> <span class="sc">~</span> (mean <span class="sc">&gt;=</span> obs_grade_diff),</span>
+<span id="cb43-11"><a href="#cb43-11"></a>  <span class="at">bins =</span> <span class="dv">50</span>, </span>
+<span id="cb43-12"><a href="#cb43-12"></a>  <span class="at">title =</span> <span class="st">"Distribution of Bootstrap Means"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb43-13"><a href="#cb43-13"></a>  <span class="fu">gf_labs</span>(<span class="at">x =</span> <span class="st">"Calculated Random Means"</span>,</span>
+<span id="cb43-14"><a href="#cb43-14"></a>          <span class="at">y =</span> <span class="st">"How Often do these occur?"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-15"><a href="#cb43-15"></a>  <span class="fu">gf_vline</span>(<span class="at">xintercept =</span> <span class="sc">~</span> belief, <span class="at">colour =</span> <span class="st">"red"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/bootstrap-test-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="index_files/figure-html/bootstrap-test-2-1.png" class="img-fluid figure-img" width="2100"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb42" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> belief, </span>
-<span id="cb42-2"><a href="#cb42-2"></a>     <span class="at">data =</span> null_grade_bs) <span class="sc">+</span></span>
-<span id="cb42-3"><a href="#cb42-3"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> belief, </span>
-<span id="cb42-4"><a href="#cb42-4"></a>     <span class="at">data =</span> null_grade_bs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&gt;=</span> belief, </span>
+<span id="cb44-2"><a href="#cb44-2"></a>     <span class="at">data =</span> null_grade_bs) <span class="sc">+</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="fu">prop</span>(<span class="sc">~</span> mean <span class="sc">&lt;=</span> <span class="sc">-</span> belief, </span>
+<span id="cb44-4"><a href="#cb44-4"></a>     <span class="at">data =</span> null_grade_bs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre data-code-line-numbers=""><code>prop_TRUE 
         0 </code></pre>
@@ -2538,7 +2557,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <p>Hosted by Netlify <a href="https://www.netlify.com"><iconify-icon inline="" icon="simple-icons:netlify" aria-label="Icon netlify from simple-icons Iconify.design set." title="Icon netlify from simple-icons Iconify.design set."></iconify-icon></a>.</p>
 </div>
   </div>
-</footer><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom","descPosition":"right"});
+</footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","loop":false,"closeEffect":"zoom","selector":".lightbox","descPosition":"right"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

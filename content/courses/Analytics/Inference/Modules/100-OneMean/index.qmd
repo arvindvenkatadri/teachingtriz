@@ -233,7 +233,7 @@ Research Questions are always about the population! Here goes:
 
 ::: callout-note
 ### Research Question
-Could the mean of the population, from which y has been drawn, be zero?
+Could the mean of the population $\mu$, from which y has been drawn, be zero?
 :::
 
 ### Assumptions
@@ -253,20 +253,19 @@ There are formal tests for normality too. We will do them in the next case study
 
 A. Model
 
-$$ mean(y) = \beta_0 $$ and further $\beta_0\ = 0$.
-We formulate "our disbelief" in a *NULL Hypothesis*, as follows:
+We have $mean(y) = \bar{y}.$ 
+We formulate "our disbelief" of $\bar{y}$ with a *NULL Hypothesis*, [**about the population**]{.bg-yellow .athelas .black} as follows:
 
 $$
-\ H_0: \beta_0 = 0
+\ H_0: \mu = 0
 $$
-Note that if we think that the mean is other than zero, we can use the NULL hypothesis to be:
+And the alternative hypothesis, again [**about the population**]{.bg-yellow .athelas .black} as
 
 $$
-H_0:\ \beta_0 = \mu \ne 0
+H_a:\mu \ne 0
 $$
 
 B. Code
-
 ```{r t_test_one_mean}
 # t-test
 t1 <- mosaic::t_test(
@@ -284,11 +283,17 @@ Recall how we calculated means, standard deviations from data (samples). If we c
 
 Confidence intervals for means are given by:
 
-$$ CI = mean ~ {\pm ~ constant * {sd/\sqrt{n}}}$$
-**Assuming** the y is normally-distributed, the $constant = 1.96$ for confidence level of 95%. What that means is that if we take multiple such samples like $y$ from the population, their means will land within the confidence intervals 95% of the time. Uff..!
+$$ 
+\begin{eqnarray*}
+CI & = & \bar{y} ~ {\pm ~ constant * Standard Error}\\
+& = & \bar{y} ~ {\pm ~ 1.96 * {sd/\sqrt{n}}}
+\end{eqnarray*}
+$$
+
+**Assuming** the y is normally-distributed, the $constant = 1.96$ for confidence level of 95%. What that means is that if we take multiple such samples like $y$ from the population, [**their means** (which are random)]{.bg-light-pink .black .athelas} will land within $CI$ of [the population mean (which is fixed!)]{.bg-light-green .black .athelas} 95% of the time. Uff...! May remind you of [Buffon's Needle](https://www.wikiwand.com/en/articles/Buffon's_needle_problem)...
 :::
 
-So $y$ has a mean of $2$, and the estimate is $2.045689$. The confidence intervals do not straddle zero. The *chances* that this particular value of mean ($2.045689$) would randomly occur **under the assumption that the mean is zero**, are exceedingly slim, $p.value = 1.425495e-08$. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have $mean = 0$. 
+So $\bar{y}$ i.e. the `estimate` is $2.045689$. The confidence intervals do not straddle zero. The *chances* that this particular value of mean ($2.045689$) would randomly occur **under the assumption that $\mu$ is zero**, are exceedingly slim, $p.value = 1.425495e-08$. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have mean $\mu = 0$. 
 
 
 #### Wilcoxon's Signed-Rank Test
@@ -357,9 +362,11 @@ We saw from the diagram created by Allen Downey that *there is only one test* [^
 
 We can use two packages in R, `mosaic` to develop our intuition for what are called **permutation** based statistical tests; and a more recent package called `infer` in R which can do pretty much all of this, including visualization. 
 
-(In my opinion however, the code with `infer` is a little too verbose for us now, and does not offer quite the detailed, but quick insight that the `mosaic` package does). So let us stick with `mosaic` for now. 
+(In my opinion however, the code with `infer` is a little too verbose for us now, and does not offer quite the detailed, but quick insight that the `mosaic` package does). So let us stick with `mosaic` for now. We will do a permutation test first, and then a bootstrap test. 
 
-We will do a permutation test first, and then a bootstrap test. 
+For the Permutation test, we mechanize our belief that $\mu = 0$ by *shuffling the polarities of the y observations* randomly 4999 times to generate other samples from the population $y$ could have come from[^2]. If these samples can frequently achieve $\bar{y_i} \leq 0$, then we might believe that the population mean may be 0! 
+
+We see that the means here that **chances** that the randomly generated means can exceed our real-world mean are about $0$! So the mean is definitely different from $0$. 
 
 ```{r}
 #| label: permutation-test-1
@@ -375,19 +382,21 @@ obs_diff_mosaic
 ## Repeatedly Shuffle polarities of data observations
 ## Take means
 ## Compare all means with the real-world observed one
-null_dist_mosaic <- mosaic::do(4999) * 
-  mean( ~ y * 
+null_dist_mosaic <- 
+mosaic::do(9999) * mean( ~ abs(y) * 
           sample(c(-1, 1), # +/- 1s multiply y
-            length(y),# How many +/- 1s?
-            replace = T), # select with replacement
+            length(y),     # How many +/- 1s?
+            replace = T),  # select with replacement
         data = mydata)
-head(null_dist_mosaic)
+##
+range(null_dist_mosaic$mean)
+##
 ## Plot this NULL distribution
 gf_histogram(
   ~ mean,
   data = null_dist_mosaic,
   fill = ~ (mean >= obs_diff_mosaic),
-  bins = 50, title = "Distribution of Means under Null Hypothesis",
+  bins = 50, title = "Distribution of Permutation Means under Null Hypothesis",
   subtitle = "Why is the mean of the means zero??") %>%
   gf_labs(x = "Calculated Random Means",
           y = "How Often do these occur?") %>% 
@@ -398,11 +407,6 @@ gf_histogram(
 prop(~ mean >= obs_diff_mosaic, 
      data = null_dist_mosaic)
 ```
-
-
-We mechanize our belief that $mean(y) ~ 0$ by shuffling the polarities of the y observations randomly 4999 times to generate other samples from the population $y$ could have come from[^2]. If these samples can frequently achieve means larger than that of y, then there is nothing special about y! 
-
-We see that here that **chances** that the randomly generated means can exceed our real-world mean are about $0$! So the mean is definitely different from $0$. 
 
 Let us try the bootstrap test now:
 
@@ -433,6 +437,7 @@ prop(~ mean >= belief1,
   prop(~ mean <= - belief1, 
      data = null_toy_bs)
 ```
+
 ::: callout-note
 ### Permutation vs Bootstrap
 There is a difference between the two. 
