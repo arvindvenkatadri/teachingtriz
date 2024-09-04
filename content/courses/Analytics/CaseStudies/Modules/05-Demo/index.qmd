@@ -1,0 +1,471 @@
+---
+title: "Demo: Product Packaging and Elderly People"
+order: 10
+code-tools: 
+ source: true
+editor: 
+  markdown: 
+    wrap: sentence
+---
+
+## Setting up R Packages
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(tidyverse)
+library(mosaic)
+library(skimr)
+library(ggformula)
+library(ggridges)
+
+```
+
+```{r}
+#| label: pedagogical-packages
+#| echo: false
+library(downloadthis)
+library(glue)
+##
+###     Adding download buttons
+#     data that has been read in
+#     {{< downloadthis ../../../../materials/Data/housing_train.csv dname="house_prices" label="Download the House Prices Dataset" icon="database-fill-down" type="info" >}}
+#    existing file
+#    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
+#    
+```
+
+```{r}
+#| label: Plot-Sizing-and-theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
+## Introduction
+
+As a demonstration Data Analysis flow, I will take a dataset and show the various steps involved in the workflow: data inspection, cleaning, setting up a hypothesis, plotting a chart, and responding to the hypothesis.
+
+This is a dataset pertaining to packaging of groceries, and the difficulty that elderly people face with opening or closing those packages.
+The study also included people who were experiencing hand pain due to ailments such as arthritis.
+
+The data is available here: Juliá-Nehme, Begoña (2023).
+*Usability of Food Packaging in Older Adults.* Figshare Dataset. <https://doi.org/10.6084/m9.figshare.22637656.v1>
+
+## Data
+
+```{r}
+#| label: read-data
+#| echo: true
+#| message: false
+
+opening <- 
+  readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx") %>% 
+  janitor::clean_names()
+
+opening
+glimpse(opening)
+inspect(opening)
+
+closing <- readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx") %>% janitor::clean_names()
+glimpse(closing)
+inspect(closing)
+
+```
+
+## Data Dictionary
+
+Several variables are wrongly encoded here, as can be seen.
+For instance `group`, and `sex` are encoded as `<dbl>` and need to be converted to `factors` before analysis.
+We will write our Data Dictionary based on this understanding, and then convert the variables appropriately. (The full workflow will be shown here for the `opening` dataset; it follows in identical fashion for the `closing` dataset.)
+
+::: callout-note
+### Quantitative Variables
+
+-   `hand_strength`(dbl): Hand Strength, numerical
+-   `pinch_strength`(dbl): Pinch Strength, numerical
+-   `time_jar` (chr) Time to open a jar
+-   `time_beverage`(dbl)Time to open a beverage
+-   `time_suace` (chr) Time to open sauce
+-   `time_juice` (dbl) Time to open juice
+-   `time_milk` (dbl) Time to open milk carton
+-   `time_crackers`(dbl)Time to open crackers pack
+-   `time_cheese` (dbl) Time to open cheece packet
+-   `time_chickpeas` (dbl) Time to open chickpeas packet
+-   `time_bottle` (dbl) Time to open a bottle
+-   `time_soup`(dbl) Time to open a a can of soup
+:::
+
+::: callout-note
+### Qualitative Variables
+
+-   `group`(dbl): Groups in the study. Two.
+-   `sex`(dbl): sex of the participant
+-   `hand_pain`: Did they suffer from hand pain or not? Binary.
+-   `hand_illness`: Same thing?
+:::
+
+::: callout-note
+### Observations
+
+Small dataset of 17 rows.
+Several times have been measured across the same set of subjects.
+Subjects seem to be in two groups, and with or without hand-pain.
+Are these the two groups?
+What is the difference between `hand_pain` and `hand_illness`?
+:::
+
+## Analyse / Transform the Data
+
+We need to first convert all the obvious Qual variables into, well, Qual factors!
+A few variables are also obviously Quant, and need to be transformed.
+We can also perform counts based on `hand_pain` and `hand_illness` to decide how to deal with them.
+And we will not modify the original data !!
+
+```{r}
+#| label: data-modified-and-saved
+#| echo: true
+opening_modified <- opening %>% 
+  # correct spelling mistake
+  rename("time_sauce" = time_suace) %>% 
+  
+  # If you want to do this fast!
+  mutate(across(contains("time"), as.numeric)) %>% 
+# Two "NA" entries exist
+
+  mutate(hand_pain = as_factor(hand_pain),
+         hand_illness = as_factor(hand_illness),
+         group = as_factor(group),
+         sex = as_factor(sex))
+
+opening_modified
+glimpse(opening_modified)   
+
+```
+
+## Analyse the Data
+
+Let us make some counts wrt Qual variables, and histograms of Quant variables and get used to our data.
+
+```{r}
+opening_modified %>% count(sex)
+opening_modified %>% count(hand_pain)
+opening_modified %>% count(hand_pain, hand_illness)
+
+```
+
+Reasonably balanced groups.
+Hand_pain and Hand_illness are not the same thing.
+
+```{r}
+opening_modified %>% 
+  gf_histogram(~ hand_strength)
+opening_modified %>% 
+  gf_histogram(~ pinch_strength)
+opening_modified %>% 
+  gf_histogram(~ time_jar)
+opening_modified %>% 
+  gf_histogram(~ time_bottle)
+```
+
+Histograms do not look symmetric, but then we have only 17 observations anyway.
+
+## Research Questions
+
+We can create more than one too, and even iteratively, after we have answered the first one and so on.
+Let us write two:
+
+::: callout-note
+Q1.
+Do opening times for groceries vary between people with hand_pain and those without?
+:::
+
+::: callout-note
+Q1.
+Do opening times for groceries vary between people of different sex?
+:::
+
+## More data transformation
+
+As seen, this data is in *untidy* form: there are several numerical columns that have some "Qual" information embedded in their column names, such as the the *kind of package that is being opened*.
+We should transform the data into *long form* so that all the time numbers are stacked up in one column, and the *types of packages* are in another column, called `grocery`.
+
+```{r}
+#| label: making-tidy-data-1
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),#Choose columns to stack (by negation)
+               names_to = "operation", # Name of stack column
+               values_to = "times")   # Name of values column
+
+```
+
+Once we do this, we realize that the word "time" in the column `operation` adds no value, since we want only the grocery involved.
+A
+
+```{r}
+#| label: making-tidy-data-2
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),
+               names_to = "operation",
+               values_to = "times") %>%
+# knock off that "time" word
+  tidyr::separate_wider_delim(operation, 
+                              delim = "time_",
+                      # Rename "operation" column as "grocery"
+                              names = c(NA,"grocery")) 
+```
+
+OK, looking better!
+Now if we plot `times`, we can colour or facet by `grocery`.
+
+## First Plot
+
+```{r}
+#| label: plot-1
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),
+               names_to = "operation",
+               values_to = "times") %>%
+# knock off that "time" word
+  tidyr::separate_wider_delim(operation, 
+                              delim = "time_",
+                              names = c(NA,"grocery")) %>% 
+## First Plot
+  gf_density_ridges(grocery ~ times,
+                    fill = "grey70",scale = 0.75) %>% 
+  gf_facet_grid(hand_pain ~ .) 
+```
+
+Ok!
+Not bad!
+We now want to label to do two things:
+
+-   label facets `0` and `1` as "Pain" and "No Pain".
+-   Reorder the `groceries` so that they are in decreasing order of median(times).
+-   In two steps!!
+
+```{r}
+#| label: plot-2
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),
+               names_to = "operation",
+               values_to = "times") %>%
+# knock off that "time" word
+  tidyr::separate_wider_delim(operation, 
+                              delim = "time_",
+                              names = c(NA,"grocery")) %>% 
+  
+# Re-label the factor hand_pain
+# Use base::factor() as this command is more clear to me
+  mutate(hand_pain = 
+           base::factor(hand_pain, 
+              levels = c(0,1),
+              labels = c("No Hand Pain", "Hand Pain"))) %>% 
+## First Plot
+  gf_density_ridges(grocery ~ times,
+                    fill = "grey70",scale = 0.75) %>% 
+  gf_facet_grid(hand_pain ~ .) 
+
+```
+
+And to reorder the groceries in decreasing order of median(times):
+
+::: callout-warning
+This does **not** seem to be happening at this time. Needs to be checked!
+:::
+
+```{r}
+#| label: plot-3
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),
+               names_to = "operation",
+               values_to = "times") %>%
+# knock off that "time" word
+  tidyr::separate_wider_delim(operation, 
+                              delim = "time_",
+                              names = c(NA,"grocery")) %>% 
+  
+# Re-label the factor hand_pain
+# Use base::factor() as this command is more clear to me
+  mutate(hand_pain = 
+           base::factor(hand_pain, 
+              levels = c(0,1),
+              labels = c("No Hand Pain", "Hand Pain"))) %>% 
+## First Plot modified
+
+gf_density_ridges(reorder(
+                    grocery,# reorder the grocery var
+                    times,# based on times variable
+                    FUN = median) # taking the median times
+                  ~ times,
+                  fill = "grey70",scale = 0.75) %>%
+  gf_facet_grid(hand_pain ~ .) 
+
+```
+
+Almost done!
+We need to relabel the y-axis name and also add some title and subtitles to our plot.
+And maybe add a point on each sub-plot to show the median opening times?
+
+```{r}
+#| label: plot-4
+#| warning: false
+#| message: false
+opening_modified %>% 
+  pivot_longer(cols = -c(1:7),
+               names_to = "operation",
+               values_to = "times") %>%
+# knock off that "time" word
+  tidyr::separate_wider_delim(operation, 
+                              delim = "time_",
+                              names = c(NA,"grocery")) %>% 
+  
+# Re-label the factor hand_pain
+# Use base::factor() as this command is more clear to me
+  mutate(hand_pain = 
+           base::factor(hand_pain, 
+              levels = c(0,1),
+              labels = c("No Hand Pain", "Hand Pain"))) %>% 
+  
+  group_by(grocery, hand_pain) %>% 
+## First Plot modified
+  gf_density_ridges(reorder(
+                      grocery,       # reorder the grocery var
+                      times,         # based on times variable
+                      FUN = median)  # taking the median times
+                    ~ times,
+                    fill = "grey70",scale = 0.75) %>% 
+  ## Add the median points 
+  gf_summary(fun = "median", color = "black", size = 1, 
+             geom = "point") %>% 
+  ## Facet by hand_pain
+  gf_facet_grid(hand_pain ~ .) %>% 
+  ## Add titles and labels
+  gf_labs(
+    title = "Times take by Older People to Open Food Packages",
+    x = "Time in seconds", 
+    y = "Type of Product",
+    caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1")  %>% 
+  gf_theme(theme_custom())
+
+```
+
+```{r}
+#| eval: false
+#| echo: false
+opening %>% 
+  mutate(across(starts_with("time"), as.numeric)) %>% 
+  pivot_longer(cols = -c(1:7), names_to = "operation", 
+               values_to = "times") %>% 
+  
+  separate_wider_delim(operation, delim = "time_",
+                       names = c(NA,"operation")) %>%
+  mutate(operation = str_replace(string = operation, 
+            pattern = "suace", replacement = "sauce"),
+         hand_pain = factor(hand_pain, levels = c(0,1), 
+                            labels = c("No Hand Pain", "Hand Pain"))) %>% group_by(operation, hand_pain) %>% 
+  
+  gf_density_ridges(reorder(operation, times, FUN = median) ~ times,
+                    fill = "grey70",scale = 0.75) %>% 
+  gf_summary(fun = "median", color = "black", size = 1, geom = "point") %>% 
+  gf_facet_grid(hand_pain ~ .) %>% 
+  gf_labs(title = "Times take by Older People to Open Food Packages",
+           x = "Time in seconds", y = "Type of Product",
+          caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1") 
+```
+
+### Closing Times Analysis
+Since the `as.numeric` did not work for us in the analysis of `opening` data, I have found and used another function `as_numeric` from the `sjlabelled` package. Sigh. 
+
+```{r}
+closing %>% 
+  mutate(across(starts_with("time"), sjlabelled::as_numeric)) %>% 
+  pivot_longer(cols = -c(1:7), names_to = "operation", 
+               values_to = "times") %>% 
+  
+  separate_wider_delim(operation, delim = "time_",
+                       names = c(NA,"operation")) %>%
+  mutate(operation = str_replace(string = operation, pattern = "suace", replacement = "sauce"),
+         hand_pain = factor(hand_pain, levels = c(0,1), 
+                            labels = c("No Hand Pain", "Hand Pain"))) %>% group_by(operation, hand_pain) %>% 
+  
+  gf_density_ridges(reorder(operation, times, FUN = median) ~ times,
+                    fill = "grey70",scale = 0.75) %>% 
+  gf_summary(fun = "median", color = "black", size = 1, geom = "point") %>% 
+  gf_facet_grid(hand_pain ~ .) %>% 
+  gf_labs(title = "Times take by Older People to Close Food Packages",
+           x = "Time in seconds", y = "Type of Product",
+          caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1") %>% 
+  gf_theme(theme_custom())
+
+```
+
+## Task and Discussion
+
+-   Complete the Data Dictionary.
+-   Create the graph shown and discuss the following questions:
+-   What is the kind of plot used in the chart? A facetted ridge plot with medians marked using points
+-   What variables have been used in the chart?
+    -   Time on X; Grocery Item on Y; Density on the ridges; Hand Pain for faceting
+-   Q1. Do opening times for groceries vary between people with hand_pain and those without?
+    -   Yes; the people with hand pain take longer to open the packages (meh, but all right!) While medians are not too different across the two groups, the distribution tails extend longer in the case of hand_pain = YES.
+-   Why do that lines abruptly stop towards the right side of the upper half of the chart?
+    -   Because the extreme times are shorter across the board for closing, as compared to opening.
