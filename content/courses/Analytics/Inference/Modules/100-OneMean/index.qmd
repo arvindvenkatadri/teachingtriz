@@ -4,7 +4,7 @@ subtitle: "“The more I love humanity in general, the less I love man in partic
 author: Arvind V. 
 date: 10/Nov/2022
 date-modified: "`r Sys.Date()`"
-abstract: "Inference Tests to check the significance of a single Mean"
+abstract: "Inference Tests for a Single population Mean"
 order: 100
 categories:
 - t.test
@@ -47,9 +47,9 @@ library(tidyverse)
 library(mosaic)
 library(ggformula)
 library(infer)
-### Dataset from Chihara and Hesterberg's book (Second Edition)
-library(resampledata)
-library(openintro) # datasets
+library(broom) # Clean test results in tibble form
+library(resampledata) # Datasets from Chihara and Hesterberg's book
+library(openintro) # More datasets
 
 ```
 
@@ -66,10 +66,11 @@ library(TeachingDemos)
 library(grateful)
 library(explore) # New, Easy package for Stats Test and Viz, and other things
 
+
 ```
 
 ```{r}
-#| label: Plot Sizing and theming
+#| label: Plot-Sizing-and-theming
 #| echo: false
 #| message: false
 #| results: hide
@@ -81,7 +82,7 @@ knitr::opts_chunk$set(
  fig.width = 7,
  fig.asp = 0.618, # Golden Ratio
  #out.width = "80%",
- fig.align = "center"
+ fig.align = "center", tidy = TRUE
 )
 ### Ggplot Theme
 ### https://rpubs.com/mclaire19/ggplot2-custom-themes
@@ -93,7 +94,7 @@ theme_custom <- function(){
     
     theme(
       text = element_text(family = font),
-            
+      
       panel.grid.minor = element_blank(),    #strip minor gridlines
 
       #text elements
@@ -245,11 +246,11 @@ There are formal tests for normality too. We will do them in the next case study
 :::
 
 
-### Inference
+## Inference
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-#### The t-test 
+### The t-test 
 
 A. Model
 
@@ -296,7 +297,7 @@ $$
 So $\bar{y}$ i.e. the `estimate` is $2.045689$. The confidence intervals do not straddle zero. The *chances* that this particular value of mean ($2.045689$) would randomly occur **under the assumption that $\mu$ is zero**, are exceedingly slim, $p.value = 1.425495e-08$. Hence we can reject the NULL hypothesis that the true population, of which y is a sample, could have mean $\mu = 0$. 
 
 
-#### Wilcoxon's Signed-Rank Test
+### Wilcoxon's Signed-Rank Test
 ::: Callout-note
 
 #### "Signed Rank" Values: A Small Digression
@@ -324,7 +325,10 @@ mean(signed\_rank(y)) = \beta_0
 $$
 
 $$
-H_0: \beta_0 = 0
+H_0: \mu_0 = 0
+$$
+$$
+H_a: \mu_0 \ne 0
 $$
 
 B. Code
@@ -353,11 +357,11 @@ t3
 Again, the `confidence intervals` do not straddle $0$, and we need to reject the belief that the mean is close to zero. 
 
 ::: callout-note
-Note how the Wilcoxon Test reports results about y, even though it computes with $signed-rank(y)$.
-The "equivalent t-test" with signed-rank data cannot do this, and uses "rank" data, but reports the same result.
+Note how the Wilcoxon Test reports results about $y$, even though it computes with $signed-rank(y)$.
+The "equivalent t-test" with signed-rank data cannot do this, since it uses "rank" data, and reports the same result.
 :::
 
-#### Using Permutation and Bootstrap
+### Using Permutation and Bootstrap
 We saw from the diagram created by Allen Downey that *there is only one test* [^1]! We will now use this philosophy to develop a technique that allows us to mechanize several *Statistical Models* in that way, with nearly identical code.
 
 We can use two packages in R, `mosaic` to develop our intuition for what are called **permutation** based statistical tests; and a more recent package called `infer` in R which can do pretty much all of this, including visualization. 
@@ -447,7 +451,7 @@ The *permutation test*generates many permutations of the data and generates appr
 
 :::
 
-#### Intuitive
+### Intuitive
 
 Yes, the t-test works, but what is really happening under the hood of the t-test? The inner mechanism of the t-test can be stated in the following steps:
 
@@ -535,10 +539,14 @@ There are quite a few Quant variables in the data. Let us choose `course_grade` 
 In *general*, the Teacher in this class is overly generous with grades [[unlike others we know of](https://www.linkedin.com/in/arvindvenkatadri)]{.bg-washed-red}, and so the average `course-grade` is equal to 80% !!
 :::
 
-
 ### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+
+:::: {.columns}
+::: {.column width="50%"}
+
 ```{r}
 #| label: charting-data-2
+#| eval: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -549,7 +557,17 @@ exam_grades %>%
   gf_labs(title = "Density of Course Grade",
           subtitle ="Compared with Normal Density")
 ```
+:::
 
+::: {.column width="50%"}
+```{r}
+#| ref.label: charting-data-2
+#| echo: false
+#| 
+```
+
+:::
+::::
 Hmm...data looks normally distributed. But this time we will not merely trust our eyes, but do a test for it. 
 
 ### Testing Assumptions in the Data
@@ -575,21 +593,23 @@ So `course_grade` is a normally-distributed variable. There are *no* exceptional
 
 :::
 
-### Inference
+## Inference
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-#### t.test
-
+### t.test
 A. Model
 
-$$ mean(coursegrade) = \beta_0$$ and further $\beta_0\ = 0$.
-
-As before, we formulate "our (dis)belief" in a *NULL Hypothesis*, as follows:
+We have that $mean(course\_grade) = \beta_0$. As before, we formulate "our (dis)belief" in this sample mean with a *NULL Hypothesis* about the **population**, as follows:
 
 $$
-\ H_0: \beta_0 = 80
+\ H_0: \mu= 80
 $$
+
+$$
+H_a: \mu \ne 80
+$$
+
 
 B. Code
 
@@ -602,9 +622,10 @@ t4 <- mosaic::t_test(
 broom::tidy()
 t4
 ```
-So, we can reject the NULL Hypothesis that the average grade is 80!! 
 
-#### Wilcoxon test
+So, we can reject the NULL Hypothesis that the average grade in the population of students who have taken this class is 80, since there is a minuscule chance that we would see an *observed sample mean* of 72.238, if the population mean $\mu$ had really been $80$. 
+
+### Wilcoxon test
 ```{r t_test_one_mean-3}
 # t-test
 t5 <- wilcox.test(
@@ -625,7 +646,7 @@ Note that we have computed whether the average `course_grade` is generally **dif
 :::
 
 
-#### Using Permutation and Bootstrap
+### Using Permutation and Bootstrap
 
 ```{r}
 #| label: permutation-test-2
@@ -633,19 +654,21 @@ Note that we have computed whether the average `course_grade` is generally **dif
 theme_set(new = theme_custom())
 #
 # Calculate exact mean
-obs_mean_grade = mean( ~ course_grade, data = exam_grades)
+obs_mean_grade = mean(~course_grade, data = exam_grades)
 belief <- 80
 obs_grade_diff <- belief - obs_mean_grade
 ## Steps in a Permutation Test
 ## Repeatedly Shuffle polarities of data observations
 ## Take means
 ## Compare all means with the real-world observed one
-null_dist_grade <- mosaic::do(4999) * 
-  mean( ~ (course_grade - belief) * 
-          sample(c(-1, 1), # +/- 1s multiply y
-            length(course_grade),# How many +/- 1s?
-            replace = T), # select with replacement
-        data = exam_grades)
+null_dist_grade <- 
+mosaic::do(4999) * 
+  mean(~ (course_grade - belief) * 
+          sample(c(-1, 1),             # +/- 1s multiply y
+                 length(course_grade), # How many +/- 1s?
+                 replace = T),         # select with replacement
+      data = exam_grades
+)
 
 ## Plot this NULL distribution
 gf_histogram(
@@ -657,7 +680,8 @@ gf_histogram(
   subtitle = "Why is the mean of the means zero??") %>%
   gf_labs(x = "Calculated Random Means",
           y = "How Often do these occur?") %>% 
-  gf_vline(xintercept = obs_grade_diff, colour = "red") %>% gf_vline(xintercept = - obs_grade_diff, colour = "red")
+  gf_vline(xintercept = obs_grade_diff, colour = "red") %>%
+  gf_vline(xintercept = - obs_grade_diff, colour = "red")
 
 # p-value
 # Permutation distributions are always centered around zero. Why?
@@ -695,12 +719,12 @@ prop(~ mean >= belief,
 
 The permutation test shows that we are not able to "generate" the *believed* mean-difference with any of the permutations. Likewise with the bootstrap, we are not able to hit the believed mean with any of the bootstrap samples. 
 
-Hence there is no reason to believe that the belief (80) might be a reasonable one and we stick with our NULL Hypothesis that the mean is not equal to 80. 
+Hence there is no reason to believe that the belief (80) might be a reasonable one and we reject our NULL Hypothesis that the mean is equal to 80. 
 
 
 :::
 
-## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for a Single Mean
+## {{< iconify openmoji flat-color-icons workflow >}} Workflow for Inference for a Single Mean
 
 A series of tests deal with one mean value of a sample. The idea is to
 evaluate whether that mean is representative of the mean of the
@@ -709,8 +733,6 @@ variable, the test that can be used are as follows:
 
 ```{mermaid}
 %%| echo: false
-%%| fig-align: center
-
 flowchart TD
     A[Inference for Single Mean] -->|Check Assumptions| B[Normality: Shapiro-Wilk Test shapiro.test\n or\n Anderson-Darling Test]
     B --> C{OK?}
@@ -741,6 +763,8 @@ flowchart TD
 
 1. OpenIntro Modern Statistics, [Chapter #17](https://openintro-ims.netlify.app/inference-one-prop.html)
 
+1. Bootstrap based Inference using the `infer` package: <https://infer.netlify.app/articles/t_test>
+
 1. Michael Clark & Seth Berry. *Models Demystified: A Practical Guide from t-tests to Deep Learning*. <https://m-clark.github.io/book-of-models/>
 
 1. University of Warwickshire. *SAMPLING: Searching for the Approximation Method use to Perform rational inference by Individuals and Groups*. <https://sampling.warwick.ac.uk/#Overview>
@@ -760,8 +784,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("explore", "resampledata", "openintro", "infer", "TeachHist",
-           "TeachingDemos")
+  pkgs = c("explore", "resampledata", "openintro", "infer", "TeachHist", "TeachingDemos")
 ) %>%
   knitr::kable(format = "simple")
 

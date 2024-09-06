@@ -11,7 +11,7 @@ tags:
 - Generating Parallel Worlds
 ---
 
-# {{< iconify noto-v1 package >}} Setting up R Packages
+## {{< iconify noto-v1 package >}} Setting up R Packages
 
 ```{r}
 #| label: setup
@@ -41,7 +41,7 @@ library(TeachHist)
 library(TeachingDemos)
 library(grateful)
 library(downloadthis)
-
+knitr::opts_chunk$set(tidy = 'styler')
 ```
 
 
@@ -58,7 +58,8 @@ knitr::opts_chunk$set(
  fig.width = 7,
  fig.asp = 0.618, # Golden Ratio
  #out.width = "80%",
- fig.align = "center"
+ fig.align = "center", tidy = 'styler', 
+ tidy.opts = 'tidyverse'
 )
 ### Ggplot Theme
 ### https://rpubs.com/mclaire19/ggplot2-custom-themes
@@ -126,13 +127,13 @@ flowchart TD
 ```
 
 
-# {{< iconify pajamas issue-type-test-case >}} Case Study #1: A Simple Data set with Two Quant Variables
+## {{< iconify pajamas issue-type-test-case >}} Case Study #1: A Simple Data set with Two Quant Variables
 
 Let us look at the `MathAnxiety` dataset from the package
 `resampledata`. Here we have "anxiety" scores for boys and girls, for
 different components of mathematics.
 
-## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 ```{r}
 #| label: DataCaseStudy-1
@@ -154,8 +155,7 @@ our first example.
 ::: callout-note
 ## Research Question
 
-Is there a difference between boy and girl "anxiety" levels for AMAS
-(test) in the MathAnxiety dataset?
+Is there a difference between boy and girl "anxiety" levels for AMAS (test) in the **population** from which the MathAnxiety dataset is a sample?
 :::
 
 First, histograms, densities and counts of the variable we are
@@ -299,11 +299,11 @@ saw it visually when we plotted the overlapped distributions earlier.
 2.  The two variances are significantly similar.
 :::
 
-## {{< iconify academicons hypothesis >}} Hypothesis
+### {{< iconify academicons hypothesis >}} Hypothesis
 
 Based on the graphs, how would we formulate our Hypothesis? We wish to
 infer whether there is any difference in the mean anxiety score between
-Girls and Boys in the dataset `MathAnxiety`. So accordingly:
+Girls and Boys, in the **population** from which the dataset `MathAnxiety` has been drawn. So accordingly:
 
 $$
 H_0: \mu_{Boys} = \mu_{Girls}\\
@@ -314,7 +314,7 @@ H_a: \mu_{Girls} \ne \mu_{Boys}\\
 $$
 
 
-## {{< iconify academicons hypothesis >}} Observed and Test Statistic
+### {{< iconify academicons hypothesis >}} Observed and Test Statistic
 
 What would be the **test statistic** we would use? The **difference in
 means**. Is the observed difference in the means between the two groups of scores non-zero? We use the `diffmean` function:
@@ -328,7 +328,7 @@ obs_diff_amas
 ```
 
 Girls' `AMAS` anxiety scores are, on average, $1.76$ points higher than
-those for Boys.
+those for Boys in the dataset/sample.
 
 ::: callout-note
 ### On Observed Difference Estimates
@@ -338,12 +338,12 @@ but with the same value! This depends upon the way the factor variable
 `Gender` is used, i.e. Boy-Girl or Girl-Boy...
 :::
 
-## {{< iconify fluent-mdl2 insights >}} Inference
+### {{< iconify fluent-mdl2 insights >}} Inference
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 
-### Using the Parametric t.test
+#### Using the Parametric t.test
 
 Since the data are not both normally distributed, though the variances
 similar, we typically cannot use a parametric `t.test`. However, we can
@@ -361,7 +361,7 @@ significant difference between Boys and Girls when it comes to `AMAS`
 anxiety. But can we really believe this, given the non-normality of
 data?
 
-### Using the Mann-Whitney Test
+#### Using the Mann-Whitney Test
 
 Since the data variables do not satisfy the assumption of being
 *normally distributed*, and though the variances are similar, we use the classical `wilcox.test` (Type `help(wilcox.test)` in your
@@ -375,16 +375,15 @@ Console.) which implements what we need here:  the *Mann-Whitney U test*:[^3]
 > distributions are needed so far. (emphasis mine)
 
 $$
-mean(rank(AMAS_{Girls})) - mean(rank(AMAS_{Boys})) = \beta_1;\\
+mean(rank(AMAS_{Girls})) - mean(rank(AMAS_{Boys})) = \mu_1;\\
 $$ 
 
 $$
-H_0: \beta_1 = 0;\\ 
-\\ 
+H_0: \mu_1 = 0
 $$ 
 
 $$
-H_a: \beta_1 \ne 0
+H_a: \mu_1 \ne 0
 $$
 
 ```{r}
@@ -416,7 +415,7 @@ MathAnxiety %>%
   gf_refine(scale_x_discrete(breaks =  c("Boy", "Girl"), 
                              labels = c("Boy", "Girl"), 
                              guide = "prism_bracket")) %>% 
-  gf_label(label = TeX(r"(\textbf{Slope} $beta_1 \neq 0$ )"), 500 ~ 1.5, 
+  gf_label(label = TeX(r"(\textbf{Slope} $mu_1 \neq 0$ )"), 500 ~ 1.5, 
            color = "black", fill = "moccasin") %>% 
    gf_text(label = "Mean Rank \nBoys Scores", 
            300 ~ 0.75, inherit = FALSE) %>%
@@ -440,7 +439,7 @@ alternative hypothesis that there is a significant difference in mean
 anxiety scores between Boys and Girls.
 
 
-### Using the Linear Model Interpretation
+#### Using the Linear Model Interpretation
 
 We can apply the *linear-model-as-inference* interpretation to the
 **ranked data** data to implement the non-parametric test as a Linear
@@ -517,14 +516,14 @@ Note how the **Qual** variable was used here in Linear Regression! The
 Here too we see that the `p.value` for the *slope term* ("GenderGirl")
 is significant at $7.4*10^{-4}$.
 
-### Using the Permutation Test
+#### Using the Permutation Test
 
 We saw from the diagram created by Allen Downey that *there is only one
 test*[^5] ! We will now use this philosophy to develop a technique that
 allows us to mechanize several *Statistical Models* in that way, with
 nearly identical code.
 
-We **pretend** that `Gender` has not *effect* on the `AMAS` anxiety
+We **pretend** that `Gender` has no *effect* on the `AMAS` anxiety
 scores. If this is our position, then the `Gender` labels are
 essentially meaningless, and we can pretend that any `AMAS` score
 belongs to a Boy or a Girl. This means we can `mosaic::shuffle`
@@ -533,8 +532,7 @@ is. And we do not have to really worry about whether the data are
 normally distributed, or if their variances are nearly equal.
 
 ::: callout-important
-The "pretend" position is exactly the NULL Hypothesis!! The "uncommon"
-part is the `p.value` under NULL!!
+The "pretend" position is exactly the NULL Hypothesis!! The "uncommon" part is the `p.value` under NULL!!
 :::
 
 ```{r}
@@ -629,7 +627,7 @@ lm(rank(AMAS) ~ Gender,
 As we can see, all tests are in agreement that there is a significant
 *effect* of `Gender` on the `AMAS` anxiety scores!
 
-# {{< iconify pajamas issue-type-test-case >}} Case Study #2: Youth Risk Behavior Surveillance System (YRBSS) survey
+## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Youth Risk Behavior Surveillance System (YRBSS) survey
 
 Every two years, the Centers for Disease Control and Prevention in the
 USA conduct the **Youth Risk Behavior Surveillance System (YRBSS)**
@@ -638,7 +636,7 @@ to analyze health patterns. We will work with a selected group of
 variables from a random sample of observations during one of the years
 the YRBSS was conducted.The `yrbss` dataset is part of the `openintro` package. Type this in your console: `help(yrbss)`.
 
-## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 ```{r}
 #| label: Data-Case-Study-2
@@ -658,15 +656,6 @@ and something we will have to account for in our computations. The
 meaning of each variable can be found by bringing up the help file.[Type
 this in your console: `help(yrbss)`]{.aside}
 
-In this Case Study, our research question is:
-
-::: callout-note
-## Research Question
-
-Does `weight` of highschoolers in this dataset vary with `gender`?
-:::
-
-## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 First, histograms, densities and counts of the variable we are
 interested in:
@@ -704,6 +693,28 @@ yrbss_select_gender %>% count(gender)
 
 Overlapped Distribution plot shows some difference in the *means*; and
 the Boxplots show visible difference in the *medians*.
+In this Case Study, our research question is:
+
+::: callout-note
+## Research Question
+
+Does `weight` of highschoolers in this dataset vary with `gender`?
+:::
+
+### {{< iconify academicons hypothesis >}} Hypothesis
+
+Based on the graphs, how would we formulate our Hypothesis? We wish to
+infer whether there is difference in mean `weight` across `gender`. So
+accordingly:
+
+$$
+H_0: \mu_{male} = \mu_{female}
+$$
+$$
+H_a: \mu_{male} \ne \mu_{female}
+$$
+
+
 
 ### A. {{< iconify mdi chart-bell-curve >}} Check for Normality
 
@@ -791,19 +802,7 @@ This means that the parametric `t.test` must be eschewed in favour of
 the non-parametric `wilcox.test`. We will use that, and also attempt
 `linear models` with rank data, and a final permutation test.
 
-## {{< iconify academicons hypothesis >}} Hypothesis
-
-Based on the graphs, how would we formulate our Hypothesis? We wish to
-infer whether there is difference in mean `weight` across `gender`. So
-accordingly:
-
-$$
-H_0: \mu_{male} = \mu_{female}\\
-\\\
-H_a: \mu_{male} \ne \mu_{female}\
-$$
-
-## {{< iconify academicons hypothesis >}} Observed and Test Statistic
+### {{< iconify academicons hypothesis >}} Observed and Test Statistic
 
 What would be the **test statistic** we would use? The **difference in
 means**. Is the observed difference in the means between the two groups of scores non-zero? We use the `diffmean` function, from `mosaic`:
@@ -818,10 +817,10 @@ obs_diff_gender
 
 ```
 
-## {{< iconify fluent-mdl2 insights >}} Inference
+### {{< iconify fluent-mdl2 insights >}} Inference
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### Using the Mann-Whitney test
+#### Using the Mann-Whitney test
 
 Since the data variables do not satisfy the assumption of being
 *normally distributed*, and the variances are significantly different,
@@ -830,10 +829,15 @@ we use the classical `wilcox.test`, which implements what we need here: the *Man
 Our model would be:
 
 $$
-mean(rank(Weight_{male})) - mean(rank(Weight_{female})) = \beta_1;\\
-H_0: \beta_1 = 0;\\ 
-\\ 
-H_a: \beta_1 \ne 0
+mean(rank(Weight_{male})) - mean(rank(Weight_{female})) = \beta_1;
+$$
+
+$$
+H_0: \mu_1 = 0;
+$$
+
+$$
+H_a: \mu_1 \ne 0
 $$
 
 Recall the earlier graph showing ranks of scores against Gender.
@@ -848,7 +852,7 @@ wilcox.test(weight ~ gender, data = yrbss_select_gender,
 The `p.value` is negligible and we are able to reject the NULL
 hypothesis that the means are equal.
 
-### Using the Linear Model
+#### Using the Linear Model
 
 We can apply the *linear-model-as-inference* interpretation to the
 **ranked data** data to implement the non-parametric test as a Linear
@@ -856,9 +860,11 @@ Model:
 
 $$
 lm(rank(weight) \sim  gender) = \beta_0 + \beta_1 * gender
-\\
-H_0: \beta_1 = 0\\
-\\\
+$$
+$$
+H_0: \beta_1 = 0
+$$
+$$
 H_a: \beta_1 \ne 0\\
 $$
 
@@ -881,12 +887,13 @@ lm(rank(weight) ~ gender,
 Note how the **Qual** variable was used here in Linear Regression `lm()`! The `gender` variable was treated as a binary "dummy" variable[^8].
 :::
 
-### Using the Permutation Test
+#### Using the Permutation Test
 
 For the specific data at hand, we need to shuffle the `gender` and take the `test statistic` (difference in means) each time. 
 
 ```{r}
-#| layout: [[15,40,40, 5]]
+#| layout-ncol: 2
+#| layout-nrow: 2
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -896,7 +903,8 @@ null_dist_weight <-
   do(4999) * diffmean(data = yrbss_select_gender, 
                       weight ~ shuffle(gender))
 null_dist_weight
-
+###
+prop1(~ diffmean <= obs_diff_gender, data = null_dist_weight)
 ###
 gf_histogram(data = null_dist_weight, ~ diffmean, bins = 25) %>%
   gf_vline(xintercept = obs_diff_gender, colour = "red",
@@ -910,10 +918,6 @@ gf_ecdf(data = null_dist_weight, ~ diffmean) %>%
            title = "Null Distribution by Permutation", 
            subtitle = "Cumulative Density") %>% 
   gf_labs(x = "Difference in Means")
-
-###
-prop1(~ diffmean <= obs_diff_gender, data = null_dist_weight)
-
 
 ```
 
@@ -956,7 +960,7 @@ lm(rank(weight) ~ gender,
 The `wilcox.test` and the linear model with rank data offer the same
 results. This is of course not surprising!
 
-# {{< iconify pajamas issue-type-test-case >}} Case Study #3: Weight vs Exercise in the YRBSS Survey
+## {{< iconify pajamas issue-type-test-case >}} Case Study #3: Weight vs Exercise in the YRBSS Survey
 
 Finally, consider the possible relationship between a highschooler's
 weight and their physical activity.
@@ -980,7 +984,7 @@ yrbss_select_phy <- yrbss %>%
   select(weight, physical_3plus)
 
 # Let us check
-yrbss_select_phy%>% count(physical_3plus)
+yrbss_select_phy %>% count(physical_3plus)
 
 ```
 
@@ -991,7 +995,7 @@ Does `weight` vary based on whether students exercise on more or less
 than 3 days a week? (`physically_active_7d` \>= 3 days)
 :::
 
-## {{< iconify carbon chart-3d >}} Inspecting and Charting Data
+### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 We can make distribution plots for `weight` by `physical_3plus`:
 
@@ -1042,7 +1046,9 @@ cannot do a `shapiro.test`:
 ```{r}
 #| layout-ncol: 2
 #| results: hold
-
+# Set graph theme
+theme_set(new = theme_custom())
+#
 yrbss_select_phy %>%
   gf_density( ~ weight,
               fill = ~ physical_3plus,
@@ -1052,7 +1058,8 @@ yrbss_select_phy %>%
   gf_fitdistr(dist = "dnorm") 
 ##
 yrbss_select_phy %>% 
-  gf_qq(~ weight | physical_3plus , color = ~ physical_3plus) %>% 
+  gf_qq(~ weight | physical_3plus , 
+        color = ~ physical_3plus) %>% 
   gf_qqline(ylab = "Weight") 
 
 ```
@@ -1095,19 +1102,20 @@ of `weight` are nearly equal across the two exercise frequencies.
 Hence we will have to use *non-parametric tests* to infer if the means
 are similar.
 
-## {{< iconify academicons hypothesis >}} Hypothesis
+### {{< iconify academicons hypothesis >}} Hypothesis
 
 Based on the graphs, how would we formulate our Hypothesis? We wish to
 infer whether there is difference in mean `weight` across
 `physical_3plus`. So accordingly:
 
 $$
-H_0: \mu_{physical-3plus-Yes} = \mu_{physical-3plus-No}\\
-\\\
-H_a: \mu_{physical-3plus-Yes} \ne \mu_{physical-3plus-No}\\
+H_0: \mu_{physical-3plus-Yes} = \mu_{physical-3plus-No}
+$$
+$$
+H_a: \mu_{physical-3plus-Yes} \ne \mu_{physical-3plus-No}
 $$
 
-## {{< iconify academicons hypothesis >}} Observed and Test Statistic
+### {{< iconify academicons hypothesis >}} Observed and Test Statistic
 
 What would be the **test statistic** we would use? The **difference in
 means**. Is the observed difference in the means between the two groups
@@ -1166,7 +1174,7 @@ wilcox.test(weight ~ physical_3plus,
 The nonparametric `wilcox.test` also suggests that the means for
 `weight` across `physical_3plus` are significantly different.
 
-### Using the Linear Model Interpretation
+#### Using the Linear Model Interpretation
 
 We can apply the *linear-model-as-inference* interpretation to the
 **ranked data** data to implement the non-parametric test as a Linear
@@ -1211,11 +1219,15 @@ But first, we need to initialize the test, which we will save as
 #| layout-ncol: 3
 obs_diff_infer <- yrbss_select_phy %>%
   infer::specify(weight ~ physical_3plus) %>%
-  infer::calculate(stat = "diff in means", order = c("yes", "no"))
+  infer::calculate(stat = "diff in means", 
+                   order = c("yes", "no"))
 obs_diff_infer
-
-obs_diff_mosaic <- mosaic::diffmean(~ weight | physical_3plus, data = yrbss_select_phy)
+##
+obs_diff_mosaic <- 
+  mosaic::diffmean(~ weight | physical_3plus, 
+                   data = yrbss_select_phy)
 obs_diff_mosaic
+##
 obs_diff_phy
 
 ```
@@ -1227,7 +1239,7 @@ scalar!!
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-### Using infer
+#### Using infer
 
 Next, we will work through creating a permutation distribution using
 tools from the **infer** package.
@@ -1256,7 +1268,8 @@ null_dist <- yrbss_select_phy %>%
   specify(weight ~ physical_3plus) %>%
   hypothesize(null = "independence") %>%
   generate(reps = 999, type = "permute") %>%
-  calculate(stat = "diff in means", order = c("yes", "no"))
+  calculate(stat = "diff in means", 
+            order = c("yes", "no"))
 null_dist
 
 ```
@@ -1281,8 +1294,10 @@ We can visualize this null distribution with the following code:
 # Set graph theme
 theme_set(new = theme_custom())
 #
-gf_histogram(data = null_dist, ~ stat) %>% 
-  gf_vline(xintercept = ~ obs_diff_infer$stat, color = "red")
+null_dist %>% 
+  visualise() + # Note this plus sign! 
+  shade_p_value(obs_diff_infer,
+                direction = "two-sided")
 
 ```
 
@@ -1308,24 +1323,27 @@ of the data.
 ```{r}
 #| label:  inf-weight-habit-ht-confint
 null_dist %>%
-  infer::get_confidence_interval(point_estimate = obs_diff_infer, 
-                                 level = 0.95)
+  infer::get_confidence_interval(
+    point_estimate = obs_diff_infer, 
+    level = 0.95)
 
 ```
+It does look like the `observed_diff_infer` is too far away from this confidence interval. Hence if there was no difference in `weight` caused by `physical_3plus`, we would never have observed it! Hence the `physical_3plus` does have an effect on `weight`!
 
-### Using mosaic
+#### Using mosaic
 
 We already have the observed difference, `obs_diff_mosaic`. Now we
 generate the null distribution using permutation, with `mosaic`:
 
 ```{r}
-null_dist_mosaic <- do(999) * diffmean(~ weight | shuffle(physical_3plus), data = yrbss_select_phy)
+null_dist_mosaic <- do(999) * 
+  diffmean(~ weight | shuffle(physical_3plus), 
+           data = yrbss_select_phy)
 
 ```
 
 We can also generate the histogram of the null distribution, compare
-that with the `obs`erved `diff`rence and compute the `p-value` and
-`confidence intervals`:
+that with the `obs`erved `diff`rence and compute the `p-value` and `confidence intervals`:
 
 
 ```{r}
@@ -1333,7 +1351,7 @@ that with the `obs`erved `diff`rence and compute the `p-value` and
 theme_set(new = theme_custom())
 #
 gf_histogram(~ diffmean, data = null_dist_mosaic) %>% 
-  gf_vline(xintercept = obs_diff_mosaic, colour = "red")
+  gf_vline(xintercept = obs_diff_mosaic, colour = "red", linewidth = 2)
 
 # p-value
 prop(~ diffmean != obs_diff_mosaic, data = null_dist_mosaic)
@@ -1342,9 +1360,11 @@ mosaic::cdata(~ diffmean, p = 0.95, data = null_dist_mosaic)
 
 ```
 
+
+Again, it does look like the `observed_diff_infer` is too far away from this NULL distribution. Hence if there was no difference in `weight` caused by `physical_3plus`, we would never have observed it! Hence the `physical_3plus` does have an effect on `weight`!
 :::
 
-Clearly there is a serious effect of Physical Exercise on the body weights of students in this dataset.
+Clearly there is a serious effect of Physical Exercise on the body weights of students in the population from which this dataset is drawn.
 
 
 ## Your Turn
