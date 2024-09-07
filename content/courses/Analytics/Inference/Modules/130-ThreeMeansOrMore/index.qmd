@@ -167,7 +167,7 @@ frogs_orig %>%
     values_to = "Time"
   ) %>%
   drop_na() %>%
-  
+  ##
   separate_wider_regex(
     cols = Temp,
   # knock off the unnecessary "Temperature" word
@@ -202,11 +202,9 @@ Let us plot some histograms and boxplots of Hatching Time:
 #| results: hold
 #| layout-ncol: 2
 #| column: screen-inset-right
-
 # Set graph theme
 theme_set(new = theme_custom())
-#
-
+##
 gf_histogram(
   data = frogs_long,
   ~ Time,
@@ -240,11 +238,9 @@ One more slightly esoteric plot: Jitter/Scatter with a new *categorical x-axis* 
 
 ```{r}
 #| label: using-ggprism
-
 # Set graph theme
 theme_set(new = theme_custom())
-#
-
+##
 library(ggprism)
 gf_jitter(
   frogs_long,
@@ -274,10 +270,8 @@ R offers a very simple command to execute an ANOVA test: Note the familiar `form
 ```{r}
 #| label: ANOVA-with-code
 frogs_anova <- aov(Time ~ TempFac, data = frogs_long)
-summary(frogs_anova)
 frogs_anova %>% broom::tidy()
 summary.lm(frogs_anova) %>% broom::tidy()
-frogs_anova %>% broom::glance()
 
 ```
 
@@ -411,9 +405,9 @@ $$
 Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean(without the division). The outer summation takes the sum of squares of these undivided summations and divides by $n$.
 :::
 
-Comparing $SSA$ and $SSE$ now provides us with a method that helps us decide whether these means are different. $SSA$ is the leftover unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis). $SSE$ is the unexplained error using individual means per group (Alternative Hypothesis). The logic in comparing these two global differences and local differences is there *must* be a significant **reduction** in unexplained error going from NULL to Alternative Hypothesis.
+Comparing $SSA$ and $SSE$ now provides us with a method that helps us decide whether these means are different. $SSA$ is the leftover unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis). $SSE$ is the unexplained error using individual means per group (Alternative Hypothesis). The logic in comparing these two global differences and local differences is that there *must* be a significant **reduction** in unexplained error going from NULL to Alternative Hypothesis.
 
-Before we compare, we need to scale: since each of these measures uses a different set of observations, the comparison is done after scaling each of $SSA$ and $SSE$ by the number of observations influencing them. (a sort of "per capita" error). This means that we need to divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, which gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}:
+Before we compare, we need to scale: since each of these measures uses a different set of observations, the comparison is done after scaling each of $SSA$ and $SSE$ by the [number of observations]{.bg-washed-green} influencing them. (a sort of "per capita" error, an idea we saw when we defined [Standard Errors](../../Modules/20-SampProb/index.qmd#the-standard-error)). This means that we need to divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, which gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}:
 
 $$
 F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}

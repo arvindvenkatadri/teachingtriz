@@ -748,13 +748,18 @@ The variance is a **total sum** of all squared differences from the mean, in a s
 ```{r}
 #| label: showing-variance-calculation
 #| echo: false
+
+# Set graph theme
+theme_set(new = theme_custom())
+##
 sample_height %>% 
   rowid_to_column() %>% 
-  gf_point(Height ~ rowid) %>% 
   gf_hline(yintercept = mean(sample_mean_height)) %>% 
   gf_segment(sample_mean_height + Height ~ rowid + rowid, colour = "red") %>% 
-  gf_labs(x = "Observation Index", y= "Sampled Height",
-  title = "Sum of Squares of Red lines = Variance")
+  gf_point(Height ~ rowid) %>% 
+  gf_labs(x = "Observation Index", y = "Sampled Height",
+  title = "Sum of Squares of Red lines = Variance",
+subtitle = "Black Line = Mean")
 
 ```
 :::
@@ -766,8 +771,10 @@ sample_height %>%
 We reserve the term *Standard Deviation* for the population, and name this computed standard deviation of the **sample-mean distribution** the **Standard Error**. This statistic derived from the sample, will help us infer our population parameters with a precise estimate of the *uncertainty* involved.
 
 $$
-Standard\ Error\ \pmb {se} = \frac{sample\ sd}{\sqrt[]{sample\ size}} \\\
-\pmb {se} = \frac{s}{\sqrt[]{n}}
+\begin{align}
+Standard\ Error\ \pmb {se} &= \frac{sample\ sd}{\sqrt[]{sample\ size}}\\
+&= \frac{s}{\sqrt[]{n}}
+\end{align}
 $$
 
 In our sampling experiments, the Standard Errors evaluate to:
@@ -811,6 +818,24 @@ These two intervals $sample.mean \pm SE$ and $sample.mean \pm 1.5*SE$
 are called the **confidence intervals** for the population mean, at
 levels $68\%$ and $95 \%$ probability respectively.
 
+::: {.column-margin}
+
+```{r}
+#| echo: false
+#| fig-cap: "Confidence Intervals and the Bell Curve"
+ xqnorm(p = c(0.025, 0.975), 
+        mean = mean(samples_height_08$mean),
+        sd = sd(samples_height_08$mean),
+        return = c("plot"), verbose = T,
+        system = "gg") %>%  
+   gf_labs(title = "Deciding Confidence Intervals", 
+ x = "") %>% 
+   gf_theme(theme_classic())
+
+```
+
+:::
+
 :::: {.columns}
 ::: {.column width="60%"}
 ```{r}
@@ -819,14 +844,16 @@ levels $68\%$ and $95 \%$ probability respectively.
 
 infer::get_ci(samples_height_08,
               level = 0.95)
-
 ```
+
 :::
+
 ::: {.column width="40%"}
 ```{r}
 #| ref.label: confidence-interval-computation-1
 #| echo: false
 ```
+
 :::
 ::::
 

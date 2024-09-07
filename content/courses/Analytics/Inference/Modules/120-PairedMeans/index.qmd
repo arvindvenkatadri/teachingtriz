@@ -148,7 +148,6 @@ Here we have swimming records across a Semi-Final and a Final:
 ### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 ```{r}
-#| column: body-outset-right
 #| results: hold
 
 data("Diving2017", package = "resampledata3")
@@ -163,12 +162,13 @@ The data is made up of **paired** observations per swimmer, one for the
 *semi-final* and one for the *final* race. There are 12 swimmers and
 therefore 12 paired records. How can we quickly visualize this data?
 
-First, histograms and densities of the two variables at hand:
+Let us first make this data into long form:
 
+:::: {.columns}
+:::{.column}
 ```{r}
-#| echo: true
-#| layout-ncol: 3
-#| column: body-outset-right
+#| label: making-diving-long
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 #
@@ -178,7 +178,27 @@ Diving2017_long <- Diving2017 %>%
     names_to = "race",
     values_to = "scores"
   )
+Diving2017_long
+```
 
+:::
+:::{.column}
+```{r}
+#| ref.label: making-diving-long
+#| echo: false
+```
+
+:::
+::::
+
+Next, histograms and densities of the two variables at hand:
+
+:::: {.columns}
+:::{.column}
+
+```{r}
+#| label: diving-density-1
+#| eval: false
 Diving2017_long %>%
   gf_density( ~ scores,
               fill = ~ race,
@@ -186,7 +206,25 @@ Diving2017_long %>%
               title = "Diving Scores") %>%
   gf_facet_grid( ~ race) %>%
   gf_fitdistr(dist = "dnorm")
-###
+```
+
+:::
+:::{.column}
+```{r}
+#| ref.label: diving-density-1
+#| echo: false
+```
+
+
+:::
+::::
+
+:::: {.columns}
+:::{.column}
+
+```{r}
+#| label: diving-col-1
+#| eval: false
 Diving2017_long %>%
   gf_col(
     fct_reorder(Name, scores) ~ scores,
@@ -196,8 +234,25 @@ Diving2017_long %>%
     xlab = "Scores",
     ylab = "Name",
     title = "Diving Scores"
-  ) 
-###
+  )
+```
+:::
+:::{.column}
+```{r}
+#| ref.label: diving-col-1
+#| echo: false
+```
+
+
+:::
+::::
+
+:::: {.columns}
+:::{.column}
+
+```{r}
+#| label: diving-boxplot-1
+#| eval: false
 Diving2017_long %>%
   gf_boxplot(
     scores ~ race,
@@ -209,6 +264,16 @@ Diving2017_long %>%
   ) 
 
 ```
+:::
+:::{.column}
+```{r}
+#| ref.label: diving-boxplot-1
+#| echo: false
+```
+
+
+:::
+::::
 
 We see that:
 
@@ -306,7 +371,7 @@ So to summarise our data checks:
 ### {{< iconify academicons hypothesis >}} Hypothesis
 
 Based on the graph, how would we formulate our Hypothesis? We wish to
-infer whether there is any change in performance, **per swimmer** between the **population of swimmers** who might have participated in these two races. So accordingly:
+infer whether there is any change in performance between the **population of swimmers** who might have participated in these two races. So accordingly:
 
 $$
 H_0: \mu_{semifinal} = \mu_{final}\\
@@ -345,8 +410,8 @@ obs_diff_swim
 Since the data variables satisfy the assumption of being *normally
 distributed*, and the variances are not significantly different, we may
 attempt the classical `t.test` with paired data. (we will use the
-`mosaic` variant). [Type `help(t.test)` in your Console.]{.aside} Our
-model would be:
+`mosaic` variant). Type `help(t.test)` in your Console.
+Our model would be:
 
 $$
 mean(Final(i) - Semi\_final(i)) = \beta_0 \\
@@ -438,10 +503,7 @@ lm(signed_rank(Semifinal - Final) ~ 1,
 
 ```
 
-We observe that using the linear model method for the original scores
-and the sign-rank scores both sdo not permit us to reject the $H_0$ Null
-Hypothesis, since `p.values` are high, and the `confidence.intervals`
-straddle $0$.
+We observe that using the linear model method for the original scores and the sign-rank scores both sdo not permit us to reject the $H_0$ Null Hypothesis, since `p.values` are high, and the `confidence.intervals` straddle $0$.
 
 #### Using Permutation Tests
 
@@ -456,12 +518,12 @@ polarity <- c(rep(1, 6), rep(-1, 6))
 # 6 each to make sure there is equal probability
 polarity
 ##
-null_dist_swim <- do(4999) *
+null_dist_swim <- do(4999) * 
   mean(data = Diving2017,
        ~ (Final - Semifinal) * # take (pairwise) differences
          mosaic::resample(polarity, # Swap polarity randomly
-            replace = TRUE))
-
+                          replace = TRUE))
+##
 null_dist_swim
 
 ```
@@ -567,7 +629,6 @@ e)  Redo the hypothesis test without this observation. Would we reach
 ### {{< iconify carbon chart-3d >}} Inspecting and Charting Data
 
 ```{r}
-#| column: body-outset-right
 #| results: hold
 data("Groceries")
 Groceries <- Groceries %>% 
@@ -579,10 +640,12 @@ Groceries_inspect$quantitative
 
 ```
 
-There are just 30 prices for each vendor....just barely enough to get an
-idea of what the distribution might be. Let us plot histograms/densities
-of the two variables that we wish to compare. We will also overlay a
-Gaussian distribution for comparison:
+There are just 30 prices for each vendor....just barely enough to get an idea of what the distribution might be. Let us plot the
+prices for the products, as box plots after pivoting the data to long
+form, [^1] and as bar charts:
+
+[^1]: <https://raw.githubusercontent.com/gadenbuie/tidyexplain/main/images/tidyr-pivoting.gif>
+
 
 ```{r}
 #| layout-ncol: 2
@@ -596,7 +659,17 @@ Groceries_long <- Groceries %>%
     values_to = "prices"
   ) %>% 
   mutate(store = as_factor(store))
-##
+```
+
+
+Let us plot histograms/densities of the two variables that we wish to compare. We will also overlay a Gaussian distribution for comparison:
+
+:::: {.columns}
+:::{.column }
+
+```{r}
+#| label: Grocery-histograms-1
+#| eval: false
 Groceries_long %>%
   gf_dhistogram( ~ prices,
               fill = ~ store,
@@ -604,7 +677,21 @@ Groceries_long %>%
               title = "Grocery Costs") %>%
   gf_facet_grid( ~ store) %>%
   gf_fitdistr(dist = "dnorm")
-##
+```
+:::
+:::{.column }
+```{r}
+#| ref.label: Grocery-histograms-1
+#| echo: false
+```
+:::
+::::
+
+:::: {.columns}
+:::{.column }
+```{r}
+#| label: Grocery-density-1
+#| eval: false
 Groceries_long %>%
   gf_density( ~ prices,
               fill = ~ store,
@@ -614,25 +701,52 @@ Groceries_long %>%
   gf_fitdistr(dist = "dnorm")
 
 ```
+:::
+:::{.column }
+```{r}
+#| ref.label: Grocery-density-1
+#| echo: false
+```
+:::
+::::
 
 Not close to the Gaussian...there is clearly some skew to the right,
 with some items being very costly compared to the rest. More when we
 check the assumptions on data for the tests.
 
-How about price differences, what we are interested in? Let us plot the
-prices for the products, as box plots after pivoting the data to long
-form, [^1] and as bar charts:
+How about price differences, what we are interested in? 
 
-[^1]: <https://raw.githubusercontent.com/gadenbuie/tidyexplain/main/images/tidyr-pivoting.gif>
-
+:::: {.columns}
+:::{.column }
 ```{r}
-#| layout-ncol: 2
+#| label: Grocery-boxplot-1
+#| eval: false
+
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
 Groceries_long %>% 
-  gf_boxplot(prices~ store, fill = ~ store) 
-###
+  gf_boxplot(prices~ store, 
+             fill = ~ store) 
+```
+:::
+:::{.column }
+```{r}
+#| ref.label: Grocery-boxplot-1
+#| echo: false
+```
+:::
+::::
+
+:::: {.columns}
+:::{.column}
+```{r}
+#| label: Grocery-colplot-1
+#| eval: false
+
+## Set graph theme
+theme_set(new = theme_custom())
+##
 Groceries_long %>%
   gf_col(fct_reorder(Product, prices) ~ prices,
     fill = ~ store,
@@ -643,13 +757,24 @@ Groceries_long %>%
     title = "Groceries Costs"
   ) %>% 
   gf_col(data = 
-    Groceries_long %>% filter(
+    Groceries_long %>% 
+    filter(
       Product == "Quaker Oats Life Cereal Original"), 
          fct_reorder(Product, prices) ~ prices, 
          fill = ~ store, 
          position = "dodge")
 
 ```
+
+:::
+:::{.column }
+```{r}
+#| ref.label: Grocery-colplot-1
+#| echo: false
+```
+:::
+::::
+
 
 ::: callout-note
 We see that the price difference between Walmart and Target prices is
@@ -663,10 +788,8 @@ Let us check `observed statistic` (the mean difference in prices)
 obs_diff_price <- diffmean(prices ~ store, 
                            data = Groceries_long, 
                            only.2 = FALSE)
-
 # Can also use
 # obs_diff_price <-  mean( ~ Walmart - Target, data = Groceries)
-
 obs_diff_price
 
 ```
@@ -687,8 +810,7 @@ $$
 
 ### Testing for Assumptions on the Data
 
-There are a few checks we need to make of our data, to decide what test
-procedure to use.
+There are a few checks we need to make of our data, to decide what test procedure to use.
 
 ### A. {{< iconify mdi chart-bell-curve size=2x >}} Check for Normality
 :::: {.columns}
@@ -709,10 +831,8 @@ shapiro.test(Groceries$Target)
 
 :::
 ::::
-For both tests, we see that the `p.value` is very small, indicating that
-the data are unlikely to be normally distributed. This means we cannot
-apply a standard `paired t.test` and need to use the non-parametric
-`wilcox.test`, that does not rely on the assumption of normality.
+
+For both tests, we see that the `p.value` is very small, indicating that the data are unlikely to be normally distributed. This means we cannot apply a standard `paired t.test` and need to use the non-parametric `wilcox.test`, that does not rely on the assumption of normality.
 
 ### B. {{< iconify mdi sigma-lower size=2x >}} Check for Variances
 
@@ -732,8 +852,7 @@ $Confidence Interval = [0.4629, 2.0432]$, which includes $1$, that we cannot rej
 #### Using *paired* t.test
 
 Well, the variables are *not* normally distributed, so a standard
-`t.test` is not advised, even if the variances are similar. We can still
-try:
+`t.test` is not advised, even if the variances are similar. We can still try:
 
 ```{r}
 mosaic::t_test(Groceries$Walmart, Groceries$Target,paired = TRUE) %>% 
@@ -756,9 +875,10 @@ distributed. So a Wilcoxon Test, using signed-ranks, is indicated:
 # For stability reasons, it may be advisable to use rounded data or to set digits.rank = 7, say, 
 # such that determination of ties does not depend on very small numeric differences (see the example).
 
-wilcox.test(Groceries$Walmart, Groceries$Target, data = Groceries_long, 
-            digits.rank = 7,
-            paired = TRUE, conf.int = TRUE, conf.level = 0.95) %>% 
+wilcox.test(Groceries$Walmart, Groceries$Target, 
+            data = Groceries_long, 
+            digits.rank = 7,paired = TRUE, 
+            conf.int = TRUE, conf.level = 0.95) %>% 
   broom::tidy()
 
 ```
@@ -769,9 +889,7 @@ The Wilcoxon test result is very interesting: the `p.value` says there
 
 #### Using the Linear Model Method
 
-As before we can do the linear model for both the original data and the
-sign.rank data. The `test statistic` is again the difference between the
-two variables:
+As before we can do the linear model for both the original data and the sign.rank data. The `test statistic` is again the difference between thetwo variables:
 
 ```{r}
 #| results: hold
@@ -787,10 +905,7 @@ lm(signed_rank(Target - Walmart) ~ 1,
 
 ```
 
-Very interesting results, but confirming what we saw earlier: The Linear
-Model with the original data reports no significant difference, but the
-linear model with sign-ranks, suggests there is a significant difference
-in means prices between stores!
+Very interesting results, but confirming what we saw earlier: The Linear Model with the original data reports no significant difference, but the linear model with sign-ranks, suggests there is a significant difference in means prices between stores!
 
 #### Using Permutation Tests
 
@@ -806,9 +921,9 @@ theme_set(new = theme_custom())
 polarity <- c(rep(1, 15), rep(-1,15))
 ##
 null_dist_price <- do(9999) * 
-                      mean(data = Groceries, 
-                           ~ (Target - Walmart) * resample(polarity,
-                                                      replace = TRUE))
+                    mean(data = Groceries, 
+                      ~ (Target - Walmart) * 
+                        resample(polarity, replace = TRUE))
 null_dist_price
 ##
 gf_histogram(data = null_dist_price, ~ mean) %>% 
@@ -919,21 +1034,14 @@ difference was in the opposite direction compared to the general trend
 in differences, so when it was removed, we obtained a truer picture of
 price differences.
 
-[Try to do a regular parametric t.test with this reduced data!]{.aside}
+Try to do a regular parametric t.test with this reduced data!
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-We have learnt how to perform inference for paired-means. We have looked
-at the conditions that make the regular `t.test` possible, and learnt
+We have learnt how to perform inference for paired-means. We have looked at the conditions that make the regular `t.test` possible, and learnt
 what to do if the conditions of normality and equal variance are not
 met. We have also looked at how these tests can be understood as
-manifestations of the *linear model*, with data and sign-ranked data. It
-should also be fairly clear now that we can test for the equivalence of
-two paired means, using a very simple permutation tests. Given computing
-power, we can always mechanize this test very quickly to get our
-results. And that performing this test yields reliable results without
-having to rely on any assumption relating to underlying distributions
-and so on.
+manifestations of the *linear model*, with data and sign-ranked data. It should also be fairly clear now that we can test for the equivalence of two paired means, using a very simple permutation tests. Given computing power, we can always mechanize this test very quickly to get our results. And that performing this test yields reliable results without having to rely on any assumption relating to underlying distributions and so on.
 
 ## {{< iconify ooui references-ltr >}} References
 1. Paired Independence test with the package `infer`: <https://infer.netlify.app/articles/paired>
