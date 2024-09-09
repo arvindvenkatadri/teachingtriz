@@ -19,14 +19,13 @@ citation: true
 #| message: true
 #| warning: false
 #| echo: true
-knitr::opts_chunk$set(tidy = TRUE)
 library(tidyverse) # Tidy data processing 
 library(ggformula) # Formula based plots
 library(mosaic) # Data inspection and Statistical Inference 
 library(broom) # Tidy outputs from Statistical Analyses
 library(infer) # Statistical Inference
 library(patchwork) # Arranging Plots
-
+library(ggprism) # Interesting Categorical Axes
 ```
 
 ```{r}
@@ -112,9 +111,9 @@ Suppose we have three sales strategies on our website, to sell a certain product
 
 If there is a University course that is offered in parallel in three different classrooms, is there a difference between the average marks obtained by students in each of the classrooms?
 
-In each case we have a set of observations in each category: Interaction Time vs Sales Strategy in the first example, and Student Marks vs Classroom in the second. We can take *mean* scores in each category and decide to compare them. How do we make the comparisons? One way would be to compare them pair-wise. But with this rapidly becomes intractable and also dangerous: with increasing number of `groups`, the number of mean-comparisons becomes very large $N\choose 2$ and with each comparison the possibility of some difference showing up, *just by chance*, increases! And we end up making the wrong inference and perhaps the wrong decision.
+In each case we have a set of Quant observations in each Qual category: `Interaction Time` vs `Sales Strategy` in the first example, and `Student Marks` vs `Classroom` in the second. We can take *mean* scores in each category and decide to compare them. How do we make the comparisons? One way would be to compare them pair-wise, doing as many `t-tests` as there are pais. But with this rapidly becomes intractable and also dangerous: with increasing number of `groups`, the number of mean-comparisons becomes very large $N\choose 2$ and with each comparison the possibility of some difference showing up, *just by chance*, increases! And we end up making the wrong inference and perhaps the wrong decision. The trick is of course to make comparisons **all at once** and ANOVA is the technique that allows us to do just that. 
 
-The trick is of course to make comparisons **all at once** and ANOVA is the technique that allows us to do just that. In this tutorial, we will compare the Hatching Time of frog spawn[^1], at three different lab temperatures.
+In this tutorial, we will compare the Hatching Time of frog spawn[^1], at three different lab temperatures.
 
 [^1]: The ANOVA tutorial at [Our Coding Club](https://ourcodingclub.github.io/tutorials/anova/).
 
@@ -123,7 +122,7 @@ In this tutorial, our research question is:
 ::: callout-note
 ## Research Question
 
-How does frogspawn hatching time vary with different temperature settings?
+Based on the sample dataset at hand, how does frogspawn hatching time vary with different temperature settings?
 :::
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
@@ -133,7 +132,7 @@ Download the data by clicking the button below.
 {{< downloadthis data/frogs.csv dname="frogs" label="Download the frogs data" icon="database-fill-down" type="info" >}}
 
 ::: callout-important
-## Data Folder
+### Data Folder
 
 Save the CSV in a subfolder titled "data" inside your R work folder.
 :::
@@ -149,7 +148,7 @@ Our response variable is the hatching `Time`. Our explanatory variable is a *fac
 
 ## {{< iconify material-symbols pivot-table-chart >}} Workflow: Clean the Data
 
-The data is badly organized, with a separate column for each Temperature, and a common column for Sample ID. There are NA entries since not all samples of spawn can be subject to all temperatures. (E.g. Sample ID #1 was maintained at 13°C).
+The data is in wide-format, with a separate column for each Temperature, and a common column for Sample ID. This is good for humans, but poor for a computer: there are NA entries since not all samples of spawn can be subject to all temperatures. (E.g. Sample ID #1 was maintained at 13°C, and there are NAs in the other two columns, which we don't need).
 
 We will first stack up the `Temperature` columns into a single column, separate that into pieces and then retain just the number part (13, 18, 25), getting rid of the *word* `Temperature` from the column titles. Then the remaining **numerical** column with temperatures (13, 18, 25) will be converted into a factor.
 
@@ -172,10 +171,8 @@ frogs_orig %>%
     cols = Temp,
   # knock off the unnecessary "Temperature" word
   # Just keep the digits thereafter
-    patterns = c("Temperature",
-                 TempFac = "\\d+"),
-    cols_remove = TRUE
-  ) %>%
+    patterns = c("Temperature", TempFac = "\\d+"),
+    cols_remove = TRUE) %>%
   
   # Convert Temp into TempFac, a 3-level factor
   mutate(TempFac = factor(
@@ -184,9 +181,8 @@ frogs_orig %>%
     labels = c("13", "18", "25")
   )) %>%
   rename("Id" = `Frogspawn sample id`) -> frogs_long
-
 frogs_long
-
+##
 frogs_long %>% count(TempFac)
 
 
@@ -199,87 +195,87 @@ So we have cleaned up our data and have `20` samples for Hatching `Time` per `Te
 Let us plot some histograms and boxplots of Hatching Time:
 
 ```{r}
-#| results: hold
-#| layout-ncol: 2
-#| column: screen-inset-right
+#| fig-column: margin
 # Set graph theme
 theme_set(new = theme_custom())
 ##
-gf_histogram(
-  data = frogs_long,
-  ~ Time,
-  fill = ~ TempFac,
-  stat = "count",
-  alpha = 0.5
-) %>%
+gf_histogram(~ Time, fill = ~ TempFac,
+  data = frogs_long, alpha = 0.5) %>%
   gf_vline(xintercept = ~ mean(Time)) %>%
-  gf_labs(x = "Hatching Time", y = "Count") %>%
+  gf_labs(title = "Histograms of Hatching Time Distributions vs Temperature",
+          x = "Hatching Time", y = "Count") %>%
   gf_text(7 ~ (mean(Time) + 2),
           label = "Overall Mean") %>%
   gf_refine(guides(fill = guide_legend(title = "Temperature level (°C)")))
 
-###
+```
+
+
+
+
+```{r}
+#| fig-column: margin
+# Set graph theme
+theme_set(new = theme_custom())
+##
 gf_boxplot(data = frogs_long,
            Time ~ TempFac,
            fill = ~ TempFac,
            alpha = 0.5) %>%
   gf_vline(xintercept = ~ mean(Time)) %>%
-  gf_labs(x = "Temperature", y = "Hatching Time",
-          caption = "X-axis is reversed") %>%
-  gf_refine(scale_x_discrete(limits = rev),
+  gf_labs(title = "Boxplots of Hatching Time Distributions vs Temperature",
+          x = "Temperature", y = "Hatching Time", 
+          caption = "Using ggprism") %>%
+  gf_refine(scale_x_discrete(guide = "prism_bracket"),
             guides(fill = guide_legend(title = "Temperature level (°C)"))) 
 
 ```
 
-
 The histograms look well separated and the box plots also show very little overlap. So we can reasonably hypothesize that Temperature has a significant effect on Hatching Time.
-
-One more slightly esoteric plot: Jitter/Scatter with a new *categorical x-axis* offered by the `ggprism` package:
-
-```{r}
-#| label: using-ggprism
-# Set graph theme
-theme_set(new = theme_custom())
-##
-library(ggprism)
-gf_jitter(
-  frogs_long,
-  Time ~ TempFac,
-  color = ~ TempFac,
-  xlab = "Temperature as Factor",
-  ylab = "Hatching Time",
-  caption = "Using `ggprism` package"
-) %>%
-  gf_theme(theme_prism(base_family = theme_get()$font$family)) %>%
-  gf_refine(theme(legend.position = "none"),
-            scale_x_discrete(guide = "prism_bracket"))
-
-```
 
 Let's go ahead with our ANOVA test.
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: ANOVA
 
-We will first execute the ANOVA test with code and evaluate the results. Then we will do an intuitive walk through of the process and finally, hand-calculate entire analysis for clear understanding.
+We will first execute the ANOVA test with code and evaluate the results. Then we will do an *intuitive walkthrough* of the process and finally, *hand-calculate* entire analysis for clear understanding. For now, a little faith!
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### ANOVA Test with Code
 
-R offers a very simple command to execute an ANOVA test: Note the familiar `formula` of stating the variables:
+### Code
+
+R offers a very simple command `aov` to execute an ANOVA test: Note the familiar `formula` of stating the variables:
 
 ```{r}
 #| label: ANOVA-with-code
 frogs_anova <- aov(Time ~ TempFac, data = frogs_long)
-frogs_anova %>% broom::tidy()
-summary.lm(frogs_anova) %>% broom::tidy()
-
 ```
 
-The effect of Temperature on Hatching time is significant, with a p-value of $<2e-16$. The F-statistic for the ANOVA test is given by $385.9$, which is very high, and the `r.squared` value ( to be discussed later) is also large, $0.931$. Clearly `Temperature` has a very significant effect on the hatching `Time`.
+This creates an *ANOVA model object*, called `frogs_anova`. We can examine the ANOVA model object best with a package called `supernova`[^1]:
 
-To find which specific value of `TempFac` has the most effect will require *pairwise comparison* of the group means, using a standard `t-test`. The confidence level for such repeated comparisons will need what is called ***Bonferroni correction***[^2] to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take $\alpha = 0.05$, the confidence level used and divide it by $K$, the number of pair-wise comparisons we intend to make. This new value is used to decide on the significance of the estimated parameter. So the pairwise comparisons in our current data will have to use $\alpha/3 = 0.0166$ as the confidence level.
+[^1]: <https://github.com/UCLATALL/supernova>]
 
-### ANOVA Intuitive {#sec-anova-intuitive}
+```{r}
+# library(supernova)
+# Set graph theme
+theme_set(new = theme_custom())
+#
+supernova::pairwise(frogs_anova,
+                    correction = "Bonferroni", #Try "Tukey"
+                    alpha = 0.05, #95% CI calculation
+                    var_equal = TRUE, #We'll see
+                    plot = TRUE)
+```
+
+This table + error-bar plot gives us a clear comparison between each pair of the three groups of observations defined by `TempFac`. The pairwise differences in spawn hatching `Time` is given by the `diff` column. Also shown are the confidence intervals for each of these differences (none of which include $0$); the `p-value`s for each of these differences is also negligible. Thus we can conclude that the **effect of temperature on hatching time** is significant. 
+
+::: callout-note
+To find which specific value of `TempFac` has the most effect will require *pairwise comparison* of the group means, using a standard `t-test`. The confidence level for such repeated comparisons will need what is called ***Bonferroni correction***[^2] to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take $\alpha = 0.05$, the confidence level used and divide it by $K$, the number of pair-wise comparisons we intend to make. This new value is used to decide on the significance of the estimated parameter. So the pairwise comparisons in our current data will have to use $\alpha/3 = 0.0166$ as the confidence level. `supernova::pairwise()` did this for us very neatly!
+
+There are also other ways, such as the "Tukey correction" for multiple tests. 
+:::
+
+
+### Intuitive {#sec-anova-intuitive}
 
 All that is very well, but what is happening under the hood of the `aov()` command?
 
@@ -323,7 +319,7 @@ p1 <- gf_segment(
   overall_mean$overall_mean + quant ~ index + index,
   ylab = "quant") %>% 
   gf_point(quant ~ index,
-               color = ~ qual,
+               #color = ~ qual,
                data = data) %>%
   gf_hline(yintercept =  ~ overall_mean,
            data = overall_mean) %>%
@@ -362,67 +358,62 @@ patchwork::wrap_plots(p1,p2)
 
 ```
 
-In Fig A, the *horizontal* black line is the overall mean of `quant`, denoted as $\mu_{tot}$. The vertical black lines to the points show the departures of each point from this overall mean. The sum of *squares* of these vertical black lines in Fig A is called the [**Total Sum of Squares** (SST)]{style="background-color: yellow;"}.
+**All Data**: In Fig A, the *horizontal* black line is the overall mean of `quant`, denoted as $\mu_{tot}$. The vertical black lines to the points show the departures of each point from this overall mean. The sum of *squares* of these vertical black lines in Fig A is called the [**Total Sum of Squares** (SST)]{style="background-color: yellow;"}.
 
 $$
 SST = \Sigma (y - \mu_{tot})^2
 $$ {#eq-SST}
 
-::: callout-note
-If there are $k$ levels in `qual` and $n$ observations $y_ n$ for each level, we can also write:
+**Grouped Data**: In Fig B, the *horizontal* green and red lines are the means of the individual groups, respectively $\mu_A$ and $\mu_B$. The green and red vertical lines are the departures, or errors, of each point from *its own group-mean*. The sum of the *squares* of the green and red lines is called the [**Total Error Sum of Squares** (SSE)]{style="background-color: yellow;"}.
 
 $$
-SST = 
-\sum_{i=1}^{kn}y_i^2 - \frac{ \left( \sum_{i=1}^{kn}
-y_i \right)^2}{kn}
-$$
-:::
-
-In Fig B, the *horizontal* green and red lines are the means of the individual groups, respectively $\mu_A$ and $\mu_B$. The green and red vertical lines are the departures, or errors, of each point from *its own group-mean*. The sum of the *squares* of the green and red lines is called the [**Total Error Sum of Squares** (SSE)]{style="background-color: yellow;"}.
-
-$$
-SSE = \Sigma [(y - \mu_i)^2 +... (y - \mu_k)^2]
+SSE = \Sigma [(y - \mu_A)^2] + \Sigma (y - \mu_B)^2]
 $$ {#eq-SSE}
 
-If the $\mu_A$ and $\mu_B$ are different from $\mu_{tot}$, then what would be the relationship between $SST$ and $SSE$ ? [Clearly if the all means are identical then the $SST$ and $SSE$ are equal, since the two coloured lines would be in the same place as the black line]{style="background-color: yellow;"}. It should be clear that if $\mu_A$ and $\mu_B$ are different from the overall mean $\mu_{tot}$, then $SSE < SST$.
-
-So, when we desire to detect if the two groups are different in their means, we take the difference:
+**Improvement**: We take the difference in the squared error sums:
 
 $$
 SSA = SST - SSE
 $$ {#eq-SSA}
 
-[$SSA$ is called the **Treatment Sum of Squares**]{style="background-color: yellow;"} and is a measure the differences in means of observations at different levels of the factor.
+[$SSA$ is called the **Treatment Sum of Squares**]{style="background-color: yellow;"}, the "improvement" in going from believing in one mean to believing in two.
 
-::: callout-note
-$SSA$ can also directly be re-written in a very symmetric fashion as:
+**Improvement Ratio**: $SSA/SSE$ might now help us decide whether *two means are better than one*. 
 
-$$
-\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} - \frac{\left( \sum_{i=1}^{kn}
-y_i \right)^2}{kn}
-$$
+Let us compute these numbers for our toy dataset:
 
-Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean(without the division). The outer summation takes the sum of squares of these undivided summations and divides by $n$.
+```{r}
+#| echo: false
+demo_anova <- aov(quant ~ qual, data = data)
+supernova::supernova(demo_anova)
+```
+What do we see?
+
+1. **All Data**: $SST = 1047.935$. 
+1. **Grouped Data**: $SSE = 224.529$.
+1. **Improvement**: $SSA = SST-SSE$ = $823.407$.
+1. **Improvement Ratio**: Before we set up this ratio, we must realize that each of these measures uses a different number of observations! So the comparison is done after scaling each of $SSA$ and $SSE$ by the [number of observations]{.bg-washed-red .black} influencing them. (a sort of ***per capita***, or average, squared error, an idea we saw when we defined [Standard Errors](../../Modules/20-SampProb/index.qmd#the-standard-error)): $F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}$, where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom in $SSA$ and $SSE$. 
+1. **Large Enough Ratio?**: The value of the `F-statistic` from the table above is 139.356. Is this ratio big enough? `F-statistic` is compared with a **critical value** of the F-statistic to help us decide. (Here, it is.)
+1. **Belief**: So we now believe in the idea of two means. 
+1. **Back to Mean Differences**: Finally, in order to find which of the means is significantly different from others (if there are more than two!), we need to make a pair-wise comparison of the means, applying the `Bonferroni correction` as stated before. This means we divide the critical `p.value` we expect by the number of comparisons we make between levels of the Qual variable.
+
+::: callout-important
+## Why "ANOVA"?
+When divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, this gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}. [And so we are in effect deciding if means are significantly different by analyzing (a ratio of) variances!]{style="background-color: yellow;"} Hence the name, *AN-alysis O-f VA-riance*, **ANOVA**.  
 :::
 
-Comparing $SSA$ and $SSE$ now provides us with a method that helps us decide whether these means are different. $SSA$ is the leftover unexplained error using $\mu_{tot}$ as the estimate (NULL Hypothesis). $SSE$ is the unexplained error using individual means per group (Alternative Hypothesis). The logic in comparing these two global differences and local differences is that there *must* be a significant **reduction** in unexplained error going from NULL to Alternative Hypothesis.
+So this may seem like a great [Hero's Journey](https://www.youtube.com/watch?v=bnaXpcH7L6I&list=PLsvuw0vMeKQ0CWR-YpAYH90YjYPck6Ots&pp=iAQB), where we start with means and differences, go into sums of squares, differences and comparisons of error ratios, and [return to the means where we started, only to know them properly now](https://www.quora.com/profile/Arvind-Venkatadri/https-www-quora-com-What-did-T-S-Elliot-mean-when-he-wrote-We-must-not-cease-from-exploration-and-the-end-of-all-our-e).
 
-Before we compare, we need to scale: since each of these measures uses a different set of observations, the comparison is done after scaling each of $SSA$ and $SSE$ by the [number of observations]{.bg-washed-green} influencing them. (a sort of "per capita" error, an idea we saw when we defined [Standard Errors](../../Modules/20-SampProb/index.qmd#the-standard-error)). This means that we need to divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="background-color: yellow;"}, which gives us [a ratio of **variances**, the F-statistic]{style="background-color: yellow;"}:
 
-$$
-F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}
-$$
-
-where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom in $SSA$ and $SSE$. [And so we are in effect deciding if means are significantly different by analyzing (a ratio of) variances!]{style="background-color: yellow;"} Hence *AN-alysis O-f VA-riance*, **ANOVA**.
-
-In order to find which of the means is significantly different from others, we need to make a pair-wise comparison of the means, applying the Bonferroni correction as stated before. This means we divide the critical `p.value` we expect by the number of comparisons we make between levels of the Qual variable. More on this shortly.
-
-### ANOVA Manually Demonstrated[^3](Apologies to Spinoza)
+### Manually Demonstrated
 
 Now that we understand what `aov()` is doing, let us hand-calculate the numbers for our `frogs` dataset and check. Let us visualize our calculations first.
 
 ```{r}
 #| label: Frogs-SST-and-SSE-Graphs
+#| fig-cap: 
+#|   - "SST"
+#|   - "SSE"
 #| echo: false
 #| layout-ncol: 2
 # Set graph theme
@@ -485,30 +476,31 @@ gf_point(Time ~ index,
 
 ```
 
-Here is the SST:
+Let us get the ready table from `supernova` first, and then systematically calculate all numbers with understanding:
+
+```{r}
+supernova::supernova(frogs_anova)
+```
+Here are the SST, SSE, and the SSA:
 
 ```{r}
 #| label: SST-Total-Sum-of-Squares
-#| results: hold
+
 # Calculate overall sum squares SST
-
-
 frogs_overall <- frogs_long %>% 
-  summarise(mean_time = mean(Time), 
+  summarise(overall_mean_time = mean(Time), 
             # Overall mean across all readings
             # The Black Line
             
-            SST = sum((Time - mean_time)^2),
-            n = n())
+            SST = sum((Time - overall_mean_time)^2),
+            n = n()) # Always do this with `summarise`
 frogs_overall
-
+##
 SST <- frogs_overall$SST
 SST
-
-
 ```
 
-And here is the SSE:
+
 
 ```{r}
 #| label: SSE-Within-Group-Sum-of-Squares
@@ -516,33 +508,36 @@ And here is the SSE:
 
 # Calculate sums of square errors *within* each group
 # with respect to individual group means
-
 frogs_within_groups <- frogs_long %>% 
   group_by(TempFac) %>% 
-   summarise(mean_time = mean(Time),
-            variance_time = var(Time),
-            group_error_squares = sum((Time - mean_time)^2),
-            n = n())
+   summarise(
+     grouped_mean_time = mean(Time), # The Coloured Lines
+     variance_time = var(Time),
+     group_error_squares = sum((Time - grouped_mean_time)^2),
+     n = n())
 frogs_within_groups
-
+##
 frogs_SSE <- frogs_within_groups %>% 
   summarise(SSE = sum(group_error_squares))
-
+##
 SSE <- frogs_SSE$SSE
 SSE
 
 ```
 
-OK, we have $SST$ and $SSE$, so let's get $SSA$:
+
 
 ```{r}
 #| results: hold
+
 SST
 SSE
 SSA <- SST - SSE
 SSA
 
 ```
+
+
 
 We have $SST = 1096$, $SSE = 75.4$ and therefore $SSA = 1020.9$.
 
@@ -560,7 +555,7 @@ With $k = 3$ levels in the factor `TempFac`, and $n = 20$ points per level, $SST
 
 $SSE$ has $k*(n-1)$ as degrees of freedom, since each of the $k$ groups there are $n$ observations and each group loses one degree to calculate its own group mean.
 
-And therefore $SSA$, being their difference, has $k-1$ degrees of freedom.
+And therefore $SSA$, being their difference, has $kn-1 -k*(n-1) = k-1$ degrees of freedom.
 
 We can still calculate these in R, for the sake of method and clarity:
 
@@ -611,23 +606,23 @@ MSE <- frogs_within_groups %>%
   summarise(mean_square_error = sum(group_error_squares/df_SSE)) %>% 
   as.numeric()
 MSE
-
+##
 MSA <- SSA/df_SSA # This is OK
 MSA
-
+##
 F_stat <- MSA/MSE
 F_stat
 
 ```
 
-The `F-stat` is compared with a **critical value** of the F-statistic,`F_crit` which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
+The `F-stat` is compared with a **critical value** of the F-statistic, `F_crit` which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
 
 ```{r}
 #| results: hold
 F_crit <-  
   qf(p = (1 - 0.05/3),  # Significance level is 5% + Bonferroni Correction
-          df1 = df_SSA, # Numerator degrees of freedom 
-          df2 = df_SSE  # Denominator degrees of freedom
+      df1 = df_SSA, # Numerator degrees of freedom 
+      df2 = df_SSE  # Denominator degrees of freedom
      ) 
 F_crit
 F_stat
@@ -637,35 +632,42 @@ F_stat
 The `F_crit` value can also be seen in a plot[^4],[^5]:
 
 ```{r}
-#| layout: [[45,45,10]]
+#| eval: false
+#| echo: false
 # Set graph theme
 theme_set(new = theme_custom())
 #
-gf_dist(dist = "f",
-        params = list(df1 = df_SSA, df2 = df_SSE), 
-        # linewidth  = 1,
-        #xlim = c(0, 400),
-        #title = "F distribution for Frog ANOVA"
-        ) %>% 
-  gf_vline(xintercept = F_crit, linetype = "dotted", 
+gf_dist("f", df1 = df_SSA, df2 = df_SSE,
+        fill = ~ (x <= F_crit), geom = "area") %>% 
+  gf_vline(xintercept = F_crit, 
            colour = "red",title = "F distribution for Frog ANOVA") %>% 
-  gf_vline(xintercept = F_stat, linetype = "dashed", 
-           color = "dodgerblue") %>% 
-  gf_text( 0.25 ~ 360, label = "F_stat", colour = "dodgerblue") %>% 
+  gf_vline(xintercept = F_stat,
+           color = "dodgerblue") %>%
+  gf_text( 0.25 ~ 360, label = "F_stat", colour = "dodgerblue") %>%
   gf_text( 0.25 ~ 20, label = "F_crit", colour = "red")  %>%
   gf_theme(theme=theme_classic())
+```
 
 
+```{r}
 mosaic::xpf(q = F_crit, 
-            df1 = df_SSA, df2 = df_SSE,
-            log.p = FALSE,lower.tail = TRUE)
+            df1 = df_SSA, df2 = df_SSE, method = "gg",
+            log.p = FALSE,lower.tail = TRUE, 
+            return = "plot") %>% 
+  gf_vline(xintercept = F_crit) %>% 
+  gf_label(0.75 ~ 5, label = "F_crit", 
+           inherit = F, show.legend = F) %>% 
+  gf_theme(theme=theme_classic())
 
 ```
 
-Any value of F more than the `F_crit` occurs with smaller probability than $0.05/3$. Our F_stat is much higher than `F_crit`, by orders of magnitude! And so we can say with confidence that Temperature has a significant effect on spawn Time.
+
+Any value of F more than the `F_crit` occurs with smaller probability than $0.05/3 = 0.017$. Our F_stat is much higher than `F_crit`, by orders of magnitude! And so we can say with confidence that Temperature has a significant effect on spawn Time.
 
 And that is how ANOVA computes!
+
 :::
+
 
 [^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
@@ -757,16 +759,14 @@ frogs_anova$residuals %>%
   as_tibble() %>% 
   gf_dhistogram(~ value,data = .) %>% 
   gf_fitdistr() 
-
-
+##
 frogs_anova$residuals %>%
   as_tibble() %>% 
   gf_qq(~ value, data = .) %>% 
   gf_qqstep() %>% 
   gf_qqline() 
-
+##
 shapiro.test(frogs_anova$residuals)
-
 
 ```
 
@@ -785,11 +785,9 @@ To check if the `Time` readings are similar in `variance` across levels of `Temp
 frogs_long %>% 
   group_by(TempFac) %>% 
   summarise(variance = var(Time))
-
 # Not too different...OK on with the test
 fligner.test(Time ~ TempFac, data = frogs_long)
-
-
+##
 DescTools::LeveneTest(Time ~ TempFac, data = frogs_long)
 
 ```
@@ -1080,3 +1078,29 @@ cite_packages(
 
 ```
 :::
+
+:::: {.content-hidden}
+::: callout-note
+$SSA$ can also directly be re-written in a very symmetric fashion as:
+
+$$
+\frac{\sum_{i=1}^{k} \left( \sum_{j=1}^{n}y_{ij}\right)^2 }{n} - \frac{\left( \sum_{i=1}^{kn}
+y_i \right)^2}{kn}
+$$
+
+
+Note that in the first term, we are calculating sums of observations within each group in the inner summation, which is like a per-group mean (without the division). The outer summation takes the sum of squares of these undivided summations and divides by $n$.
+:::
+
+
+::: callout-note
+If there are $k$ levels in `qual` and $n$ observations $y_ n$ for each level, we can also write:
+
+$$
+SST = 
+\sum_{i=1}^{kn}y_i^2 - \frac{ \left( \sum_{i=1}^{kn}
+y_i \right)^2}{kn}
+$$
+:::
+::::
+
