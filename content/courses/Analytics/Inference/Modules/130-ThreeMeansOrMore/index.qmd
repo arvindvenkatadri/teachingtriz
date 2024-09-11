@@ -23,9 +23,10 @@ library(tidyverse) # Tidy data processing
 library(ggformula) # Formula based plots
 library(mosaic) # Data inspection and Statistical Inference 
 library(broom) # Tidy outputs from Statistical Analyses
-library(infer) # Statistical Inference
+library(infer) # Statistical Inference, Permutation/Bootstrap
 library(patchwork) # Arranging Plots
 library(ggprism) # Interesting Categorical Axes
+library(supernova) # Beginner-Friendly ANOVA Tables 
 ```
 
 ```{r}
@@ -111,11 +112,9 @@ Suppose we have three sales strategies on our website, to sell a certain product
 
 If there is a University course that is offered in parallel in three different classrooms, is there a difference between the average marks obtained by students in each of the classrooms?
 
-In each case we have a set of Quant observations in each Qual category: `Interaction Time` vs `Sales Strategy` in the first example, and `Student Marks` vs `Classroom` in the second. We can take *mean* scores in each category and decide to compare them. How do we make the comparisons? One way would be to compare them pair-wise, doing as many `t-tests` as there are pais. But with this rapidly becomes intractable and also dangerous: with increasing number of `groups`, the number of mean-comparisons becomes very large $N\choose 2$ and with each comparison the possibility of some difference showing up, *just by chance*, increases! And we end up making the wrong inference and perhaps the wrong decision. The trick is of course to make comparisons **all at once** and ANOVA is the technique that allows us to do just that. 
+In each case we have a set of Quant observations in each Qual category: `Interaction Time` vs `Sales Strategy` in the first example, and `Student Marks` vs `Classroom` in the second. We can take *mean* scores in each category and decide to compare them. How do we make the comparisons? One way would be to compare them pair-wise, doing as many `t-tests` as there are pairs. But with this rapidly becomes intractable and also dangerous: with increasing number of `groups`, the number of mean-comparisons becomes very large $N\choose 2$ and with each comparison the possibility of some difference showing up, *just by chance*, increases! And we end up making the wrong inference and perhaps the wrong decision. The trick is of course to make comparisons **all at once** and ANOVA is the technique that allows us to do just that. 
 
 In this tutorial, we will compare the Hatching Time of frog spawn[^1], at three different lab temperatures.
-
-[^1]: The ANOVA tutorial at [Our Coding Club](https://ourcodingclub.github.io/tutorials/anova/).
 
 In this tutorial, our research question is:
 
@@ -266,10 +265,10 @@ supernova::pairwise(frogs_anova,
                     plot = TRUE)
 ```
 
-This table + error-bar plot gives us a clear comparison between each pair of the three groups of observations defined by `TempFac`. The pairwise differences in spawn hatching `Time` is given by the `diff` column. Also shown are the confidence intervals for each of these differences (none of which include $0$); the `p-value`s for each of these differences is also negligible. Thus we can conclude that the **effect of temperature on hatching time** is significant. 
+This table + error-bar plot gives us a clear comparison between each pair of the three groups of observations defined by `TempFac`. The differences in spawn hatching `Time` between each pair of `TempFac` settings are given by the `diff` column. Also shown are the confidence intervals for each of these differences (none of which include $0$); the `p-value`s for each of these differences is also negligible. Thus we can conclude that the **effect of temperature on hatching time** is significant. 
 
 ::: callout-note
-To find which specific value of `TempFac` has the most effect will require *pairwise comparison* of the group means, using a standard `t-test`. The confidence level for such repeated comparisons will need what is called ***Bonferroni correction***[^2] to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take $\alpha = 0.05$, the confidence level used and divide it by $K$, the number of pair-wise comparisons we intend to make. This new value is used to decide on the significance of the estimated parameter. So the pairwise comparisons in our current data will have to use $\alpha/3 = 0.0166$ as the confidence level. `supernova::pairwise()` did this for us very neatly!
+To find which specific value of `TempFac` has the most `effect` will require *pairwise comparison* of the group means, using a standard `t-test`. The confidence level for such repeated comparisons will need what is called ***Bonferroni correction***[^2] to prevent us from detecting a significant (pair-wise) difference simply by chance. To do this we take $\alpha = 0.05$, the confidence level used and divide it by $K$, the number of pair-wise comparisons we intend to make. This new value is used to decide on the significance of the estimated parameter. So the pairwise comparisons in our current data will have to use $\alpha/3 = 0.0166$ as the confidence level. The `supernova::pairwise()` function did this for us very neatly!
 
 There are also other ways, such as the "Tukey correction" for multiple tests. 
 :::
@@ -293,7 +292,7 @@ theme_set(new = theme_custom())
 
 library(ggtext)
 set.seed(42) # for replication
-data = tibble(
+toydata = tibble(
   index = 1:40,
   qual = c(rep(x = "A", 20), rep(x = "B", 20)),
   quant = c(rnorm(
@@ -303,24 +302,24 @@ data = tibble(
     n = 20, mean = 10, sd = 2
   ))
 )
-data
-overall_mean <- data %>%
+toydata
+overall_mean <- toydata %>%
   summarise(overall_mean = mean(quant))
 #overall_mean
 
-grouped_means <- data %>%
+grouped_means <- toydata %>%
   group_by(qual) %>%
   summarise(grouped_means = mean(quant))
 #grouped_means
 
 p1 <- gf_segment(
-  data = data,
+  data = toydata,
   color = "black",
   overall_mean$overall_mean + quant ~ index + index,
   ylab = "quant") %>% 
   gf_point(quant ~ index,
                #color = ~ qual,
-               data = data) %>%
+               data = toydata) %>%
   gf_hline(yintercept =  ~ overall_mean,
            data = overall_mean) %>%
   gf_text(4.25 ~ 30,
@@ -332,18 +331,18 @@ p2 <- gf_point(
   quant ~ index,
   group = ~ qual,
   colour = ~ qual,
-  data = data
+  data = toydata
 ) %>%
   gf_hline(
     yintercept = ~ mean,
     colour = ~ qual,
-    data = data %>%
+    data = toydata %>%
       group_by(qual) %>%
       summarise(mean = mean(quant))
   ) %>%
-  gf_segment(data = data %>% filter(qual == "A"),
+  gf_segment(data = toydata %>% filter(qual == "A"),
              grouped_means$grouped_means[1] + quant ~ index + index) %>%
-  gf_segment(data = data %>% filter(qual == "B"),
+  gf_segment(data = toydata %>% filter(qual == "B"),
              grouped_means$grouped_means[2] + quant ~ index + index) %>%
   gf_text(10.0 ~ 10,
           label = expression(paste(mu, "_B")),
@@ -383,8 +382,8 @@ $$ {#eq-SSA}
 Let us compute these numbers for our toy dataset:
 
 ```{r}
-#| echo: false
-demo_anova <- aov(quant ~ qual, data = data)
+#| echo: true
+demo_anova <- aov(quant ~ qual, data = toydata)
 supernova::supernova(demo_anova)
 ```
 What do we see?
@@ -392,10 +391,11 @@ What do we see?
 1. **All Data**: $SST = 1047.935$. 
 1. **Grouped Data**: $SSE = 224.529$.
 1. **Improvement**: $SSA = SST-SSE$ = $823.407$.
-1. **Improvement Ratio**: Before we set up this ratio, we must realize that each of these measures uses a different number of observations! So the comparison is done after scaling each of $SSA$ and $SSE$ by the [number of observations]{.bg-washed-red .black} influencing them. (a sort of ***per capita***, or average, squared error, an idea we saw when we defined [Standard Errors](../../Modules/20-SampProb/index.qmd#the-standard-error)): $F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}$, where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom in $SSA$ and $SSE$. 
-1. **Large Enough Ratio?**: The value of the `F-statistic` from the table above is 139.356. Is this ratio big enough? `F-statistic` is compared with a **critical value** of the F-statistic to help us decide. (Here, it is.)
+1. **Improvement Ratio**: Before we set up this ratio, we must realize that each of these measures uses a different number of observations! So the comparison is done after scaling each of $SSA$ and $SSE$ by the [number of observations]{.bg-washed-red .black} influencing them. (a sort of ***per capita***, or average, squared error, an idea we saw when we defined [Standard Errors](../../Modules/20-SampProb/index.qmd#the-standard-error)): $F_{stat} = \frac{SSA / df_{SSA}}{SSE / df_{SSE}}$, where $df_{SSA} = 1$ and $df_{SSE} = 38$ are respectively the degrees of freedom in $SSA$ and $SSE$. 
+1. **Large Enough Ratio?**: The value of the `F-statistic` from the table above is $\frac{823.407}{5.909} = 139.356$. Is this ratio big enough? `F-statistic` is compared with a **critical value** of the `F-critical` to help us decide. (Here, it is.)
 1. **Belief**: So we now believe in the idea of two means. 
-1. **Back to Mean Differences**: Finally, in order to find which of the means is significantly different from others (if there are more than two!), we need to make a pair-wise comparison of the means, applying the `Bonferroni correction` as stated before. This means we divide the critical `p.value` we expect by the number of comparisons we make between levels of the Qual variable.
+1. **Back to Mean Differences**: Finally, in order to find which of the means is significantly different from others (if there are more than two!), we need to make a pair-wise comparison of the means, applying the `Bonferroni correction` as stated before. This means we divide the critical `p.value` we expect by the number of comparisons we make between levels of the Qual variable. `supernova` did this for us in the error-bar plot above. 
+
 
 ::: callout-important
 ## Why "ANOVA"?
@@ -405,7 +405,7 @@ When divide each of $SSA$ and $SSE$ by their [*degrees of freedom*]{style="backg
 So this may seem like a great [Hero's Journey](https://www.youtube.com/watch?v=bnaXpcH7L6I&list=PLsvuw0vMeKQ0CWR-YpAYH90YjYPck6Ots&pp=iAQB), where we start with means and differences, go into sums of squares, differences and comparisons of error ratios, and [return to the means where we started, only to know them properly now](https://www.quora.com/profile/Arvind-Venkatadri/https-www-quora-com-What-did-T-S-Elliot-mean-when-he-wrote-We-must-not-cease-from-exploration-and-the-end-of-all-our-e).
 
 
-### Manually Demonstrated
+### Frogs Demonstrated
 
 Now that we understand what `aov()` is doing, let us hand-calculate the numbers for our `frogs` dataset and check. Let us visualize our calculations first.
 
@@ -512,7 +512,7 @@ frogs_within_groups <- frogs_long %>%
   group_by(TempFac) %>% 
    summarise(
      grouped_mean_time = mean(Time), # The Coloured Lines
-     variance_time = var(Time),
+     grouped_variance_time = var(Time),
      group_error_squares = sum((Time - grouped_mean_time)^2),
      n = n())
 frogs_within_groups
@@ -551,13 +551,13 @@ where $df_{SSA}$ and $df_{SSE}$ are respectively the degrees of freedom in SSA a
 
 Let us calculate these [Degrees of Freedom]{style="background-color: yellow;"}.
 
-With $k = 3$ levels in the factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has degree of freedom $kn-1$, since it uses all observations but loses one degree to calculate the global mean. (If each level did not have the same number of points $n$, we simply take all observations less one as the degrees of freedom for $SST$).
+With $k = 3$ levels in the factor `TempFac`, and $n = 20$ points per level, $SST$ clearly has degree of freedom $kn-1 = 3*20~ -1 = 59$, since it uses all observations but loses one degree to calculate the global mean. (If each level did not have the same number of points $n$, we simply take all observations less one as the degrees of freedom for $SST$).
 
-$SSE$ has $k*(n-1)$ as degrees of freedom, since each of the $k$ groups there are $n$ observations and each group loses one degree to calculate its own group mean.
+$SSE$ has $k*(n-1) = 3 * (20 -1) = 57$ as degrees of freedom, since each of the $k$ groups there are $n$ observations and each group loses one degree to calculate its own group mean.
 
-And therefore $SSA$, being their difference, has $kn-1 -k*(n-1) = k-1$ degrees of freedom.
+And therefore $SSA$, being their difference, has $kn-1 -k*(n-1) = k-1 = 2$ degrees of freedom. 
 
-We can still calculate these in R, for the sake of method and clarity:
+These are, of course, as shown in the *df* column in the supernova tabel above. We can still calculate these in R, for the sake of method and clarity (and pedantry):
 
 ```{r}
 #| label: Degrees-of-Freedom
@@ -566,6 +566,7 @@ We can still calculate these in R, for the sake of method and clarity:
 df_SSE <- frogs_long %>%
   
   # Takes into account "unbalanced" situations
+  # Where groups are not equal in size
   group_by(TempFac) %>%
   summarise(per_group_df_SSE = n() - 1) %>%
   summarise(df_SSE = sum(per_group_df_SSE)) %>% as.numeric()
@@ -596,7 +597,6 @@ df_SSA
 Now we are ready to compute the F-statistic: dividing each sum-of-squares byt its degrees of freedom gives us *variances* which we will compare, using the *F-statistic* as a ratio:
 
 ```{r}
-#| results: hold
 # Finally F_Stat!
 # Combine the sum-square_error for each level of the factor
 # Weighted by degrees of freedom **per level**
@@ -615,7 +615,7 @@ F_stat
 
 ```
 
-The `F-stat` is compared with a **critical value** of the F-statistic, `F_crit` which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value as a **quartile**:
+The `F-stat` is compared with a **critical value** of the F-statistic, `F_crit` which is computed using the formula for the f-distribution in R. As with our hypothesis tests, we set the significance level to $\alpha = 0.95$, but here with the Bonferroni correction, and quote the two relevant degrees of freedom as parameters to `qf()` which computes the critical F value `F_critical` as a **quartile**:
 
 ```{r}
 #| results: hold
@@ -650,32 +650,40 @@ gf_dist("f", df1 = df_SSA, df2 = df_SSE,
 
 
 ```{r}
+# Set graph theme
+theme_set(new = theme_custom())
+#
 mosaic::xpf(q = F_crit, 
             df1 = df_SSA, df2 = df_SSE, method = "gg",
             log.p = FALSE,lower.tail = TRUE, 
             return = "plot") %>% 
   gf_vline(xintercept = F_crit) %>% 
-  gf_label(0.75 ~ 5, label = "F_crit", 
+  gf_label(0.75 ~ 5, label = "F_critical", 
            inherit = F, show.legend = F) %>% 
-  gf_theme(theme=theme_classic())
+  gf_labs(title = "F distribution for Frogs Data",
+          subtitle = "F_critical = 4.403")
 
 ```
 
 
 Any value of F more than the `F_crit` occurs with smaller probability than $0.05/3 = 0.017$. Our F_stat is much higher than `F_crit`, by orders of magnitude! And so we can say with confidence that Temperature has a significant effect on spawn Time.
 
-And that is how ANOVA computes!
+And that is how ANOVA computes! 
+
 
 :::
 
+## {{< iconify carbon model >}} Stating the Model
 
-[^2]: https://www.openintro.org/go/?id=anova-supplement&referrer=/book/ahss/index.php
 
-[^3]: Spinoza: Ethics Geometrically Demonstrated: [spinoza1665.pdf (earlymoderntexts.com)](https://www.earlymoderntexts.com/assets/pdfs/spinoza1665.pdf)
+And `supernova` gives us a nice linear equation relating `Hatching_Time` to `TempFac`:
 
-[^4]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping Students to 'Think with Data' Using R." The R Journal, 9(1), 77--102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
+```{r}
+#| label: fig-eq-frogs-anova
+supernova::equation(frogs_anova)
 
-[^5]: `mosaic::xpf()` gives both a graph and the probabilities.
+```
+`TempFac18` and `TempFac25` are binary {0,1} coded variables, representing the test situation. `e` is the remaining error. The equation models the *means* at each value of `TempFac`. 
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Checking ANOVA Assumptions
 
@@ -700,6 +708,8 @@ shapiro.test(x = frogs_long$Time)
 The p-value is very low and we cannot reject the (alternative) hypothesis that the overall data is **not** normal. How about normality at each level of the factor?
 
 ```{r}
+#| eval: false
+#| echo: false
 frogs_grouped <- frogs_long %>% 
   group_by(TempFac) %>% 
   nest(.key = "list") # naming the nested column "list"
@@ -731,20 +741,31 @@ frogs_grouped %>%
 
 ```
 
+:::: {.columns}
+::: {.column}
 ```{r}
+#| label: Group-check-for-normality
 #| eval: false
-#| column: margin
-#### Using `dplyr::group_modify()
 frogs_long %>%
   group_by(TempFac) %>%
   group_modify( ~ .x %>%
                   select(Time) %>%
-                  
                   as_vector() %>% shapiro.test() %>%
                   broom::tidy())
 ```
+:::
+::: {.column}
 
-The `shapiro.wilk` test makes a NULL Hypothesis that the data **are** normally distributed and estimates the probability that this could have happened by chance. Except for `TempFac = 18` the p-values are less than 0.05 and we can reject the NULL hypothesis that each of these is normally distributed. Perhaps this is a sign that we need more than 20 samples per factor level. Let there be more frogs !!!
+```{r}
+#| ref.label: Group-check-for-normality
+#| echo: false
+```
+
+:::
+::::
+
+The `shapiro.wilk` test makes a NULL Hypothesis that the data **are** normally distributed and estimates the probability that the given data could have happened by chance. Except for `TempFac = 18` the `p.value`s are less than 0.05 and we can reject the NULL hypothesis that each of these is normally distributed. Perhaps this is a sign that we need more than 20 samples per factor level. Let there be more frogs !!! இன்னும தவளைகள் வேண்டும்!!
+!!
 
 We can also check the residuals post-model:
 
@@ -754,7 +775,6 @@ We can also check the residuals post-model:
 # Set graph theme
 theme_set(new = theme_custom())
 #
-
 frogs_anova$residuals %>% 
   as_tibble() %>% 
   gf_dhistogram(~ value,data = .) %>% 
@@ -780,16 +800,15 @@ To check if the `Time` readings are similar in `variance` across levels of `Temp
 
 ```{r}
 #| layout-ncol: 2
-#| column: body-outset-right
+#| column: screen-inset-right
 #| results: hold
 frogs_long %>% 
   group_by(TempFac) %>% 
   summarise(variance = var(Time))
 # Not too different...OK on with the test
-fligner.test(Time ~ TempFac, data = frogs_long)
-##
 DescTools::LeveneTest(Time ~ TempFac, data = frogs_long)
-
+##
+fligner.test(Time ~ TempFac, data = frogs_long)
 ```
 
 It seems that there is no cause for concern here; the data do not have significantly different variances.
@@ -800,10 +819,28 @@ This is an experiment *design* concern; the way the data is gathered must be spe
 
 ## {{< iconify flat-color-icons workflow >}} Workflow: Effect Size
 
-The simplest way to find the actual `effect sizes` detected by an ANOVA test is to use (paradoxically) the `summary.lm()` command:
+The simplest way to find the actual `effect sizes` detected by an ANOVA test is something we have already done, with the `supernova` package: Here is the table and plot again:
 
 ```{r}
+#| fig-column: margin
+# Set graph theme
+theme_set(new = theme_custom())
+#
+frogs_supernova <- 
+  supernova::pairwise(frogs_anova,
+                      plot = TRUE,
+                      alpha = 0.05, 
+                      correction = "Bonferroni")
+frogs_supernova
 
+```
+
+This table, the plot, and the equation we set up earlier all give us the sense of how the `TempFac` affects `Time`. The differences are given pair-wise between levels of the Qual factor, `TempFac`, and the `standard error` has been declared in *pooled* fashion (all groups together).
+
+::: {.hidden}
+We can also use (paradoxically) the `summary.lm()` command:
+
+```{r}
 tidy_anova <- 
   frogs_anova %>% 
   summary.lm() %>% 
@@ -888,8 +925,9 @@ frogs_anova %>% stats::TukeyHSD()
 
 ```
 We see that **each** of the pairwise differences in effect-size is significant, with `p = 0` !
+:::
 
-### Using other packages
+### Using other packages{.hidden}
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Using ggstatsplot
@@ -932,63 +970,11 @@ The `supernova` table clearly shows the reduction the Sum of Squares as we go fr
 
 We wish to establish the significance of the effect size due to each of the levels in `TempFac`. From the normality tests conducted earlier we see that except at one level of `TempFac`, the times are are not normally distributed. Hence we opt for a Permutation Test to check for significance of effect.
 
-As remarked in Ernst[^8], the non-parametric permutation test can be both *exact* and also **intuitively easier** for students to grasp. Permutations are easily executed in R, using packages such as `mosaic`[^9].
-
-[^8]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact Inference." Statistical Science 19 (4): 676--85. doi:10.1214/088342304000000396.
-
-[^9]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping Students to 'Think with Data' Using R." The R Journal, 9(1), 77--102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
+As remarked in Ernst[^8], the non-parametric permutation test can be both *exact* and also **intuitively easier** for students to grasp.
 
 We proceed with a Permutation Test for `TempFac`. We shuffle the levels (13, 18, 25) randomly between the Times and repeat the ANOVA test each time and calculate the F-statistic. The Null distribution is the distribution of the F-statistic over the many permutations and the p-value is given by the proportion of times the F-statistic equals or exceeds that observed.
 
-We will use `mosaic` first, and also try with `infer`.
-
-::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### Using mosaic
-
-`mosaic` offers an easy and intuitive way of doing a repeated permutation test, using the `do()` command. We will `shuffle` the `TempFac` factor to jumble up the `Time` observations, 4999 times. Each time we shuffle, we compute the F_statistic and record it. We then plot the 4999 F-statistics and compare that with the real-world observation of `F-stat`.
-
-```{r}
-#| label: permutation test for ANOVA with mosaic
-# Set graph theme
-theme_set(new = theme_custom())
-#
-obs_F_stat <- 
-  frogs_anova %>% 
-  broom::tidy() %>% 
-  select(statistic)
-observed_mosaic <- obs_F_stat$statistic[1]
-observed_mosaic
-
-null_dist_mosaic <- do(4999) * aov(Time ~ shuffle(TempFac), 
-                                    data = frogs_long)
-null_dist_mosaic %>% head()
-
-null_dist_mosaic %>% drop_na() %>% 
-  select(F) %>% 
-  gf_histogram(data = ., ~ F, 
-               fill = ~ F >= observed_mosaic,
-               title = "Null Distribution of ANOVA F-statistic",
-               xlab = "Simulated F values (using Permutation)",
-               ylab = "Count") %>% 
-  gf_vline(xintercept = observed_mosaic) %>%
-  gf_text(750 ~ observed_mosaic - 325, label = "Observed F") %>%
-  gf_refine(scale_x_continuous(trans = "log10"),
-            annotation_logticks(),
-            scale_fill_discrete(name = "Simulated F > Observed F ?"))
-
-```
-
-The Null distribution of the `F_statistic` under permutation shows it never crosses the real-world observed value, testifying as to the strength of the effect of `TempFac` on hatching `Time`. And the `p-value` is:
-
-```{r}
-p_value <- mean(null_dist_mosaic$F >= observed_mosaic, na.rm = TRUE)
-p_value
-
-```
-
-### Using infer
-
-We calculate the observed F-stat with `infer`, which also has a very direct, if verbose, syntax for doing permutation tests:
+We will use `infer` to do this: We calculate the observed F-stat with `infer`, which also has a very direct, if verbose, syntax for doing permutation tests:
 
 ```{r}
 #| label: ANOVA F-statistic with infer
@@ -1012,9 +998,9 @@ null_dist_infer <- frogs_long %>%
   hypothesise(null = "independence") %>% 
   generate(reps = 4999 , type = "permute") %>% 
   calculate(stat = "F")
-
-head(null_dist_infer)
-
+##
+null_dist_infer
+##
 null_dist_infer %>% 
   visualise(method = "simulation") +
   shade_p_value(obs_stat = observed_infer$stat, direction = "right") + 
@@ -1026,7 +1012,12 @@ null_dist_infer %>%
 ```
 
 As seen, the `infer` based permutation test also shows that the permutationally generated F-statistics are nowhere near that which was observed. The effect of `TempFac` is very strong.
-:::
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+- In marketing, design, or business research, similar quantities may be measured across different locations, or stores, or categories of people, for instance.
+- ANOVA is the tool to decide if the Quant variable has differences across the Qual categories.
+- This approach can be extended to more than one Qual variable, and also if there is another Quant variable in the mix. 
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
@@ -1035,7 +1026,9 @@ We have discussed ANOVA as a means of modelling the effects of a Categorical var
 ::: callout-note
 ### Two-Way ANOVA
 
-What if we have *two* Categorical variables as predictors? We then need to perform a **Two-Way ANOVA** analysis, where we look at the predictors individually (*main effects*) and together (*interaction effects*). Here too, we need to verify if the number of observations are balanced across all combinations of factors of the two Qualitative predictors. There are three different classical approaches (Type1, Type2 and Type3 ANOVA) for testing hypotheses in ANOVA for unbalanced designs, as they are called. [@langsrud2003].
+What if we have *two* Categorical variables as predictors?
+
+We then need to perform a **Two-Way ANOVA** analysis, where we look at the predictors individually (*main effects*) and together (*interaction effects*). Here too, we need to verify if the number of observations are balanced across all combinations of factors of the two Qualitative predictors. There are three different classical approaches (Type1, Type2, and Type3 ANOVA) for testing hypotheses in ANOVA for unbalanced designs, as they are called. [@langsrud2003].
 
 :::
 
@@ -1045,6 +1038,13 @@ What if we have *two* Categorical variables as predictors? We then need to perfo
 Note that when we specified our research question, we had no specific hypothesis about the means, *other than that they might be different*. In many situations, we may have reason to believe in the relative "ordering" of the means for different levels of the Categorical variable. The one-sided t-test is the simplest example (e.g., $\mu_1 >= 0$ and $\mu_1 >= \mu_2$); this readily extends to the multi-parameter setting, where more than one inequality constraint can be imposed on the parameters (e.g., $\mu_1 <= \mu_2 <= \mu_3$.\
 It *is* possible to incorporate these beliefs into the ANOVA model, using what is called as **informative hypothesis testing**, which have certain advantages compared to unconstrained models. The R package called `restriktor` has the capability to develop such models with beliefs.
 :::
+
+
+## {{< iconify bi person-up >}} Your Turn
+
+1. Try the simple datasets at <https://www.performingmusicresearch.com/datasets/>
+
+2. Can you try to ANOVA-analyse the datasets we dealt with in plotting [Groups with Boxplots](../../../Descriptive/Modules/24-BoxPlots/index.qmd#your-turn)?
 
 ## {{< iconify ooui references-rtl >}} References {#sec-references}
 
@@ -1104,3 +1104,15 @@ $$
 :::
 ::::
 
+[^1]: The ANOVA tutorial at [Our Coding Club](https://ourcodingclub.github.io/tutorials/anova/).
+
+[^2]: <https://www.openintro.org/go/?id=anova-supplement>
+
+[^8]: Ernst, Michael D. 2004. "Permutation Methods: A Basis for Exact Inference." Statistical Science 19 (4): 676--85. doi:10.1214/088342304000000396.
+
+[^9]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping Students to 'Think with Data' Using R." The R Journal, 9(1), 77--102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
+
+
+[^4]: Pruim R, Kaplan DT, Horton NJ (2017). "The mosaic Package: Helping Students to 'Think with Data' Using R." The R Journal, 9(1), 77--102. https://journal.r-project.org/archive/2017/RJ-2017-024/index.html.
+
+[^5]: `mosaic::xpf()` gives both a graph and the probabilities.
