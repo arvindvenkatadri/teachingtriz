@@ -1,5 +1,5 @@
 ---
-title: "\U0001F0CF Inferences Test for Two Proportions"
+title: "\U0001F0CF Inference Test for Two Proportions"
 author: "Arvind V."
 date: 10/Nov/2022
 abstract: "Inference Test for Two Proportions"
@@ -114,23 +114,46 @@ theme_set(new = theme_custom())
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-We saw from the diagram created by Allen Downey that [there is only one
-test](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)!
-We will now use this philosophy to develop a technique that allows us to
-mechanize several *Statistical Models* in that way, with nearly
-identical code.
+Many experiments gather qualitative data across different segments of a population, for example, opinion about a topic among people who belog to different income groups, or who live in different parts of a city. This should remind us of the [Likert Plots](../../../Descriptive/Modules/45-SurveyData/index.qmd) that we plotted earlier. In this case the two variables, dependent and independent, are both Qualitative, and we can calculate [counts and proportions](../../../Descriptive/Modules/40-CatData/index.qmd). 
 
-We will use two packages in R, `mosaic` and the relatively new [`infer`
-package](https://infer.netlify.app), to develop our intuition for what
-are called **permutation** based statistical tests.
+How does one Qual variable affect the other? How do counts/proportions of the `dependent variable` vary with the `levels` of the `independent` variable? This is our task for this module. 
 
+Here is a quick example of the kind of data we might look at here, taken from the [British Medical Journal](https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests):
+
+![Breast Feeding](../../../../../materials/images/table-83.webp){#fig-breast-feeding}
+
+Clearly, we can see differences in counts/proportions of women who breast-fed their babies for three months or more, *based on* whether they were "printers wives" or "farmers' wives"! Is there a doctor in the [House](https://www.imdb.com/title/tt0412142/)?
+
+
+### {{< iconify flat-color-icons workflow >}} The CLT for Two Proportions
+We first need to establish some model assumptions prior to making our analysis. As before, we wish to see if the CLT applies here, and if so, in what form. 
+The difference between two proportions can be modeled using a normal distribution when:
+
+- Independence (extended): The data are independent within and between the two groups. Generally this is satisfied if the data come from two independent random samples or if the data come from a randomized experiment.
+- **Success-failure condition**: The success-failure condition holds for both groups, where we check successes and failures in each group separately. That is, we should have at least 10 successes and 10 failures in each of the two groups.
+
+When these conditions are satisfied, the standard error of $\hat{p_1}-\hat{p_2}$ is well-approximated by:
+
+$$
+SE(\hat{p_1}-\hat{p_2}) = \sqrt{\frac{\hat{p_1}*(1-\hat{p_1})}{n_1}} + \sqrt{\frac{\hat{p_2}*(1-\hat{p_2})}{n_2}}
+$$
+
+where $\hat{p_1}$ and $\hat{p_2}$ represent the sample proportions, and $n_1$ and $n_2$ represent the sample sizes.
+
+We can represent the Confidence Intervals as:
+
+$$
+\begin{eqnarray}
+CI(p_1 - p_2) &=& (\hat{p_1} - \hat{p_2}) \pm 1.96 * SE(\hat{p_1}-\hat{p_2})\\
+&=& (\hat{p_1} - \hat{p_2}) \pm 1.96 * \left(\sqrt{\frac{\hat{p_1}*(1-\hat{p_1})}{n_1}} + \sqrt{\frac{\hat{p_2}*(1-\hat{p_2})}{n_2}}\right)
+\end{eqnarray}
+$$
 
 ## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-1: `GSS2002` dataset
 
-We can extend this idea to *multiple proportions* too.
+We saw how we could perform inference for a single proportion. We can extend this idea to *multiple proportions* too.
 
-Let us try a dataset with Qualitative / Categorical data. This is the
-`General Social Survey GSS dataset` from the [`resampledata`
+Let us try a dataset with Qualitative / Categorical data. This is the `General Social Survey GSS dataset` from the [`resampledata`
 package](https://github.com/rudeboybert/resampledata), and we have
 people with different levels of `Education` stating their opinion on the
 `Death Penalty`. We want to know if these two Categorical variables have
@@ -179,10 +202,32 @@ gss_table %>%
 
 ### Contingency Table Plots
 
-The Contingency Table can be plotted, as we have seen, using a `mosaic`
-plot using several packages:
+The Contingency Table can be plotted, as we have seen, using a `mosaic` plot using several packages. Let us do a quick recap:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Using ggmosaic
+
+```{r mosaic-plot,warning=FALSE}
+#library(ggmosaic)
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+
+ggplot(data = gss2002) +
+  geom_mosaic(aes(x = product(DeathPenalty, Education), 
+                  fill = DeathPenalty))
+
+```
+
+
+#### Using vcd
+
+```{r}
+vcd::mosaic(gss_table, gp = shading_hsv)
+
+```
 
 #### Using ggformula
 
@@ -231,36 +276,47 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 ```
 
-#### Using vcd
-
-```{r}
-vcd::mosaic(gss_table, gp = shading_hsv)
-
-```
-
-#### Using ggmosaic
-
-```{r mosaic-plot,warning=FALSE}
-#library(ggmosaic)
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
-
-ggplot(data = gss2002) +
-  geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty))
-
-```
 
 :::
 
-### Observed Statistic: the $X^2$ metric
 
-When there are multiple proportions involved, the $X^2$ test is what is
-used.
+
+## Hypotheses Definition
+
+What would our Hypotheses be?
+
+$H_0: \text{Education does not affect votes for Death Penalty}$
+$H_a: \text{Education affects votes for Death Penalty}$
+
+## Inference for Two Proportions
+
+We are now ready to perform our statistical inference. We will use the standard `chi-square test`, and develop and intuition for it. We will then do a permutation test to have an alternative method to complete the same task.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### Code
+
+Let us now perform the base `chisq test`: We need a `table` and then the `chisq` test: We will calculate the `observed-chi-squared` value, and compare it with the `critical value`. 
+
+```{r}
+
+# Get the observed chi-square statistic
+observedChi2 <- mosaic::chisq(tally(DeathPenalty ~ Education, data = gss2002))
+observedChi2
+
+# Actual chi-square test
+mosaic::xchisq.test(tally(DeathPenalty ~ Education, data = gss2002))
+
+# Determine the Chi-Square critical value
+X_squared_critical <- qchisq(p = .05, 
+       df = (5-1)*(2-1), # (nrows-1) * (ncols-1)
+       lower.tail = FALSE)
+X_squared_critical
+```
+
+We see that our observed $X^2 = 23.45$; the critical value `X_squared_critical` is $9.48$, which is much smaller! The `p-value` is $0.0001029$, very low as we would expect, indicating that the NULL Hypothesis should be rejected in favour of the alternate hypothesis, that opinions about the `DeathPenalty` are related to `Education`. 
+
+Let us now dig into that cryptic-looking table above!
 
 ### Intuitive Explanation
 
@@ -281,13 +337,13 @@ column, based on what we could **expect** if there was independence
 (NULL Hypothesis). If the two variables were independent, then there
 should be **no difference** between real and expected scores.
 
-How do we know what scores to expect if there was no relationship between the variables?
+How do we know what scores to expect if there was no relationship 
+between the variables?
 
 Consider the entry in location (1,1): 117. The number of **expected**
 entries there is probability of an entry landing in that square times
 the total number of entries:
 
-::: column-body-outset
 ```{=tex}
 \begin{align}
 
@@ -297,10 +353,9 @@ the total number of entries:
 &= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
 &= 130
 
-
 \end{align}
+
 ```
-:::
 
 Proceeding in this way for all the 15 entries in the Contingency Table,
 we get the "Expected" Contingency Table. Here are both tables for
@@ -314,6 +369,7 @@ gss_exp <- gss_table * gss_table / ((
 ) * 1307)
 
 ```
+
 
 ```{r echo=FALSE}
 
@@ -334,41 +390,281 @@ gss_table %>% addmargins() %>%
 
 The $X^2$ statistic is **sum of squared differences** between `Observed` 
 and `Expected` scores, scaled by the `Expected Scores`. For location 
-\[1,1\] this would be: $(117-130)^2/130$. Do try to compute all of these 
-and the $X^2$ statistic by hand !!
+\[1,1\] this would be: $(117-130)^2/130$. Do try to compute all of these and the $X^2$ statistic by hand !!
 
-### Code
-
-Let us now perform the base `chisq test`: We need a `table` and then the
-`chisq` test:
+All right, what of all this? How did this $X^2$ distribution come from? The idea is that when you take the square of a normally distributed variable, the resultant variable is *chi-square* distributed, which is a positive one-sided (squared numbers!!) distribution.
 
 ```{r}
-
-# gss_table <- tally(DeathPenalty ~ Education, data = gss2002)
-# gss_table
-
-# Get the observed chi-square statistic
-observedChi2 <- mosaic::chisq(tally(DeathPenalty ~ Education, data = gss2002))
-observedChi2
-
-# Actual chi-square test
-stats::chisq.test(tally(DeathPenalty ~ Education, data = gss2002))
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
+df <- tibble(x = rnorm(500, mean = 0, sd = 2), 
+             y = x^2)
+df %>% gf_density(~x) %>% 
+  gf_fitdistr(dist = "dnorm")
+df %>% gf_density(~y) %>% 
+  gf_fitdistr()
 
 ```
 
-We see that our observed $X^2 = 23.45$.
 
 :::
 
-### Hypotheses Definition
 
-What would our Hypotheses be?
 
-$H_0: \text{Education does not affect votes for Death Penalty}$
-$H_a: \text{Education affects votes for Death Penalty}$
+## Permutation Test for `Education`
 
-### Permutation Test for `Education`
+We will now perform the permutation test for the difference between proportions. We will first get an intuitive idea of the permutation, and then perform it using both `mosaic` and `infer`.
 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+
+### {{< iconify svg-spinners blocks-shuffle-3 >}} Permutation Visually Demonstrated
+
+We saw from the diagram created by Allen Downey that [there is only one test](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)! We will now use this philosophy to develop a technique that allows us to
+mechanize several *Statistical Models* in that way, with nearly identical code.
+We will first look visually at a permutation exercise. We will create dummy data that contains the following case study:
+
+> A set of identical resumes was sent to male and female evaluators. The
+> candidates in the resumes were of both genders. We wish to see if
+> there was difference in the way resumes were evaluated, by male and
+> female evaluators. (We use just *one* male and *one* female evaluator
+> here, to keep things simple!)
+
+
+```{r}
+#| label: Artificial Data
+#| layout-ncol: 2
+#| echo: false
+#| column: body-outset-right
+
+set.seed(123456)
+data1 <- tibble(evaluator = rep(x = "F", times = 24),
+               candidate_selected = sample(c(0,1), 
+                               size = 24, 
+                               replace = T, 
+                                prob = c(0.1, 0.9)))
+
+data2 <- tibble(evaluator = rep(x = "M", times = 24),
+               candidate_selected = sample(c(0,1), size = 24, 
+                                replace = T, 
+                                prob = c(0.6, 0.4)))
+
+#data1
+#data2
+               
+data <-  rbind(data1, data2) %>%
+  as_tibble() %>%
+
+  # Create a 4*12 matrix of integer coordinates
+  cbind(expand.grid(x = 1:4, y = seq(4, 48,4))) %>%
+  mutate(evaluator = as_factor(evaluator))
+
+data %>% 
+  select(evaluator, candidate_selected) %>% 
+  as_tibble()
+
+summary <- data %>%
+  group_by(evaluator) %>%
+  summarise(selection_ratio = mean(candidate_selected == "0"),
+            count = count(candidate_selected == "0"),
+            n = n())
+summary
+
+```
+
+
+
+
+
+```{r}
+#| label: Difference in Proportion
+#| layout: [[20],[80]]
+#| echo: false
+#| warning: false
+# Set graph theme
+theme_set(new = theme_custom())
+#
+obs_difference <-
+  diff(mean(candidate_selected ~ evaluator, data = data))
+obs_difference
+
+###
+p0 <- data %>%
+  
+  # knock off the coordinates prior to shuffle
+  select(evaluator, candidate_selected) %>%
+  #mutate(candidate_selected = shuffle(candidate_selected, replace = FALSE)) %>%
+  arrange(evaluator, candidate_selected) %>%
+  
+  # reassign coordinates
+  cbind(., expand.grid(x = 1:4, y = seq(4, 24, 4))) %>% # Not 48!!
+  
+  ggplot(data = ., aes(
+    x = x,
+    y = y,
+    group = evaluator,
+    fill = as_factor(candidate_selected)
+  )) +
+  geom_point(shape = 21, size = 8) +
+  scale_fill_manual(
+    name = NULL,
+    values = c("red", "blue"),
+    labels = c("Rejected", "Selected")
+  ) +
+  
+  # Very important to have scales = "free" !!
+  facet_wrap( ~ evaluator, ncol = 1, scales = "free") +
+  
+  theme_void() +
+  theme(
+    legend.position = "top",
+    strip.background = element_blank(),
+    strip.text.x = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  expand_limits(y = c(0, 28)) +
+  
+  # Need to give stat_brace two pairs x values and y values
+  # as there are two facets
+  ggbrace::stat_brace(
+    aes(#x = c(4.5, 5.5, 4.5, 5.5),
+      # What a hack this is!!
+      #y = c(4, 24, 5, 24),
+      label = evaluator),
+    rotate = 90,
+    labelrotate = 0,
+    labelsize = 4,
+    inherit.aes = TRUE
+  )
+p0
+
+```
+
+So, we have a solid disparity in percentage of selection between the two evaluators! Now we pretend that *there is no difference between the selections made by either set of evaluators*. So we can just:
+
+-   Pool up all the evaluations\
+-   Arbitrarily re-assign a given candidate(selected or rejected) to
+    either of the two sets of evaluators, by permutation.\
+
+How would that pooled shuffled set of evaluations look like?
+
+```{r}
+#| label: Shuffle the data once
+#| echo: false
+
+data_shuffled <- data %>%
+  mutate(evaluator = shuffle(evaluator))
+#data_shuffled %>% select(evaluator, candidate)
+data_shuffled %>%
+  group_by(evaluator) %>%
+  summarise(
+    selection_ratio = mean(candidate_selected == "0"),
+    count = count(candidate_selected == "0"),
+    n = n()
+  )
+```
+
+```{r}
+#| echo: false
+#| layout: [[45,-10, 45]]
+#| warning: false
+data_shuffled %>% 
+      group_by(evaluator, candidate_selected) %>% 
+      ggplot(aes(x = x, y = y, 
+                 group = evaluator, 
+                 fill = as_factor(candidate_selected))) + 
+      geom_point(shape = 21,size = 8) + 
+      scale_fill_manual(name = NULL,
+                        values = c("red", "blue"),
+                        labels = c("Rejected","Selected")) + 
+      theme_void() + theme(legend.position = "top") +
+      ggtitle(label = "Pooled Evaluations, Permuted")
+
+
+data_shuffled %>% 
+  
+  # knock off the coordinates
+  # Do not use "group_by"!! Why not?
+  select(evaluator, candidate_selected) %>% 
+  arrange(evaluator,candidate_selected) %>% 
+  
+  # reassign coordinates
+  cbind(., expand.grid(x = 1:4, y = seq(4, 24,4))) %>% # Not 48!!
+  
+  ggplot(data = ., aes(x = x, y = y, 
+             group = evaluator, 
+             fill = as_factor(candidate_selected))) + 
+  geom_point(shape = 21, size = 8) + 
+  scale_fill_manual(name = NULL,
+                    values = c("red", "blue"),
+                    labels = c("Rejected","Selected")) + 
+  
+  # Very important to have scales = "free" !!
+  facet_wrap(~ evaluator, ncol = 1, scales = "free") +
+   expand_limits(y = c(0,28)) +
+
+  ggbrace::stat_brace(aes(label = evaluator),
+                      rotate = 90,
+                      labelrotate = 0,
+                      labelsize = 4,
+                      inherit.aes = TRUE) +
+  theme_void() + 
+  theme(legend.position = "top", 
+                       strip.background = element_blank(),
+                       strip.text.x = element_blank(),
+                       plot.title = element_text(hjust = 0.5)) +
+  ggtitle(label = "Permuted Evaluations, Grouped")
+
+```
+
+```{r}
+#| label: Old code retained
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+library(patchwork)
+p1 + p2 + plot_annotation(tag_levels = "A") + plot_layout(widths = unit(c(7, 10), c('cm', 'cm')))
+
+```
+
+As can be seen, the ratio is different! 
+
+We can now check out our Hypothesis that there is *no* bias. We can shuffle the data many many times, calculating the ratio each time, and plot the *distribution of the differences in selection ratio* and see how that artificially created distribution compares with the originally observed figure from Mother Nature.
+
+```{r}
+#| layout: [[60, -10, 30]]
+# Set graph theme
+theme_set(new = theme_custom())
+#
+null_dist <- do(4999) * diff(mean(
+  candidate_selected ~ shuffle(evaluator), 
+  data = data))
+# null_dist %>% names()
+null_dist %>% gf_histogram( ~ M, 
+                  fill = ~ (M <= obs_difference), 
+                  bins = 25,show.legend = FALSE,
+                  xlab = "Bias Proportion", 
+                  ylab = "How Often?",
+                  title = "Permutation Test on Difference between Groups",
+                  subtitle = "") %>% 
+  gf_vline(xintercept = ~ obs_difference, color = "red" ) %>% 
+  gf_label(500 ~ obs_difference, label = "Observed\n Bias", 
+           show.legend = FALSE) 
+
+mean(~ M<= obs_difference, data = null_dist)
+
+```
+
+We see that the artificial data can hardly ever ($p = 0.0022$) mimic what the real world experiment is showing. Hence we had good reason to reject our NULL Hypothesis that there is no bias.
+
+
+
+### Code
 We should now repeat the test with permutations on `Education`:
 
 ```{r}
@@ -396,7 +692,11 @@ The `p-value` is well below our threshold of $0.05$, so we would
 conclude that `Education` has a significant effect on `DeathPenalty`
 opinion!
 
-### {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-2: TBD dataset
+
+:::
+
+
+## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-2: TBD dataset
 To be Written Up.
 
 
@@ -409,10 +709,17 @@ how unlikely our observed value is.
 Why would a permutation test be a good idea here? With a permutation test, there are *no assumptions* of the null distribution: this is computed based on real data. We note in passing that, in this case, since the number of `cases` in each cell of the Contingency Table are fairly high ( \>= 5) the resulting NULL
 distribution is of the $X^2$ variety.
 
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+
+## {{< iconify bi person-up >}} Your Turn
+
+
 ## {{< iconify ooui references-rtl >}} References
 
 1. [OpenIntro Modern Statistics: Chapter
 17](https://openintro-ims.netlify.app/inference-one-prop.html)\
+1. Chapter 8: The Chi-Square Test, from *Statistics at Square One*. The British Medical Journal. <https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests>. Very readable and easy to grasp. Especially if you like watching [Grey's Anatomy](https://www.hotstar.com/in/shows/greys-anatomy/14823) and [House](https://www.imdb.com/title/tt0412142/).
 
 1. Exploring the underlying theory of the chi-square test through
 simulation - part 1
