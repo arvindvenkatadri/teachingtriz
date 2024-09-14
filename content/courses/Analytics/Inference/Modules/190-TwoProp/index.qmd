@@ -329,7 +329,7 @@ gss_table %>% addmargins() %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
-
+<br>
 In the chi-square test, we check whether the two ( or more ) categorical
 variables are independent. To do this we perform a simple check on the
 Contingency Table. We first *re-compute* the totals in each row and
@@ -344,18 +344,16 @@ Consider the entry in location (1,1): 117. The number of **expected**
 entries there is probability of an entry landing in that square times
 the total number of entries:
 
-```{=tex}
+$$
 \begin{align}
-
-\text{Expected Value at location[1,1]}
-&= p_{row_1} * p_{col_1} * \text{Total Scores}\\\
-&= \frac{\text{Row-1-Total}}{\text{Total Scores}} * \frac{\text{Col-1-Total}}{\text{Total Scores}} * \text{Total Scores}\\\
+\text{Expected Value[1,1]}
+&= p_{row_1} * p_{col_1} * Total~Scores\\\
+&= \frac{\sum_{r_{1}}}{\sum_{r_{all}c_{all}}} * \frac{\sum_{c_{1}}}{\sum_{r_{all}c_{all}}} * \sum_{r_{all}c_{all}} \\
 &= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
 &= 130
-
 \end{align}
+$$
 
-```
 
 Proceeding in this way for all the 15 entries in the Contingency Table,
 we get the "Expected" Contingency Table. Here are both tables for
@@ -385,14 +383,21 @@ gss_table %>% addmargins() %>%
    kableExtra::kbl(caption = "Actual Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
-
 ```
 
+<br>
 The $X^2$ statistic is **sum of squared differences** between `Observed` 
 and `Expected` scores, scaled by the `Expected Scores`. For location 
 \[1,1\] this would be: $(117-130)^2/130$. Do try to compute all of these and the $X^2$ statistic by hand !!
 
-All right, what of all this? How did this $X^2$ distribution come from? The idea is that when you take the square of a normally distributed variable, the resultant variable is *chi-square* distributed, which is a positive one-sided (squared numbers!!) distribution.
+All right, what of all this? How did this $X^2$ distribution come from? Here is a lovely, brief explanation from this [StackOverflow Post](https://stats.stackexchange.com/a/303548):
+
+> - In a contingency table the null hypothesis states that the variables in the rows and the variable in the columns are independent.\
+> - The cell counts $E_{ij}$ are assumed to be Poisson distributed with mean $E_{ij}$ and as they are Poisson, their variance is also $E_{ij}$.\
+> - Asymptotically the Poisson distribution approaches the normal distribution with mean $E_{ij}$ and standard deviation with mean $\sqrt(E_{ij})$ so, asymptotically
+$\frac{(X_{ij} - E_{ij})}{\sqrt(E_{ij})}$ is approximately standard normal.\
+> - If you square standard normal variables and sum these squares then the result is a chi-square random variable so $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt(E_{ij})}\right)^2$ has a (asymptotically) a chi-square distribution.\
+> - Asymptotics must hold and that is why most textbooks state that the result of the test is valid when all expected cell counts $E_{ij}$ are larger than 5, but that is just a rule of thumb that makes the approximation ''good enough''.
 
 ```{r}
 #| layout-ncol: 2
