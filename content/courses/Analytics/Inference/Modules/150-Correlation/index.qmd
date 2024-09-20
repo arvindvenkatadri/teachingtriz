@@ -4,12 +4,15 @@ author: "Arvind V."
 date: 25/Nov/2022
 date-modified: "`r Sys.Date()`"
 order: 140
-keywords: Statistics ; Tests; p-value; Feynman Technique
+keywords: Statistics ; Tests; p-value
 abstract: "Statistical Significance Tests for Correlations between two Variables"
 bibliography: 
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R packages
@@ -19,10 +22,12 @@ citation: true
 
 # CRAN Packages
 library(tidyverse)
-library(broom)
 library(mosaic)
+library(ggformula)
+library(broom)
 library(mosaicCore)
 library(mosaicData)
+library(crosstable) # tabulated summary stats
 
 library(openintro) # datasets and methods
 library(resampledata3) # datasets
@@ -34,9 +39,7 @@ library(ggExtra)
 # remotes::install_github("easystats/easystats")
 library(easystats)
 
-
 ```
-
 
 ```{r}
 #| label: Extra-Pedagogical-Packages
@@ -119,7 +122,9 @@ theme_set(new = theme_custom())
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-Let us recap a few basic definitions:
+Correlations define how one variables varies with another. One of the basic Questions we would have of our data is: Does some variable have a significant correlation score with another in some way? Does $y$ vary with $x$? A **Correlation Test** is designed to answer exactly this question.  The block diagram depicts the statistical procedures available to test for the significance of correlation scores between two variables. 
+
+Before we begin, let us recap a few basic definitions:
 
 We have already encountered the `variance` of a variable:
 
@@ -135,37 +140,34 @@ The *standard deviation* is:
 $$
 \sigma_x = \sqrt{var_x}\\
 $$
-
 The **covariance** of two variables is defined as:
 
 $$
-\begin{align*}
+\begin{align}
 cov(x,y) &= \frac{\sum_{i = 1}^{n}(x_i - \mu_x)*(y_i - \mu_y)}{n-1}\\
 &= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{x_i *\mu_y}}{n-1} - \frac{\sum{y_i *\mu_x}}{n-1} + \frac{\sum{\mu_x *\mu_y}}{n-1}\\
 &= \frac{\sum{x_i *y_i}}{n-1} - \frac{\sum{\mu_x *\mu_y}}{n-1}\\
-\end{align*}
+\end{align}
 $$
-
 
 Hence covariance is *the expectation of the product minus the product of the expectations* of the two variables. 
 
 ::: callout-tip
-### Covariance uses z-scores!
+### Covariance uses [z-scores](../../../Descriptive/Modules/22-Histograms/index.qmd)!
 Note that in both cases we are dealing with **z-scores**: variable minus its mean, $x_i - \mu_x$, which we have seen when dealing with the CLT and the Gaussian Distribution. 
 :::
 
 So, finally, the coefficient of **correlation** between two variables is defined as:
 
 $$
-\begin{align*}
+\begin{align}
 correlation ~ r &= \frac{cov(x,y)}{\sigma_x * \sigma_y}
 \\
 &= \frac{cov(x,y)}{\sqrt{var_x} * \sqrt{var_y}}
-\end{align*}
-$$
+\end{align}
+$${#eq-corr}
 
-Thus correlation coefficient is the *covariance scaled by the geometric mean of the variances*. Correlations define how one variables varies with another. One of the basic Questions we would have of our data is: Does some variable have a significant correlation score with another in some way? Does $y$ vary with $x$? A **Correlation Test** is designed to answer exactly this question.  The block diagram depicts the statistical procedures available to test for the significance of correlation scores between two variables. 
-
+Thus correlation coefficient is the *covariance scaled by the geometric mean of the variances*. 
 
 ```{mermaid}
 %%| echo: false
@@ -182,196 +184,353 @@ flowchart TD
     P <--> Q[Linear Model\n with Ranked Data\n and Permutation]
 ```
  
-## {{< iconify pajamas issue-type-test-case >}} Case Study #1: A Simple Data set with Two Quant Variables
+## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Galton's famous dataset
+
+How can we start, except by using the famous `Galton` dataset, now part of the `mosaicData` package?
+
+### {{< iconify flat-color-icons workflow >}} Workflow: Read and Inspect the Data
+
+```{r}
+#| label: read-galton
+data("Galton", package = "mosaicData")
+Galton
+```
+The variables in this dataset are:
+
+::: callout-note
+### Qualitative Variables
+
+- `sex`(char): sex of the child
+- `family`(int): an ID for each family
+:::
+
+::: callout-note
+### Quantitative Variables
+
+- `father`(dbl): father's height in inches
+- `mother`(dbl): mother's height in inches
+- `height`(dbl): Child's height in inches
+- `nkids`(int): Number of children in each family
+:::
+
+```{r}
+inspect(Galton)
+```
+
+So there are several correlations we can explore here: Children's `height` vs that of `father` or `mother`, based on `sex`. In essence we are replicating Francis Galton's famous study.
 
 
-Let us now see how a Correlation Test can be re-formulated as a Linear
-Model + Hypothesis Test.
+### {{< iconify flat-color-icons workflow >}} Workflow: Research Questions
+
+::: callout-note
+## Question 1
+1.  Based on this sample, what can we say about the correlation between a son's height and a father's height in the population?
+:::
+
+::: callout-note
+## Question 2
+1.  Based on this sample, what can we say about the correlation between a daughter's height and a father's height in the population?
+:::
+Of course we can formulate more questions, but these are good for now! And since we are going to infer correlations by `sex`, let us split the dataset into two parts, one for the sons and one for the daughters, and quickly summarise them too:
+
+```{r}
+Galton_sons <- Galton %>% 
+  dplyr::filter(sex == "M") %>% 
+  rename("son" = height)
+Galton_daughters <- Galton %>% 
+  dplyr::filter(sex == "F") %>% 
+  rename("daughter" = height)
+dim(Galton_sons)
+dim(Galton_daughters)
+```
 
 
-## The Linear Model
+```{r}
+Galton_sons %>% 
+  summarize(across(.cols = c(son, father), 
+                   .fns = list(mean = mean, sd = sd)))
 
-The premise here is that **many common statistical tests are special
-cases of the linear model**. A **linear model** estimates the
-relationship between dependent variable or "response" variable ($y$) and
-an explanatory variable or "predictor" ($x$). It is assumed that the
-relationship is **linear**. $\beta_0$ is the *intercept* and $\beta_1$
-is the slope of the linear fit, that **predicts** the value of y based
-the value of x.
+Galton_daughters %>% 
+  summarize(across(.cols = c(daughter, father), 
+                   .fns = list(mean = mean, sd = sd)))
+```
+
+### {{< iconify flat-color-icons workflow >}} Workflow: Visualization
+
+Let us first quickly plot a graph that is relevant to each of the two research questions.
+
+```{r}
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
+Galton_sons %>% 
+  gf_point(son ~ father) %>% 
+  gf_lm() %>% 
+  gf_labs(title = "Height of Sons vs fathers",
+          subtitle = "Galton dataset")
+##
+Galton_daughters %>% 
+  gf_point(daughter ~ father) %>% 
+  gf_lm() %>% 
+  gf_labs(title = "Height of Daughters vs Fathers",
+          subtitle = "Galton dataset")
+```
+
+We might even plot the **overall** heights together and colour by `sex` of the child:
+
+```{r}
+# Set graph theme
+theme_set(new = theme_custom())
+#
+Galton %>% 
+  gf_point(height ~ father, 
+           group = ~ sex, colour = ~ sex) %>% 
+  gf_lm() %>% 
+  gf_labs(title = "Height of sons vs fathers",
+          subtitle = "Galton dataset")
+```
+
+So daughters are shorter than sons, generally speaking, and both heights seem related to that of the father. 
+
+::: callout-note
+### What did filtering do?
+When we filtered the dataset into two, the filtering by `sex` of the child also effectively filtered the heights of the `father` (and `mother`). This is proper and desired; but think!
+
+:::
+
+### {{< iconify flat-color-icons workflow >}} Workflow: Assumptions
+
+For the *classical* correlation tests, we need that the variables are normally distributed. As before we check this with the `shapiro.test`:
+
+```{r}
+#| layout-ncol: 2
+shapiro.test(Galton_sons$father)
+shapiro.test(Galton_sons$son)
+##
+shapiro.test(Galton_daughters$father)
+shapiro.test(Galton_daughters$daughter)
+
+```
+
+Let us also check the densities and quartile plots of the heights the dataset: 
+
+```{r}
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
+Galton %>% group_by(sex) %>% 
+  gf_density(~ height, group = ~ sex, 
+             fill = ~ sex) %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_facet_grid(vars(sex)) %>% 
+  gf_labs(title = "Facetted Density Plots")
+##
+Galton %>% group_by(sex) %>% 
+  gf_qq(~ height, group = ~ sex, 
+             colour = ~ sex, size = 0.5) %>% 
+  gf_qqline(colour = "black") %>% 
+  gf_facet_grid(vars(sex)) %>% 
+  gf_labs(title = "Facetted QQ Plots",
+          x = "Theoretical quartiles",
+          y = "Actual Data")
+
+```
+
+and the `father`'s heights:
+
+```{r}
+# Set graph theme
+theme_set(new = theme_custom())
+#
+##
+Galton %>% group_by(sex) %>% 
+  gf_density(~ father, group = ~ sex, # no this is not weird
+             fill = ~ sex) %>% 
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_refine(scale_fill_discrete(name = "Sex of Child")) %>%
+  gf_facet_grid(vars(sex)) %>% 
+  gf_labs(title = "Fathers: Facetted Density Plots",
+                    subtitle = "By Sex of Child")
+
+Galton %>% group_by(sex) %>% 
+  gf_qq(~ father, group = ~ sex, # no this is not weird
+             colour = ~ sex, size = 0.5) %>% 
+  gf_qqline(colour = "black") %>% 
+  gf_facet_grid(vars(sex)) %>% 
+  gf_refine(scale_colour_discrete(name = "Sex of Child")) %>% 
+  gf_labs(title = "Fathers Heights: Facetted QQ Plots",
+          subtitle = "By Sex of Child",
+          x = "Theoretical quartiles",
+          y = "Actual Data")
+
+```
+
+The `shapiro.test` informs us that the child-related `height` variables are *not normally distributed*; though visually there seems nothing much to complain about. Hmmm...
+
+[Dads are weird anyway](https://www.quora.com/My-Dad-acts-so-weird-is-it-normal), so we must not expect `father` heights to be normally distributed. 
+
+
+### {{< iconify flat-color-icons workflow >}} Workflow: Inference
+
+Let us now see how Correlation Tests can be performed  based on this dataset, to infer patterns in the population from which this dataset/sample was drawn.
+
+We will go with classical tests first, and then set up a permutation test that does not need any assumptions. 
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+#### Classical Tests
+We perform the Pearson correlation test first: the data is **not normal** so we cannot really use this. We should use a *non-parametric* correlation test as well, using a `Spearman` correlation.
+
+```{r}
+#| label: corr-tests-sons
+# Pearson (built-in test)
+cor_son_pearson <- cor.test(son ~ father, 
+                        method = "pearson", 
+                        data = Galton_sons) %>% 
+  broom::tidy() %>% 
+  mutate(term = "Pearson Correlation r")
+cor_son_pearson
+
+cor_son_spearman <- cor.test(son ~ father, method = "spearman", data = Galton_sons) %>% 
+  broom::tidy() %>% 
+  mutate(term = "Spearman Correlation r")
+cor_son_spearman
+
+```
+
+Both tests state that the correlation between `son` and `father` is significant. 
+
+```{r}
+#| label: corr-tests-daughters
+# Pearson (built-in test)
+cor_daughter_pearson <- cor.test(daughter ~ father, 
+                        method = "pearson", 
+                        data = Galton_daughters) %>% 
+  broom::tidy() %>% 
+  mutate(term = "Pearson Correlation r")
+cor_daughter_pearson
+##
+cor_daughter_spearman <- cor.test(daughter ~ father, method = "spearman", data = Galton_daughters) %>% 
+  broom::tidy() %>% 
+  mutate(term = "Spearman Correlation r")
+cor_daughter_spearman
+
+```
+Again both tests state that the correlation between `daughter` and `father` is significant. 
+
+#### Intuitive
+What is happening under the hood in `cor.test`?
+
+To be Written Up! 
+
+#### Permutation Test
+
+We can of course use a randomization based test for correlation. How would we mechanize this, what aspect would be randomize?
+
+Correlation is calculated on a **vector-basis**: each individual observation of `variable#1` is multiplied by the **corresponding** observation of `variable#2`. Look at @eqn-1! So we might be able to randomize the *order* of this multiplication to see *how uncommon* this particular set of multiplications are. That would give us a `p-value` to decide if the **observed correlation** is close to the truth. So, onwards with our friend `mosaic`:
+
+```{r}
+obs_daughter_corr <- cor(Galton_daughters$father, Galton_daughters$daughter)
+obs_daughter_corr
+
+```
+
+```{r}
+corr_daughter_null <- do(4999) * cor.test(daughter ~ shuffle(father), data = Galton_daughters) %>% 
+  broom::tidy()
+corr_daughter_null
+corr_daughter_null %>% 
+  gf_histogram(~ estimate, bins = 50) %>% 
+  gf_vline(xintercept = obs_daughter_corr, 
+           color = "red",linewidth = 1) %>% 
+  gf_labs(title = "Permutation Null Distribution",
+          subtitle = "Daughter Heights vs Father Heights")
+##
+p_value_null <- 2.0*mean(corr_daughter_null$estimate >= obs_daughter_corr)
+p_value_null
+
+```
+
+We see that will all permutations of `father`, we are never able to hit the actual `obs_daughter_corr`! Hence there is a definite correlation between `father` height and `daughter` height.
+
+#### The Linear Model
+
+The premise here is that **many common statistical tests are special cases of the linear model**. A **linear model** estimates the relationship between dependent variable or  
+"response" variable `height` and an explanatory variable or "predictor", `father`. It is assumed that the relationship is **linear**. $\beta_0$ is the *intercept* and $\beta_1$
+is the slope of the linear fit, that **predicts** the value of `height` based the value of `father`.
 
 $$
-y = \beta_0 + \beta_1 *x
+height = \beta_0 + \beta_1 \times father
 $$
-
-
-
-### Some Toy Data
-
-Most examples in this exposition are based on three "imaginary" samples,
-$x, y1, y2$. Each is normally distributed and made up of 50
-observations. The means and the sds are, respectively:
-
-
-```{r data_genr}
-rnorm_fixed  <- function(N, mu = 0, sd = 1) {
-  scale(rnorm(N))* sd + mu
-}
-params <- tibble(mu = c(0, 0.3, 0.5), sd = c(1,2,1.5))
-params 
-
-```
-
-```{r toy_data}
-set.seed(40) # for replication
-
-# Data as vectors ( for t.tests etc)
-x <- rnorm_fixed(50, mu = 0.0, sd = 1) #explanatory
-y1 <- rnorm_fixed(50, mu = 0.3, sd = 2) # dependent #1
-y2 <- rnorm_fixed(50, mu = 0.5, sd = 1.5) # dependent #2
-
-# Make a tibble with all variables
-mydata_wide <- tibble(x = x, y1 = y1, y2 = y2)
-
-# Long form data
-mydata_long <- 
-  mydata_wide %>%
-  pivot_longer(., cols = c(x,y1,y2), 
-               names_to = "group", 
-               values_to = "value")
-
-# Long form data with only dependent variables
-mydata_long_y <- 
-  mydata_wide %>% 
-  select(-x) %>% 
-  pivot_longer(., cols = c(y1,y2), 
-               names_to = "group", 
-               values_to = "value")
-```
-
-Let us look at our toy data in three ways:
-
-1.  All three variables:
-
-```{r}
-mydata_wide 
-```
-
-2.  Variables stacked and labelled (Note: `group` is now a Qual variable
-    !!)
-
-```{r}
-mydata_long 
-```
-
-3.  Same as 2, but only for the dependent `y` variables:
-
-```{r}
-mydata_long_y 
-```
-
-# Tests for Correlation
-
-Correlation **r** is a measure of *strength* and *direction* of *linear
-association* between two variables. **r** is between $[-1,+1]$, with $0$
-implying no association/correlation.
-
-From this definition, the *linear model* lends itself in a
-straightforward way as a model to interpret *correlation*. Intuitively,
-the slope of the linear model could be related to the correlation
-between y and x.
-
-Now we look at the numbers.
-
-## Pearson Correlation
-
-### Model
-
 The model for Pearson Correlation tests is exactly the Linear Model:
 
 $$
 \begin{aligned}
-y = \beta_0 + \beta_1 \times x\\
+height = \beta_0 + \beta_1 \times father\\
 \\
 H_0: Null\ Hypothesis\ => \beta_1 = 0\\\
 H_a: Alternate\ Hypothesis\ => \beta_1 \ne 0\\
 \end{aligned}
 $$
 
-```{r Pearson_Correlation}
-# Pearson (built-in test)
-cor <- cor.test(y1,x,method = "pearson") %>% 
-  broom::tidy() %>% 
-  mutate(term = "Pearson Correlation r") %>% 
-  select(term, estimate, p.value) 
-cor 
-
-```
-
 Using the *linear model* method we get:
 
 ```{r}
 # Linear Model
-lin <- lm(y1 ~ 1 + x, data = mydata_wide) %>% 
+lin_son <- lm(son ~ father, data = Galton_sons) %>% 
   broom::tidy() %>% 
   mutate(term = c("beta_0", "beta_1")) %>% 
   select(term, estimate, p.value)
-lin 
+lin_son
+##
+lin_daughter <- lm(daughter ~ father, data = Galton_daughters) %>% 
+  broom::tidy() %>% 
+  mutate(term = c("beta_0", "beta_1")) %>% 
+  select(term, estimate, p.value)
+lin_daughter
 
 ```
 
-Why are $r$ and $\beta_1$ different, though the `p-value` is
-suspiciously the same!?
+Why are the respective $r$-s and $\beta_1$-s different, though the `p-value`-s is **suspiciously the same**!? Did we miss a factor of $\frac{sd(son/daughter)}{sd(father)} = ??$ somewhere...??
 
-Did we miss a factor of $\frac{-0.463}{-0.231} = 2$ somewhere...??
-
-Let us **scale** the variables to within `{-1, +1}` : (subtract the mean
-and divide by sd) and re-do the Linear Model with **scaled** versions
-$x$ and $y$:
+Let us **scale** the variables to within `{-1, +1}` : (subtract the mean and divide by sd) and re-do the Linear Model with **scaled** versions of `height` and `father`:
 
 ```{r}
 # Scaled linear model
-lin_scl <- lm(scale(y1) ~ 1 + scale(x), data = mydata_wide) %>% 
+lin_scaled_galton_daughters <- lm(scale(daughter) ~ 1 + scale(father), data = Galton_daughters) %>% 
   broom::tidy() %>% 
-  mutate(term = c("beta_0", "beta_1")) %>% 
-  select(term, estimate, p.value) %>% 
-  select(term, estimate, p.value)
-lin_scl 
+  mutate(term = c("beta_0", "beta_1")) 
+lin_scaled_galton_daughters 
 
 ```
 
-So we conclude:
+Now you're talking!! The `estimate` is the same in both the classical test and the linear model! So we conclude:
 
-1.  **When both x and y have the same standard deviation, the slope from
-    the linear model and the Pearson correlation are the same**. Here,
-    since x has twice the `sd` of y, the ratio of **slope** =
-    `r lin$estimate[2]` to **r** = `r cor$estimate` is 0.5.
+1.  **When both target and predictor have the same standard deviation, the slope from the linear model and the Pearson correlation are the same**.
 
-2.  There is this relationship between the **slope in the linear model**
-    and **Pearson correlation**:
+2.  There is this relationship between the **slope in the linear model** and **Pearson correlation**:
 
 $$
 Slope\ \beta_1 = \frac{sd_y}{sd_x} * r
 $$
 
-The slope is usually much more interpretable and informative than the
-correlation coefficient.
+The slope is usually much more interpretable and informative than the correlation coefficient.
 
-2.  Hence a linear model using `scale()` for both variables will show
-    slope = **r**.
+2.  Hence a linear model using `scale()` for both variables will show slope = **r**.
 
-Slope_Scaled: `r lin_scl$estimate[2]` = Correlation: `r cor$estimate`
+Slope_Scaled: `r lin_scaled_galton_daughters$estimate[2]` = Correlation: `r cor_daughter_pearson$estimate`
 
-3.  Finally, the *p-value* for Pearson Correlation and that for the
-    *slope* in the linear model is the same ($0.1053$). Which means we
-    cannot reject the NULL hypothesis of "no relationship".
+3.  Finally, the *p-value* for Pearson Correlation and that for the *slope* in the linear model is the same ($0.04280043$). Which means we cannot reject the NULL hypothesis of "no relationship" between `daughter`-s and `father`-s heights.
 
-### Example
+Can you complete this for the sons?
 
-TBD
+:::
 
-## Spearman Correlation
+:::{.hidden}
+## {{< iconify pajamas issue-type-test-case >}} Case Study #2: Study and Grades
 
-### Model
 
 In some cases the **LINE** assumptions may not hold.
 
@@ -430,7 +589,7 @@ have no relationship. But can this be right?
 
 Should we use another test, that does not **need** the LINE assumptions?
 
-## "Signed Rank" Values
+#### "Signed Rank" Values
 
 Most statistical tests use the **actual values** of the data variables.
 However, in some *non-parametric* statistical tests, the data are used
@@ -453,13 +612,14 @@ signed_rank <- function(x) {sign(x) * rank(abs(x))}
 
 ```
 
-## Plotting Original and Signed Rank Data
+#### Plotting Original and Signed Rank Data
 
 Let us see how this might work by comparing data and its signed-rank
 version...A quick set of plots:
 
 ```{r data_plots}
-
+#| include: false
+#| eval: false
 # Set graph theme
 theme_set(new = theme_custom())
 #
@@ -526,6 +686,8 @@ How about associations between data? Do ranks reflect well what the data
 might?
 
 ```{r Spearman_Plot}
+#| eval: false
+#| include: false
 # Plot the data
 
 # Set graph theme
@@ -555,7 +717,7 @@ ranked data for $y1\sim x$. So maybe *ranked* and even *sign_ranked*
 data could work, and if it can work despite LINE assumptions not being
 satisfied, that would be nice!
 
-## How does Sign-Rank data work?
+#### How does Sign-Rank data work?
 
 TBD: need to add some explanation here.
 
@@ -573,9 +735,11 @@ H_a: Alternate\ Hypothesis\ => \beta_1 \ne 0\\
 \end{aligned}
 $$
 
-### Code
+#### Code
 
-```{r Spearman_Correlation}
+```{r}
+#| include: false
+#| eval: false
 # Spearman
 cor1 <- cor.test(x, y1, method = "spearman") %>%
   broom::tidy() %>% mutate(term = "Spearman Correlation ") %>% select(term, estimate, p.value)
@@ -584,6 +748,8 @@ cor1
 ```
 
 ```{r}
+#| include: false
+#| eval: false
 # Pearson using ranks
 cor2 <- cor.test(rank(y1), rank(x), method = "pearson") %>%
   broom::tidy() %>% select(estimate, p.value)
@@ -591,6 +757,8 @@ cor2
 ```
 
 ```{r}
+#| include: false
+#| eval: false
 # Linear Models using rank
 cor3 <- lm(rank(y1) ~ 1 + rank(x),data = mydata_wide) %>% 
   broom::tidy() %>% select(estimate, p.value)
@@ -606,7 +774,7 @@ Notes:
     interpretation: **the number of ranks y changes for each change in
     rank of x**. ( Ranks are "independent" of `sd` )
 
-### Example
+#### Example
 
 We examine the `cars93` data, where the numeric variables of interest
 are `weight` and `price`.
@@ -669,6 +837,9 @@ statsExpressions::corr_test(data = gpa_study_hours,
                             x = study_hours, 
                             y = gpa)
 ```
+:::
+
+
 
 ## {{< iconify ooui references-rtl >}} References
 

@@ -17,6 +17,9 @@ bibliography:
   - grateful-refs.bib
 citation: true
 #suppress-bibliography: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setting up R packages
@@ -33,7 +36,6 @@ library(resampledata)
 library(vcd)
 
 ```
-
 
 ```{r}
 #| label: Extra Pedagogical Packages
@@ -114,31 +116,56 @@ theme_set(new = theme_custom())
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-Many experiments gather qualitative data across different segments of a population, for example, opinion about a topic among people who belog to different income groups, or who live in different parts of a city. This should remind us of the [Likert Plots](../../../Descriptive/Modules/45-SurveyData/index.qmd) that we plotted earlier. In this case the two variables, dependent and independent, are both Qualitative, and we can calculate [counts and proportions](../../../Descriptive/Modules/40-CatData/index.qmd). 
+Many experiments gather qualitative data across different segments of a
+population, for example, opinion about a topic among people who belog to
+different income groups, or who live in different parts of a city. This
+should remind us of the [Likert
+Plots](../../../Descriptive/Modules/45-SurveyData/index.qmd) that we
+plotted earlier. In this case the two variables, dependent and
+independent, are both Qualitative, and we can calculate [counts and
+proportions](../../../Descriptive/Modules/40-CatData/index.qmd).
 
-How does one Qual variable affect the other? How do counts/proportions of the `dependent variable` vary with the `levels` of the `independent` variable? This is our task for this module. 
+How does one Qual variable affect the other? How do counts/proportions
+of the `dependent variable` vary with the `levels` of the `independent`
+variable? This is our task for this module.
 
-Here is a quick example of the kind of data we might look at here, taken from the [British Medical Journal](https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests):
+Here is a quick example of the kind of data we might look at here, taken
+from the [British Medical
+Journal](https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests):
 
-![Breast Feeding](../../../../../materials/images/table-83.webp){#fig-breast-feeding}
+![Breast
+Feeding](../../../../../materials/images/table-83.webp){#fig-breast-feeding}
 
-Clearly, we can see differences in counts/proportions of women who breast-fed their babies for three months or more, *based on* whether they were "printers wives" or "farmers' wives"! Is there a doctor in the [House](https://www.imdb.com/title/tt0412142/)?
-
+Clearly, we can see differences in counts/proportions of women who
+breast-fed their babies for three months or more, *based on* whether
+they were "printers wives" or "farmers' wives"! Is there a doctor in the
+[House](https://www.imdb.com/title/tt0412142/)?
 
 ### {{< iconify flat-color-icons workflow >}} The CLT for Two Proportions
-We first need to establish some model assumptions prior to making our analysis. As before, we wish to see if the CLT applies here, and if so, in what form. 
-The difference between two proportions can be modeled using a normal distribution when:
 
-- Independence (extended): The data are independent within and between the two groups. Generally this is satisfied if the data come from two independent random samples or if the data come from a randomized experiment.
-- **Success-failure condition**: The success-failure condition holds for both groups, where we check successes and failures in each group separately. That is, we should have at least 10 successes and 10 failures in each of the two groups.
+We first need to establish some model assumptions prior to making our
+analysis. As before, we wish to see if the CLT applies here, and if so,
+in what form. The difference between two proportions can be modeled
+using a normal distribution when:
 
-When these conditions are satisfied, the standard error of $\hat{p_1}-\hat{p_2}$ is well-approximated by:
+-   Independence (extended): The data are independent within and between
+    the two groups. Generally this is satisfied if the data come from
+    two independent random samples or if the data come from a randomized
+    experiment.
+-   **Success-failure condition**: The success-failure condition holds
+    for both groups, where we check successes and failures in each group
+    separately. That is, we should have at least 10 successes and 10
+    failures in each of the two groups.
+
+When these conditions are satisfied, the standard error of
+$\hat{p_1}-\hat{p_2}$ is well-approximated by:
 
 $$
 SE(\hat{p_1}-\hat{p_2}) = \sqrt{\frac{\hat{p_1}*(1-\hat{p_1})}{n_1}} + \sqrt{\frac{\hat{p_2}*(1-\hat{p_2})}{n_2}}
 $$
 
-where $\hat{p_1}$ and $\hat{p_2}$ represent the sample proportions, and $n_1$ and $n_2$ represent the sample sizes.
+where $\hat{p_1}$ and $\hat{p_2}$ represent the sample proportions, and
+$n_1$ and $n_2$ represent the sample sizes.
 
 We can represent the Confidence Intervals as:
 
@@ -149,11 +176,13 @@ CI(p_1 - p_2) &=& (\hat{p_1} - \hat{p_2}) \pm 1.96 * SE(\hat{p_1}-\hat{p_2})\\
 \end{eqnarray}
 $$
 
-## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-1: `GSS2002` dataset
+## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Case Study-1: `GSS2002` dataset
 
-We saw how we could perform inference for a single proportion. We can extend this idea to *multiple proportions* too.
+We saw how we could perform inference for a single proportion. We can
+extend this idea to *multiple proportions* too.
 
-Let us try a dataset with Qualitative / Categorical data. This is the `General Social Survey GSS dataset` from the [`resampledata`
+Let us try a dataset with Qualitative / Categorical data. This is the
+`General Social Survey GSS dataset` from the [`resampledata`
 package](https://github.com/rudeboybert/resampledata), and we have
 people with different levels of `Education` stating their opinion on the
 `Death Penalty`. We want to know if these two Categorical variables have
@@ -173,7 +202,7 @@ inspect(GSS2002)
 skimr::skim(GSS2002)
 
 ```
-
+<br>
 
 Note how *all* variables are Categorical !! `Education` has five
 `levels`, and of course `DeathPenalty` has three:
@@ -185,8 +214,7 @@ GSS2002 %>% count(DeathPenalty)
 
 ```
 
-Let us drop NA entries in `Education` and `Death Penalty` and set up a
-**Contingency Table**.
+Let us drop NA entries in `Education` and `Death Penalty` and set up a [**Contingency Table**](../../../Descriptive/Modules/40-CatData/index.qmd#what-is-a-contingency-table).
 
 ```{r,warning=FALSE,message=FALSE}
 
@@ -194,18 +222,16 @@ gss2002 <- GSS2002 %>%
   dplyr::select(Education, DeathPenalty) %>% 
   tidyr::drop_na(., c(Education, DeathPenalty))
 ##
-gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002)
-gss_table %>% 
+gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
   addmargins()
-
+gss_table 
 ```
 
 ### Contingency Table Plots
 
-The Contingency Table can be plotted, as we have seen, using a `mosaic` plot using several packages. Let us do a quick recap:
+The Contingency Table can be plotted, as we have seen, using a `mosaic`plot using several packages. Let us do a quick recap:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 #### Using ggmosaic
 
 ```{r mosaic-plot,warning=FALSE}
@@ -214,13 +240,11 @@ The Contingency Table can be plotted, as we have seen, using a `mosaic` plot usi
 # Set graph theme
 theme_set(new = theme_custom())
 #
-
 ggplot(data = gss2002) +
   geom_mosaic(aes(x = product(DeathPenalty, Education), 
                   fill = DeathPenalty))
 
 ```
-
 
 #### Using vcd
 
@@ -231,7 +255,7 @@ vcd::mosaic(gss_table, gp = shading_hsv)
 
 #### Using ggformula
 
-Needs a little more work, to convert the Contingency Table into a tibble:
+As seen before, it needs a little more work, to convert the Contingency Table into a tibble:
 
 ```{r warning=FALSE,message=FALSE}
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
@@ -275,11 +299,7 @@ gf_col(edu_prop ~ Education, data = gss_summary,
   gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) 
 
 ```
-
-
 :::
-
-
 
 ## Hypotheses Definition
 
@@ -290,13 +310,12 @@ $H_a: \text{Education affects votes for Death Penalty}$
 
 ## Inference for Two Proportions
 
-We are now ready to perform our statistical inference. We will use the standard `chi-square test`, and develop and intuition for it. We will then do a permutation test to have an alternative method to complete the same task.
+We are now ready to perform our statistical inference. We will use the standard `Pearson chi-square test`, and develop and intuition for it. We will then do a permutation test to have an alternative method to complete the same task.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 ### Code
 
-Let us now perform the base `chisq test`: We need a `table` and then the `chisq` test: We will calculate the `observed-chi-squared` value, and compare it with the `critical value`. 
+Let us now perform the base `chisq test`: We need a `table` and then the `chisq` test: We will calculate the `observed-chi-squared` value, and compare it with the `critical value`.
 
 ```{r}
 
@@ -312,9 +331,11 @@ X_squared_critical <- qchisq(p = .05,
        df = (5-1)*(2-1), # (nrows-1) * (ncols-1)
        lower.tail = FALSE)
 X_squared_critical
+
 ```
 
-We see that our observed $X^2 = 23.45$; the critical value `X_squared_critical` is $9.48$, which is much smaller! The `p-value` is $0.0001029$, very low as we would expect, indicating that the NULL Hypothesis should be rejected in favour of the alternate hypothesis, that opinions about the `DeathPenalty` are related to `Education`. 
+We see that our observed $X^2 = 23.45$; the critical value
+`X_squared_critical` is $9.48$, which is much smaller! The `p-value` is $0.0001029$, very low as we would expect, indicating that the NULL Hypothesis should be rejected in favour of the alternate hypothesis, that opinions about the `DeathPenalty` are related to `Education`.
 
 Let us now dig into that cryptic-looking table above!
 
@@ -329,20 +350,15 @@ gss_table %>% addmargins() %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
-<br>
-In the chi-square test, we check whether the two ( or more ) categorical
-variables are independent. To do this we perform a simple check on the
-Contingency Table. We first *re-compute* the totals in each row and
-column, based on what we could **expect** if there was independence
-(NULL Hypothesis). If the two variables were independent, then there
-should be **no difference** between real and expected scores.
 
-How do we know what scores to expect if there was no relationship 
-between the variables?
+<br> 
+In the chi-square test, we check whether the two (or more)
+categorical variables are independent. To do this we perform a simple check on the Contingency Table. We first *re-compute* the totals in each row and column, based on what we could **expect** if there was independence (NULL Hypothesis). If the two variables were independent,
+then there should be **no difference** between real and expected scores.
 
-Consider the entry in location (1,1): 117. The number of **expected**
-entries there is probability of an entry landing in that square times
-the total number of entries:
+How do we know what scores to expect if there was no relationship between the variables?
+
+Consider the entry in location (1,1): 117. The number of **expected** entries there is probability of an entry landing in that square times the total number of entries:
 
 $$
 \begin{align}
@@ -353,7 +369,6 @@ $$
 &= 130
 \end{align}
 $$
-
 
 Proceeding in this way for all the 15 entries in the Contingency Table,
 we get the "Expected" Contingency Table. Here are both tables for
@@ -368,36 +383,60 @@ gss_exp <- gss_table * gss_table / ((
 
 ```
 
-
-```{r echo=FALSE}
-
+```{r}
+#| echo: false
 gss_exp %>% addmargins() %>% 
    kableExtra::kbl(caption = "Expected Contingency Table", digits = 0) %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
-
 ```
 
-```{r echo=FALSE}
-
+```{r}
+#| echo: false
 gss_table %>% addmargins() %>% 
    kableExtra::kbl(caption = "Actual Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
-<br>
-The $X^2$ statistic is **sum of squared differences** between `Observed` 
-and `Expected` scores, scaled by the `Expected Scores`. For location 
-\[1,1\] this would be: $(117-130)^2/130$. Do try to compute all of these and the $X^2$ statistic by hand !!
+```{r}
+#| echo: false
+#| layout-ncol: 2
+#| fig-subcap: 
+#|  - "Actual"
+#|  - "Expected"
+  
+vcd::mosaic(gss_table)
+vcd::mosaic(gss_exp)
+```
 
-All right, what of all this? How did this $X^2$ distribution come from? Here is a lovely, brief explanation from this [StackOverflow Post](https://stats.stackexchange.com/a/303548):
+<br> The $X^2$ statistic is **sum of squared differences** between
+`Observed` and `Expected` scores, scaled by the `Expected Scores`. For
+location \[1,1\] this would be: $(117-130)^2/130$. Do try to compute all
+of these and the $X^2$ statistic by hand !!
 
-> - In a contingency table the null hypothesis states that the variables in the rows and the variable in the columns are independent.\
-> - The cell counts $E_{ij}$ are assumed to be Poisson distributed with mean $E_{ij}$ and as they are Poisson, their variance is also $E_{ij}$.\
-> - Asymptotically the Poisson distribution approaches the normal distribution with mean $E_{ij}$ and standard deviation with mean $\sqrt(E_{ij})$ so, asymptotically
-$\frac{(X_{ij} - E_{ij})}{\sqrt(E_{ij})}$ is approximately standard normal.\
-> - If you square standard normal variables and sum these squares then the result is a chi-square random variable so $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt(E_{ij})}\right)^2$ has a (asymptotically) a chi-square distribution.\
-> - Asymptotics must hold and that is why most textbooks state that the result of the test is valid when all expected cell counts $E_{ij}$ are larger than 5, but that is just a rule of thumb that makes the approximation ''good enough''.
+All right, what of all this? How did this $X^2$ distribution come from?
+Here is a lovely, brief explanation from this [StackOverflow
+Post](https://stats.stackexchange.com/a/303548):
+
+> -   In a contingency table the null hypothesis states that the
+>     variables in the rows and the variable in the columns are
+>     independent.\
+> -   The cell counts $E_{ij}$ are assumed to be Poisson distributed
+>     with mean $E_{ij}$ and as they are Poisson, their variance is also
+>     $E_{ij}$.\
+> -   Asymptotically the Poisson distribution approaches the normal
+>     distribution with mean $E_{ij}$ and standard deviation with mean
+>     $\sqrt(E_{ij})$ so, asymptotically
+>     $\frac{(X_{ij} - E_{ij})}{\sqrt(E_{ij})}$ is approximately
+>     standard normal.\
+> -   If you square standard normal variables and sum these squares then
+>     the result is a chi-square random variable so
+>     $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt(E_{ij})}\right)^2$
+>     has a (asymptotically) a chi-square distribution.\
+> -   Asymptotics must hold and that is why most textbooks state that
+>     the result of the test is valid when all expected cell counts
+>     $E_{ij}$ are larger than 5, but that is just a rule of thumb that
+>     makes the approximation ''good enough''.
 
 ```{r}
 #| layout-ncol: 2
@@ -412,25 +451,24 @@ df %>% gf_density(~y) %>%
   gf_fitdistr()
 
 ```
-
-
 :::
-
-
 
 ## Permutation Test for `Education`
 
-We will now perform the permutation test for the difference between proportions. We will first get an intuitive idea of the permutation, and then perform it using both `mosaic` and `infer`.
-
+We will now perform the permutation test for the difference between
+proportions. We will first get an intuitive idea of the permutation, and
+then perform it using both `mosaic` and `infer`.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-
 ### {{< iconify svg-spinners blocks-shuffle-3 >}} Permutation Visually Demonstrated
 
-We saw from the diagram created by Allen Downey that [there is only one test](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)! We will now use this philosophy to develop a technique that allows us to
-mechanize several *Statistical Models* in that way, with nearly identical code.
-We will first look visually at a permutation exercise. We will create dummy data that contains the following case study:
+We saw from the diagram created by Allen Downey that [there is only one
+test](http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)!
+We will now use this philosophy to develop a technique that allows us to
+mechanize several *Statistical Models* in that way, with nearly
+identical code. We will first look visually at a permutation exercise.
+We will create dummy data that contains the following case study:
 
 > A set of identical resumes was sent to male and female evaluators. The
 > candidates in the resumes were of both genders. We wish to see if
@@ -438,12 +476,10 @@ We will first look visually at a permutation exercise. We will create dummy data
 > female evaluators. (We use just *one* male and *one* female evaluator
 > here, to keep things simple!)
 
-
 ```{r}
 #| label: Artificial Data
 #| layout-ncol: 2
 #| echo: false
-#| column: body-outset-right
 
 set.seed(123456)
 data1 <- tibble(evaluator = rep(x = "F", times = 24),
@@ -479,10 +515,6 @@ summary <- data %>%
 summary
 
 ```
-
-
-
-
 
 ```{r}
 #| label: Difference in Proportion
@@ -548,7 +580,9 @@ p0
 
 ```
 
-So, we have a solid disparity in percentage of selection between the two evaluators! Now we pretend that *there is no difference between the selections made by either set of evaluators*. So we can just:
+So, we have a solid disparity in percentage of selection between the two
+evaluators! Now we pretend that *there is no difference between the
+selections made by either set of evaluators*. So we can just:
 
 -   Pool up all the evaluations\
 -   Arbitrarily re-assign a given candidate(selected or rejected) to
@@ -637,9 +671,13 @@ p1 + p2 + plot_annotation(tag_levels = "A") + plot_layout(widths = unit(c(7, 10)
 
 ```
 
-As can be seen, the ratio is different! 
+As can be seen, the ratio is different!
 
-We can now check out our Hypothesis that there is *no* bias. We can shuffle the data many many times, calculating the ratio each time, and plot the *distribution of the differences in selection ratio* and see how that artificially created distribution compares with the originally observed figure from Mother Nature.
+We can now check out our Hypothesis that there is *no* bias. We can
+shuffle the data many many times, calculating the ratio each time, and
+plot the *distribution of the differences in selection ratio* and see
+how that artificially created distribution compares with the originally
+observed figure from Mother Nature.
 
 ```{r}
 #| layout: [[60, -10, 30]]
@@ -665,11 +703,12 @@ mean(~ M<= obs_difference, data = null_dist)
 
 ```
 
-We see that the artificial data can hardly ever ($p = 0.0022$) mimic what the real world experiment is showing. Hence we had good reason to reject our NULL Hypothesis that there is no bias.
-
-
+We see that the artificial data can hardly ever ($p = 0.0022$) mimic
+what the real world experiment is showing. Hence we had good reason to
+reject our NULL Hypothesis that there is no bias.
 
 ### Code
+
 We should now repeat the test with permutations on `Education`:
 
 ```{r}
@@ -696,14 +735,11 @@ prop1(~ X.squared >= observedChi2, data = null_chisq)
 The `p-value` is well below our threshold of $0.05$, so we would
 conclude that `Education` has a significant effect on `DeathPenalty`
 opinion!
-
-
 :::
 
-
 ## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-2: TBD dataset
-To be Written Up.
 
+To be Written Up.
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
@@ -711,32 +747,44 @@ In our basic $X^2$ test, we calculate the test statistic of $X^2$ and
 look up a *theoretical* null distribution for that statistic, and see
 how unlikely our observed value is.
 
-Why would a permutation test be a good idea here? With a permutation test, there are *no assumptions* of the null distribution: this is computed based on real data. We note in passing that, in this case, since the number of `cases` in each cell of the Contingency Table are fairly high ( \>= 5) the resulting NULL
-distribution is of the $X^2$ variety.
+Why would a permutation test be a good idea here? With a permutation
+test, there are *no assumptions* of the null distribution: this is
+computed based on real data. We note in passing that, in this case,
+since the number of `cases` in each cell of the Contingency Table are
+fairly high ( \>= 5) the resulting NULL distribution is of the $X^2$
+variety.
 
 ## {{< iconify mingcute thought-line >}} Wait, But Why?
 
-
 ## {{< iconify bi person-up >}} Your Turn
-
 
 ## {{< iconify ooui references-rtl >}} References
 
-1. [OpenIntro Modern Statistics: Chapter
-17](https://openintro-ims.netlify.app/inference-one-prop.html)\
-1. Chapter 8: The Chi-Square Test, from *Statistics at Square One*. The British Medical Journal. <https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests>. Very readable and easy to grasp. Especially if you like watching [Grey's Anatomy](https://www.hotstar.com/in/shows/greys-anatomy/14823) and [House](https://www.imdb.com/title/tt0412142/).
+1.  [OpenIntro Modern Statistics: Chapter
+    17](https://openintro-ims.netlify.app/inference-one-prop.html)\
 
-1. Exploring the underlying theory of the chi-square test through
-simulation - part 1
-<https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence/>\
-1. Exploring the underlying theory of the chi-square test through
-simulation - part 2
-<https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>\
+2.  Chapter 8: The Chi-Square Test, from *Statistics at Square One*. The
+    British Medical Journal.
+    <https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests>.
+    Very readable and easy to grasp. Especially if you like watching
+    [Grey's
+    Anatomy](https://www.hotstar.com/in/shows/greys-anatomy/14823) and
+    [House](https://www.imdb.com/title/tt0412142/).
 
-1. An Online $\Xi^2$-test calculator. <https://www.statology.org/chi-square-test-of-independence-calculator/>
+3.  Exploring the underlying theory of the chi-square test through
+    simulation - part 1
+    <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence/>\
+
+4.  Exploring the underlying theory of the chi-square test through
+    simulation - part 2
+    <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>\
+
+5.  An Online $\Xi^2$-test calculator.
+    <https://www.statology.org/chi-square-test-of-independence-calculator/>
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
+
 ```{r}
 #| echo: false
 #scan_packages()

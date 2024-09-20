@@ -1,4 +1,4 @@
-library(ggplot2)
+library(tidyverse,quietly = TRUE,warn.conflicts = FALSE)
 ##
 theme_custom <- function(){ 
   font <- "Roboto Condensed"   #assign font family up front
@@ -11,7 +11,7 @@ theme_custom <- function(){
       #text elements
       plot.title = element_text(             #title
         family = font,            #set font family
-        #size = 20,               #set font size
+        size = 16,               #set font size
         face = 'bold',            #bold typeface
         hjust = 0,                #left align
         #vjust = 2                #raise slightly
@@ -20,7 +20,7 @@ theme_custom <- function(){
       
       plot.subtitle = element_text(          #subtitle
         family = font,            #font family
-        #size = 14,                #font size
+        size = 14,                #font size
         hjust = 0,
         margin=margin(2,0,5,0)
       ),               
@@ -43,4 +43,6 @@ theme_custom <- function(){
 
 # Set graph theme
 theme_set(new = theme_custom())
+update_geom_defaults(geom = "text", aes(family = "Roboto Condensed"))
 #
+
