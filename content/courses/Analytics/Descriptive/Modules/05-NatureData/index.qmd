@@ -88,6 +88,72 @@ library(plotly)
 ```
 
 ```{r}
+#| label: themes-and-colours
+#| eval: false
+#| echo: false
+library(ggthemr)
+library(ggsci)
+library(paletteer)
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+##
+## https://stackoverflow.com/questions/36476751/associate-a-color-palette-with-ggplot2-theme
+## 
+my_colours <- c("#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7")
+my_pastels <- c("#66C5CC","#F6CF71","#F89C74","#DCB0F2","#87C55F","#9EB9F3","#FE88B1","#C9DB74","#8BE0A4","#B497E7","#D3B484","#B3B3B3")
+my_greys <- c("#000000", "#333333", "#666666","#999999", "#cccccc")
+my_vivids <- c("#E58606","#5D69B1","#52BCA3","#99C945","#CC61B0","#24796C","#DAA51B","#2F8AC4","#764E9F","#ED645A","#CC3A8E","#A5AA99")
+
+my_bolds <- c("#7F3C8D","#11A579","#3969AC","#F2B701","#E73F74","#80BA5A","#E68310","#008695","#CF1C90","#f97b72","#4b4b8f","#A5AA99")
+
+font <- "Roboto Condensed"
+mytheme <- theme_classic(base_size = 14) + ### %+replace%    #replace elements we want to change
+  
+  theme(
+    text = element_text(family = font),
+    panel.grid.minor = element_blank(),
+    #text elements
+    plot.title = element_text(family = font,
+      face = 'bold',
+      hjust = 0, #left align
+      #vjust = 2 #raise slightly
+      margin = margin(0, 0, 10, 0)
+    ),
+    
+    plot.subtitle = element_text(
+      family = font,
+      hjust = 0,
+      margin = margin(2, 0, 5, 0)
+    ),
+    
+    plot.caption = element_text(
+      family = font,
+      size = 8,
+      hjust = 1
+    ),
+    #right align
+    
+    axis.title = element_text(#axis titles
+      family = font, #font family
+      size = 10), #font size
+    axis.text = element_text(#axis text
+        family = font, #axis family
+        size = 8) #font size
+    )
+theme_custom <- list(
+  mytheme,
+  scale_colour_manual(values = my_bolds, aesthetics = c("colour", "fill"))
+)
+  
+```
+
+
+```{r}
 #| label: Plot Sizing and theming
 #| echo: false
 #| message: false
@@ -406,17 +472,13 @@ diamonds %>%
           caption = "Plot Caption",
           x = "x-Axis Title",
           y = "y-Axis Title") %>%
-# 
-#   gf_text(17000 ~ 1.0, 
-#           label = "Annotation", color = "orange", 
-#           size = 7, fontface = "bold", show.legend = FALSE,
-#           inherit = FALSE) %>% 
   
   # Use same name for scales to merge legends
-  gf_refine(scale_color_brewer(name = "Plot Legend", 
+  gf_refine(scale_color_brewer(name = "Legend",
                                palette = "Set1"),
-            scale_shape_manual(name = "Plot Legend", 
+            scale_shape_manual(name = "Legend",
                                values = c(15:21)),
+            
             annotate('text', x = 1.0,y = 17000, 
                      label = 'These Points are Super Important!!',
                      fontface = 'bold', 
@@ -439,8 +501,7 @@ diamonds %>%
     fill = 'grey40',
     col = 'black'
   )) %>% 
-  
-  gf_theme(theme_custom()) 
+  gf_theme(theme_custom) 
 
 
 ```

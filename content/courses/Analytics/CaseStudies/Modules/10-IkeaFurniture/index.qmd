@@ -13,6 +13,13 @@ library(tidyverse)
 library(mosaic)
 library(skimr)
 library(ggformula)
+library(ggridges)
+#devtools::install_github('cttobin/ggthemr')
+library(ggthemr)
+library(ggsci)
+# Theming
+# ggthemr_reset()
+# ggthemr::ggthemr("fresh")
 
 ```
 
@@ -28,17 +35,15 @@ library(glue)
 #     {{< downloadthis ../../../../materials/Data/housing_train.csv dname="house_prices" label="Download the House Prices Dataset" icon="database-fill-down" type="info" >}}
 #    existing file
 #    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
-#    
+
+
 ```
 
+
 ```{r}
-#| label: Plot-Sizing-and-theming
-#| echo: false
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
+library(ggthemr)
+library(ggsci)
+library(paletteer)
 # Chunk options
 knitr::opts_chunk$set(
  fig.width = 7,
@@ -46,54 +51,57 @@ knitr::opts_chunk$set(
  #out.width = "80%",
  fig.align = "center"
 )
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
+##
+## https://stackoverflow.com/questions/36476751/associate-a-color-palette-with-ggplot2-theme
+## 
+my_colours <- c("#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7")
+my_pastels <- c("#66C5CC","#F6CF71","#F89C74","#DCB0F2","#87C55F","#9EB9F3","#FE88B1","#C9DB74","#8BE0A4","#B497E7","#D3B484","#B3B3B3")
+my_greys <- c("#000000", "#333333", "#666666","#999999", "#cccccc")
+my_vivids <- c("#E58606","#5D69B1","#52BCA3","#99C945","#CC61B0","#24796C","#DAA51B","#2F8AC4","#764E9F","#ED645A","#CC3A8E","#A5AA99")
 
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
+my_bolds <- c("#7F3C8D","#11A579","#3969AC","#F2B701","#E73F74","#80BA5A","#E68310","#008695","#CF1C90","#f97b72","#4b4b8f","#A5AA99")
+
+font <- "Roboto Condensed"
+mytheme <- theme_classic(base_size = 14) + ### %+replace%    #replace elements we want to change
+  
+  theme(
+    text = element_text(family = font),
+    panel.grid.minor = element_blank(),
+    #text elements
+    plot.title = element_text(family = font,
+      face = 'bold',
+      hjust = 0, #left align
+      #vjust = 2 #raise slightly
+      margin = margin(0, 0, 10, 0)
+    ),
     
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    plot.subtitle = element_text(
+      family = font,
+      hjust = 0,
+      margin = margin(2, 0, 5, 0)
+    ),
     
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
+    plot.caption = element_text(
+      family = font,
+      size = 8,
+      hjust = 1
+    ),
+    #right align
+    
+    axis.title = element_text(#axis titles
+      family = font, #font family
+      size = 10), #font size
+    axis.text = element_text(#axis text
+        family = font, #axis family
+        size = 8) #font size
     )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
+theme_av <- list(
+  mytheme,
+  scale_colour_manual(values = my_bolds, aesthetics = c("colour", "fill"))
+)
+  
 ```
+
 
 ## Introduction
 
@@ -168,17 +176,21 @@ Write in.
 
 ```{r}
 #| echo: false
-ikea_modified %>% 
-  ggplot(aes(price_usd, category, fill = other_colors)) +
-  geom_density_ridges(alpha = .5, aes(linetype = other_colors)) +
-  scale_x_log10(labels = dollar) +
-  scale_fill_manual(values = c("grey10", "grey")) + 
-  labs(x = "Price (USD)",
-       y = "",
-       title = "How much do items in each IKEA category cost?",
-       subtitle = "Are they available in other colors?",
-       caption = "TidyTuesday Dataset for 03/11/2020") +
-  theme_custom()
+#
+##
+ikea_modified %>%
+  ggplot(aes(price_usd, category, 
+             fill = other_colors)) +
+  geom_density_ridges(alpha = 0.75, aes(linetype = other_colors)) +
+  scale_x_log10(labels = scales::label_dollar()) +
+  labs(
+    x = "Price (USD)",
+    y = "",
+    title = "How much do items in each IKEA category cost?",
+    subtitle = "Are they available in other colors?",
+    caption = "TidyTuesday Dataset for 03/11/2020"
+  ) + theme_av
+
 
 ```
 
