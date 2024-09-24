@@ -1,8 +1,6 @@
 ---
-title: "Demo: Product Packaging and Elderly People"
+title: <iconify-icon icon="healthicons:elderly-outline" width="1.2em" height="1.2em"></iconify-icon> Demo:Product Packaging and Elderly People
 order: 10
-code-tools: 
- source: true
 editor: 
   markdown: 
     wrap: sentence
@@ -19,6 +17,8 @@ library(mosaic)
 library(skimr)
 library(ggformula)
 library(ggridges)
+#
+library(crosstable)
 
 ```
 
@@ -36,9 +36,11 @@ library(glue)
 #    
 ```
 
+## Setting up plot theme
+
 ```{r}
 #| label: Plot-Sizing-and-theming
-#| echo: false
+#| echo: true
 #| message: false
 #| results: hide
 
@@ -104,28 +106,42 @@ theme_set(new = theme_custom())
 
 As a demonstration Data Analysis flow, I will take a dataset and show the various steps involved in the workflow: data inspection, cleaning, setting up a hypothesis, plotting a chart, and responding to the hypothesis.
 
-This is a dataset pertaining to packaging of groceries, and the difficulty that elderly people face with opening or closing those packages.
-The study also included people who were experiencing hand pain due to ailments such as arthritis.
+This is a dataset pertaining to packaging of groceries, and the difficulty that elderly people face with opening or closing those packages. The study also included people who were experiencing hand pain due to ailments such as arthritis.
+
+## Data
 
 The data is available here: Juliá-Nehme, Begoña (2023).
 *Usability of Food Packaging in Older Adults.* Figshare Dataset. <https://doi.org/10.6084/m9.figshare.22637656.v1>
 
-## Data
+And, for you peasants, here too: 
 
 ```{r}
 #| label: read-data
-#| echo: true
+#| echo: false
 #| message: false
-
+library(downloadthis)
 opening <- 
-  readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx") %>% 
-  janitor::clean_names()
+  readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx") 
 
-opening
+closing <- readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx")
+
+opening %>% download_this(output_name = "opening", output_extension = ".csv", button_label = "Click me, peasants!", button_type = "default", icon = "fa fa-save")
+
+closing %>% download_this(output_name = "closing", output_extension = ".csv", button_label = "Click me also, peasants!", button_type = "default", icon = "fa fa-save")
+
+```
+
+```{r}
+#| results: hold
+opening <- opening %>% janitor::clean_names()
 glimpse(opening)
 inspect(opening)
 
-closing <- readxl::read_xlsx("../../../../../materials/Data/Usability Test Opening Times.xlsx") %>% janitor::clean_names()
+```
+
+```{r}
+#| results: hold
+closing <- closing %>% janitor::clean_names()
 glimpse(closing)
 inspect(closing)
 
@@ -142,13 +158,13 @@ We will write our Data Dictionary based on this understanding, and then convert 
 
 -   `hand_strength`(dbl): Hand Strength, numerical
 -   `pinch_strength`(dbl): Pinch Strength, numerical
--   `time_jar` (chr) Time to open a jar
+-   `time_jar` (chr) Time to open a jar. **Needs to be (dbl)**
 -   `time_beverage`(dbl)Time to open a beverage
 -   `time_suace` (chr) Time to open sauce
 -   `time_juice` (dbl) Time to open juice
 -   `time_milk` (dbl) Time to open milk carton
 -   `time_crackers`(dbl)Time to open crackers pack
--   `time_cheese` (dbl) Time to open cheece packet
+-   `time_cheese` (dbl) Time to open cheese packet
 -   `time_chickpeas` (dbl) Time to open chickpeas packet
 -   `time_bottle` (dbl) Time to open a bottle
 -   `time_soup`(dbl) Time to open a a can of soup
@@ -157,10 +173,10 @@ We will write our Data Dictionary based on this understanding, and then convert 
 ::: callout-note
 ### Qualitative Variables
 
--   `group`(dbl): Groups in the study. Two.
--   `sex`(dbl): sex of the participant
--   `hand_pain`: Did they suffer from hand pain or not? Binary.
--   `hand_illness`: Same thing?
+-   `group`(dbl): Groups in the study. Two. Make into (fct).
+-   `sex`(dbl): sex of the participant. Make into (fct).
+-   `hand_pain`: Did they suffer from hand pain or not? Binary. Make into (fct).
+-   `hand_illness`: How different from `hand_pain`?  Make into (fct).
 :::
 
 ::: callout-note
@@ -201,6 +217,8 @@ glimpse(opening_modified)
 
 ```
 
+[Haan, ab theek hai](https://youtu.be/chi9hsfYcDE?t=149)
+
 ## Analyse the Data
 
 Let us make some counts wrt Qual variables, and histograms of Quant variables and get used to our data.
@@ -216,6 +234,10 @@ Reasonably balanced groups.
 Hand_pain and Hand_illness are not the same thing.
 
 ```{r}
+#| layout-ncol: 2
+# Set graph theme
+theme_set(new = theme_custom())
+#
 opening_modified %>% 
   gf_histogram(~ hand_strength)
 opening_modified %>% 
@@ -226,7 +248,7 @@ opening_modified %>%
   gf_histogram(~ time_bottle)
 ```
 
-Histograms do not look symmetric, but then we have only 17 observations anyway.
+Histograms do not look symmetric, but then we have only 17 observations anyway. Elderly people can't very well be expected to be normal, bless them. 
 
 ## Research Questions
 
@@ -235,7 +257,7 @@ Let us write two:
 
 ::: callout-note
 Q1.
-Do opening times for groceries vary between people with hand_pain and those without?
+Do opening times for groceries vary between people with `hand_pain` and those without?
 :::
 
 ::: callout-note
@@ -251,14 +273,14 @@ We should transform the data into *long form* so that all the time numbers are s
 ```{r}
 #| label: making-tidy-data-1
 opening_modified %>% 
-  pivot_longer(cols = -c(1:7),#Choose columns to stack (by negation)
+  pivot_longer(cols = -c(1:7),# Choose columns to stack (by negation)
                names_to = "operation", # Name of stack column
-               values_to = "times")   # Name of values column
-
+               values_to = "times" # Name of values column
+)
 ```
 
 Once we do this, we realize that the word "time" in the column `operation` adds no value, since we want only the grocery involved.
-A
+
 
 ```{r}
 #| label: making-tidy-data-2
@@ -280,6 +302,9 @@ Now if we plot `times`, we can colour or facet by `grocery`.
 
 ```{r}
 #| label: plot-1
+# Set graph theme
+theme_set(new = theme_custom())
+#
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
                names_to = "operation",
@@ -304,6 +329,9 @@ We now want to label to do two things:
 
 ```{r}
 #| label: plot-2
+# Set graph theme
+theme_set(new = theme_custom())
+#
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
                names_to = "operation",
@@ -334,6 +362,9 @@ This does **not** seem to be happening at this time. Needs to be checked!
 
 ```{r}
 #| label: plot-3
+# Set graph theme
+theme_set(new = theme_custom())
+#
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
                names_to = "operation",

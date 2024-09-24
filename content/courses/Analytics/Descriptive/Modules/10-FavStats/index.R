@@ -5,7 +5,6 @@ library(knitr)
 library(kableExtra)
 
 
-
 ggplot2::theme_set(new = theme_classic(base_size = 14, base_family = "roboto"))
 library(checkdown)
 library(epoxy)
@@ -13,6 +12,8 @@ library(explore) # fake data generation
 library(grateful)
 # library(conflicted)
 # conflicts_prefer(dplyr::filter, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
+
 
 literacy <- readxl::read_xlsx("../../../../../materials/Data/US_literacy_SETables.xlsx",sheet = "S1",skip = 3) %>% 
   select(-c(2,3),-contains("S.E.")) %>% 
@@ -107,6 +108,15 @@ skim(docVisits) %>% kbl()
 
 inspect(docVisits)
 
+docVisits_modified <-  docVisits %>% 
+  mutate(gender = as_factor(gender),
+         private = as_factor(private),
+         freepoor = as_factor(freepoor),
+         freerepat = as_factor(freerepat),
+         nchronic = as_factor(nchronic),
+         lchronic = as_factor(lchronic))
+docVisits_modified
+
 mpg_modified %>% dplyr::count(cyl)
 mpg_modified %>% mosaic::count(drv) # does the same thing! Counts!
 mpg_modified %>% count(fl)
@@ -153,24 +163,24 @@ mpg_modified %>%
   mosaic::favstats(hwy ~ cyl + fl, data = .) # Don't use fav_stats with formula!!!
 
 
-docVisits %>%
+docVisits_modified %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
 ##
-docVisits %>%
+docVisits_modified %>%
   group_by(gender) %>% 
   summarize(average_visits = mean(visits), count = n())
 ##
-docVisits %>% 
+docVisits_modified %>% 
   group_by(freepoor,nchronic) %>% 
   summarise(mean_income = mean(income),
             average_visits = mean(visits),
             count = n())
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ gender, data = .) # Don't use fav_stats with formula!!!
 ##
-docVisits %>% 
+docVisits_modified %>% 
   mosaic::favstats(income ~ freepoor + nchronic, data = .) # Don't use fav_stats with formula!!!
 
 
@@ -192,6 +202,19 @@ skim(mpg) %>%
   kbl(align = "c", caption = "Skim Output for mpg Dataset") %>%
 kable_paper(full_width = F)
   
+
+
+library(rtrek)
+star_trek_books <- stBooks
+star_trek_books %>% download_this(output_name = "star_trek_books", output_extension = ".csv", button_label = "Start Trek Book data", button_type = "default", icon = "fa fa-save")
+
+
+
+library(resampledata3)
+data(MathAnxiety)
+MathAnxiety %>% 
+ download_this(output_name = "MathAnxiety", output_extension = ".csv", button_label = "Math Anxiety data", button_type = "default", icon = "fa fa-save")
+
 
 library(usedthese)
 used_here()
