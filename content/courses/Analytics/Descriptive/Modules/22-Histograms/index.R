@@ -21,7 +21,8 @@ library(kableExtra)
 # library(conflicted)
 # conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
 library(downloadthis)
-
+#devtools::install_github("mccarthy-m-g/embedr")
+library(embedr) # Embed multimedia in HTML files
 
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
 
@@ -462,6 +463,8 @@ xpnorm(mean = 60, sd = 15, q = 70)
 library(usedthese)
 used_here()
 
+
+embedr::embed_audio("../../../../../materials/audio/Quantities.wav")
 
 #scan_packages()
 cite_packages(
