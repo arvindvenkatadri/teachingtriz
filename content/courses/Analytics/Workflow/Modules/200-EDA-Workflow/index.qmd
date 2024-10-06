@@ -13,6 +13,7 @@ categories:
 - EDA
 - Workflow
 - Descriptive
+
 ---
 
 
@@ -32,6 +33,7 @@ The best charts come from understanding your data, asking good questions from it
 #| include: true
 #| message: false
 #| warning: false
+knitr::opts_chunk$set(dev = "ragg_png")
 
 library(tidyverse)
 library(mosaic)
@@ -43,10 +45,26 @@ library(skimr)
 library(GGally)
 library(corrplot)
 library(corrgram)
-# Set graph theme
-# Choose a good graph theme
-ggplot2::theme_set(new = theme_classic(base_size = 14, 
-                                       base_family = "sans"))
+
+```
+
+Go to <https://fonts.google.com/> and choose some professional looking, or funky looking, fonts. 
+
+```{r}
+#| label: themes-and-fonts
+
+library(extrafont)
+extrafont::loadfonts(quiet = TRUE)
+##
+library(showtext)
+## Loading Google fonts (https://fonts.google.com/)
+font_add_google(name = "Fira Sans Condensed", family = "fira")
+font_add_google("Gochi Hand", "gochi")
+font_add_google("Schoolbell", "bell")
+font_add_google("Montserrat Alternates", "montserrat")
+font_add_google("Roboto Condensed", "roboto")
+### Automatically use showtext to render text
+showtext_auto()
 
 ```
 
@@ -88,6 +106,68 @@ ggplot2::theme_set(new = theme_classic(base_size = 14,
 - Answer the Question with a Table, a Chart, a Test, using an appropriate Model for Statistical Inference
 - Use `title`, `subtitle`, `legend` and `scales` appropriately in your chart
 - Prefer `ggformula` unless you are using a chart that is not yet supported therein (eg. `ggbump()` or `plot_likert()`)
+
+```{r}
+#| label: figure-1
+#| fig-showtext: true
+#| fig-format: png
+
+## Set graph theme
+## Idotic that we have to repeat this every chunk
+## Open issue in Quarto
+
+penguins %>% 
+  drop_na() %>% 
+  gf_point(body_mass_g ~ flipper_length_mm, 
+           colour = ~ species) %>% 
+  gf_labs(title = "My First Penguins Plot",
+          subtitle = "Using ggformula with fonts",
+          x = "Flipper Length mm", y = "Body Mass gms",
+          caption = "I love penguins, and R") %>% 
+  gf_theme(theme_classic()) %>% 
+  gf_theme(theme(
+      panel.grid.minor = element_blank(),
+      ###
+      text = element_text(family = "fira", size = 14),
+      ###
+      plot.title = element_text(
+      family = "roboto",
+      face = "bold",
+      size = 28, hjust = 0
+    ),
+    plot.subtitle = element_text(
+      family = "montserrat",
+      face = "bold",
+      size = 18, hjust = 0),
+    
+    plot.margin = margin(2,2,2,2, unit = "pt"),
+    
+    axis.title = element_text(size = 20),
+    
+    plot.caption = element_text(family = "gochi", size = 14),
+    
+    legend.title = element_text(
+      family = "bell",
+      face = "bold",
+      size = 20
+    ),
+    legend.text = element_text(family = "fira",
+                               size = 12),
+    
+    legend.background = element_rect(fill = "cornsilk",
+                                     colour = "black"),
+    legend.margin = margin(
+      t = 2,
+      r = 2,
+      b = 2,
+      l = 2,
+      unit = "pt"
+    )
+    ))
+  
+
+```
+
 
 ### Inference-1
 

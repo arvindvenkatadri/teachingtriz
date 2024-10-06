@@ -16,7 +16,6 @@ categories:
 d2:
   layout: elk
   theme: "CoolClassics"
-  format: png
   height: "50%"
 
 citation: true
@@ -38,23 +37,157 @@ people is a wonderful legacy to leave behind."]{.f5 .f4-m .f3-l .lh-copy
 :::
 :::
 
-## Workflow
+## Setting up Git and GitHub
+
+1. Windows: Head off <https://gitforwindows.org> and download and install the `git` app.
+
+1. MacOS: In a terminal type:
+
+- `xcode-select --install`
+
+This will also install git.
+
+1. Head off to <https://github.com> and register for an account. Make a note of your `emailID` and the `password` used.
+
+1. Setup 2FA Authentication for GitHub based on instructions here: <https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa>
+
+
+## Linking RStudio and GitHub (One Time Only)
+
+1. In RStudio, in your console:
+
+- `install.packages(usethis)`
+- `library(usethis)`
+- `usethis::use_git_config(user.name = "Your Name", user.email = "Your Email ID used on GitHub")`
+
+2. Generate a Personal Access Token(PAT) (One Time Only, usually)
+
+- `usethis::create_github_token()`
+
+In the popup window, give your token a logical name you can remember(e.g. "For my Mac"), and remember why you created it. Check the `scopes` of the PAT; the defaults are OK. Make sure selecting `repo`, `user`, and `workflow` are checked. **Save the PAT** in your password manager. Default `Expiry` is 30days; we can set the PAT to not expire too. (I have.)
+
+3. Let RStudio have your PAT (One Time Only, usually)
+
+- `gitcreds::gitcreds_set()`
+and paste the PAT when asked. 
+
+4. Check if all is OK using one or more of:
+
+- `usethis::gh_token_help()`
+- `usethis::git_sitrep()`
+- `gh::gh_whoami()`
+
+4. Check in RStudio if has **automatically** detected your Git installation.
+
+- `Tools -> Global Options -> Git/SVN`
+
+![](../../../../../materials/images/windows-rstudio-git-executable-screenshot.png)
+
+The `Git Executable` field should be like: 
+
+- Windows: `C:/Program Files/Git/bin/git.exe`.
+- MacOS:`/usr/bin/git`
+
+
+5. Let RStudio know which project branch to commit/push to GitHub. ( Default is "main")
+
+- `usethis::git_default_branch_configure()`
+
+
+## Creating your Blog Project in RStudio (One Time Only)
+
+In the upper right corner of RStudio, click on:
+
+`Project -> New Project -> New Directory -> Quarto Blog`
+
+![](../../../../../materials/images/new-quarto-blog-project.png)
+
+Name your Blog, browse to where you want the Blog Project Folder ( default is fine ). Check the `Create a git repository`. Click `Create Project`. 
+
+RStudio will restart with a new Blog Project. The Files pane should like this:
+
+![](../../../../../materials/images/grand-new-blog.png)
+The `posts` folder contains dummy blog posts, which you can retain for now and delete once your own content has matured.
+
+## Making your Blog ready to publish (Now, and every time you have new content)
+
+In your Terminal:
+
+- `quarto render`
+This will render all posts and prepare `_site` and `_freeze` folders in your Files tab. Check these. 
+- `quarto preview`
+This will pop up your browser and show you a preview of your Blog website. Check the look and feel, the typos.
+
+## Pushing to GitHub
+
+In your Console:
+
+- `usethis::use_git()`: This will throw up a funky set of messages asking if you are ready to `commit` all files to `push` to Github. Choose the appropriate reply and enter. 
+- `usethis::use_github()`: This will create your new repository on Github and `push` all the committed files there. Your browser will open in Github and show you the contents of your new Blog repository.
+
+
+## Connecting to Netlify
+
+1. Head off to <https://www.netlify.com>. Log in there with Github. 
+
+2. Click `Add new site -> Import from existing project`
+
+![](../../../../../materials/images/netlify-new-project-from-template.png)
+3. Choose `Github`, then point to your Blog Github repo. 
+
+4.Give your Blog site a name: `something-idiotic.netlify.app`. Check Availability.
+
+5. Ensure that the branch says `main`, and that the `Publish directory` says `_site`.
+
+6. Hit `Deploy`. Netlify will ta ke a few minutes and then say the site is deployed. Click on the URL.
+
+7. There!
+
+
+## Adding Content and Updating
+
+1. Create a new folder inside your `posts` folder. Name it something like `new-post-todays-date`. Hyphens only, no underscores. 
+
+1. Create a new Quarto Document:
+
+- `File -> New-File -> New Quarto Document`. Save it as `index.qmd` inside your just-created `new-post-todays-date` folder.
+
+1. Edit / Write up your Post. Add pictures, videos, code, visualizations, explanations. Use <quarto.org> to find other Markdown constructs ( tabs , asides, marginal content..) and complete your post.
+
+1. In your Terminal, run `quarto render`to update your `_site` and `_freeze` folders. 
+
+1. In your Terminal run `quarto preview` to check if your new post previews properly. 
+
+2. Instead of using the Terminal, or the Git pane in Rstudio, there is a better way. This is a GUI, and one can see the files, the history of commits/pushes, the commit messages, revert back to a point in history, make brances...all that visually, without some tough-looking git commands, 
+  - So,Install a git client, such as [Gitkraken](https://www.gitkraken.com). 
+  - It offers a ready prompt to log in with Github, accept that, filling in ID and password. 
+  - Open `File ->New tab` -> `Browse for Repo` and browse to your Blog project folder (which is what you open in RStudio)
+  - You will a list of previous commits, and a bunch of new edited/ changed files which are default labelled `WIP`.
+
+![](../../../../../materials/images/gitkraken-wip.png)
+
+  - Click on `Stage All` and type in a memorable `commit` message in the box below at right.
+  - The `WIP` will be replaced by your `commit message`.
+  - Once `staging` is done, hit the `Push` button on the main tool bar. 
+  - After Gitkraken is done, a brief popup will show stating `push` was successful.
+  - Your website should be updated in a few minutes.
+  
+Yeah, peasants, you're welcome.
+
+
+## Workflow Diagram
 
 ``` d2
 
 One Time: {
 Github -> Account: create
-Account -> Repo: create
-Github -> Install "git"
+Github -> Install: "git"
+Account -> RStudio: "usethis setup"
 }
 
 One Time: {
 RStudio -> New Blog Project:create
 New Blog Project -> Note the Git Panel: "Git Panel"
-RStudio -> Terminal
-Terminal -> Associate Project with Github Repo: "Use commands from Github\n in RStudio Terminal"
-Terminal -> Prepare Site: "quarto render\n quarto preview"
-Prepare Site -> Git Panel: "commit all"
 }
 
 One Time: {
@@ -66,17 +199,25 @@ From Github repo -> Choose Repo: access {
 }
 Choose Repo -> Choose Name for website 
 Choose Name for website -> Specify folder: "\\_site"
-Specify folder ->Deploy!!!
+Specify folder -> Deploy!!!
 }
+
+
+RStudio Workflow: {
+RStudio -> New Folder
+New Folder -> Create Post: "index.qmd"
+Create Post -> Terminal
+Terminal -> Prepare Site: "quarto render\n quarto preview"
+Prepare Site -> GitKraken
+Gitkraken -> Done for Now: "stage all, push"
+Done for Now -> RStudio: "Rinse and Repeat"
+}
+
 ```
 
-``` d2
 
-Your Creative Coding Life: {RStudio -> Edit or Add Content: "*.qmd in \\posts"
-Edit or Add Content -> Terminal: "quarto render\n quarto preview"
-Terminal -> RStudio: "More changes"
-RStudio -> Git Panel: "commit all files"
-Git Panel -> Commit + Push: "Choose Commit Message"
-Commit + Push -> RStudio: "Rinse and Repeat"
-}
-```
+## References
+
+1. <https://jcoliver.github.io/learn-r/010-github.html>
+
+
