@@ -17,7 +17,7 @@ editor:
   markdown: 
     wrap: 72
 webr:
-  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula','GGally','kableExtra', 'vcd', 'vcdExtra', 'ggmosaic', 'resampledata', 'sjPlot', 'sjlabelled', 'ggpubr']
+  packages: ['readr', 'dplyr','mosaic', 'skimr', 'ggformula','GGally','kableExtra', 'vcd', 'vcdExtra', 'ggmosaic', 'resampledata', 'ggstats', 'labelled', 'ggpubr']
 ---
 
 ![Rural Survey](../../../../../materials/images/rural-survey.jpg){#fig-rural-survey}
@@ -38,8 +38,7 @@ webr:
 #| label: setup
 #| include: true
 #| message: false
-knitr::opts_chunk$set(tidy = "formatr", 
-                      tidy.opts = list(blank = FALSE, width.cutoff = 30))
+
 library(tidyverse)
 library(mosaic) # Our trusted friend
 library(skimr)
@@ -47,8 +46,9 @@ library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
 library(resampledata) # More datasets
 
-library(sjPlot) # Likert Scale Plots
-library(sjlabelled) # Creating Labelled Data for Likert Plots
+library(ggstats) # Likert Scale Plots
+library(labelled) # Creating Labelled Data for Likert Plots
+library(sjPlot) #Another package for Likert Plots
 
 ## Making Tables
 library(kableExtra) # html styled tables
@@ -62,14 +62,17 @@ library(epoxy)
 # library(TeachHist)
 # library(TeachingDemos)
 library(grateful)
-knitr::opts_chunk$set(tidy = "styler")
+
 ```
 
+#### Plot Theme
 ```{r}
-#| echo: false
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
 #| message: false
 #| results: hide
-
+library(hrbrthemes)
 # https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
 
 # Chunk options
@@ -85,7 +88,7 @@ knitr::opts_chunk$set(
 theme_custom <- function(){ 
     font <- "Roboto Condensed"   #assign font family up front
     
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    theme_classic(base_size = 10, base_family = font) %+replace%    #replace elements we want to change
     
     theme(
       panel.grid.minor = element_blank(),    #strip minor gridlines
@@ -119,12 +122,26 @@ theme_custom <- function(){
       
       axis.text = element_text(              #axis text
                    family = font,            #axis family
-                   size = 8)               #font size
-    )
+                   size = 8),                #font size,
+
+      legend.text = element_text(        #axis text
+                   family = font,            #axis family
+                   size = 6) #font size
+)
+    
 }
 
-# Set graph theme
+
+## Set graph theme
 theme_set(new = theme_custom())
+## Set graph text annotations to same font
+hrbrthemes::update_geom_font_defaults(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 2,
+  color = "#2b2b2b"
+)
+
 
 ```
 
@@ -198,9 +215,8 @@ Such data may look for example as follows:
 #| layout: [[40],[-5],[55]]
 #| echo: false
 
-#library(sjlabelled
 set.seed(42)
-score_labels = c("always", "often", "rarely", "never") # numerically 1:5
+score_labels = c("never","rarely", "often", "always") 
 question_labels <- c("Have your heard of the QuickEZ app?",
                      "Do you use the QuickEZ app?",
                      "Do you find it easy to use the QuickEZ app?",
@@ -209,23 +225,24 @@ quickez_data <-
   # Create toy survey data
   # 200 responses to 5 questions
   # responses on Likert Scale
-  # 1:5 = "always", "often", "rarely", "never"
-  # 
-  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
+  # "always", "often", "rarely", "never"
+  tibble(q1 = mosaic::sample(score_labels, replace = TRUE, size = 200,
                              prob = c(0.2, 0.2, 0.4, 0.2)),
-         q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q2 = mosaic::sample(score_labels, replace = TRUE, size = 200,
                              prob = c(0.3, 0.2, 0.2, 0.3)),
-         q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q3 = mosaic::sample(score_labels, replace = TRUE, size = 200,
                              prob = c(0.2, 0.1, 0.1, 0.6)),
-         q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q4 = mosaic::sample(score_labels, replace = TRUE, size = 200,
                              prob = c(0.4, 0.2, 0.1, 0.3))) %>%
   
-  # Set VARIABLE labels
-  sjlabelled::set_label(x = .,
-                        label = question_labels) %>%
+# Need to mutate before set_variable_level???Why??
+   mutate(across(everything(), ~ factor(.x, levels = score_labels))) %>% 
   
-  # Now set VALUE labels
-  sjlabelled::set_labels(x = ., labels = score_labels)
+  # Set VARIABLE labels
+  labelled::set_variable_labels(q1 = question_labels[1],
+                                q2 = question_labels[2],
+                                q3 = question_labels[3],
+                                q4 = question_labels[4]) 
 
 quickez_data %>%   head(10) %>% 
   kbl(caption = "First 10 Responses", centering = TRUE) %>%
@@ -244,17 +261,19 @@ plot** and it looks like this:
 ```{r}
 #| echo: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+quickez_data %>%
+  gglikert(sort = "asc", width = 0.5, totals_size = 3,
+           add_labels = T, labels_size = 3,
+           reverse_likert = F, ) +
+  labs(title = "QuickEZ App Survey Results") +
+  geom_vline(xintercept = 0) +
+  theme_custom() + 
+  theme(legend.position = "bottom")
 
-plot_likert(quickez_data, title = "Summary of QuickEZ App Questionnaire",
-            #sort.frq = "" # Try "pos.desc" good news on top!
-            reverse.colors = TRUE, catcount = 4,
-            show.prc.sign = TRUE
-            ) 
+
 ```
 
-Based on this chart, since it looks like about half the survey
+Based on this chart, since it looks like about 40% the survey
 respondents have not heard of our app, we need more publicity, and many do not find it easy to use 😿, so we have serious re-design and user
 testing to do !! But at least those who have managed to get past the
 hurdles are stating they will continue to use the app, so it does the
@@ -295,7 +314,7 @@ inspecting them:
 
 ```{r}
 
-data(efc,package = "sjPlot")
+data(efc, package = "sjPlot")
 glimpse(efc)
 
 ```
@@ -320,39 +339,26 @@ The `cop`ing related variables have responses on the Likert Scale
 labels are actually ( and perhaps usually ) the *questions* in the
 survey.
 
-We can plot this data using the `plot_likert` function from package
-`sjPlot`:
+We can plot this data using the `gglikert` function from package `ggstats`:
 
 ```{r}
 
-# Set graph theme
-theme_set(new = theme_custom())
-
 efc %>% 
   select(dplyr::contains("cop")) %>% 
-  sjPlot::plot_likert(title = "Caregiver Survey from EUROFAM") 
+  gglikert(labels_size = 3, width = 0.75) +
+  labs(title = "Caregiver Survey from EUROFAM") + 
+  scale_fill_brewer(name = "Responses",
+    labels = c("never", "sometimes", "often", "always"), 
+    palette = "Set3", direction = -1) +
+  theme_custom() + 
+  theme(legend.position = "bottom")
 
 ```
+
 
 Many questions here have strong *negative* responses. This may indicate
 that policy and publicity related efforts may be required.
 
-::: callout-note
-## Colours and Orientation in the Likert Plot
-
-One could prefer (as I do) that "often" and "always" scores should be
-toward the right and "sometimes" and "never" scores towards the left.
-One can do this within the `plot_likert` command using:
-
-`plot_likert(..., reverse.scale = TRUE)`
-
-If you want the colours to be reversed, then...
-
-`plot_likert(..., reverse.colors = TRUE)`
-
-Try these options now in your Console! (Note the American spelling
-`color`)
-:::
 
 ## {{< iconify fluent-emoji label >}} Labelled Data
 
@@ -383,13 +389,14 @@ with info function.
 
 Let us manually create one such dataset, since this is a common-enough
 situation[^2] that we have survey data and then have to label the
-variables and the values before plotting. We will use the R package
-`sjlabelled` to label our data.[^3]. 
+variables and the values before plotting. We will use the R package `labelled` to label our data.[^1]. 
 
-It is also possible to label the tibble, the columns, and the values in similar fashion using the `labelr` package.[^4]
+It is also possible to label the tibble, the columns, and the values in similar fashion using the `sjlabelled` package[^3] and the `labelr` package[^4].
+
+[^1]: Introduction to `labelled`:<https://larmarange.github.io/labelled/articles/intro_labelled.html#using-labelled-with-dplyrmagrittr>
 
 [^2]: Piping Hot Data: Leveraging Labelled Data in R,
-    https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
+    <https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/>
 
 [^3]: Label Support in
     R:<https://cran.r-project.org/web/packages/sjlabelled/index.html>
@@ -397,8 +404,7 @@ It is also possible to label the tibble, the columns, and the values in similar 
 [^4]: Using the `labelr` package: <https://cran.r-project.org/web/packages/labelr/vignettes/labelr-introduction.html>
 
 ```{r}
-
-#library(sjlabelled)
+set.seed(42)
 # Set graph theme
 theme_set(new = theme_custom())
 
@@ -408,7 +414,7 @@ variable_labels <- c("Do you practice Analytics?",
                      "Do you use Quarto as your Workflow in R?",
                      "Will you use R at Work?")
 ##
-value_labels = c("never", "sometimes","often","always") #numerically 1:4
+value_labels = c("never", "sometimes","often","always") 
 ##
 my_survey_data <- 
   # Create toy survey data
@@ -416,34 +422,42 @@ my_survey_data <-
   # responses on Likert Scale
   # 1:4 = "never", "sometimes","often","always")
 
-  tibble(q1 = mosaic::sample(1:4, replace = TRUE, size = 200,
+  tibble(q1 = mosaic::sample(value_labels, replace = TRUE, size = 200,
                              prob = c(0.2, 0.2, 0.5, 0.1)),
-         q2 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q2 = mosaic::sample(value_labels, replace = TRUE, size = 200,
                              prob = c(0.3, 0.3, 0.3, 0.1)),
-         q3 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q3 = mosaic::sample(value_labels, replace = TRUE, size = 200,
                              prob = c(0.2, 0.1, 0.1, 0.6)),
-         q4 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q4 = mosaic::sample(value_labels, replace = TRUE, size = 200,
                              prob = c(0.4, 0.2, 0.1, 0.3)),
-         q5 = mosaic::sample(1:4, replace = TRUE, size = 200,
+         q5 = mosaic::sample(value_labels, replace = TRUE, size = 200,
                              prob = c(0.1, 0.2, 0.5, 0.2))) %>%
   
   # Set VARIABLE labels
-  sjlabelled::set_label(x = .,
-                        label = variable_labels) %>%
-  
-  # Now set VALUE labels
-  sjlabelled::set_labels(x = ., labels = value_labels)
+  labelled::set_variable_labels(.data = ., 
+                                q1 = variable_labels[1],
+                               q2 = variable_labels[2],
+                               q3 = variable_labels[3],
+                             q4 = variable_labels[4],
+                             q5 = variable_labels[5]) 
+  # Values within the variables are already labelled
 ###
 head(my_survey_data, 6)
 ###
 str(my_survey_data)
 ##
-plot_likert(my_survey_data, values = "sum.inside",
-            title = "Summary of Analytics Questionnaire",
-            reverse.scale = TRUE,# Reverse score values on plot
-            reverse.colors = FALSE, # let the colors be
-            show.prc.sign = TRUE, # Show percentage sign
-            legend.pos = "right")
+my_survey_data %>% 
+  gglikert(labels_size = 3, width = 0.5) +
+  labs(title = "Do you use R Survey",
+       subtitle = "Creating and Using Labelled Data",
+       caption = "Using gglikert from ggstats package") + 
+  scale_fill_brewer(palette = "Spectral",
+                             name = "Responses",
+    labels = c("never", "sometimes", "often", "always"),
+      ) +
+  geom_vline(xintercept = 0) +
+  theme_custom() + 
+  theme(legend.position = "bottom")
 
 ```
 
@@ -455,22 +469,22 @@ So there we are with Survey data analysis and plots!
 
 There are a few other plots with this type of data, which are useful in
 very specialized circumstances. One example of this is the
-`agreement plot`[^1] which captures the agreement between two (sets) of
+`agreement plot`[^5] which captures the agreement between two (sets) of
 evaluators, on ratings given on a shared ordinal scale to a set of
 items. An example from the field of medical diagnosis is the opinions of
 two specialists on a common set of patients. However, that is for a more
 advanced course!
 
-[^1]: Bangdiwala, S.I., Shankar, V. The agreement chart. BMC Med Res Methodol 13, 97 (2013). https://doi.org/10.1186/1471-2288-13-97
+[^5]: Bangdiwala, S.I., Shankar, V. The agreement chart. BMC Med Res Methodol 13, 97 (2013). https://doi.org/10.1186/1471-2288-13-97
 
 ## {{< iconify mingcute thought-line >}} Wait, But Why?
 
-- Likert plots are like stacked bar-charts aligned horizontally. They are useful to indicate aspects like opinion, belief, and habits. 
-- The scale for Likert data is [**ordinal**](../05-NatureData/index.qmd#how-do-we-spot-data-variable-types): it should not be assumed that the points on the Likert scale ("never", "sometimes","often","always") are *separated by the same distance*. 
+- Likert plots are like stacked bar-charts aligned horizontally, back to back {{< iconify noto open-hands-medium-skin-tone size = 3x >}}. They are useful to indicate aspects like opinion, belief, and habits. 
+- The scale for Likert data is [**ordinal**](../05-NatureData/index.qmd#how-do-we-spot-data-variable-types): it should not be assumed that the points on the Likert scale ("never", "sometimes", "often", "always") are *separated by the same distance*. 
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
-How are the Likert Plots for Survey data different from Bar Plots? Not very much inherently; we can view the Likert Charts as a set of stacked bar charts, based on Likert-scale response counts. At a pinch we can make a Likert Plot with vanilla bar graphs, but the elegance  and power of the packages `sjPlot` and `sjlabelled` is undeniable.
+Likert Plots for Survey data are not too different from Bar Plots; we can view the Likert Charts as a set of stacked bar charts, based on Likert-scale response counts. At a pinch we can make a Likert Plot with vanilla bar graphs, but the elegance  and power of the `ggstat` package is undeniable. The  packages `sjPlot` and `sjlabelled` also feature a `plot_likert` graphing function which is very elegant too. 
 
 ## {{< iconify openmoji person >}} Your Turn
 
@@ -522,8 +536,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggmosaic", "ggpubr", "janitor", "kableExtra", "resampledata", "sjPlot", "sjlabelled", "vcd",
-           "vcdExtra")) %>%
+  pkgs = c("ggstats", "labelled", "sjPlot")) %>%
   knitr::kable(format = "simple")
 
 ```
