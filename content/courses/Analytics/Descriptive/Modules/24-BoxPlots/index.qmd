@@ -176,14 +176,40 @@ Maybe it is time for a box plot on uh, shades[^2] of meaning for ~~Jane Austen~~
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
-Box Plots are an extremely useful data visualization that gives us an idea of the distribution of a Quant variable, for each *level* of another Qual variable. The internal process of this plot is as follows:
+Box Plots are an extremely useful data visualization that gives us an idea of the distribution of a Quant variable, for each *level* of another Qual variable. 
 
-  - make groups of the Quant variable for each level of the Qual
-  - in each group, rank the Quant variable values in increasing order
-  - Calculate: `median`, `IQR`, `outliers`
-  - plot these as a vertical or horizontal box structure
+```{r}
+#| label: fig-boxplot-diagram
+#| echo: false
+#| fig-cap: "Box Plot Definitions"
+set.seed(123)
+data <- rt(150, df = 10)
+MKdescr::illustrate.boxplot(data)
 
-The box  can also be asymmetric "half plots" if needed...
+```
+
+The internal process of this plot is as follows:
+
+(Hat tip to student [Tanya Michelle Justin](https://www.linkedin.com/in/tanya-michelle-justin-9692bb306/) for a good question on outlier calculation)
+
+  - Make groups of the Quant variable for each level of the Qual
+  - In each group, **rank** the Quant variable **values** in increasing order
+  - Calculate: 
+    - The **values** for `median = Q2`, Q1, and Q3 based on **rank**!!
+    - **Values** for `min`, `max`,  and then `IQR = Q1 - Q3`
+    - Calculate `outlier` limits: 
+      - $[Q1 - 1.5*IQR, Q2 + 1.5*IQR]$
+    - `Whiskers`: All **values** within $[Q1 - 1.5*IQR, Q2 + 1.5*IQR]$
+    - `Outliers`: All **values** outside of $[Q1 - 1.5*IQR, Q2 + 1.5*IQR]$
+  - Plot these as a vertical or horizontal box structure, as shown.
+  
+As a result of this, while the box-part of the boxplot always shows 2 full quartiles, the whiskers may not stretch through their quartiles, since some **values** may be outliers on either side. 
+
+::: callout-note
+### Ranks and Values
+The Quant variable is *ordered* based on the **values** from min to max. So you could imagine that each **value** has a **rank** or sequence number. The `min` value has $rank = 1$ and the `max` value has $rank = length(var)$.
+
+:::
 
 ::: callout-note
 ### Histograms and Box Plots
@@ -192,15 +218,6 @@ The former uses the *values* of the Quant variable, whereas the latter uses thei
 :::
 
 Box plots are often used for example in HR operations to understand Salary distributions across grades of employees. Marks of students in competitive exams are also declared using Quartiles. 
-
-```{r}
-#| label: fig-boxplot-diagram
-#| echo: false
-#| fig-cap: "Box Plot Definitions"
-set.seed(123)
-MKdescr::illustrate.boxplot(rt(150, df = 10))
-
-```
 
 Box plots can show skew in distributions. In such cases the "bottom" and the "lid" of the box may not be the same size!
 

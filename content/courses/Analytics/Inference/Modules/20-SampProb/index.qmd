@@ -15,19 +15,28 @@ bibliography:
 citation: true
 filters: 
   - shinylive
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-|                                                                                                 |     |     |                                                                                        |
-|------------------|--------------------|------------------|------------------|
-| <a href="./files/sampling-tutorial.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a>   |     |     | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
+|  |  |  |  |
+|--------------------------------------------------------------------|---------|---------|--------------------------------------------------------|
+| <a href="./files/sampling-tutorial.qmd"><i class="fa-brands fa-r-project"></i> R Tutorial</a>   |  |  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
-:::: {.pa4}
+:::: pa4
 ::: {.athelas .ml0 .mt0 .pl4 .black-90 .bl .bw2 .b--blue}
-["Truth, virtue, and courage are not necessarily enough, but they are our best bet."]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
+["When Alexander the Great visited Diogenes and asked whether he could
+do anything for the famed teacher, Diogenes replied: "Only stand out of
+my light." Perhaps some day we shall know how to heighten creativity.
+Until then, one of the best things we can do for creative men and women
+is to stand out of their light."]{.f5 .f4-m .f3-l .lh-copy .measure
+.mt0}
 
-[ --- Jordan B. Peterson]{.f6 .ttu .tracked .fs-normal}
+[--- John W. Gardner, author and educator (8 Oct 1912-2002)]{.f6 .ttu
+.tracked .fs-normal}
 :::
 ::::
 
@@ -47,7 +56,6 @@ library(cowplot) # ggplot themes and stacking of plots
 
 ```
 
-
 ```{r}
 #| label: Extra Pedagogical Packages
 #| echo: false
@@ -64,10 +72,11 @@ library(regressinator) # Fake data populations we can sample from
 library(shinylive)
 ```
 
+#### Plot Theme
 
 ```{r}
 #| label: Plot Sizing and theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -129,7 +138,6 @@ theme_set(new = theme_custom())
 #
 ```
 
-
 ```{r}
 #| echo: FALSE
 #| eval: false
@@ -164,10 +172,12 @@ Populations *P*arameters are usually indicated by Greek Letters.
 
 ## {{< iconify game-icons card-pickup >}} What is a Sample?
 
-Sampling is the act of collecting a small subset from the population, 
-which we generally do when we can't perform a **census**. We mathematically denote the sample size using lower case `n`, as opposed to upper case `N` which denotes the population's size. Typically the sample size `n` is much
-smaller than the population size `N`. Thus sampling is a much cheaper
-alternative than performing a census.
+Sampling is the act of collecting a small subset from the population,
+which we generally do when we can't perform a **census**. We
+mathematically denote the sample size using lower case `n`, as opposed
+to upper case `N` which denotes the population's size. Typically the
+sample size `n` is much smaller than the population size `N`. Thus
+sampling is a much cheaper alternative than performing a census.
 
 A **sample statistic**, also known as a *point estimate*, is a summary
 statistic like a `mean` or `standard deviation` that is computed from a
@@ -176,10 +186,13 @@ sample.
 ::: callout-note
 ## Why do we sample?
 
-Because we cannot conduct a census ( not always ) --- and **sometimes we won't even know how big the population is** --- we take samples. And we
-*still* want to do useful work for/with the population, after
-estimating its parameters, *an act of generalizing* from sample to
-population. So the question is, **can we estimate useful parameters of the population, using just samples? Can point estimates serve as useful guides to population parameters?**
+Because we cannot conduct a census ( not always ) --- and **sometimes we
+won't even know how big the population is** --- we take samples. And we
+*still* want to do useful work for/with the population, after estimating
+its parameters, *an act of generalizing* from sample to population. So
+the question is, **can we estimate useful parameters of the population,
+using just samples? Can point estimates serve as useful guides to
+population parameters?**
 
 [This act of generalizing from sample to population is at the heart of
 **statistical inference**.]{style="background-color: yellow;"}
@@ -231,7 +244,9 @@ bills.
 ::: callout-note
 ## Question
 
-Q.3. How much difference is there in the proportion of 30 to 39-year-old residents who have only a cell phone (no land line phone) compared to 50 to 59-year-olds in the country?
+Q.3. How much difference is there in the proportion of 30 to 39-year-old
+residents who have only a cell phone (no land line phone) compared to 50
+to 59-year-olds in the country?
 
 A.3. The *population* is all citizens of the country, and the parameter
 is $p_1 - p_2$, the difference in proportion of 30 to 39-year-old
@@ -279,10 +294,12 @@ NHANES_adult <-
 ::: callout-important
 ## An "Assumed" Population
 
-Normally, we very rarely have access to a **population**. All we can do is sample it. However, for now, and in order to build up our intuition, we will **treat** this dataset as our **Population**. So each
-variable in the dataset is a *population* for that particular
-quantity/category, with appropriate *population parameters* such as
-`mean`s, `sd`-s, and `proportions`.
+Normally, we very rarely have access to a **population**. All we can do
+is sample it. However, for now, and in order to build up our intuition,
+we will **treat** this dataset as our **Population**. So each variable
+in the dataset is a *population* for that particular quantity/category,
+with appropriate *population parameters* such as `mean`s, `sd`-s, and
+`proportions`.
 :::
 
 Let us calculate the **population parameters** for the `Height` data
@@ -344,7 +361,8 @@ sample_height %>%
 
 OK, so the `sample_mean_height` is not too far from the
 `pop_mean_height`. Is this always true? Let us check: we will create 500
-samples each of size 50. And calculate their mean as the *sample statistic*, giving us a data frame containing 500 `sample means`. We
+samples each of size 50. And calculate their mean as the *sample
+statistic*, giving us a data frame containing 500 `sample means`. We
 will then see if these 500 means lie close to the `pop_mean_height`:
 
 ```{r}
@@ -393,14 +411,17 @@ sample_height_500 %>%
 ::: callout-note
 ### Sample Means are a Random Variable
 
-The `sample_mean`s (red dots), are themselves random because the samples are random, of course. It appears that they are generally in the vicinity of the `pop_mean` (blue line). And hence they will have a `mean` and `sd` too `r emoji::emoji("scream")`. Do not get confused ;-D
+The `sample_mean`s (red dots), are themselves random because the samples
+are random, of course. It appears that they are generally in the
+vicinity of the `pop_mean` (blue line). And hence they will have a
+`mean` and `sd` too `r emoji::emoji("scream")`. Do not get confused ;-D
 :::
-
 
 ### {{< iconify game-icons card-pickup >}} {{< iconify tabler chart-histogram >}} Distribution of Sample-Means
 
 Since the **sample-means** are themselves random variables, let's plot
-the **distribution** of these 500 sample-means themselves, called **a distribution of sample-means**. We will also plot the position of the
+the **distribution** of these 500 sample-means themselves, called **a
+distribution of sample-means**. We will also plot the position of the
 population mean `pop_mean_height` parameter, the mean of the `Height`
 variable.
 
@@ -460,8 +481,8 @@ We see in the Figure above that
 
 -   the *distribution of sample-means* is centered around the
     `pop_mean`.
--   That the "spread" of the *distribution of sample means* is
-    less than that of the original population. But exactly what is it?
+-   That the "spread" of the *distribution of sample means* is less than
+    that of the original population. But exactly what is it?
 -   And what is the kind of distribution?
 
 One more experiment.
@@ -492,10 +513,10 @@ head(samples_height_08)
 
 ```
 
-
 ```{r}
 #| warning: false
 #| eval: false
+#| echo: false
 # Now let's create separate Q-Q plots for the different sample sizes.
 
 # Set graph theme
@@ -665,16 +686,15 @@ gf_fitdistr(
 
 ```
 
-From the
-histograms we learn that the sample-means are normally distributed
-around the *population mean*. [This feels intuitively right because when
-we sample from the population, many values will be close to the
-*population mean*, and values far away from the mean will be
+From the histograms we learn that the sample-means are normally
+distributed around the *population mean*. [This feels intuitively right
+because when we sample from the population, many values will be close to
+the *population mean*, and values far away from the mean will be
 increasingly scarce.]{style="background-color: yellow;"}
 
 Let us calculate the mean of the sample-means:
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: sample-means
@@ -688,19 +708,20 @@ pop_mean_height
 
 ```
 :::
-::: {.column width="40%"}
 
+::: {.column width="40%"}
 ```{r}
 #| ref.label: sample-means
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
-Consider the *variances* in each of the sample-groups: these are the cumulative squared-differences of each number in each sample with its individual mean ($var = \Sigma[{x_i - \bar{x}}]^2$)
+Consider the *variances* in each of the sample-groups: these are the
+cumulative squared-differences of each number in each sample with its
+individual mean ($var = \Sigma[{x_i - \bar{x}}]^2$)
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: sample-variances
@@ -711,16 +732,16 @@ var(~ mean, data  = samples_height_32)
 var(~ mean, data  = samples_height_64)
 
 ```
-::: 
-::: {.column width="40%"}
+:::
 
+::: {.column width="40%"}
 ```{r}
 #| ref.label: sample-variances
 #| echo: false
 ```
-
 :::
-::::
+:::::
+
 These are also decreasing steadily with sample size.
 
 ::: callout-note
@@ -731,20 +752,34 @@ Now we have enough to state the **Central Limit Theorem (CLT)**
 -   the [sample-means are normally distributed around the *population
     mean*]{style="background-color: yellow;"}.
 -   the sample-mean distributions narrow with sample length, i.e [the
-    `var` decreases with increasing sample size.]{style="background-color: yellow;"}
--   This is [regardless of the distribution of the *population* parameter]{style="background-color: yellow;"} itself.[^1]
+    `var` decreases with increasing sample
+    size.]{style="background-color: yellow;"}
+-   This is [regardless of the distribution of the *population*
+    parameter]{style="background-color: yellow;"} itself.[^1]
 :::
-This theorem underlies all our procedures and techniques for statistical inference, as we shall see.
+
+[^1]: The \`Height\` variable seems to be normally distributed at
+    population level. We will try other non-normal population variables
+    as an exercise in the tutorials.
+
+This theorem underlies all our procedures and techniques for statistical
+inference, as we shall see.
 
 ## {{< iconify dashicons code-standards >}} The Standard Error
-Consider the *variances* in each of the sample-sets that we have generated. As we saw these decrease with sample size. 
 
-:::: {.columns}
-::: {.column}
-The variance is a **total sum** of all squared differences from the mean, in a sample. If we divide the variances by the sample lengths, we get a sort of *average variance*, or *per-capita* squared error from the mean. Taking the square root gives us an average error, which we would call, of course, the *standard deviation*.
+Consider the *variances* in each of the sample-sets that we have
+generated. As we saw these decrease with sample size.
+
+::::: columns
+::: column
+The variance is a **total sum** of all squared differences from the
+mean, in a sample. If we divide the variances by the sample lengths, we
+get a sort of *average variance*, or *per-capita* squared error from the
+mean. Taking the square root gives us an average error, which we would
+call, of course, the *standard deviation*.
 :::
 
-::: {.column}
+::: column
 ```{r}
 #| label: showing-variance-calculation
 #| echo: false
@@ -763,12 +798,20 @@ subtitle = "Black Line = Mean")
 
 ```
 :::
+:::::
 
-::::
+`sd = variance_sample/sqrt(sample_size)`[^2] where sample-size here is
+one of `c(8, 16,32,64)`.
 
-`sd = variance_sample/sqrt(sample_size)`[^2] where sample-size here is one of `c(8, 16,32,64)`.
+[^2]: Once `sample size = population`, we have complete access to the
+    population and there is no question of estimation error! So
+    `sample_sd = pop_sd`!
 
-We reserve the term *Standard Deviation* for the population, and name this computed standard deviation of the **sample-mean distribution** the **Standard Error**. This statistic derived from the sample, will help us infer our population parameters with a precise estimate of the *uncertainty* involved.
+We reserve the term *Standard Deviation* for the population, and name
+this computed standard deviation of the **sample-mean distribution** the
+**Standard Error**. This statistic derived from the sample, will help us
+infer our population parameters with a precise estimate of the
+*uncertainty* involved.
 
 $$
 \begin{align}
@@ -779,7 +822,7 @@ $$
 
 In our sampling experiments, the Standard Errors evaluate to:
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: standard-error-computation
@@ -793,14 +836,14 @@ sd(~ mean, data = samples_height_64)/sqrt(64)
 
 ```
 :::
+
 ::: {.column width="40%"}
 ```{r}
 #| ref.label: standard-error-computation
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
 As seen, these are identical to the Standard Deviations of the
 individual sample-mean distributions.
@@ -810,16 +853,16 @@ individual sample-mean distributions.
 When we work with samples, we want to be able to speak with a certain
 degree of confidence about the **population mean**, based on the
 evaluation of **one** sample mean, not a large number of them. Given
-that sample-means are normally distributed around the **population means**, we can say that $68\%$ of *all possible sample-mean* lie within
+that sample-means are normally distributed around the **population
+means**, we can say that $68\%$ of *all possible sample-mean* lie within
 $\pm SE$ of the *population mean*; and further that $95 \%$ of *all
 possible sample-mean* lie within $\pm 2*SE$ of the *population mean*.
 
-These two intervals $sample.mean \pm SE$ and $sample.mean \pm 2*SE$
-are called the **confidence intervals** for the population mean, at
-levels $68\%$ and $95 \%$ probability respectively.
+These two intervals $sample.mean \pm SE$ and $sample.mean \pm 2*SE$ are
+called the **confidence intervals** for the population mean, at levels
+$68\%$ and $95 \%$ probability respectively.
 
-::: {.column-margin}
-
+::: column-margin
 ```{r}
 #| echo: false
 #| fig-cap: "Confidence Intervals and the Bell Curve"
@@ -833,10 +876,9 @@ levels $68\%$ and $95 \%$ probability respectively.
    gf_theme(theme_classic())
 
 ```
-
 :::
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: confidence-interval-computation-1
@@ -845,7 +887,6 @@ levels $68\%$ and $95 \%$ probability respectively.
 infer::get_ci(samples_height_08,
               level = 0.95)
 ```
-
 :::
 
 ::: {.column width="40%"}
@@ -853,11 +894,10 @@ infer::get_ci(samples_height_08,
 #| ref.label: confidence-interval-computation-1
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: confidence-interval-computation-2
@@ -869,16 +909,16 @@ get_ci(samples_height_16,
 
 ```
 :::
+
 ::: {.column width="40%"}
 ```{r}
 #| ref.label: confidence-interval-computation-2
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: confidence-interval-computation-3
@@ -889,16 +929,16 @@ get_ci(samples_height_32,
 
 ```
 :::
+
 ::: {.column width="40%"}
 ```{r}
 #| ref.label: confidence-interval-computation-3
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
-:::: {.columns}
+::::: columns
 ::: {.column width="60%"}
 ```{r}
 #| label: confidence-interval-computation-4
@@ -909,17 +949,18 @@ get_ci(samples_height_64,
 
 ```
 :::
+
 ::: {.column width="40%"}
 ```{r}
 #| ref.label: confidence-interval-computation-4
 #| echo: false
 ```
-
 :::
-::::
+:::::
 
 ::: callout-important
 ## Confidence Intervals also Shrink!
+
 Yes, with sample size? Why is that a good thing?
 :::
 
@@ -927,36 +968,30 @@ Yes, with sample size? Why is that a good thing?
 
 Thus if we want to estimate a *population parameter*:
 
--   we take one **random** sample from the population\
--   we calculate the estimate from the sample\
--   we calculate the sample-sd\
--   we calculate the *Standard Error* as $\frac{sample-sd}{\sqrt[]{n}}$\
--   we calculate 95% confidence intervals for the *population parameter*
-    based on the formula
-
+-   we take one **random** sample from the population
+-   we calculate the estimate from the sample
+-   we calculate the sample-sd
+-   we calculate the *Standard Error* as $\frac{sample-sd}{\sqrt[]{n}}$
+-   we calculate 95% confidence intervals for the *population parameter* based on the formula
     $CI_{95\%}= sample.mean \pm 2*SE$.
-
--   Since Standard Error decreases with sample size, we need to make our
-    sample of adequate size.( $n=30$ seems appropriate in most cases.
-    Why?)
-  
-- And we do not have to worry about the distribution of the population. It need not be normal !!
+-   Since Standard Error decreases with sample size, we need to make our sample of adequate size.( $n=30$ seems appropriate in most cases. Why?)
+-   And we do not have to worry about the distribution of the
+    population. It need not be normal !!
 
 ## {{< iconify material-symbols interactive-space-outline >}} An interactive Sampling app
 
-Here below is an interactive sampling app. Play with the different settings, especially the *distribution in the population* to get a firm grasp on Sampling and the CLT. 
+Here below is an interactive sampling app. Play with the different
+settings, especially the *distribution in the population* to get a firm
+grasp on Sampling and the CLT.
 
 <https://gallery.shinyapps.io/CLT_mean/>
-
 
 ## {{< iconify ooui references-rtl >}} References
 
 1.  Diez, David M & Barr, Christopher D & Çetinkaya-Rundel, Mine,
     *OpenIntro Statistics*. <https://www.openintro.org/book/os/>
-
 2.  Stats Test Wizard.
     <https://www.socscistatistics.com/tests/what_stats_test_wizard.aspx>
-
 3.  Diez, David M & Barr, Christopher D & Çetinkaya-Rundel, Mine:
     *OpenIntro Statistics*. Available online
     <https://www.openintro.org/book/os/>
@@ -984,18 +1019,9 @@ Here below is an interactive sampling app. Play with the different settings, esp
     70:2, 202-214, DOI:
     [10.1080/00031305.2015.1077728](https://doi.org/10.1080/00031305.2015.1077728)
 
-
-[^1]: The \`Height\` variable seems to be normally distributed at
-    population level. We will try other non-normal population variables
-    as an exercise in the tutorials.
-
-[^2]: Once `sample size = population`, we have complete access to the
-    population and there is no question of estimation error! So
-    `sample_sd = pop_sd`!
-
 ::: {#refs style="font-size: 60%;"}
-
 ###### {{< iconify lucide package-check >}} R Package Citations
+
 ```{r}
 #| echo: false
 #scan_packages()
