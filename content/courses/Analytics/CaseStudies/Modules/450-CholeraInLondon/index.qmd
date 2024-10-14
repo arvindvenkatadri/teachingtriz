@@ -1,7 +1,8 @@
 ---
-title: <iconify-icon icon="iconoir:sea-waves"></iconify-icon> <iconify-icon icon="mdi:weed"></iconify-icon>  William Farr's Observations on Cholera in London
+title: <iconify-icon icon="simple-icons:transportforlondon"></iconify-icon> <iconify-icon icon="hugeicons:water-pump"></iconify-icon>  William Farr's Observations on Cholera in London
 order: 450
 ---
+
 
 ## Setting up R Packages
 
@@ -13,8 +14,7 @@ library(tidyverse)
 library(mosaic)
 library(skimr)
 library(ggformula)
-library(ggbump)
-library(ggprism)
+library(GGally)
 ```
 
 
@@ -109,41 +109,15 @@ theme_set(new = theme_custom())
 
 ## Introduction
 
-Nine types of Seaweed were rated on different parameters and charted as shown below. 
-
-::: callout-note
-### Excel Data
-The data is an excel sheet. Inspect it first in Excel and  decide which sheet you need, and which part of the data you need. There are multiple sheets!
-Then use `readxl::read_xlsx(..)` to read it into R.
-:::
+John Snow’s contention that cholera was principally spread by water was not accepted in the 1850s by the medical elite. The consequence of rejection was that hundreds in the UK continued to die.
+William Farr, who founded the science of epidemiology, tried to examine if there were other causes that led to cholera. He had concluded that the available data not only supported miasma (spread via atmospheric vapours) but also indicated that there was an underlying ‘natural law’ linking infection with cholera inversely to elevation above high water.
+The data is available on Vincent Arel-Bundock's website, and is part of the `HistData` package from Michael Friendly, UC Davis.
 
 ## Read the Data
 
 ```{r}
-#| label: read-data
-#| echo: false
-#| message: false
-
-seaweed <- readxl::read_xlsx("../../../../../materials/Data/Seaweed_Farming_Marine_Permaculture.xls", sheet = "seaweed nutrition", range = "A3:R13")
-
-seaweed %>%
-  downloadthis::download_this(
-    output_name = "seaweed-nutrition",
-    output_extension = ".csv",
-    button_label = "Download Seaweed Nutrition data",
-    button_type = "warning",
-    has_icon = TRUE,
-    icon = "fa fa-save"
-  )
-```
-
-## Inspect the Data
-
-```{r}
-#| label: inspect-categorical
-#| echo: false
-glimpse(seaweed)
-
+Cholera <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/HistData/Cholera.csv")
+Cholera
 ```
 
 
@@ -168,7 +142,7 @@ Write in.
 
 ## Research Question
 ::: callout-note
-Write in!
+Write in! Look at the charts below!
 :::
 
 ## Analyse/Transform the Data
@@ -183,76 +157,73 @@ Write in!
 
 ```
 
-```{r}
-#| label: coffee-long
-#| echo: false
-seaweed %>% 
-  drop_na() %>% 
-  dplyr::select("common_name" = `common name`, 
-         "total_fibre" = `Total fiber`, Carbohydrates, 
-         Calcium, Potassium, Zinc) %>% 
-  mutate(fibre_rank = dense_rank(desc(total_fibre)),
-         carbo_rank = dense_rank(desc(Carbohydrates)),
-         calcium_rank = dense_rank(desc(Calcium)),
-         potassium_rank = dense_rank(desc(Potassium)),
-         zinc_rank = dense_rank(desc(Zinc))) %>% 
-  select(common_name, contains("rank")) %>% 
-  
-  # Convert to Long Form
-  pivot_longer(cols = contains("rank"), 
-               names_to = "parameter", 
-               values_to = "ranks") %>% 
-  arrange(parameter) -> seaweed_bump
-
-seaweed_bump
-
-```
 
 
 ## Plot the Data
+
+```{r}
+#| label: pairs-plot
+#| echo: false
+Cholera %>% 
+  select(cholera_drate, poor_rate, elevation, pop_dens, persons_house, #water
+         ) %>% 
+  ggpairs(switch = "both",#aes(colour = water),
+  # axis labels in more traditional locations(left and bottom)
+  
+  progress = FALSE,
+  # no compute progress messages needed
+  
+  # Choose the diagonal graphs (always single variable! Think!)
+  diag = list(continuous = "densityDiag"),
+  # choosing histogram,not density
+  
+  # Choose lower triangle graphs, two-variable graphs
+  lower = list(continuous = wrap("smooth", alpha = 0.3, se = FALSE)),
+  
+  title = "Plot 1: William Farr's Cholera Data",
+  subtitle = "Correlation Plot"
+) +
+  
+  theme_bw()
+```
+
 ```{r}
 #| echo: false
-seaweed_bump %>%
-  ggplot(
-    aes(
-      x = parameter,
-      y = ranks,
-      group = common_name,
-      colour = common_name,
-      shape = common_name
-    )
-  ) +
-  ggbump::geom_bump(linewidth = 1) +
-  
-  scale_x_discrete(labels = c("Calcium", "Carbs", "Fibre", "Potassium", "Zinc"), guide = "prism_bracket") +
-  geom_point(size = 3, fill = "black") +
-  scale_shape_manual("Seaweed Type", values = c(0, 1, 2, 5, 7, 8, 15, 16, 18)) +
-  scale_colour_discrete("Seaweed Type") +
-  scale_y_reverse(breaks = c(1:9)) +
-  scale_linetype_manual("Seaweed Type", values = c(1, 2, 3, 4, 5, 6, 1, 2, 3)) +
-  
-  labs(
-    title = "Nutrients from Seaweed",
-    caption = "Data from informationisbeautiful.net",
-    x = "Nutrient",
-    y = "Rank"
-  ) +
-  theme_custom()
+#| layout-ncol: 2
+Cholera %>% 
+  gf_point(cholera_drate ~ elevation, size = 3) %>% 
+  gf_smooth(method = "lm",colour = "grey") %>% 
+  gf_labs(x ="Elevation above high water mark (ft)",
+              y ="Deaths from cholera in 1849 per 10,000",
+          title = "Plot 2: Cholera Deaths vs Elevation above Thames High Water Mark") %>% 
+  gf_refine(scale_y_continuous(limits = c(0, 250)),
+            scale_colour_grey("Water Supply"),
+            scale_shape("Water Supply")) %>% 
+  gf_theme(theme = theme_custom())
+
+Cholera %>% 
+  gf_point(cholera_drate ~ elevation, shape = ~ water, color = ~ water, size = 3) %>% 
+  gf_smooth(method = "lm") %>% 
+  gf_labs(x ="Elevation above high water mark (ft)",
+              y ="Deaths from cholera in 1849 per 10,000",
+          title = "Plot 3: Cholera Deaths/n vs/nElevation above Thames High Water Mark") %>% 
+  gf_refine(scale_y_continuous(limits = c(0, 250)),
+            scale_colour_grey("Water Supply"),
+            scale_shape("Water Supply")) %>% 
+  gf_theme(theme = theme_custom())
+
 
 ```
 
 ## Tasks and Discussion
 
 - Complete the Data Dictionary.
-- Select and Transform the variables as shown.
-- Create the graphs shown and discuss the following questions:
-  -   Identify the type of charts
-  -   Identify the variables used for various geometrical aspects (x, y,
-    fill...). Name the variables appropriately.
-  -   What research activity might have been carried out to obtain the data graphed here? Provide some details.
-  -   What might have been the Hypothesis/Research Question to which the response was Chart?
-  - Write a 2-line story based on the chart, describing your inference/surprise.
-  - Based on the diagram, discuss which one an elderly person might try if they are deficient in calcium. If you were trying to avoid carbs, which seaweed sushi would you try?
-
+- Select and Transform the variables as needed.
+- Look at Plot 1. Would you agree based on this chart that William Farr was right in believing that elevation was a good predictor for cholera deaths? Justify. 
+- What is the nature of the relationship between Cholera Deaths and Elevation?
+- Look at Plot 2. What kind of plot is it? What is the relationship here between Elevation and Cholera Death Rate? 
+- Based on this graph, would you agree that Elevation is a predictor for Cholera Deaths? Justify. 
+- Is the relationship you found between Cholera Deaths and Elevation also found in Plot 1? Justify.
+- Look at Plot 3. Would you guess that there could be another predictor for Cholera Deaths? What could that Predictor be? Justify. 
     
 

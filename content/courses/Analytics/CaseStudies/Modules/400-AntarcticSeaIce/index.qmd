@@ -1,5 +1,5 @@
 ---
-title: <iconify-icon icon="iconoir:sea-waves"></iconify-icon> <iconify-icon icon="mdi:weed"></iconify-icon>  Antarctic Sea ice
+title: <iconify-icon icon="iconoir:sea-waves"></iconify-icon> <iconify-icon icon="openmoji:floating-ice"></iconify-icon>  Antarctic Sea ice
 order: 400
 ---
 
@@ -13,8 +13,7 @@ library(tidyverse)
 library(mosaic)
 library(skimr)
 library(ggformula)
-library(ggbump)
-library(ggprism)
+
 ```
 
 
@@ -43,9 +42,11 @@ library(glue)
 #   
 ```
 
+
+#### Plot Theme
 ```{r}
 #| label: Plot-Sizing-and-theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -109,32 +110,35 @@ theme_set(new = theme_custom())
 
 ## Introduction
 
-Nine types of Seaweed were rated on different parameters and charted as shown below. 
+The extent of Antarctic Sea Ice over time is monitored by the National Snow and Ice Data Center <https://nsidc.org/>. 
+
+## Read the Data
+
+{{< downloadthis ../../../../../materials/Data/Sea_Ice_Index_Daily_Extent_G02135_v3.0.xlsx dname=ice label="Download the Sea Ice data"
+icon=database-fill-down type=info class=data-button >}}
 
 ::: callout-note
 ### Excel Data
 The data is an excel sheet. Inspect it first in Excel and  decide which sheet you need, and which part of the data you need. There are multiple sheets!
 Then use `readxl::read_xlsx(..)` to read it into R.
+NOTE: The sheet that contains our data of interest is titled "SH-Daily-Extent". 
 :::
 
-## Read the Data
-
 ```{r}
-#| label: read-data
 #| echo: false
-#| message: false
+ice <- readxl::read_xlsx("../../../../../materials/Data/Sea_Ice_Index_Daily_Extent_G02135_v3.0.xlsx", sheet = "SH-Daily-Extent")
 
-seaweed <- readxl::read_xlsx("../../../../../materials/Data/Seaweed_Farming_Marine_Permaculture.xls", sheet = "seaweed nutrition", range = "A3:R13")
+# #
+# ice %>%
+#   downloadthis::download_this(
+#     output_name = "ice-dataset",
+#     output_extension = ".csv",
+#     button_label = "Download the data",
+#     button_type = "warning",
+#     has_icon = TRUE,
+#     icon = "fa fa-save"
+#   )
 
-seaweed %>%
-  downloadthis::download_this(
-    output_name = "seaweed-nutrition",
-    output_extension = ".csv",
-    button_label = "Download Seaweed Nutrition data",
-    button_type = "warning",
-    has_icon = TRUE,
-    icon = "fa fa-save"
-  )
 ```
 
 ## Inspect the Data
@@ -142,10 +146,12 @@ seaweed %>%
 ```{r}
 #| label: inspect-categorical
 #| echo: false
-glimpse(seaweed)
+ice
 
 ```
 
+Appreciate the structure of this data. You may even want to open it in Excel for a closer look. List any imperfections in your Data Dictionary.
+Why do these matter now? Why might they not have mattered earlier, up to now?
 
 ## Data Dictionary
 ::: callout-note
@@ -166,12 +172,11 @@ Write in.
 
 :::
 
-## Research Question
-::: callout-note
-Write in!
-:::
-
 ## Analyse/Transform the Data
+
+Try to figure what may be needed, based on the imperfections noted above, what you may attempt to clean the data. Refer to your "list of imperfections" in the data. 
+
+Then look at the code below and execute line by line to get an idea. 
 
 ```{r}
 #| label: data-preprocessing
@@ -183,63 +188,75 @@ Write in!
 
 ```
 
-```{r}
-#| label: coffee-long
-#| echo: false
-seaweed %>% 
-  drop_na() %>% 
-  dplyr::select("common_name" = `common name`, 
-         "total_fibre" = `Total fiber`, Carbohydrates, 
-         Calcium, Potassium, Zinc) %>% 
-  mutate(fibre_rank = dense_rank(desc(total_fibre)),
-         carbo_rank = dense_rank(desc(Carbohydrates)),
-         calcium_rank = dense_rank(desc(Calcium)),
-         potassium_rank = dense_rank(desc(Potassium)),
-         zinc_rank = dense_rank(desc(Zinc))) %>% 
-  select(common_name, contains("rank")) %>% 
-  
-  # Convert to Long Form
-  pivot_longer(cols = contains("rank"), 
-               names_to = "parameter", 
-               values_to = "ranks") %>% 
-  arrange(parameter) -> seaweed_bump
 
-seaweed_bump
+```{r}
+#| code-fold: true
+#| 
+ice %>%
+  # Select columns
+  # Rename some while selecting !!
+  select("month" = ...1, "day" = ...2, c(4:49)) %>%
+  
+  # Fill the month column! Yes!!
+  tidyr::fill(month) %>%
+  
+  # Make Wide Data into Long
+  pivot_longer(cols = -c(month, day), 
+               names_to = "series", 
+               values_to = "values") %>% 
+  
+  # Regular Munging
+  mutate(series = as.integer(series),
+         month = factor(month, 
+                        levels = month.name,
+                        labels = month.name,
+                        ordered = TRUE),
+      # Note munging for date!!
+      # Using the lubridate package, part of tidyverse
+         date = lubridate::make_date(year = series,
+                          month = month, 
+                          day = day)) -> ice_prepared
+
+ice_prepared
 
 ```
+
+
+## Research Question
+::: callout-note
+Write in! Look first at the graph!
+:::
 
 
 ## Plot the Data
+
+
 ```{r}
 #| echo: false
-seaweed_bump %>%
-  ggplot(
-    aes(
-      x = parameter,
-      y = ranks,
-      group = common_name,
-      colour = common_name,
-      shape = common_name
-    )
-  ) +
-  ggbump::geom_bump(linewidth = 1) +
+# Set graph theme
+theme_set(new = theme_custom())
+#
+ice_prepared %>% 
+  gf_boxplot(values ~ month, colour = "grey",
+           alpha = 0.3) %>% 
   
-  scale_x_discrete(labels = c("Calcium", "Carbs", "Fibre", "Potassium", "Zinc"), guide = "prism_bracket") +
-  geom_point(size = 3, fill = "black") +
-  scale_shape_manual("Seaweed Type", values = c(0, 1, 2, 5, 7, 8, 15, 16, 18)) +
-  scale_colour_discrete("Seaweed Type") +
-  scale_y_reverse(breaks = c(1:9)) +
-  scale_linetype_manual("Seaweed Type", values = c(1, 2, 3, 4, 5, 6, 1, 2, 3)) +
+  gf_summary(values ~ month, after_stat(mean), 
+             data = ice_prepared %>% 
+             filter(series %in% c("2023")), 
+             color = ~ "2023", 
+             shape =  15, size = 1) %>% 
   
-  labs(
-    title = "Nutrients from Seaweed",
-    caption = "Data from informationisbeautiful.net",
-    x = "Nutrient",
-    y = "Rank"
-  ) +
-  theme_custom()
+  gf_labs(title = "Antarctic Ice Area over the Years 1980-2023",
+          subtitle = "What happened in 2023?",
+          caption = "Data: National Snow and Ice Data Center https://nsidc.org/",
+          y = "Ice Extent in million sqkm") %>% 
+
+  gf_refine(scale_x_discrete("Month", 
+                             labels = month.abb)) %>% 
+  gf_theme(theme(legend.title = element_blank()))
 
 ```
+
 
 ## Tasks and Discussion
 
@@ -251,8 +268,9 @@ seaweed_bump %>%
     fill...). Name the variables appropriately.
   -   What research activity might have been carried out to obtain the data graphed here? Provide some details.
   -   What might have been the Hypothesis/Research Question to which the response was Chart?
-  - Write a 2-line story based on the chart, describing your inference/surprise.
-  - Based on the diagram, discuss which one an elderly person might try if they are deficient in calcium. If you were trying to avoid carbs, which seaweed sushi would you try?
+  - What might the red points represent? 
+  - What is perhaps a befuddling aspect of this graph until you...Ohhh!!!!!!
+  - Draw a sketch of a similar chart for ice extents in the Arctic.
 
     
 

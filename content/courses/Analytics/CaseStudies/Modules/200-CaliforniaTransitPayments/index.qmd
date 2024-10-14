@@ -37,9 +37,11 @@ library(sjlabelled)
 #    
 ```
 
+
+#### Plot Theme
 ```{r}
 #| label: Plot-Sizing-and-theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -108,7 +110,9 @@ The dataset is available on Dataset Dryad:
 
 Pike, Susan (2022). *Transit payment preferences of unbanked passengers.* Dataset Dryad. <https://doi.org/10.25338/B8R04T>
 
-and a brief 2-pager on the research methodology is [here](https://rosap.ntl.bts.gov/view/dot/61204/dot_61204_DS1.pdf).
+And a brief 2-pager on the research methodology is [here](https://rosap.ntl.bts.gov/view/dot/61204/dot_61204_DS1.pdf).
+
+Yes, peasants, you should read such stuff from other very different domains!
 
 ## Read the Data
 
@@ -119,51 +123,15 @@ and a brief 2-pager on the research methodology is [here](https://rosap.ntl.bts.
 
 CalPayment <- read_csv("../../../../../materials/Data/doi_10_25338_B8R04T__v20220228/Transit_payment_preferences_of_unbanked_passengers.csv")
 
-```
-
-## Inspect and Clean the Data
-
-```{r}
-#| echo: false
-#| eval: false
-glimpse(CalPayment)
-skimr::skim(CalPayment)
-inspect(CalPayment)
-names(CalPayment)
-  
-CalPayment2 <- CalPayment |> 
-  dplyr::select(starts_with("phone")) %>% 
-  mutate(across(everything(), ~ str_replace_all(., "1", "2"))) %>% 
-  mutate(across(everything(), ~ str_replace_all(., "0", "1"))) %>% 
-  mutate(across(everything(), as.numeric))
-
-# ▢ Not having wifi access (1)
-# ▢ Ways to add money (2)
-# ▢ Identity concerns (3)
-# ▢ Monthly fees (4)
-# ▢ Knowing the balance (5)
-# ▢ Other (please write in) (6)
- 
-# 
-CalPayment2
-CalPayment2 |> count(phone.balance)
-CalPayment2 |> count(phone.wifi)
-CalPayment2 |> count(phone.money)
-CalPayment2 |> count(phone.identity)
-CalPayment2 |> count(phone.fees)
-
-variable_labels2 <- c("Wi_Fi access?",
-                     "Ways to add money?",
-                     "Identity Concerns?",
-                     "Monthly Fees?",
-                     "Knowing the balance?")
-
-
-CalPayment2 <- CalPayment2 %>% 
-  sjlabelled::set_label(x = ., label = variable_labels2) %>%
-  sjlabelled::set_labels(x = ., labels = c("No", "Yes"))
-
-str(CalPayment2)
+CalPayment %>%
+  downloadthis::download_this(
+    output_name = "Payments-dataset",
+    output_extension = ".csv",
+    button_label = "Download the Cal Payment data",
+    button_type = "warning",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
 
 ```
 
@@ -186,34 +154,12 @@ Write in.
 
 :::
 
-## Analyse the Data
+
+## Data Munging
 
 ```{r}
-#| label: data-preprocessing
-#| echo: fenced
-#
-# Write in your code here 
-# to prepare this data as shown below  
-# to generate the plot that follows
-
-```
-
-```{r}
-#| label: california-payment-data-1
 #| echo: false
-#| 
-glimpse(CalPayment)
-#skimr::skim(CalPayment)
-# inspect(CalPayment)
-# names(CalPayment)
-```
-
-Select and transform the data variables of interest:
-
-```{r}
-#| label: california-payment-data-2
-#| echo: false
-#| 
+#| tbl-cap: Munged Data
 CalPayment2 <- CalPayment |> 
   dplyr::select(starts_with("phone")) %>% 
   mutate(across(everything(), ~ str_replace_all(., "1", "2"))) %>% 
@@ -226,11 +172,14 @@ CalPayment2 <- CalPayment |>
 # ▢ Monthly fees (4)
 # ▢ Knowing the balance (5)
 # ▢ Other (please write in) (6)
-
-glimpse(CalPayment2)
+ 
+# 
+CalPayment2
 
 ```
 
+
+## Summarize and Prepare the Data
 
 ```{r}
 #| echo: false
@@ -245,21 +194,30 @@ variable_labels2 <- c("Wi_Fi access?",
                      "Identity Concerns?",
                      "Monthly Fees?",
                      "Knowing the balance?")
+```
 
+Let's label the data variables...
 
+```{r}
+#| echo: false
+#| tbl-cap: Labelled Data
 CalPayment2 <- CalPayment2 %>% 
   sjlabelled::set_label(x = ., label = variable_labels2) %>%
   sjlabelled::set_labels(x = ., labels = c("No", "Yes"))
 
 str(CalPayment2)
+
 ```
+
+## Plot the Data
 
 
 ```{r}
 #| label: california-payment-likert
 #| echo: false
 
-plot_likert(CalPayment2, reverse.colors = F, reverse.scale = F) +
+plot_likert(CalPayment2, reverse.colors = F, 
+            reverse.scale = F) +
   scale_fill_grey(start = 0.4, end = 0.8, labels = c("Yes", "No")) +
 labs(title = "Challenges in Phone Payment\n in California Transit\n for Un-banked Passengers", caption = "Pike, Susan (2022). Transit payment preferences of unbanked passengers\n [Dataset]Dryad. https://doi.org/10.25338/B8R04T") +
   theme_custom()
