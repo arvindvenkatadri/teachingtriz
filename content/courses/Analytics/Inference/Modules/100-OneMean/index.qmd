@@ -165,6 +165,8 @@ Each test we perform will mechanize this attitude in different ways, based on as
 
 ## {{< iconify pajamas issue-type-test-case >}} Case Study #1: Toy data
 
+Since the CLT **assumes** the [sample is normally-distributed]{style="background-color: yellow;"}, let us generate a sample that is just so:
+
 :::: {.columns}
 ::: {.column width="60%"}
 ```{r}
@@ -174,7 +176,8 @@ set.seed(40) # for replication
 #
 # Data as individual vectors 
 # ( for t.tests etc)
-y <- rnorm(50, mean = 2, sd = 2)
+# Generate normally distributed data with mean = 2, sd = 2, length = 50
+y <- rnorm(n = 50, mean = 2, sd = 2)
 
 # And as tibble too 
 mydata <- tibble(y = y)
@@ -222,8 +225,10 @@ mydata %>%
 
 ::: callout-note
 ### Observations from Density Plots
-- The variable $y$ appear to be centred around 2\
+
+- The variable $y$ appear to be centred around
 - It does not seem to be normally distributed...
+- So assumptions are not always valid...
 :::
 
 ### Research Question
@@ -374,6 +379,7 @@ The "equivalent t-test" with signed-rank data cannot do this, since it uses "ran
 :::
 
 ### Using Permutation and Bootstrap
+
 We saw from the diagram created by Allen Downey that *there is only one test* [^1]! We will now use this philosophy to develop a technique that allows us to mechanize several *Statistical Models* in that way, with nearly identical code.
 
 We can use two packages in R, `mosaic` to develop our intuition for what are called **permutation** based statistical tests; and a more recent package called `infer` in R which can do pretty much all of this, including visualization. 
@@ -460,6 +466,8 @@ There is a difference between the two.
 The *bootstrap test* uses the sample at hand to generate many similar samples *without access to the population*, and calculates the statistic needed (i.e. mean). No Hypothesis is stated. The distribution of bootstrap samples looks "similar" to that we might obtain by repeatedly sampling the population itself. (centred around a population parameter, i.e. $\mu$)
 
 The *permutation test* generates many permutations of the data and generates appropriates measures/statistics *under the NULL hypothesis*. Which is why the permutation test has a NULL distribution centered at $0$ in this case, our NULL hypothesis. 
+
+As student [Sneha Manu Jacob](https://linkedin.com) remarked in class, *Permutation flips the signs of the data values in our sample; Bootstrap flips the number of times each data value is (re)used*. Good Insight!!
 
 :::
 

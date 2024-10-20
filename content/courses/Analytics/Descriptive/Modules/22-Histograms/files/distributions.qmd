@@ -6,7 +6,9 @@ date-modified: "`r Sys.Date()`"
 abstract: How to ask Questions of your Data and answer with Stats, and interactive Bar charts and Histograms with the `ggformula` package
 filters: 
   - shinylive
-
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## {{< iconify noto-v1 package >}} Setup the Packages
@@ -33,7 +35,7 @@ We will create Distributions for data in R. As always, we will
 consistently use the [**Project Mosaic**](https://mosaic-web.org)
 ecosystem of packages in R (`mosaic`, `mosaicData` and `ggformula`).
 
-::: {.callout-tip}
+::: callout-tip
 Note the standard method for all commands from the `mosaic` package:
 `goal( y ~ x | z, data = mydata, …)`
 
@@ -90,6 +92,7 @@ counting of observations must be done on the basis of **Qualitative**
 variables. So let us count and plot the counts in bar charts.
 
 ::: {.callout-note title="Question"}
+
 Q.1 How many families in the data for each value of `nkids`(i.e. Count
 of families by size)?
 
@@ -211,9 +214,9 @@ need a `gf_histogram`...
 ```{r}
 Galton %>% 
   gf_histogram(~ height,bins = 30) %>% # ALWAYS try several settings for "bins"
-  gf_vline(xintercept = mean(Galton$height), color = "red") %>% 
-  gf_label(label = glue::glue("Mean Value\n {mean(Galton$height)}"),
-           gformula = 85 ~ 70) %>% # Where do we want the label (y ~ x) %>% 
+  gf_vline(xintercept = mean(Galton$height), color = "red") %>%  
+  gf_refine(annotate(geom = "text", label = glue::glue("Mean Value\n {mean(Galton$height)}"),
+           y = 85, x = 70)) %>% # Where do we want the label (y ~ x) 
   gf_labs(title = "Galton Dataset",
           subtitle = "",
           x = "Heights of Children",
@@ -301,6 +304,8 @@ inference test to figure that out!! Claus Wilke[^1] says comparisons of
 Quant variables across groups are best made between densities and not
 histograms...
 :::
+
+[^1]: Fundamentals of Data Visualization (clauswilke.com)
 
 ::: {.callout-note title="Question"}
 Q.6 Are Mothers generally shorter than fathers?
@@ -761,5 +766,3 @@ And that is a wrap!! Try to work with this procedure:\
 
 1.  A detailed analysis of the NHANES dataset,
     <https://awagaman.people.amherst.edu/stat230/Stat230CodeCompilationExampleCodeUsingNHANES.pdf>
-
-[^1]: Fundamentals of Data Visualization (clauswilke.com)
