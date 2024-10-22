@@ -13,7 +13,7 @@ library(tidyverse)
 library(mosaic)
 library(skimr)
 library(ggformula)
-
+library(scales)
 ```
 
 
@@ -109,14 +109,16 @@ This is a dataset pertaining to gender and compensation at the workplace, modifi
 
 library(tidytuesdayR)
 jobs_gender <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-05/jobs_gender.csv")
+dim(jobs_gender)
+jobs_gender
+```
 
-jobs_gender %>%
-  filter(year == 2016) %>%
-  filter(major_category == "Healthcare Practitioners and Technical") %>%
-  arrange(desc(wage_percent_of_male)) ->job_gender_modified
 
-job_gender_modified
+```{r}
+#| label: category-checks
+#| echo: false
 
+jobs_gender %>% count(major_category)
 ```
 
 ## Download the Modified data
@@ -126,7 +128,7 @@ job_gender_modified
 
 library(downloadthis)
 
-job_gender_modified %>% 
+jobs_gender %>% 
    downloadthis::download_this(output_name = "job_gender_data", output_extension = ".csv", button_label = "Job and Gender Data", button_type = "default", icon = "fa fa-save")
 
 # 
@@ -165,8 +167,10 @@ Write in.
 ```{r}
 #| echo: false
 jobs_gender %>%
-  filter(year == 2016) %>%
-  filter(major_category == "Healthcare Practitioners and Technical") %>%
+  #filter(year == 2016) %>%
+  #filter(major_category == "Healthcare Practitioners and Technical") %>%
+  group_by(major_category) %>% 
+  summarise(median_salary = median())
   arrange(desc(wage_percent_of_male)) %>%
   ggplot(aes(workers_female / total_workers,
              total_earnings,
@@ -177,7 +181,7 @@ jobs_gender %>%
   labs(title = "Salaries and Gender Proportion in the Workforce",
        size = "Total # of workers",
        x = "% of workforce reported as female",
-       y = "Median salary in the occupation") +
+       y = "Total Salary in the occupation") +
   scale_x_continuous(labels = percent_format()) +
   scale_y_continuous(labels = dollar_format()) +
   expand_limits(y = 0) + 
