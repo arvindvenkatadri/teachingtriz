@@ -27,17 +27,21 @@ editor:
 
 ## {{< fa folder-open >}} Slides and Tutorials
 
-| <a href="https://arvindvenkatadri.com/slides/R-for-Artists/06-spatial/06-Spatial-Data-in-R.html"><i class="fa-brands fa-r-project"></i> Spatial Data </a> | <a href="https://arvindvenkatadri.com/labs/r-for-artists/06-spatial/06-grammar-of-maps"><iconify-icon icon="emojione:world-map"></iconify-icon> Static Maps</a>  | {{< iconify carbon touch-interaction >}} <a href="https://r-for-artists.netlify.app/labs/06-spatial/playingwithleaflet"> Interactive Maps</a> |
-|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+|  |  |  |  |
+|------------------|------------------|------------------|-------------------|
+| **Spatial Data** | **Static Maps** | **Interactive Maps with Leaflet** | **Interactive Maps with Mapview** |
+| <a href="https://arvindvenkatadri.com/slides/R-for-Artists/06-spatial/06-Spatial-Data-in-R.html"><iconify-icon icon="fa6-brands:r-project" width="1.2em" height="1.2em"></iconify-icon>Spatial<br>Data </a> | <a href="../../../../../labs/r-labs/maps/gram-maps.qmd"><iconify-icon icon="emojione:world-map" width="1.2em" height="1.2em"></iconify-icon>Static<br>Maps</a>  | <a href="../../../../../labs/r-labs/maps/PlayingwithLeaflet.html"> `<iconify-icon icon="`{=html}carbon:touch-interaction`" width="1.2em" height="1.2em"></iconify-icon>`{=html}Interactive Maps<br>with leaflet</a> | <a href="../../../../../labs/r-labs/maps/PlayingwithMapview.html"> `<iconify-icon icon="`{=html}carbon:touch-interaction`" width="1.2em" height="1.2em"></iconify-icon>`{=html}Interactive Maps<br> with mapview</a> |
 
-:::: {.pa4}
+:::: pa4
 ::: {.athelas .ml0 .mt0 .pl4 .black-90 .bl .bw2 .b--blue}
-["If we were to wake up some morning and find that everyone was the same race, creed, and color, we would find some other cause for prejudice by noon."]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
+["If we were to wake up some morning and find that everyone was the same
+race, creed, and color, we would find some other cause for prejudice by
+noon."]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
 
-[ --- George D. Aiken, US senator (20 Aug 1892-1984)]{.f6 .ttu .tracked .fs-normal}
+[--- George D. Aiken, US senator (20 Aug 1892-1984)]{.f6 .ttu .tracked
+.fs-normal}
 :::
 ::::
-
 
 ## {{< iconify noto-v1 package >}} Setting up R Packages
 
@@ -46,13 +50,16 @@ editor:
 #| include: true
 #| message: true
 #| warning: false
-knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(sf)
 library(tmap)
 library(osmdata)
 library(rnaturalearth)
-
+## Interactive Maps
+library(leaflet)
+library(leaflet.providers)
+library(leaflet.extras)
 ```
 
 ```{r}
@@ -67,6 +74,7 @@ library(grateful)
 ```
 
 #### Plot Theme
+
 ```{r}
 #| label: Plot Sizing and theming
 #| code-fold: true
@@ -131,48 +139,40 @@ theme_set(new = theme_custom())
 
 ```
 
-
 ## What graphs will we see today?
-| Variable #1 | Variable #2 | Chart Names |                    Chart Shape                    |
-|:-------------:|:--------------:|:------------------:|:--------------------:|
-|    Quant    |    Qual    |  Choropleth and Symbols Maps, Cartograms | {{< iconify arcticons emoji-world-map size=6x >}} {{< iconify gis statistic-map size=4x >}} {{< iconify icon-park-outline world size=4x >}} |
 
+| Variable #1 | Variable #2 | Chart Names | Chart Shape |
+|:--------------:|:--------------:|:--------------:|:----------------------:|
+| Quant | Qual | Choropleth and Symbols Maps, Cartograms | {{< iconify arcticons emoji-world-map size=6x >}}{{< iconify gis statistic-map size=4x >}}{{< iconify icon-park-outline world size=4x >}} |
 
 ## {{< iconify icons8 idea >}} Inspiration
 
-::: {#fig-choropleth-maps layout-ncol=2 column=body-outset-right}
+::: {#fig-choropleth-maps layout-ncol="2" column="body-outset-right"}
+![Infosys in the
+EU](../../../../../materials/images/Works-most-europe_Site.jpg){#fig-work-hours-eu}
 
-![Infosys in the EU](../../../../../materials/images/Works-most-europe_Site.jpg){#fig-work-hours-eu}
-
-
-![Population Cartogram](../../../../../materials/images/world-map-cartogram.png){#fig-cartogram width=4in}
+![Population
+Cartogram](../../../../../materials/images/world-map-cartogram.png){#fig-cartogram
+width="4in"}
 
 Choropleth and Cartogram
-
 :::
 
-
-
-::: {#fig-symbol-maps layout-ncol=2}
-
-![Where's the next Houthi attack?](../../../../../materials/images/hormuz.jpg){#fig-hormuz}
-
-
-
+::: {#fig-symbol-maps layout-ncol="2"}
+![Where's the next Houthi
+attack?](../../../../../materials/images/hormuz.jpg){#fig-hormuz}
 
 ![Malacca](../../../../../materials/images/bubble-map.png){#fig-bubble}
 
 Symbol Maps
-
 :::
 
 ## {{< iconify mdi food-processor-outline >}} How do these Chart(s) Work?
 
-In @fig-work-hours-eu, we have a *choropleth map*. What does *choropleth*[^1] mean? And what kind of information could this map represent? The idea is to colour a specific area of the map, a district or state, based on a Quant or a Qual variable. 
-
-The @fig-cartogram deliberately distorts and scales portions of the map in proportion to a Quant variable, in this case, population in 2018. 
-
-In @fig-hormuz and @fig-bubble, symbols are used to indicate either the location/presence of an item of interest, or a quantity by scaling their size in proportion to a Quant variable
+In @fig-work-hours-eu, we have a *choropleth map*. What does
+*choropleth*[^1] mean? And what kind of information could this map
+represent? The idea is to colour a specific area of the map, a district
+or state, based on a Quant or a Qual variable.
 
 [^1]: Etymology. **From Ancient Greek χώρα (khṓra, "location") + πλῆθος
     (plêthos, "a great number") + English map**. First proposed in 1938
@@ -180,18 +180,23 @@ In @fig-hormuz and @fig-bubble, symbols are used to indicate either the location
     area," although maps of the type have been used since the early 19th
     century.
 
+The @fig-cartogram deliberately distorts and scales portions of the map
+in proportion to a Quant variable, in this case, population in 2018.
+
+In @fig-hormuz and @fig-bubble, symbols are used to indicate either the
+location/presence of an item of interest, or a quantity by scaling their
+size in proportion to a Quant variable
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
-First; let us watch a short, noisy video on maps:
-<br><br>
+First; let us watch a short, noisy video on maps: <br><br>
 
 {{< video https://youtu.be/YH2sAbXv7p4 >}}
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What kind of visualizations will we make?
 
-Let us first understand the idea of a Geographical Information System, GIS:
-<br><br>
+Let us first understand the idea of a Geographical Information System,
+GIS: <br><br>
 
 {{< video https://youtu.be/aaghPefGD6Y >}}
 
@@ -250,17 +255,21 @@ with this data. Justify your decisions for type of map.
 
 ## {{< iconify ooui references-ltr >}} References
 
-1. Hadley Wickham, Danielle Navarro and Thomas Lin
-Pedersen. *ggplot2: Elegant Graphics for Data Analysis*, <https://ggplot2-book.org/maps.html>\
+1.  Hadley Wickham, Danielle Navarro and Thomas Lin Pedersen. *ggplot2:
+    Elegant Graphics for Data Analysis*,
+    <https://ggplot2-book.org/maps.html>\
 
-1. Robin Lovelace, Jakub Nowosad, Jannes Muenchow. *Geocomputation with R*, <https://r.geocompx.org/>\
+2.  Robin Lovelace, Jakub Nowosad, Jannes Muenchow. *Geocomputation with
+    R*, <https://r.geocompx.org/>\
 
-1. Emine Fidan. *Guide to Creating Interactive Maps in R*, <https://bookdown.org/eneminef/DRR_Bookdown/>\
+3.  Emine Fidan. *Guide to Creating Interactive Maps in R*,
+    <https://bookdown.org/eneminef/DRR_Bookdown/>\
 
-1. Nikita Voevodin. *R, Not the Best Practices*, <https://bookdown.org/voevodin_nv/R_Not_the_Best_Practices/maps.html>\
+4.  Nikita Voevodin. *R, Not the Best Practices*,
+    <https://bookdown.org/voevodin_nv/R_Not_the_Best_Practices/maps.html>\
 
-1. Want to make a cute logo-like map? Try
-<https://prettymapp.streamlit.app>\
+5.  Want to make a cute logo-like map? Try
+    <https://prettymapp.streamlit.app>\
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
@@ -272,7 +281,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("osmdata","sf","tmap", "rnaturalearth")
+  pkgs = c("leaflet","osmdata","sf","tmap", "rnaturalearth")
 ) %>%
   knitr::kable(format = "simple")
 
