@@ -50,9 +50,11 @@ library(grateful)
 
 ```
 
+#### Plot Theme
+
 ```{r}
 #| label: Plot Sizing and theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -202,6 +204,7 @@ inspect(GSS2002)
 skimr::skim(GSS2002)
 
 ```
+
 <br>
 
 Note how *all* variables are Categorical !! `Education` has five
@@ -214,7 +217,9 @@ GSS2002 %>% count(DeathPenalty)
 
 ```
 
-Let us drop NA entries in `Education` and `Death Penalty` and set up a [**Contingency Table**](../../../Descriptive/Modules/40-CatData/index.qmd#what-is-a-contingency-table).
+Let us drop NA entries in `Education` and `Death Penalty` and set up a
+[**Contingency
+Table**](../../../Descriptive/Modules/40-CatData/index.qmd#what-is-a-contingency-table).
 
 ```{r,warning=FALSE,message=FALSE}
 
@@ -225,11 +230,13 @@ gss2002 <- GSS2002 %>%
 gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
   addmargins()
 gss_table 
+
 ```
 
 ### Contingency Table Plots
 
-The Contingency Table can be plotted, as we have seen, using a `mosaic`plot using several packages. Let us do a quick recap:
+The Contingency Table can be plotted, as we have seen, using a
+`mosaic`plot using several packages. Let us do a quick recap:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 #### Using ggmosaic
@@ -255,7 +262,8 @@ vcd::mosaic(gss_table, gp = shading_hsv)
 
 #### Using ggformula
 
-As seen before, it needs a little more work, to convert the Contingency Table into a tibble:
+As seen before, it needs a little more work, to convert the Contingency
+Table into a tibble:
 
 ```{r warning=FALSE,message=FALSE}
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
@@ -305,17 +313,23 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 What would our Hypotheses be?
 
-$H_0: \text{Education does not affect votes for Death Penalty}$
-$H_a: \text{Education affects votes for Death Penalty}$
+$H_0: \text{Education does not affect votes for Death Penalty}\\$
+
+$H_a: \text{Education affects votes for Death Penalty}\\$
 
 ## Inference for Two Proportions
 
-We are now ready to perform our statistical inference. We will use the standard `Pearson chi-square test`, and develop and intuition for it. We will then do a permutation test to have an alternative method to complete the same task.
+We are now ready to perform our statistical inference. We will use the
+standard `Pearson chi-square test`, and develop and intuition for it. We
+will then do a permutation test to have an alternative method to
+complete the same task.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Code
 
-Let us now perform the base `chisq test`: We need a `table` and then the `chisq` test: We will calculate the `observed-chi-squared` value, and compare it with the `critical value`.
+Let us now perform the base `chisq test`: We need a `table` and then the
+`chisq` test: We will calculate the `observed-chi-squared` value, and
+compare it with the `critical value`.
 
 ```{r}
 
@@ -335,7 +349,10 @@ X_squared_critical
 ```
 
 We see that our observed $X^2 = 23.45$; the critical value
-`X_squared_critical` is $9.48$, which is much smaller! The `p-value` is $0.0001029$, very low as we would expect, indicating that the NULL Hypothesis should be rejected in favour of the alternate hypothesis, that opinions about the `DeathPenalty` are related to `Education`.
+`X_squared_critical` is $9.48$, which is much smaller! The `p-value` is
+$0.0001029$, very low as we would expect, indicating that the NULL
+Hypothesis should be rejected in favour of the alternate hypothesis,
+that opinions about the `DeathPenalty` are related to `Education`.
 
 Let us now dig into that cryptic-looking table above!
 
@@ -344,21 +361,26 @@ Let us now dig into that cryptic-looking table above!
 Let us look at the Contingency Table that we have:
 
 ```{r echo=FALSE}
-
-gss_table %>% addmargins() %>% 
+mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
+  addmargins() %>% 
   kableExtra::kbl(caption = "Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
-<br> 
-In the chi-square test, we check whether the two (or more)
-categorical variables are independent. To do this we perform a simple check on the Contingency Table. We first *re-compute* the totals in each row and column, based on what we could **expect** if there was independence (NULL Hypothesis). If the two variables were independent,
+<br> In the chi-square test, we check whether the two (or more)
+categorical variables are independent. To do this we perform a simple
+check on the Contingency Table. We first *re-compute* the totals in each
+row and column, based on what we could **expect** if there was
+independence (NULL Hypothesis). If the two variables were independent,
 then there should be **no difference** between real and expected scores.
 
-How do we know what scores to expect if there was no relationship between the variables?
+How do we know [what scores to expect]{.bg-lightred .black} if there was
+no relationship between the variables?
 
-Consider the entry in location (1,1): 117. The number of **expected** entries there is probability of an entry landing in that square times the total number of entries:
+Consider the entry in location (1,1): 117. The number of **expected**
+entries there is the *probability of an entry landing in that square*
+times *the total number of entries*:
 
 $$
 \begin{align}
@@ -374,25 +396,35 @@ Proceeding in this way for all the 15 entries in the Contingency Table,
 we get the "Expected" Contingency Table. Here are both tables for
 comparison:
 
-```{r echo=FALSE}
+```{r}
+#| echo: false
 # using prop.table with appropriate margin argument gives us a slick matrix of probabilities
+mosaic::tally(DeathPenalty ~ Education, 
+              data = gss2002) %>% 
+  addmargins() -> gss_sub_table
+##
+gss_exp <- gss_sub_table * gss_sub_table / ((
+  prop.table(gss_sub_table, margin = 1) * prop.table(gss_sub_table, margin = 2)) * 1307 * 4)
+gss_exp %>% 
+   kableExtra::kbl(caption = "Expected Contingency Table", 
+                   digits = 0) %>%
+  kableExtra::kable_classic(full_width = F, 
+                            html_font = "Cambria")
+```
 
-gss_exp <- gss_table * gss_table / ((
-  prop.table(gss_table, margin = 2) * prop.table(gss_table, margin = 1)
-) * 1307)
-
+```{r}
+#| eval: false
+#| echo: false
+gss_exp %>% 
+   kableExtra::kbl(caption = "Expected Contingency Table", 
+                   digits = 0) %>%
+  kableExtra::kable_classic(full_width = F, 
+                            html_font = "Cambria")
 ```
 
 ```{r}
 #| echo: false
-gss_exp %>% addmargins() %>% 
-   kableExtra::kbl(caption = "Expected Contingency Table", digits = 0) %>%
-  kableExtra::kable_classic(full_width = F, html_font = "Cambria")
-```
-
-```{r}
-#| echo: false
-gss_table %>% addmargins() %>% 
+gss_table %>%  
    kableExtra::kbl(caption = "Actual Contingency Table") %>%
   kableExtra::kable_classic(full_width = F, html_font = "Cambria")
 
@@ -422,17 +454,18 @@ Post](https://stats.stackexchange.com/a/303548):
 >     variables in the rows and the variable in the columns are
 >     independent.\
 > -   The cell counts $E_{ij}$ are assumed to be Poisson distributed
->     with mean $E_{ij}$ and as they are Poisson, their variance is also
->     $E_{ij}$.\
+>     with mean = $E_{ij}$ and as they are Poisson, their variance is
+>     also $E_{ij}$.\
 > -   Asymptotically the Poisson distribution approaches the normal
->     distribution with mean $E_{ij}$ and standard deviation with mean
+>     distribution with mean = $E_{ij}$ and *standard deviation* with
 >     $\sqrt(E_{ij})$ so, asymptotically
 >     $\frac{(X_{ij} - E_{ij})}{\sqrt(E_{ij})}$ is approximately
 >     standard normal.\
 > -   If you square standard normal variables and sum these squares then
 >     the result is a chi-square random variable so
 >     $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt(E_{ij})}\right)^2$
->     has a (asymptotically) a chi-square distribution.\
+>     has a (asymptotically) a [chi-square
+>     distribution]{.bg-light-red .black}.\
 > -   Asymptotics must hold and that is why most textbooks state that
 >     the result of the test is valid when all expected cell counts
 >     $E_{ij}$ are larger than 5, but that is just a rule of thumb that
@@ -446,9 +479,9 @@ theme_set(new = theme_custom())
 df <- tibble(x = rnorm(500, mean = 0, sd = 2), 
              y = x^2)
 df %>% gf_density(~x) %>% 
-  gf_fitdistr(dist = "dnorm")
+  gf_fitdistr(dist = "dnorm", title = "Normal Density")
 df %>% gf_density(~y) %>% 
-  gf_fitdistr()
+  gf_fitdistr(title = "Chi-Square Density = Squared Normal Density")
 
 ```
 :::
@@ -460,7 +493,6 @@ proportions. We will first get an intuitive idea of the permutation, and
 then perform it using both `mosaic` and `infer`.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 ### {{< iconify svg-spinners blocks-shuffle-3 >}} Permutation Visually Demonstrated
 
 We saw from the diagram created by Allen Downey that [there is only one
@@ -781,6 +813,8 @@ variety.
 
 5.  An Online $\Xi^2$-test calculator.
     <https://www.statology.org/chi-square-test-of-independence-calculator/>
+
+6.  <https://saylordotorg.github.io/text_introductory-statistics/s13-04-comparison-of-two-population-p.html>
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations
