@@ -58,7 +58,8 @@ library(GGally) # Corr plots
 library(corrplot) # More corrplots
 library(ggExtra) # Making Combination Plots
 
-#devtools::install_github("rpruim/Lock5withR")
+# library(devetools)
+# devtools::install_github("rpruim/Lock5withR")
 library(Lock5withR) # Datasets
 library(palmerpenguins) # A famous dataset
 
@@ -68,9 +69,11 @@ library(correlation) # Different Types of Correlations
 
 ```
 
+
+#### Plot Theme
 ```{r}
 #| label: Plot-Sizing-and-theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -222,6 +225,8 @@ as *the average of the products of two scaled variables*.
 
 ```{r}
 #| echo: false
+#| warn: false
+#| message: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -384,8 +389,8 @@ Which are the numeric variables in `movies`?
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### {{< iconify la r-project >}} R
-```{r}
 
+```{r}
 movies_quant <- movies %>%
   drop_na() %>%
   select(where(is.numeric))
@@ -394,6 +399,7 @@ movies_quant
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
+
 ```{webr-r}
 
 movies_quant <- movies %>%
@@ -409,6 +415,8 @@ movies_quant
 
 Now let us plot their relationships.
 
+::: {.column-page-inset-right}
+
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
 ### Using ggformula
@@ -423,6 +431,7 @@ Now let us plot their relationships.
 theme_set(new = theme_custom())
 
 movies %>% 
+  drop_na() %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
   gf_lm() %>% 
   gf_labs(title = "Scatter Plot",
@@ -446,6 +455,7 @@ movies %>%
 # Set graph theme
 theme_set(new = theme_custom())
 movies %>% 
+  drop_na() %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
   gf_lm() %>% 
   gf_labs(title = "Scatter Plot",
@@ -471,6 +481,7 @@ movies %>%
 theme_set(new = theme_custom())
 ##
 movies %>% 
+drop_na() %>% 
   gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm() %>% 
   gf_labs(title = "Scatter Plot",
@@ -528,6 +539,7 @@ movies %>%
 theme_set(new = theme_custom())
 
 movies %>% 
+  drop_na() %>% 
   ggplot(aes(x = DomesticGross,y = WorldGross)) + 
   geom_point() + 
   geom_lm() + 
@@ -555,6 +567,7 @@ movies %>%
 theme_set(new = theme_custom())
 ##
 movies %>% 
+  drop_na() %>% 
   ggplot(aes(OpeningWeekend,Profitability)) + 
   geom_point() + 
   geom_lm() + 
@@ -582,6 +595,7 @@ movies %>%
 theme_set(new = theme_custom())
 ##
 movies %>% 
+  drop_na() %>% 
   ggplot(aes(AudienceScore,RottenTomatoes)) + 
   geom_point() + 
   geom_lm() +
@@ -624,6 +638,7 @@ movies %>%
 #| echo: false
 ```
 :::
+
 ::::
 
 
@@ -632,6 +647,7 @@ movies %>%
 ```{webr-r}
 
 movies %>% 
+  drop_na() %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
   gf_lm(title = "Scatter Plot",
         subtitle = "Movie Gross Earnings: Domestics vs World")
@@ -640,6 +656,7 @@ movies %>%
 ```{webr-r}
 
 movies %>% 
+  drop_na() %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
   gf_lm(title = "Scatter Plot",
         subtitle = "Movies: Does Opening Week Earnings indicate Profitability?")
@@ -648,7 +665,9 @@ movies %>%
 
 ```{webr-r}
 
-movies %>% gf_point(RottenTomatoes ~ AudienceScore) %>% 
+movies %>% 
+  drop_na() %>% 
+  gf_point(RottenTomatoes ~ AudienceScore) %>% 
   gf_lm(title = "Scatter Plot",
         subtitle = "Movie Ratings: Tomatoes vs Audience")
 
@@ -669,6 +688,9 @@ movies %>%
 
 
 :::
+
+::::
+
 
 :::callout-note
 ### Business Insight from `movies` scatter plots
@@ -804,6 +826,7 @@ So we see that there are visible relationships between Quant variables. How do w
 There are two ways: using the `GGally` and `corplot` packages, and doing
 a formal **correlation test** with the `mosaic` package. 
 
+::: {.column-page-inset-right}
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
@@ -823,6 +846,7 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 #| label: pairs-chart-1
 #| eval: false
 #| message: false
+#| warn: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -849,7 +873,7 @@ GGally::ggpairs(
   lower = list(continuous = wrap("smooth", alpha = 0.3, se = FALSE)),
   
   title = "Movies Data Correlations Plot #1"
-) 
+)
 
 
 ```
@@ -881,11 +905,13 @@ GGally::ggpairs(
 Let us also try a few other variables, related to budget and profits. For instance, it would be interesting to see the relationship between `Budget` and `Profitability` and even either of the "gross" earnings and `Profitability`.  
 
 :::: {.columns}
+
 :::{.column}
 ```{r}
 #| label: pairs-chart-2
 #| eval: false
 #| message: false
+#| warn: false
 
 # Set graph theme
 theme_set(new = theme_custom())
@@ -936,8 +962,7 @@ In this chart, the correlation between pairs of variables is shown
 Ellipse for example.
 
 -   The size, colour, and "orientation" of the shapes in question
-    symbolically represent the strength and polarity of the correlation
-    scores.
+    symbolically represent the strength and polarity of the correlation scores.
 -   The direction of the semi-major axis + the colour of the ellipse
     indicate whether the correlation score is positive or negative;
 -   And the more *eccentric* the ellipse, the higher is the correlation
@@ -958,8 +983,9 @@ matrix that supports **automatic variable reordering** to help detect hidden pat
 
 ```{r}
 #| label:  cor-matrix
-#| warning: false
+#| eval: false
 #| message: false
+#| warn: false
 
 # library(corrplot)
 mydata_cor <- cor(movies_quant)
@@ -1086,7 +1112,7 @@ corrplot.mixed(mydata_cor,
 
 :::
 
-
+::::
 
 ### Doing a Correlation Test
 
@@ -1136,6 +1162,7 @@ cor
 ```
 
 :::: {.columns}
+
 :::{.column}
 ```{r}
 #| label:  error-bar-plot
@@ -1160,19 +1187,23 @@ cor %>%
 ```
 
 :::
+
 :::{.column}
 ```{r}
 #| ref.label: error-bar-plot
 #| echo: false
 ```
 :::
+
 ::::
+
 
 ::: callout-note
 ### Business Insights from ErrorBar Plot
 - Several variables are negatively correlated and some are positively correlated with 'mpg`. (The grey line shows "zero correlation")
 - Since none of the error bars straddle zero, the correlations are mostly significant. 
 :::
+
 
 ### {{< iconify carbon qq-plot >}} {{< iconify fluent bezier-curve-square-12-regular rotate="90deg" >}} A New Combination Plot...
 
@@ -1206,6 +1237,7 @@ penguins %>%
 ```
 
 :::
+
 :::{.column}
 ```{r}
 #| ref.label: Scatter-Plot-with-Marginal-Densities
@@ -1213,6 +1245,9 @@ penguins %>%
 ```
 :::
 ::::
+
+
+
 
 ## An Interactive Correlation Game
 
