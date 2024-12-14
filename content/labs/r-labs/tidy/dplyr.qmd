@@ -20,9 +20,11 @@ the tidyverse.
 
 ```{r}
 #| label: setup
-#| include: true
+#| message: false
+#| warning: false
+knitr::opts_chunk$set(message = TRUE) # Want tidylog messages
 library(tidyverse)
-
+library(tidylog) ## Explains what happens with dplyr verbs
 ```
 
 
@@ -143,6 +145,7 @@ eyes with:
 > -\> Filter
 
 ```{r}
+#| message: true
 starwars %>% filter(skin_color == "light", eye_color == "brown")
 ```
 
@@ -155,12 +158,14 @@ order by. If you provide more than one column name, each additional
 column will be used to break ties in the values of preceding columns:
 
 ```{r}
+#| message: true
 starwars %>% arrange(height, mass)
 ```
 
 Use `desc()` to order a column in descending order:
 
 ```{r}
+#| message: true
 starwars %>% arrange(desc(height))
 ```
 
@@ -175,6 +180,7 @@ you to select, remove, and duplicate rows.
 We can get characters from row numbers 5 through 10.
 
 ```{r}
+#| message: true
 starwars %>% slice(5:10)
 ```
 
@@ -183,6 +189,7 @@ It is accompanied by a number of helpers for common use cases:
 -   `slice_head()` and `slice_tail()` select the first or last rows.
 
 ```{r}
+#| message: true
 starwars %>% slice_head(n = 3)
 ```
 
@@ -190,6 +197,7 @@ starwars %>% slice_head(n = 3)
     choose a certain proportion of the cases.
 
 ```{r}
+#| message: true
 starwars %>% slice_sample(n = 5)
 starwars %>% slice_sample(prop = 0.1)
 ```
@@ -207,6 +215,8 @@ weight the sample with the `weight` argument.
     which are not NA.
 
 ```{r}
+#| message: true
+
 starwars %>%
   filter(!is.na(height)) %>%
   slice_min(height, n = 3)
@@ -220,6 +230,7 @@ a useful subset using operations that usually only work on numeric
 variable positions:
 
 ```{r}
+#| message: true
 # Select columns by name
 starwars %>% select(hair_color, skin_color, eye_color)
 # Select all columns between hair_color and eye_color (inclusive)
@@ -238,6 +249,7 @@ criterion. See `?select` for more details.
 You can rename variables with `select()` by using named arguments:
 
 ```{r}
+#| message: true
 starwars %>% select(home_world = homeworld)
 ```
 
@@ -245,6 +257,7 @@ But because `select()` drops all the variables not explicitly mentioned,
 it's not that useful. Instead, use `rename()`:
 
 ```{r}
+#| message: true
 starwars %>% rename(home_world = homeworld)
 ```
 
@@ -255,6 +268,7 @@ columns that are functions of existing columns. This is the job of
 `mutate()`:
 
 ```{r}
+#| message: true
 starwars %>% mutate(height_m = height / 100)
 ```
 
@@ -262,6 +276,7 @@ We can't see the height in meters we just calculated, but we can fix
 that using a select command.
 
 ```{r}
+#| message: true
 starwars %>%
   mutate(height_m = height / 100) %>%
   select(height_m, height, everything())
@@ -271,6 +286,7 @@ starwars %>%
 to refer to columns that you've just created:
 
 ```{r}
+#| message: true
 starwars %>%
   mutate(
     height_m = height / 100,
@@ -282,6 +298,7 @@ starwars %>%
 If you only want to keep the new variables, use `transmute()`:
 
 ```{r}
+#| message: true
 starwars %>%
   transmute(
     height_m = height / 100,
@@ -294,6 +311,7 @@ starwars %>%
 Use a similar syntax as `select()` to move blocks of columns at once
 
 ```{r}
+#| message: true
 starwars %>% relocate(sex:homeworld, .before = height)
 ```
 
@@ -303,6 +321,7 @@ The last verb is `summarise()`. It collapses a data frame to a single
 row.
 
 ```{r}
+#| message: true
 starwars %>% summarise(mean_height = mean(height, na.rm = TRUE))
 ```
 
@@ -339,6 +358,7 @@ particularly elegant code, especially if you want to do many operations
 at once. You either have to do it step-by-step:
 
 ```{r, eval = FALSE}
+#| message: true
 a1 <- group_by(starwars, species, sex)
 a2 <- select(a1, height, mass)
 a3 <- summarise(a2,
@@ -351,6 +371,7 @@ Or if you don't want to name the intermediate results, you need to wrap
 the function calls inside each other:
 
 ```{r}
+#| message: true
 summarise(
   select(
     group_by(starwars, species, sex),
@@ -369,6 +390,7 @@ rewrite multiple operations that you can read left-to-right,
 top-to-bottom (reading the pipe operator as "then"):
 
 ```{r}
+#| message: true
 starwars %>%
   group_by(species, sex) %>%
   summarise(
@@ -399,6 +421,7 @@ own positions in the tibble. The following calls are completely
 equivalent from dplyr's point of view:
 
 ```{r}
+#| message: true
 # `name` represents the integer 1
 select(starwars, name)
 select(starwars, 1)
@@ -409,6 +432,7 @@ the surrounding context if they have the same name as one of the
 columns. In the following example, `height` still represents 2, not 5:
 
 ```{r}
+#| message: true
 height <- 5
 select(starwars, height)
 ```
@@ -419,6 +443,7 @@ cases, the columns of the data frame are not put in scope. This allows
 you to refer to contextual variables in selection helpers:
 
 ```{r}
+#| message: true
 name <- "color"
 select(starwars, ends_with(name))
 ```
@@ -426,6 +451,7 @@ select(starwars, ends_with(name))
 These semantics are usually intuitive. But note the subtle difference:
 
 ```{r}
+#| message: true
 name <- 5
 select(starwars, name, identity(name))
 ```
@@ -441,6 +467,7 @@ Mutate semantics are quite different from selection semantics. Whereas
 vectors*. We will set up a smaller tibble to use for our examples.
 
 ```{r}
+#| message: true
 df <- starwars %>% select(name, height, mass)
 ```
 
@@ -450,6 +477,7 @@ symbols represent the actual column vectors stored in the tibble.
 Consider what happens if we give a string or a number to `mutate()`:
 
 ```{r}
+#| message: true
 mutate(df, "height", 2)
 ```
 
@@ -460,6 +488,7 @@ rows. That's why it doesn't make sense to supply expressions like
 The correct expression is:
 
 ```{r}
+#| message: true
 mutate(df, height + 10)
 ```
 
@@ -469,6 +498,7 @@ recycled) or have the same length as the number of rows. In the
 following example we create a new vector that we add to the data frame:
 
 ```{r}
+#| message: true
 var <- seq(1, nrow(df))
 mutate(df, new = var)
 ```
@@ -478,6 +508,7 @@ semantics, it actually has `mutate` semantics. This is quite handy as it
 allows to group by a modified column:
 
 ```{r}
+#| message: true
 group_by(starwars, sex)
 group_by(starwars, sex = as.factor(sex))
 group_by(starwars, height_binned = cut(height, 3))
@@ -488,6 +519,7 @@ to creating a new column containing the string recycled to the number of
 rows:
 
 ```{r}
+#| message: true
 group_by(df, "month")
 ```
 

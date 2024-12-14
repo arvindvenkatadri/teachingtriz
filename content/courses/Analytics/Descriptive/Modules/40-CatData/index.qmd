@@ -77,7 +77,7 @@ library(grateful)
 
 ```{r}
 #| label: Plot Sizing and theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -643,10 +643,10 @@ The arguments of `structable` are:
 #| results: hold
 #| layout-ncol: 2
 
-# Three Way!!
-arth_vcd <- vcd::structable(data = Arthritis, Treatment ~ Improved + Sex)
+arth_vcd <- vcd::structable(data = Arthritis, Treatment ~ Improved)
 arth_vcd
 class(arth_vcd)
+arth_vcd %>% addmargins()
 
 ```
 
@@ -686,8 +686,11 @@ structable(UCBAdmissions) %>% as.matrix() %>% addmargins()
 
 ```
 
+::: callout-important
 Note that `structable` does not permit the adding of margins directly;
 it needs to be converted to a matrix for `addmargins()` to do its work.
+:::
+
 
 ### Using tidyverse
 
@@ -787,7 +790,7 @@ process as shown below:\
 -   Take the [bottom row]{.bg-light-green .black} of per-column totals and create vertical
     rectangles with these widths\
 -   Take the individual counts in the rows and partition each rectangle
-    based in the counts in these rows. 
+    based in the counts in these rows.
 
 ::: {#fig-mosaic-plot-steps layout-ncol="2"}
 ![GSS Mosaic Chart Step
@@ -816,7 +819,29 @@ Let us now make this plot with a variety of approaches.
 #### Using vcd
 
 The `vcd::mosaic()` function needs the data in *contingency table* form.
-We will use our `vcd::structable()` function to construct one:
+We already built one using `mosaic::tally()` and that is easily plotted:
+
+```{r}
+
+# Code used earlier
+data("GSS2002", package = "resampledata")
+gss2002 <- GSS2002 %>% 
+  # select two categorical variables from the dataset
+  dplyr::select(Education, DeathPenalty) %>% 
+  drop_na(Education, DeathPenalty)
+gss2002
+# make a tally table
+gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002)
+gss_table %>% addmargins()
+
+# gss_table is *not* a tibble, but a *table* object.
+ 
+vcd::mosaic(gss_table, gp = shading_hsv,
+main = "mosaic::tally() + vcd::mosaic()")
+
+```
+
+There is also a command within `vcd` itself to create a Contingency Table, `vcd::structable()`: 
 
 ```{r}
 #| label:  mosaic-plot-using-vcd
@@ -833,114 +858,8 @@ vcd::mosaic(arthritis_table,
 
 ```
 
-```{r}
-
-data("GSS2002", package = "resampledata")
-
-gss2002 <- GSS2002 %>% 
-  # select two categorical variables from the dataset
-  dplyr::select(Education, DeathPenalty) %>% 
-  drop_na(Education, DeathPenalty)
-gss2002
-
-# make a tally table
-gss_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002)
-gss_table %>% addmargins()
-
-# gss_table is *not* a tibble, but a *table* object. 
-vcd::mosaic(gss_table, gp = shading_hsv)
-
-```
-
-::: callout-note
-## Pearson Residuals in Mosaic Plots
-
-The mosaic chart provides more additional information than does the
-corresponding bar chart. The individual tiles are coloured based on the
-value of the *Pearson Residual* (explained below). The Pearson residual
-defines the (scaled) difference between the actual count in the cell,
-with what might be expected if there was no correlation between the two
-Qual variables.
-
-An uncoloured Mosaic Chart indicates that the residual differences are
-small and that there is no correlation.
-:::
-
-::: callout-note
-## What are Pearson Residuals?
-
-The mosaic chart is a visualization of the *obtained count* on which the
-tile is constructed.
-
-It is also possible to compute a per-cell *expected count*, if the
-categorical variables are independent, that is, not correlated. The
-*null hypothesis* is that the variables are independent. The test for
-independence, as any inferential test, is based on comparing the
-*observed counts* with the *expected counts*, under the null hypothesis.
-So, what might the expected frequency of a cell be in cross-tabulation
-table for cell $i,j$ given no relationship between the variables of
-interest?
-
-Represent the sum of row $i$ with $n_{+i}$, the sum of column $j$ with
-$n_{j+}$, and the grand total of all the observations with $n$. And
-[independence of variables means that their joint probability is the
-product of their
-probabilities](https://brilliant.org/wiki/probability-rule-of-product/).
-Therefore, the Expected Cell Frequency/Count is given by:
-
-$$
-\begin{array}{lcl} ~Expected~Count~ e_{i,j} & = & P(Row~and~Column) * n\\
-& = & P(row) \times P(column) * n\\
-& = & \frac{rowSum}{n} *\frac{colSum}{n} \times n\\
-& = &\frac{rowSum *colSum}{n}\\
-\end{array}
-$$
-
-and therefore:
-
-$$
-e_{i,j} = \frac{(n_{+i})(n_{j+})}{n}
-$$
-
-Now, the **Pearson Residual** in each cell is equivalent to the
-"z-score" of that cell.
-
-Recall the [z-score](../22-Histograms/index.qmd#z-scores) idea: we
-subtract the mean and divide by the std. deviation to get the z-score.
-In the Contingency Table, we have **counts** which are usually modeled
-as an (integer) *Poisson distribution*, for which **mean (i.e Expected
-value) and variance are identical**. Thus we get the Pearson Residual
-as:
-
-$$
-r_{i,j} = \frac{(Actual - Expected)}{\sqrt{\displaystyle Expected}}
-$$ and therefore:
-
-$$
-r_{i,j} = \frac{(o_{i,j}- e_{i,j})}{\sqrt{\displaystyle e_{i,j}}}
-$$
-
-The comparison of what occurred to what is expected is based on their
-difference, scaled by the square root of the expected, the **Pearson
-Residual**.
-
-The sum of all the squared Pearson residuals is the chi-square
-statistic, χ2, upon which the inferential analysis follows. $$
-χ2 = \sum_{i=1}^R\sum_{j=1}^C{r_{i,j}^2} 
-$$ where R and C are number of rows and columns in the Contingency
-Table, the levels in the two Qual variables.
-
-We will treat the $X^2$ test in the Module on [Inference for Two
-Proportions.](../../../Inference/Modules/190-TwoProp/index.qmd#observed-statistic-the-x2-metric).
-See also the sub-section here below on *Actual and Expected Contingency
-Tables*.
-:::
 
 #### Using ggmosaic
-
-This is perhaps the simplest way, but does use a different package and
-also does *not* use the formula notation: there is no `gf_mosaic`
-command yet!
 
 `ggmosaic` takes a tibble with Qualitative variables, internally
 computes the counts/table, and plots the mosaic plot:
@@ -1058,41 +977,124 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 ```
 :::
 :::
+:::
 
-#### **Actual** and **Expected** Contingency Tables
+## Coloured Tiles: **Actual** and **Expected** Contingency Tables
 
-We briefly discussed this idea in the `vcd` sub-section above.
+We notice that the mosaic plots has coloured some tiles blue and some red. Why was this done? Consider the set of mosaic plots below:
 
-Contingency Tables reveal relationships between Qualitative variables,
-by examining counts of observations for each *combination* of the
-*levels* of the variables. Two Qual variables with $m$ and $n$ levels
-will give us a table of size $m \times n$.
 
-In the module on statistical inference for Qualitative data we will see
-how we can create not only actual Contingency Tables ( as above) but
-that which would have existed if the two Qualitative variables had no
-relationship whatsoever. This is called the ["Expected Contingency
-Table"](../../../Inference/Modules/190-TwoProp/index.qmd#observed-statistic-the-x2-metric).
-
-We can calculate and plot both of these with the `vcd` package, as shown
-below:
-
+::: column-body-outset-right
 ```{r}
-#| label: fig-contingency-expected-actual
+#| label: fig-contingency-expected-actual-diff
 #| fig-cap: 
 #|   - "Actual Contingency Table"
 #|   - "Expected Contingency Table"
-#| layout-ncol: 2
+#|   - "Tile-Wise Differences"
+#| layout-ncol: 3
 
-vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor)
-vcd::mosaic(~ Sex + Eye + Hair, data = HairEyeColor, type = "expected")
+vcd::mosaic(arthritis_table, gp = shading_max, legend = FALSE)
+vcd::mosaic(arthritis_table, type = "expected")
+vcd::assoc(arthritis_table)
 
 ```
-
-From an inspection of these paired plots, we see the difference between
-situations when Qualitative variables are *not related* to that when
-they *are related*.
 :::
+
+
+From an inspection of these plots, we see the (**tile-wise**) difference between situations when Qualitative variables are *related* to that when
+they *not related*. 
+
+The graph on the left show the mosaic plot of the **actual** Contingency Table. 
+
+The graph in the middle shows a similar but fictitious plot but with the cuts neatly horizontal or vertical. This mosaic would be what we would **expect**, if `Education` and the opinion on `Death Penalty` were independent!!
+
+Clearly, there are differences in area of the corresponding tiles in the two mosaics, *actual* and *expected*, as shown in the graph on the right. Some differences are positive, and some negative. In the *actual mosaic*, @fig-contingency-expected-actual-diff-1, tiles with large positive differences are coloured blue, and those with large negative differences are coloured red.
+
+The higher the absolute values of these differences, the greater the effect of one Qual on the other. More when we get into [Inference for Two Proportions.](../../../Inference/Modules/190-TwoProp/index.qmd)
+
+
+
+
+::: {.content-hidden when-format="html"}
+## Pearson Residuals in Mosaic Plots
+
+The mosaic chart provides more additional information than does the
+corresponding bar chart. The individual tiles are coloured based on the
+value of the *Pearson Residual* (explained below). The Pearson residual
+defines the (scaled) difference between the actual count in the cell,
+with what might be expected if there was no association between the two
+Qual variables. An uncoloured Mosaic Chart indicates that the residual differences are small and that there is no association.
+
+So what are Pearson Residuals?
+
+The mosaic chart is a visualization of the *obtained count* on which the
+tile is constructed.
+
+It is also possible to compute a per-cell *expected count*, if the
+categorical variables are independent. The
+*null hypothesis* is that the variables are independent. The test for
+independence, as any inferential test, is based on comparing the
+*observed counts* with the *expected counts*, under the null hypothesis.
+So, what might the expected frequency of a cell be in cross-tabulation
+table for cell $i,j$ given no relationship between the variables of
+interest?
+
+Represent the sum of row $i$ with $n_{+i}$, the sum of column $j$ with
+$n_{j+}$, and the grand total of all the observations with $n$. And
+[independence of variables means that their joint probability is the
+product of their
+probabilities](https://brilliant.org/wiki/probability-rule-of-product/).
+Therefore, the Expected Cell Frequency/Count is given by:
+
+$$
+\begin{array}{lcl} ~Expected~Count~ e_{i,j} & = & P(Row~and~Column) * n\\
+& = & P(row) \times P(column) * n\\
+& = & \frac{rowSum}{n} *\frac{colSum}{n} \times n\\
+& = &\frac{rowSum *colSum}{n}\\
+\end{array}
+$$
+
+and therefore:
+
+$$
+e_{i,j} = \frac{(n_{+i})(n_{j+})}{n}
+$$
+
+Now, the **Pearson Residual** in each cell is equivalent to the
+"z-score" of that cell.
+
+Recall the [z-score](../22-Histograms/index.qmd#z-scores) idea: we
+subtract the mean and divide by the std. deviation to get the z-score.
+In the Contingency Table, we have **counts** which are usually modeled
+as an (integer) *Poisson distribution*, for which **mean (i.e Expected
+value) and variance are identical**. Thus we get the Pearson Residual
+as:
+
+$$
+r_{i,j} = \frac{(Actual - Expected)}{\sqrt{\displaystyle Expected}}
+$$ and therefore:
+
+$$
+r_{i,j} = \frac{(o_{i,j}- e_{i,j})}{\sqrt{\displaystyle e_{i,j}}}
+$$
+
+The comparison of what occurred to what is expected is based on their
+difference, scaled by the square root of the expected, the **Pearson
+Residual**.
+
+The sum of all the squared Pearson residuals is the chi-square
+statistic, χ2, upon which the inferential analysis follows. $$
+χ2 = \sum_{i=1}^R\sum_{j=1}^C{r_{i,j}^2} 
+$$ where R and C are number of rows and columns in the Contingency
+Table, the levels in the two Qual variables.
+
+We will treat the $X^2$ test in the Module on [Inference for Two
+Proportions.](../../../Inference/Modules/190-TwoProp/index.qmd#observed-statistic-the-x2-metric).
+See also the sub-section here below on *Actual and Expected Contingency
+Tables*.
+
+:::
+
 
 ## {{< iconify fluent people-list-28-filled >}} Dataset: Titanic
 
