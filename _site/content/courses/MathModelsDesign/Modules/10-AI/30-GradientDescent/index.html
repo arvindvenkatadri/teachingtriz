@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.39">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="dcterms.date" content="2024-12-07">
+<meta name="dcterms.date" content="2024-12-15">
 <title>Gradient Descent – Applied Metaphors: Learning TRIZ, Complexity, Data/Stats/ML using Metaphors</title>
 <style>
 code{white-space: pre-wrap;}
@@ -17,6 +17,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -1199,7 +1233,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 7, 2024</p>
+      <p class="date">December 15, 2024</p>
     </div>
   </div>
   
@@ -1208,7 +1242,65 @@ ul.task-list li input[type="checkbox"] {
   
 
 
-</header><section id="inspiration" class="level2"><h2 class="anchored" data-anchor-id="inspiration">
+</header><div class="cell">
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto</span></span>
+<span></span>
+<span><span class="co"># Chunk options</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span></span>
+<span>  fig.width <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  fig.asp <span class="op">=</span> <span class="fl">0.618</span>, <span class="co"># Golden Ratio</span></span>
+<span>  <span class="co"># out.width = "80%",</span></span>
+<span>  fig.align <span class="op">=</span> <span class="st">"center"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">### Ggplot Theme</span></span>
+<span><span class="co">### https://rpubs.com/mclaire19/ggplot2-custom-themes</span></span>
+<span></span>
+<span><span class="va">theme_custom</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">font</span> <span class="op">&lt;-</span> <span class="st">"Roboto Condensed"</span> <span class="co"># assign font family up front</span></span>
+<span></span>
+<span>  <span class="fu">theme_classic</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">%+replace%</span> <span class="co"># replace elements we want to change</span></span>
+<span></span>
+<span>    <span class="fu">theme</span><span class="op">(</span></span>
+<span>      panel.grid.minor <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, <span class="co"># strip minor gridlines</span></span>
+<span>      text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>family <span class="op">=</span> <span class="va">font</span><span class="op">)</span>,</span>
+<span>      <span class="co"># text elements</span></span>
+<span>      plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span> <span class="co"># title</span></span>
+<span>        family <span class="op">=</span> <span class="va">font</span>, <span class="co"># set font family</span></span>
+<span>        <span class="co"># size = 20,               #set font size</span></span>
+<span>        face <span class="op">=</span> <span class="st">"bold"</span>, <span class="co"># bold typeface</span></span>
+<span>        hjust <span class="op">=</span> <span class="fl">0</span>, <span class="co"># left align</span></span>
+<span>        <span class="co"># vjust = 2                #raise slightly</span></span>
+<span>        margin <span class="op">=</span> <span class="fu">margin</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      plot.subtitle <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span> <span class="co"># subtitle</span></span>
+<span>        family <span class="op">=</span> <span class="va">font</span>, <span class="co"># font family</span></span>
+<span>        <span class="co"># size = 14,                #font size</span></span>
+<span>        hjust <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        margin <span class="op">=</span> <span class="fu">margin</span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      plot.caption <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span> <span class="co"># caption</span></span>
+<span>        family <span class="op">=</span> <span class="va">font</span>, <span class="co"># font family</span></span>
+<span>        size <span class="op">=</span> <span class="fl">8</span>, <span class="co"># font size</span></span>
+<span>        hjust <span class="op">=</span> <span class="fl">1</span></span>
+<span>      <span class="op">)</span>, <span class="co"># right align</span></span>
+<span></span>
+<span>      axis.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span> <span class="co"># axis titles</span></span>
+<span>        family <span class="op">=</span> <span class="va">font</span>, <span class="co"># font family</span></span>
+<span>        size <span class="op">=</span> <span class="fl">10</span> <span class="co"># font size</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      axis.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span> <span class="co"># axis text</span></span>
+<span>        family <span class="op">=</span> <span class="va">font</span>, <span class="co"># axis family</span></span>
+<span>        size <span class="op">=</span> <span class="fl">8</span></span>
+<span>      <span class="op">)</span> <span class="co"># font size</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Set graph theme</span></span>
+<span><span class="fu">theme_set</span><span class="op">(</span>new <span class="op">=</span> <span class="fu">theme_custom</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="inspiration" class="level2"><h2 class="anchored" data-anchor-id="inspiration">
 <iconify-icon inline="" icon="icons8:idea" aria-label="Icon idea from icons8 Iconify.design set." title="Icon idea from icons8 Iconify.design set."></iconify-icon> Inspiration</h2>
 <section id="what-is-a-neural-network" class="level3"><h3 class="anchored" data-anchor-id="what-is-a-neural-network">What is a Neural Network?</h3>
 <ol type="1">

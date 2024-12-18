@@ -1,8 +1,8 @@
 ---
+title: "The Perceptron"
 date-modified: "`r Sys.Date()`"
 date: 20/Nov/2024
-title: "The Perceptron"
-order: 182
+order: 20
 summary: 
 tags:
 - Neural Nets
@@ -137,9 +137,9 @@ knitr::include_graphics("featured.jpg")
 
 ## What is a Perceptron?
 
-The [perceptron](../../../../materials/pdfs/Rosenblatt1958.pdf) was invented by Frank Rosenblatt is considered one of the foundational pieces of neural network structures. The output is viewed as a *decision* from the neuron and is usually propagated as an input to other neurons inside the neural network.
+The [perceptron](../../../../../materials/pdfs/Rosenblatt1958.pdf) was invented by Frank Rosenblatt is considered one of the foundational pieces of neural network structures. The output is viewed as a *decision* from the neuron and is usually propagated as an input to other neurons inside the neural network.
 
-![Perceptron](../../../../materials/images/png/Neurons.png){height=360}
+![Perceptron](../../../../../materials/images/png/Neurons.png){height=360}
 
 #### Math Intuition
 
@@ -147,19 +147,20 @@ The [perceptron](../../../../materials/pdfs/Rosenblatt1958.pdf) was invented by 
 - Since the inputs are this effectively acts like a **linear transformation** of the input data.
 - If we imagine 2D-input (i.e inputs representing X and Y directions/quantities), then the multiplications scale/stretch/compress the X-axis and Y-axis of the 2D-plane, like a rubber sheet. (But do not **fold it**.)
 - Metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching different amounts of significance to each opinion.
-- The Structure should remind you of [Linear Regression](../../../Analytics/Modelling/Modules/LinReg/index.qmd)!
+- The Structure should remind you of [Linear Regression](../../../../Analytics/Modelling/Modules/LinReg/index.qmd) !
 
 #### Why "Linear"?
 Why are (almost) all operations linear operations in a NN? 
 
 - Well, weighted sums *are* a linear operation!
-- Moreover, we wish to be able to set-up analytic functions for performance of the DLNN, and be able to differentiate them to be able to optimize them. 
+- Moreover, we wish to be able to set-up analytic functions for performance of the DLNN, and **be able to differentiate them** to be able to optimize them. 
 - Non-linear blocks, such as *threshold blocks/signum-function based slicers* are not differentiable and we are unable to set up such analysis. 
 - Note the title of [this reference](https://www.sscardapane.it/alice-book/).
 
 #### Why is there a Bias input?
 
-- We want the weighted sum of the inputs to *mean something* significant, before we accept it. The bias is *subtracted* from the weighted sum of inputs, and the bias input could also (notionally) have a weight. 
+- We want the weighted sum of the inputs to *mean something* significant, before we accept it. 
+- The bias is *subtracted* from the weighted sum of inputs, and the bias input could also (notionally) have a weight. 
 - The *bias* is like a threshold which the weighted sum has to exceed; if it does, the neuron is said to **fire**.  
 
 #### What is the Activation Block?
@@ -168,15 +169,17 @@ Why are (almost) all operations linear operations in a NN?
 - While this is great, simple linear translations of data are not capable of generating what we might call learning or generalization ability. 
 - We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as curving it, or folding it, or creating bumps, depressions, twists, and so on. 
 
-![Activation](../../../../materials/images/png/Activation_Functions.png){height=360}
+![Activation](../../../../../materials/images/png/Activation_Functions.png){height=360}
 
 - This nonlinear function needs to be chosen with care so that it is both differentiable and keeps the math analysis tractable. (More later)
 - Such a nonlinear mathematical function is implemented in the Activation Block.
 - See this example: red and blue areas, which we wish to **separate and classify these** with our DLNN, are not separable unless we fold and curve our 2D data space. 
-- The separation is achieved using a linear operation, i.e. a LINE!!(More later)
+- The separation is achieved using a linear operation, i.e. a LINE!!
 
-![From Colah Blog, used sadly without permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif)
+![From Colah Blog, used sadly without permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
 
+
+- For instance in @fig-manifolds-and-neural-networks, no amount of stretching or compressing of the surface can separate the two sets ( blue and red ) using a line or plane, **unless** the surface can be warped into **another dimension** by folding. 
 
 #### What is the Sigmoid Function?
 
@@ -185,34 +188,76 @@ So how do we implement this nonlinear Activation Block?
 - One of the popular functions used in the Activation Block is a function based on the exponential function $e^x$.
 - Why? Because this function retains is identity when differentiated! This is a very convenient property!
 
-![Sigmoid Activation](../../../../materials/images/png/Sigmoid.png){height=360}
+![Sigmoid Activation](../../../../../materials/images/png/Sigmoid.png){height=360}
 
 
 
 ::: callout-note
 #### Remembering Logistic Regression
-Recall your study of [Logistic Regression](../../../Analytics/Modelling/Modules/LogReg/index.qmd). There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.
+Recall your study of [Logistic Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd). There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.
 :::
 
-2. Deep Learning Networks
-  - Input Layers
-  - Output Layers
-  - Hidden Layers
-  - Activation
-  
-3. Adaptation and Training
-  - Backpropagation
-  - Error Functions and Surfaces
-  
-4. Working
-  - "Repeated Weighted Averaging with Thresholding"
-  - How does that end up "learning"? Is there an intuitive explanation?
+
+So with all that vocabulary, we *might* want to watch this longish video by the great Dan Shiffman:
+
+{{< video https://youtu.be/ntKn5TPHHAk?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb >}}
 
 
 ## Neural Nets in Code
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
+### {{< iconify la r-project >}} R
+Let us try a simple single layer NN in R. We will use the R package `neuralnet`.
+
+```{r}
+#| label: nn-with-r
+#| code-fold: true
+#| message: false
+#| warning: false
+
+# Load the package 
+library(neuralnet) 
+
+# Use iris
+# Create Training and Testing Datasets
+df_train <- iris %>% slice_sample(n = 100)
+df_test <- iris %>% anti_join(df_train)
+
+# Create a simle Neural Net
+nn = neuralnet(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, 
+               data = df_train, 
+               hidden = 0, 
+               #act.fct = "logistic", # Sigmoid
+               linear.output = TRUE) # TRUE to ignore activation function
+
+# str(nn)
+
+# Plot 
+plot(nn) 
+
+# Predictions
+# Predict <- compute(nn, df_test) 
+# Predict
+# cat("Predicted values:\n") 
+# print(Predict$net.result) 
+# 
+# probability <- Predict$net.result 
+# pred <- ifelse(probability > 0.5, 1, 0)
+# cat("Result in binary values:\n") 
+# pred %>% as_tibble()
+
+```
+
+![](nn.png)
+
+### {{< iconify skill-icons p5js>}} p5.js
+
+
+:::
 
 ## References
+
 
 1. The Neural Network Zoo - The Asimov Institute. <http://www.asimovinstitute.org/neural-network-zoo/>
 
@@ -255,4 +300,20 @@ Recall your study of [Logistic Regression](../../../Analytics/Modelling/Modules/
 
 1.  Parr and Howard (2018). *The Matrix Calculus You Need for Deep Learning*.<https://arxiv.org/abs/1802.01528>
 
+::: {#refs style="font-size: 60%;"}
 
+###### {{< iconify lucide package-check >}} R Package Citations
+
+```{r}
+#| echo: false
+#scan_packages()
+cite_packages(
+  output = "table",
+  out.dir = ".",
+  out.format = "html",
+  pkgs = c("neuralnet") ) %>%
+  knitr::kable(format = "simple")
+
+```
+
+:::
