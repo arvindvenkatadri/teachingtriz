@@ -16,6 +16,7 @@ image: "../../../../materials/images/daisugi.jpg"
 lightbox: true
 ---
 
+
 :::: {.pa4}
 ::: {.athelas .ml0 .mt0 .pl4 .black-90 .bl .bw2 .b--blue}
 [Trees]{.f3 }\
@@ -42,7 +43,7 @@ But only God can make a tree.\"]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
 
 Trees are fractal in nature, meaning that patterns created by the large structures, such as the main branches, repeat themselves in smaller structures, such as smaller branches.... a universal growth pattern first observed by Leonardo da Vinci 500 years ago: a simple yet startling relationship that always holds between the size of a tree's trunk and sizes of its branches. 
 
-![](../../../../materials/images/leonardotree1.jpg)
+![](../../../../../materials/images/leonardotree1.jpg)
 
 
 ## {{< iconify icons8 idea >}} Inspiration
@@ -70,19 +71,108 @@ Let us see how we can create **"Algorithmic Trees"**.
 
 ## Creating Trees using L-systems
 
-### p5.js
-
-<center>
-<iframe width="780px" height="600px" src="https://editor.p5js.org/arvindv/full/l-G3x1HGl"></iframe>"></iframe>
-</center>
-
-<br>
+### Using p5.js
 
 <center>
 <iframe width="780px" height="600px"
 src="https://editor.p5js.org/arvindv/full/3XhIEr2Iv">
 </iframe>
 </center>
+
+### Using R
+
+We will use the package `LindenmayerR` to create our tree.
+
+```{r}
+#| label: setup
+#| code-fold: true
+#| message: false
+#| warning: false
+
+library(tidyverse)
+###
+library(LindenmayeR)
+library(LearnGeom)
+library(TurtleGraphics)
+options(max.print=20)
+
+```
+
+
+
+```{r}
+
+# Lindemayer tree
+
+## Dictionary of Symbols
+dictionary <- data.frame(
+  symbol = c("F", "f", "+", "-", "[", "]"), # symbol column
+  action = c("F", "f", "+", "-", "[", "]"), # action column
+  stringsAsFactors = FALSE
+)
+
+## Axioms to start and morph
+tree_morph_rules <- data.frame(
+  inp = c("F"), # starting axiom
+  out = c("F[+F][-F]"), # Morphing Rule
+  stringsAsFactors = FALSE
+)
+
+## Build the Tree with commands
+Ltree <- Lsys(
+  init = "F",
+  rules = tree_morph_rules,
+  n = 2,
+  verbose = 0, # No progress messages please...
+  retAll = FALSE # One Vector output at the end only
+)
+
+
+## Now draw the tree
+drawLsys(
+  string = Ltree,
+  drules = dictionary,
+  stepSize = 10, shrinkFactor = 1.2, # integers shrink!
+  ang = 12,
+  st = c(50, 10, 90) # Root Position x, y, angle from bottom-left
+)
+```
+
+
+A more complex, and more botanical-looking, tree or seaweed:
+
+```{r}
+#| results: hold
+#| 
+## Define Axiom and Mutation Rules
+fractal_tree_rules <- data.frame(
+  inp = c("X", "F"),
+  out = c("F-[[X]+X]+F[+FX]-X", "FF"),
+  stringsAsFactors = FALSE
+)
+
+## Create the Algorithmic Tree
+fractal_tree <- Lsys(
+  init = "X", # Axiom
+  rules = fractal_tree_rules,
+  n = 4,
+  verbose = 0,
+  retAll = FALSE
+)
+
+## Now draw the tree
+drawLsys(
+  string = fractal_tree,
+  drules = dictionary,
+  stepSize = 2, # Shrink by half each time
+  ang = runif(n = 1, min = 3, max = 30),
+  st = c(50, 5, 90), # Origin of tree
+  gp = gpar(col = "chocolate4", fill = "honeydew")
+)
+
+grid.text("Fractal Seaweed (n = 4)", 0.25, 0.25)
+
+```
 
 
 ### Fractal Grower
