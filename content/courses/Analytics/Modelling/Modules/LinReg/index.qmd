@@ -665,6 +665,10 @@ over-plotted.
 #| layout-ncol: 3
 #| fig-width: 5
 #| fig-height: 4
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 # Tidy Data frame for the model using `broom`
 housing_lm_tidy <- 
   housing_lm %>% 
@@ -690,8 +694,8 @@ slope <-
   select(estimate) %>%
   as.numeric()
 ##
-gf_point(
-  data = housing,
+housing %>% drop_na() %>% 
+  gf_point(
   cmedv ~ rm,
   title = "Price vs Average no. of Rooms",
   ylab = "Median Price",
@@ -699,39 +703,41 @@ gf_point(
   alpha = 0.2
 ) %>%
   # Plot the model equation
-  gf_abline(slope = slope, intercept = intercept, colour = "lightcoral",
+  gf_abline(slope = slope, intercept = intercept, 
+            colour = "lightcoral",
             linewidth = 2)  %>%
   
   # Plot the model prediction points on the line
-  gf_smooth(method = "lm", geom = "point", color = "grey30", size = 0.5) %>%
-  gf_segment(
-    0 + 29 ~ 7 + 7, # manually calculated
+  gf_smooth(method = "lm", geom = "point", 
+            color = "grey30", 
+            size = 0.5) %>%
+  gf_refine(
+    annotate(geom = "segment",
+    y = 0, yend = 29, x = 7, xend = 7, # manually calculated
     linetype = "dashed",
     color = "dodgerblue",
     arrow = arrow(
       angle = 30,
       length = unit(0.25, "inches"),
       ends = "last",
-      type = "closed"
-    ),
-    data = housing_lm_augment) %>%
-  gf_segment(
-    29 + 29 ~ 2.5 + 7, # manually calculated
+      type = "closed")),
+    
+    annotate(geom = "segment",
+    y = 29, yend = 29, x = 2.5, xend = 7, # manually calculated
     linetype = "dashed",
     arrow = arrow(
       angle = 30,
       length = unit(0.25, "inches"),
       ends = "first",
       type = "closed"),
-    color = "dodgerblue",
-    data = housing_lm_augment) %>%
+    color = "dodgerblue")) %>%
   gf_refine(
     scale_x_continuous(limits = c(2.5, 10),
                        expand = c(0, 0)),
     # removes plot panel margins
     scale_y_continuous(limits = c(0, 55),
                        expand = c(0, 0))
-  )  
+  ) %>% gf_theme(theme = theme_custom())
 
 ```
 
@@ -1184,16 +1190,26 @@ Plotting this is simple too:
 
 ```{r}
 #| layout-ncol: 2
+#| warn: false
+#| message: false
+
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
 housing_lm_tidy %>%
   gf_col(estimate ~ term, fill = ~ term, width = 0.25) %>% 
   gf_hline(yintercept = 0) %>% 
   gf_errorbar(conf.low + conf.high ~ term, 
               width = 0.1, 
-              title = "Model Bar Plot for Estimates with Confidence Intervals") 
+              title = "Model Bar Plot for Estimates with Confidence Intervals") %>% 
+  gf_theme(theme = theme_custom())
 ##
 housing_lm_tidy %>% 
   gf_pointrange(estimate + conf.low + conf.high ~ term,
-                title = "Model Point Range Plot for Estimates with Confidence Intervals")
+                title = "Model Point Range Plot for Estimates with Confidence Intervals") %>% 
+  gf_hline(yintercept = 0) %>% 
+  gf_theme(theme = theme_custom())
 
 ```
 The point-range plot helps to avoid what has been called ["within-the-bar bias"](https://graphics.cs.wisc.edu/Papers/2014/CG14/Preprint.pdf). The estimate is just a value, which we might plot as a *bar* or as a *point*, with uncertainty error-bars.
