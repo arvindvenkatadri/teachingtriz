@@ -23,6 +23,7 @@ library(caracas)
 library(downloadthis)
 library(knitr)
 library(kableExtra)
+library(neuralnet) 
 ## Markdown boiler plate stuff!!
 # ![An Elephant](elephant.png){#fig-elephant}
 # This is illustrated well by @fig-elephant.
@@ -144,16 +145,23 @@ The [perceptron](../../../../../materials/pdfs/Rosenblatt1958.pdf) was invented 
 #### Math Intuition
 
 - We can imagine this as a set of inputs that *averaged in weighted fashion*. 
-- Since the inputs are this effectively acts like a **linear transformation** of the input data.
-- If we imagine 2D-input (i.e inputs representing X and Y directions/quantities), then the multiplications scale/stretch/compress the X-axis and Y-axis of the 2D-plane, like a rubber sheet. (But do not **fold it**.)
-- Metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching different amounts of significance to each opinion.
+
+$$
+y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
+$$
+
+- Since the inputs are added with linear weighting, this effectively acts like a **linear transformation** of the input data.
+  - A linear equation of this sort is the [equation of an n-dimensional plane](https://www.geeksforgeeks.org/equation-of-plane/).
+  - If we imagine the input as representing the n-coordinates in a plane, then the multiplications scale/stretch/compress the plane, like a rubber sheet. (But do not **fold it**.)
+  - If there were only 2 inputs, we could mentally picture this.
+- More metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching *different amounts of significance* to each opinion.
 - The Structure should remind you of [Linear Regression](../../../../Analytics/Modelling/Modules/LinReg/index.qmd) !
 
 #### Why "Linear"?
 Why are (almost) all operations linear operations in a NN? 
 
-- Well, weighted sums *are* a linear operation!
-- Moreover, we wish to be able to set-up analytic functions for performance of the DLNN, and **be able to differentiate them** to be able to optimize them. 
+- We said that the weighted sums *are* a linear operation, but why is this so?
+- We wish to be able to set-up analytic functions for performance of the NN, and **be able to differentiate them** to be able to optimize them. 
 - Non-linear blocks, such as *threshold blocks/signum-function based slicers* are not differentiable and we are unable to set up such analysis. 
 - Note the title of [this reference](https://www.sscardapane.it/alice-book/).
 
@@ -167,16 +175,16 @@ Why are (almost) all operations linear operations in a NN?
 
 - We said earlier that the weighting and adding is a linear operation. 
 - While this is great, simple linear translations of data are not capable of generating what we might call learning or generalization ability. 
-- We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as curving it, or folding it, or creating bumps, depressions, twists, and so on. 
+- We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as *curving it, or folding it, or creating bumps, depressions, twists*, and so on. 
 
 ![Activation](../../../../../materials/images/png/Activation_Functions.png){height=360}
 
 - This nonlinear function needs to be chosen with care so that it is both differentiable and keeps the math analysis tractable. (More later)
-- Such a nonlinear mathematical function is implemented in the Activation Block.
+- Such a nonlinear mathematical function is implemented in the **Activation Block**.
 - See this example: red and blue areas, which we wish to **separate and classify these** with our DLNN, are not separable unless we fold and curve our 2D data space. 
 - The separation is achieved using a linear operation, i.e. a LINE!!
 
-![From Colah Blog, used sadly without permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
+![From [Colah Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif), used sadly without permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
 
 
 - For instance in @fig-manifolds-and-neural-networks, no amount of stretching or compressing of the surface can separate the two sets ( blue and red ) using a line or plane, **unless** the surface can be warped into **another dimension** by folding. 
@@ -197,13 +205,32 @@ So how do we implement this nonlinear Activation Block?
 Recall your study of [Logistic Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd). There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.
 :::
 
+::: callout-note
+#### But Why Sigmoid?
+Because [the Sigmoid function is differentiable](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x). And linear in the mid ranges.
+Oh, and remember the [Chain Rule](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions)?
+
+
+$$
+\begin{align}
+\frac{df(x)}{dx}
+&= \frac{d}{dx} * \frac{1}{1 + e^{-x}} \\\
+&= -(1 + e^{-x})^{-2} * \frac{d}{dx}(1 + e^{-x})~~\text{(Using Chain Rule)}\\
+&= -(1 + e^{-x})^{-2} * (-e^{-x})\\
+&= \frac{(1 + e^{-x}) -1}{(1 + e^{-x})^{2}}\\
+&= \frac{1}{1 + e^{-x}} * \Bigg({\frac{1 + e^{-x}}{1 + e^{-x}}} - \frac{1}{1 + e^{-x}}\Bigg)\\
+&= f(x) * (1 - f(x))\\
+\end{align}
+$$
+
+:::
 
 So with all that vocabulary, we *might* want to watch this longish video by the great Dan Shiffman:
 
 {{< video https://youtu.be/ntKn5TPHHAk?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb >}}
 
 
-## Neural Nets in Code
+## Perceptrons in Code
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
@@ -217,13 +244,13 @@ Let us try a simple single layer NN in R. We will use the R package `neuralnet`.
 #| warning: false
 
 # Load the package 
-library(neuralnet) 
+#library(neuralnet) 
 
 # Use iris
 # Create Training and Testing Datasets
 df_train <- iris %>% slice_sample(n = 100)
 df_test <- iris %>% anti_join(df_train)
-
+head(iris)
 # Create a simle Neural Net
 nn = neuralnet(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, 
                data = df_train, 
@@ -252,7 +279,7 @@ plot(nn)
 ![](nn.png)
 
 ### {{< iconify skill-icons p5js>}} p5.js
-
+To Be Written Up. 
 
 :::
 
@@ -272,10 +299,8 @@ plot(nn)
 1. *Anyone Can Learn AI Using This Blog*. <https://colab.research.google.com/drive/1g5fj7W6QMER4-03jtou7k1t7zMVE9TVt#scrollTo=V8Vq_6Q3zivl>
 
 1. Neural Networks Visual with [vcubingx](https://youtube.com/@vcubingx?feature=shared)
-
-  - Part 1. <https://youtu.be/UOvPeC8WOt8>
-  
-  - Part 2. <https://www.youtube.com/watch?v=-at7SLoVK_I>
+    - Part 1. <https://youtu.be/UOvPeC8WOt8>
+    - Part 2. <https://www.youtube.com/watch?v=-at7SLoVK_I>
   
 1. Practical Deep Learning for Coders: An Online Free Course.<https://course.fast.ai>
 
@@ -283,7 +308,7 @@ plot(nn)
 #### Text Books
 1. Michael Nielsen. *Neural Networks and Deep Learning*, a free online book. <http://neuralnetworksanddeeplearning.com/index.html>
 
-1. Simone Scardapane. (2024) *Alice’s Adventures in a differentiable Wonderland*. https://www.sscardapane.it/alice-book/
+1. Simone Scardapane. (2024) *Alice’s Adventures in a differentiable Wonderland*.<https://www.sscardapane.it/alice-book/>
 
 
 #### Using R for DL
@@ -307,7 +332,7 @@ plot(nn)
 ```{r}
 #| echo: false
 #scan_packages()
-cite_packages(
+grateful::cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",

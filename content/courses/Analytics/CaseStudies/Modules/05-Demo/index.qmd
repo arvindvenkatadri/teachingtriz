@@ -58,35 +58,21 @@ library(glue)
 ## Setting up plot theme
 
 ```{r}
-#| label: Plot-Sizing-and-theming
+#| label: one-time-theme
 #| code-fold: true
-#| message: false
-#| results: hide
+#| 
+extrafont::loadfonts(quiet = TRUE)
+font <- "Roboto Condensed" 
+theme_set(new = theme_classic(base_size = 12))
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
+theme_update(
+      panel.grid.minor = element_blank(), 
+      
       text = element_text(family = font),
       #text elements
       plot.title = element_text(             #title
                    family = font,            #set font family
-                   #size = 20,               #set font size
+                   size = 16,                #set font size
                    face = 'bold',            #bold typeface
                    hjust = 0,                #left align
                    #vjust = 2                #raise slightly
@@ -95,7 +81,7 @@ theme_custom <- function(){
       
       plot.subtitle = element_text(          #subtitle
                    family = font,            #font family
-                   #size = 14,                #font size
+                   size = 12,                #font size
                    hjust = 0,
                    margin=margin(2,0,5,0)
 ),               
@@ -112,14 +98,11 @@ theme_custom <- function(){
       
       axis.text = element_text(              #axis text
                    family = font,            #axis family
-                   size = 8)               #font size
+                   size = 8)                 #font size
     )
-}
 
-# Set graph theme
-theme_set(new = theme_custom())
-#
 ```
+
 
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} Introduction
@@ -229,6 +212,7 @@ And we will not modify the original data !!
 ```{r}
 #| label: data-modified-and-saved
 #| echo: true
+
 opening_modified <- opening %>% 
   # correct spelling mistake
   rename("time_sauce" = time_suace) %>% 
@@ -266,7 +250,7 @@ Reasonably balanced groups.
 ```{r}
 #| layout-ncol: 2
 # Set graph theme
-theme_set(new = theme_custom())
+# theme_set(new = theme_custom())
 #
 opening_modified %>% 
   gf_histogram(~ hand_strength) 
@@ -335,7 +319,7 @@ Now if we plot `times`, we can colour or facet by `grocery`.
 ```{r}
 #| label: plot-1
 # Set graph theme
-theme_set(new = theme_custom())
+# theme_set(new = theme_custom())
 #
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
@@ -362,7 +346,7 @@ We now want to label to do two things:
 ```{r}
 #| label: plot-2
 # Set graph theme
-theme_set(new = theme_custom())
+# theme_set(new = theme_custom())
 #
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
@@ -395,7 +379,7 @@ This does not seem to be happening at this time. Needs to be checked! Wonder wha
 ```{r}
 #| label: plot-3
 # Set graph theme
-theme_set(new = theme_custom())
+# theme_set(new = theme_custom())
 #
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
@@ -432,6 +416,7 @@ And maybe add a point on each sub-plot to show the median opening times?
 #| label: plot-4
 #| warning: false
 #| message: false
+
 opening_modified %>% 
   pivot_longer(cols = -c(1:7),
                names_to = "operation",
@@ -467,8 +452,9 @@ opening_modified %>%
     title = "Times take by Older People to Open Food Packages",
     x = "Time in seconds", 
     y = "Type of Product",
-    caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1")  %>% 
-  gf_theme(theme_custom())
+    caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1")  
+
+# %>% gf_theme(theme_custom())
 
 ```
 
@@ -476,6 +462,7 @@ opening_modified %>%
 ```{r}
 #| eval: false
 #| echo: false
+
 opening %>% 
   mutate(across(starts_with("time"), as.numeric)) %>% 
   pivot_longer(cols = -c(1:7), names_to = "operation", 
@@ -495,6 +482,7 @@ opening %>%
   gf_labs(title = "Times take by Older People to Open Food Packages",
            x = "Time in seconds", y = "Type of Product",
           caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1") 
+
 ```
 
 ### Closing Times Analysis
@@ -519,8 +507,10 @@ closing %>%
   gf_facet_grid(hand_pain ~ .) %>% 
   gf_labs(title = "Times take by Older People to Close Food Packages",
            x = "Time in seconds", y = "Type of Product",
-          caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1") %>% 
-  gf_theme(theme_custom())
+          caption = "Juliá-Nehme, Begoña (2023). Usability of Food Packaging in Older Adults.\n figshare Dataset.\n https://doi.org/10.6084/m9.figshare.22637656.v1") 
+
+# %>% 
+#   gf_theme(theme_custom())
 
 ```
 

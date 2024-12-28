@@ -1,0 +1,339 @@
+---
+date: 23/Nov/2024
+date-modified: "`r Sys.Date()`"
+title: "MLPs and Backpropagation"
+order: 30
+summary: 
+tags:
+- Neural Nets
+- Back Propagation
+- Gradient
+
+---
+
+
+```{r setup, include=FALSE}
+library(blogdown)
+library(tidyverse)
+library(ggformula)
+library(mosaicCalc) # Analytic Calculus
+library(neuralnet) # Backpropagation training
+library(plot3D) # 3D plots for explanation
+library(DiagrammeR)
+library(DiagrammeRsvg)
+##
+#pak::pkg_install("elipousson/d2r")
+library(d2r)
+
+## Markdown boiler plate stuff!!
+# ![An Elephant](elephant.png){#fig-elephant}
+# This is illustrated well by @fig-elephant.
+# 
+# ### Figure Panel Divs
+#     ::: {#fig-elephants layout-ncol=2}
+#     ![Surus](surus.png){#fig-surus}
+#     ![Hanno](hanno.png){#fig-hanno}
+#      Famous Elephants
+#     :::
+#     Adding download buttons
+#     data that has been read in
+#     {{< downloadthis ../../../../materials/Data/housing_train.csv dname="house_prices" label="Download the House Prices Dataset" icon="database-fill-down" type="info" >}}
+#    existing file
+#    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
+
+```
+
+```{r}
+#| label: Extra Pedagogical Packages
+#| echo: false
+#| message: false
+
+library(checkdown)
+library(epoxy)
+library(grateful)
+library(MKdescr)
+library(shinylive) # To create a Shiny app in a Quarto HTML doc
+# Will not work if webr is also used in the SAME Quarto doc!
+library(sysfonts)
+library(gfonts)
+library(kableExtra)
+# library(conflicted)
+# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+library(downloadthis)
+#devtools::install_github("mccarthy-m-g/embedr")
+library(embedr) # Embed multimedia in HTML files
+```
+
+```{r}
+#| label: Plot Sizing and theming
+#| echo: false
+#| message: false
+#| results: hide
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+theme_custom <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = theme_custom())
+#
+```
+
+
+```{r,echo = FALSE, eval = FALSE, fig.alt="Petr Slováček on Unsplash", fig.align='center'}
+knitr::include_graphics("featured.jpg")
+
+```
+
+
+### How does an MLP Learn?
+
+$$
+\begin{bmatrix}
+a^2_1\\
+a^2_2\\
+a^2_3\\
+\end{bmatrix} = 
+sigmoid~\Bigg(
+\begin{bmatrix}
+\color{red}{W^2_{11}} & \color{skyblue}{W^2_{21}} & \color{forestgreen}{W^2_{31}}\\
+W^2_{12} & W^2_{22} & W^2_{32}\\
+W^2_{13} & W^2_{23} & W^2_{33}\\
+\end{bmatrix} * 
+\begin{bmatrix}
+\color{red}{a^1_1}\\
+\color{skyblue}{a^1_2}\\
+\color{forestgreen}{a^1_3}\\
+\end{bmatrix} +
+\begin{bmatrix}
+b^2_1\\
+b^2_2\\
+b^2_3\\
+\end{bmatrix}
+\Bigg)
+$$
+
+See how the connections between neurons are marked by **weights**: these multiply the signal from the previous neuron. The multiplied/weighted products are added up in the neuron, and the sum is given to the activation block therein. 
+
+So learning?
+
+The only controllable variables in a neural network are these weights! So learning involves adapting these wwights so that they can perform a sueful function. 
+
+### What is the Learning Process?
+
+The process of *adapting the weights* of a neural network can be described in the following steps:
+
+- **Training Set**: Training is over several known input-output pairs ("training data")
+- **Training Epoch**: For each input, the signals propagate forward until we have an output
+- **Error Calculation**: Output is compared with **desired output**, to calculate *error*
+- **Backpropagation**: Errors need to be *sent backward from the output* to input, where we unravel the error from layer $l$ to layer $l-1$. (like apportioning blame !!). 
+- **Error-to-Cost**: How does error at *any* given neuron relate to the idea of an **overall Cost** function?
+- **Differentiate**: Evaluate the *effect* of each weight/bias on ~~the (apportioned) error~~ overall Cost. (Slope!!)
+- **Gradient Descent**: Adapt the weights/biases with a small step in the **opposite direction** to the slope 
+
+
+### Assumptions in the Training Process
+
+1. **Cost Function**: We will minimize the Cost function which is assumed to be a function of (all) outputs of a NN.
+
+1. **Training Error**: We can calculate overall training Cost as the average Cost taken over all/several input samples.
+$$
+C = \frac{1}{n}*\sum_{x}C_x
+$$
+In practice, the input samples are not presented one by one, but in batches, called *minbatches*. This is cheaper by way of computation since we adapt the weights on a per-batch basis, and also allows to perform *averaging* of errors over each batch. However is also seems to complicate the housekeeping necessary to manage batches. ( We will not, in the interest of time, deal with this idea more. It is dealt with in the references below. )
+
+1. **Global Minimum**: Cost function has a global minimum! (Bowl shaped surface which we can descend)
+
+## What is the Output Error?
+
+## What is the Cost Function?
+
+## Here Comes the ~~Rain~~ Maths Again!
+
+1. Rosenblatt-Nielsen's Demon: 
+  - messes/perturbs with input to the sigmoid function at a neuron. (Weighted Sum)
+  - Error = Slope * perturbation  
+  - However, **Error ~= Slope** when we allow that the perturbation is a fixed amplitude.
+  - Still a product of slopes  -O
+  
+$$
+{\delta_j}^L = \frac{\delta C}{\delta {a_j}^L} * \sigma ({z_j}^L)
+$${#eq-bp1}
+
+:::: {.columns}
+
+::: {.column width="48%"}
+{{< video https://youtu.be/Ilg3gGewQ5U?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi >}}
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+{{< video https://youtu.be/tIeHLnjs5U8?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi >}}
+:::
+::::
+
+
+
+
+## {{< iconify icons8 idea >}} What is Backpropagation?
+
+- Recall that we use a **training dataset** that contains inputs and **known** outputs, to adapt the weights of neural network (NN).
+
+- Before we adapt these, we need to *take the error at the outputs** and affix responsibility, or *blame* to each of the weights in the NN.
+
+- This process of taking the output error and *sending it backward* through the network in a **proportionate manner** is called **Backpropagation** in the NN literature. It is one of the most important steps in training an NN. 
+
+
+## Backpropagation Intuitively Demonstrated
+
+
+```{d2}
+direction: right
+grid-columns: 6
+grid-rows: 3
+###
+in1.style.opacity: 0
+in2.style.opacity: 0
+in3.style.opacity: 0
+1.shape: circle
+2.shape: circle
+3.shape: circle
+h1.shape: circle
+h2.shape: circle
+h3.shape: circle
+o1.shape: circle
+# o1 {
+#   icon: https://icons.terrastruct.com/infra/019-network.svg
+# }
+o2.shape: circle
+o3.shape: circle
+out1.style.opacity: 0
+out2.style.opacity: 0
+out3.style.opacity: 0
+###
+in1 -> 1
+in2 -> 2
+in3 -> 3
+1 -> h1: w21 {
+  style: {
+    stroke: deepskyblue}
+}
+1 -> h2: W21 {
+  style: {
+  fill: LightBlue
+  stroke: FireBrick
+  stroke-width: 2
+  animated: true
+  }
+}
+1 -> h3
+2 -> h1
+2 -> h2
+2 -> h3
+3 -> h1
+3 -> h2
+3 -> h3
+h1 -> o1
+h2 -> o1
+h3 -> o1
+h1 -> o2
+h2 -> o2
+h3 -> o2
+h1 -> o3
+h2 -> o3
+h3 -> o3
+
+o1 -> out1
+o2 -> out2
+o3 -> out3
+
+```
+
+
+## Here Comes the ~~Rain~~ Maths Again!
+
+Now, we are ready (maybe?) to watch these two very beautifully made videos on Backpropagation. One is of course from Dan Shiffman, and the other from Grant Sanderson a.ka. 3Blue1Brown.
+
+:::: {.columns}
+
+::: {.column width="48%"}
+{{< video https://youtu.be/QJoa0JYaX1I?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb >}}
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+{{< video https://youtu.be/tIeHLnjs5U8?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi >}}
+:::
+::::
+
+## Backpropagation in Code
+
+::: {.panel-tabset .nav-pills style="background: whitesmoke "}
+
+### Using p5.js
+
+
+### Using R
+Using `torch`.
+
+:::
+
+
+## References
+
+1. Tariq Rashid. *Make your own Neural Network*. [PDF Online](https://github.com/harshitkgupta/StudyMaterial/blob/master/Make%20Your%20Own%20Neural%20Network%20(Tariq%20Rashid)%20-%20%7BCHB%20Books%7D.pdf)
+1. Mathoverflow. *Intuitive Crutches for Higher Dimensional Thinking*. <https://mathoverflow.net/questions/25983/intuitive-crutches-for-higher-dimensional-thinking>
+

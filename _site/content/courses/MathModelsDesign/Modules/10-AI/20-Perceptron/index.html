@@ -1269,7 +1269,7 @@ window.Quarto = {
   <ul>
 <li><a href="#inspiration" id="toc-inspiration" class="nav-link active" data-scroll-target="#inspiration"><iconify-icon inline="" icon="icons8:idea" aria-label="Icon idea from icons8 Iconify.design set." title="Icon idea from icons8 Iconify.design set."></iconify-icon> Inspiration</a></li>
   <li><a href="#what-is-a-perceptron" id="toc-what-is-a-perceptron" class="nav-link" data-scroll-target="#what-is-a-perceptron">What is a Perceptron?</a></li>
-  <li><a href="#neural-nets-in-code" id="toc-neural-nets-in-code" class="nav-link" data-scroll-target="#neural-nets-in-code">Neural Nets in Code</a></li>
+  <li><a href="#perceptrons-in-code" id="toc-perceptrons-in-code" class="nav-link" data-scroll-target="#perceptrons-in-code">Perceptrons in Code</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></nav>
     </div>
@@ -1293,7 +1293,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 17, 2024</p>
+      <p class="date-modified">December 26, 2024</p>
     </div>
   </div>
     
@@ -1312,15 +1312,25 @@ window.Quarto = {
 <section id="math-intuition" class="level4"><h4 class="anchored" data-anchor-id="math-intuition">Math Intuition</h4>
 <ul>
 <li>We can imagine this as a set of inputs that <em>averaged in weighted fashion</em>.</li>
-<li>Since the inputs are this effectively acts like a <strong>linear transformation</strong> of the input data.</li>
-<li>If we imagine 2D-input (i.e inputs representing X and Y directions/quantities), then the multiplications scale/stretch/compress the X-axis and Y-axis of the 2D-plane, like a rubber sheet. (But do not <strong>fold it</strong>.)</li>
-<li>Metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching different amounts of significance to each opinion.</li>
+</ul>
+<p><span class="math display">\[
+y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
+\]</span></p>
+<ul>
+<li>Since the inputs are added with linear weighting, this effectively acts like a <strong>linear transformation</strong> of the input data.
+<ul>
+<li>A linear equation of this sort is the <a href="https://www.geeksforgeeks.org/equation-of-plane/">equation of an n-dimensional plane</a>.</li>
+<li>If we imagine the input as representing the n-coordinates in a plane, then the multiplications scale/stretch/compress the plane, like a rubber sheet. (But do not <strong>fold it</strong>.)</li>
+<li>If there were only 2 inputs, we could mentally picture this.</li>
+</ul>
+</li>
+<li>More metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching <em>different amounts of significance</em> to each opinion.</li>
 <li>The Structure should remind you of <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/index.html">Linear Regression</a> !</li>
 </ul></section><section id="why-linear" class="level4"><h4 class="anchored" data-anchor-id="why-linear">Why “Linear”?</h4>
 <p>Why are (almost) all operations linear operations in a NN?</p>
 <ul>
-<li>Well, weighted sums <em>are</em> a linear operation!</li>
-<li>Moreover, we wish to be able to set-up analytic functions for performance of the DLNN, and <strong>be able to differentiate them</strong> to be able to optimize them.</li>
+<li>We said that the weighted sums <em>are</em> a linear operation, but why is this so?</li>
+<li>We wish to be able to set-up analytic functions for performance of the NN, and <strong>be able to differentiate them</strong> to be able to optimize them.</li>
 <li>Non-linear blocks, such as <em>threshold blocks/signum-function based slicers</em> are not differentiable and we are unable to set up such analysis.</li>
 <li>Note the title of <a href="https://www.sscardapane.it/alice-book/">this reference</a>.</li>
 </ul></section><section id="why-is-there-a-bias-input" class="level4"><h4 class="anchored" data-anchor-id="why-is-there-a-bias-input">Why is there a Bias input?</h4>
@@ -1332,7 +1342,7 @@ window.Quarto = {
 <ul>
 <li>We said earlier that the weighting and adding is a linear operation.</li>
 <li>While this is great, simple linear translations of data are not capable of generating what we might call learning or generalization ability.</li>
-<li>We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as curving it, or folding it, or creating bumps, depressions, twists, and so on.</li>
+<li>We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as <em>curving it, or folding it, or creating bumps, depressions, twists</em>, and so on.</li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure"><p><a href="../../../../../materials/images/png/Activation_Functions.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Activation"><img src="../../../../../materials/images/png/Activation_Functions.png" height="360" alt="Activation" class="figure-img"></a></p>
@@ -1340,7 +1350,7 @@ window.Quarto = {
 </div>
 <ul>
 <li>This nonlinear function needs to be chosen with care so that it is both differentiable and keeps the math analysis tractable. (More later)</li>
-<li>Such a nonlinear mathematical function is implemented in the Activation Block.</li>
+<li>Such a nonlinear mathematical function is implemented in the <strong>Activation Block</strong>.</li>
 <li>See this example: red and blue areas, which we wish to <strong>separate and classify these</strong> with our DLNN, are not separable unless we fold and curve our 2D data space.</li>
 <li>The separation is achieved using a linear operation, i.e.&nbsp;a LINE!!</li>
 </ul>
@@ -1349,7 +1359,7 @@ window.Quarto = {
 <a href="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;1: From Colah Blog, used sadly without permission"><img src="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-manifolds-and-neural-networks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: From Colah Blog, used sadly without permission
+Figure&nbsp;1: From <a href="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif">Colah Blog</a>, used sadly without permission
 </figcaption></figure>
 </div>
 <ul>
@@ -1377,9 +1387,33 @@ Remembering Logistic Regression
 <p>Recall your study of <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LogReg/index.html">Logistic Regression</a>. There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+But Why Sigmoid?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because <a href="https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x">the Sigmoid function is differentiable</a>. And linear in the mid ranges. Oh, and remember the <a href="https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions">Chain Rule</a>?</p>
+<p><span class="math display">\[
+\begin{align}
+\frac{df(x)}{dx}
+&amp;= \frac{d}{dx} * \frac{1}{1 + e^{-x}} \\\
+&amp;= -(1 + e^{-x})^{-2} * \frac{d}{dx}(1 + e^{-x})~~\text{(Using Chain Rule)}\\
+&amp;= -(1 + e^{-x})^{-2} * (-e^{-x})\\
+&amp;= \frac{(1 + e^{-x}) -1}{(1 + e^{-x})^{2}}\\
+&amp;= \frac{1}{1 + e^{-x}} * \Bigg({\frac{1 + e^{-x}}{1 + e^{-x}}} - \frac{1}{1 + e^{-x}}\Bigg)\\
+&amp;= f(x) * (1 - f(x))\\
+\end{align}
+\]</span></p>
+</div>
+</div>
 <p>So with all that vocabulary, we <em>might</em> want to watch this longish video by the great Dan Shiffman:</p>
 <div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ntKn5TPHHAk?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
-</section></section><section id="neural-nets-in-code" class="level2"><h2 class="anchored" data-anchor-id="neural-nets-in-code">Neural Nets in Code</h2>
+</section></section><section id="perceptrons-in-code" class="level2"><h2 class="anchored" data-anchor-id="perceptrons-in-code">Perceptrons in Code</h2>
 <div class="tabset-margin-container"></div><div class="panel-tabset nav-pills" style="background: whitesmoke;">
 <ul class="nav nav-tabs" role="tablist">
 <li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page"><iconify-icon inline="" icon="la:r-project" aria-label="Icon r-project from la Iconify.design set." title="Icon r-project from la Iconify.design set."></iconify-icon> R</a></li>
@@ -1388,17 +1422,24 @@ Remembering Logistic Regression
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>Let us try a simple single layer NN in R. We will use the R package <code>neuralnet</code>.</p>
-<div class="cell">
+<div class="cell" data-layout-align="center">
 <details class="code-fold"><summary>Show the Code</summary><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Load the package</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bips-hb/neuralnet">neuralnet</a></span><span class="op">)</span></span>
+<span><span class="co"># library(neuralnet)</span></span>
 <span></span>
 <span><span class="co"># Use iris</span></span>
 <span><span class="co"># Create Training and Testing Datasets</span></span>
 <span><span class="va">df_train</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span> <span class="fu">slice_sample</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">df_test</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span> <span class="fu">anti_join</span><span class="op">(</span><span class="va">df_train</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create a simle Neural Net</span></span>
-<span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html">neuralnet</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">Sepal.Length</span> <span class="op">+</span> <span class="va">Sepal.Width</span> <span class="op">+</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details><div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Sepal.Length"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Sepal.Width"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Petal.Length"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Petal.Width"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Species"],"name":[5],"type":["fct"],"align":["left"]}],"data":[{"1":"5.1","2":"3.5","3":"1.4","4":"0.2","5":"setosa","_rn_":"1"},{"1":"4.9","2":"3.0","3":"1.4","4":"0.2","5":"setosa","_rn_":"2"},{"1":"4.7","2":"3.2","3":"1.3","4":"0.2","5":"setosa","_rn_":"3"},{"1":"4.6","2":"3.1","3":"1.5","4":"0.2","5":"setosa","_rn_":"4"},{"1":"5.0","2":"3.6","3":"1.4","4":"0.2","5":"setosa","_rn_":"5"},{"1":"5.4","2":"3.9","3":"1.7","4":"0.4","5":"setosa","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<details class="code-fold"><summary>Show the Code</summary><div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Create a simle Neural Net</span></span>
+<span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu">neuralnet</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">Sepal.Length</span> <span class="op">+</span> <span class="va">Sepal.Width</span> <span class="op">+</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">df_train</span>,</span>
 <span>  hidden <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  <span class="co"># act.fct = "logistic", # Sigmoid</span></span>
@@ -1425,7 +1466,7 @@ Remembering Logistic Regression
 <p><a href="nn.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="nn.png" class="img-fluid"></a></p>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-
+<p>To Be Written Up.</p>
 </div>
 </div>
 </div>
@@ -1437,20 +1478,21 @@ Remembering Logistic Regression
 <li><p>Rohit Patel (20 Oct 2024). <em>Understanding LLMs from Scratch Using Middle School Math: A self-contained, full explanation to inner workings of an LLM</em>. <a href="https://towardsdatascience.com/understanding-llms-from-scratch-using-middle-school-math-e602d27ec876" class="uri">https://towardsdatascience.com/understanding-llms-from-scratch-using-middle-school-math-e602d27ec876</a></p></li>
 <li><p>Machine Learning Tokyo: Interactive Tools for ML/DL, and Math. <a href="https://github.com/Machine-Learning-Tokyo/Interactive_Tool" class="uri">https://github.com/Machine-Learning-Tokyo/Interactive_Tool</a></p></li>
 <li><p><em>Anyone Can Learn AI Using This Blog</em>. <a href="https://colab.research.google.com/drive/1g5fj7W6QMER4-03jtou7k1t7zMVE9TVt#scrollTo=V8Vq_6Q3zivl" class="uri">https://colab.research.google.com/drive/1g5fj7W6QMER4-03jtou7k1t7zMVE9TVt#scrollTo=V8Vq_6Q3zivl</a></p></li>
-<li><p>Neural Networks Visual with <a href="https://youtube.com/@vcubingx?feature=shared">vcubingx</a></p></li>
-</ol>
+<li>
+<p>Neural Networks Visual with <a href="https://youtube.com/@vcubingx?feature=shared">vcubingx</a></p>
 <ul>
-<li><p>Part 1. <a href="https://youtu.be/UOvPeC8WOt8" class="uri">https://youtu.be/UOvPeC8WOt8</a></p></li>
-<li><p>Part 2. <a href="https://www.youtube.com/watch?v=-at7SLoVK_I" class="uri">https://www.youtube.com/watch?v=-at7SLoVK_I</a></p></li>
-</ul>
-<ol type="1">
-<li>Practical Deep Learning for Coders: An Online Free Course.<a href="https://course.fast.ai" class="uri">https://course.fast.ai</a>
+<li>Part 1. <a href="https://youtu.be/UOvPeC8WOt8" class="uri">https://youtu.be/UOvPeC8WOt8</a>
 </li>
+<li>Part 2. <a href="https://www.youtube.com/watch?v=-at7SLoVK_I" class="uri">https://www.youtube.com/watch?v=-at7SLoVK_I</a>
+</li>
+</ul>
+</li>
+<li><p>Practical Deep Learning for Coders: An Online Free Course.<a href="https://course.fast.ai" class="uri">https://course.fast.ai</a></p></li>
 </ol>
 <section id="text-books" class="level4"><h4 class="anchored" data-anchor-id="text-books">Text Books</h4>
 <ol type="1">
 <li><p>Michael Nielsen. <em>Neural Networks and Deep Learning</em>, a free online book. <a href="http://neuralnetworksanddeeplearning.com/index.html" class="uri">http://neuralnetworksanddeeplearning.com/index.html</a></p></li>
-<li><p>Simone Scardapane. (2024) <em>Alice’s Adventures in a differentiable Wonderland</em>. https://www.sscardapane.it/alice-book/</p></li>
+<li><p>Simone Scardapane. (2024) <em>Alice’s Adventures in a differentiable Wonderland</em>.<a href="https://www.sscardapane.it/alice-book/" class="uri">https://www.sscardapane.it/alice-book/</a></p></li>
 </ol></section><section id="using-r-for-dl" class="level4"><h4 class="anchored" data-anchor-id="using-r-for-dl">Using R for DL</h4>
 <ol type="1">
 <li><p>David Selby (9 January 2018). Tea and Stats Blog. <em>Building a neural network from scratch in R</em>. <a href="https://selbydavid.com/2018/01/09/neural-network/" class="uri">https://selbydavid.com/2018/01/09/neural-network/</a></p></li>
@@ -1464,7 +1506,7 @@ Remembering Logistic Regression
 <div id="refs" style="font-size: 60%;" role="list">
 <section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check" aria-label="Icon package-check from lucide Iconify.design set." title="Icon package-check from lucide Iconify.design set."></iconify-icon> R Package Citations</h6>
-<div class="cell">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <thead><tr class="header">
