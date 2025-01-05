@@ -345,10 +345,10 @@ MLP? Let us setup a notation for the MLP weights.
 
 -   $l$ : layer index;
 -   $j$, $k$ : neuron index in two adjacent layers
--   $W^l_{jk}$ (i.e. $W^{layer}_{{dest}~{source}}$) : weight from $k$th neuron / $(l−1)$th layer to $j$th
+-   $W^l_{jk}$ (i.e. $W^{layer}_{{source}~{destn}}$) : weight from $j$th neuron / $(l−1)$th layer to $k$th
     neuron / $l$th layer;
--   $b^l_j$ : *bias* of the $j$th neuron in the $l$th layer.
--   $a^l_j$ : activation (output) of $j$th neuron / $l$th layer.
+-   $b^l_k$ : *bias* of the $k$th neuron in the $l$th layer.
+-   $a^l_k$ : activation (output) of $k$th neuron / $l$th layer.
 
 
 ```{d2}
@@ -365,7 +365,7 @@ direction: right
 grid-columns: 3
 grid-gap: 400
 
-layer-1: "Layer-1 : Index(k)" {
+layer-1: "Layer-1 : Index(j)" {
   grid-columns: 1
   grid-gap: 100
   style: {
@@ -384,7 +384,7 @@ layer-1: "Layer-1 : Index(k)" {
       font-size: 45
     }}
 }
-layer-2: "Layer-2 : Index(j)" {
+layer-2: "Layer-2 : Index(k)" {
   grid-columns: 1
   grid-gap: 100
   style: {
@@ -410,7 +410,7 @@ layer-3: {
   style: {
     opacity: 0
   }
-    a21: "a21" {shape: circle
+    a12: "a12" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -422,7 +422,7 @@ layer-3: {
       stroke: white
       fill: white
     }}
-    a23: "a23" {shape: circle
+    a32: "a32" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -442,8 +442,8 @@ layer-1.1 -> layer-2.h1: W11 {
 }
 layer-1.1 -> layer-2.h2 {style:{stroke: grey}}
 layer-1.1 -> layer-2.h3 {style:{stroke: grey}}
-layer-1.2 -> layer-2.h1: W12 {
-  source-arrowhead.label: a12
+layer-1.2 -> layer-2.h1: W21 {
+  source-arrowhead.label: a21
   style: {
     font-size: 45
     fill: LightBlue
@@ -454,8 +454,8 @@ layer-1.2 -> layer-2.h1: W12 {
 }
 layer-1.2 -> layer-2.h2 {style:{stroke: grey}}
 layer-1.2 -> layer-2.h3 {style:{stroke: grey}}
-layer-1.3 -> layer-2.h1: W13 {
-  source-arrowhead.label: a13
+layer-1.3 -> layer-2.h1: W31 {
+  source-arrowhead.label: a31
   style: {
     font-size: 45
     fill: LightBlue
@@ -467,10 +467,10 @@ layer-1.3 -> layer-2.h1: W13 {
 layer-1.3 -> layer-2.h2 {style:{stroke: grey}}
 layer-1.3 -> layer-2.h3 {style:{stroke: grey}}
 
-layer-2.h1 -> layer-3.a21 { style: {stroke-width: 9
+layer-2.h1 -> layer-3.a12 { style: {stroke-width: 9
          stroke: FireBrick}}
 layer-2.h2 -> layer-3.a22 {style:{stroke: grey}}
-layer-2.h3 -> layer-3.a23 {style:{stroke: grey}}
+layer-2.h3 -> layer-3.a32 {style:{stroke: grey}}
 
 ```
 
@@ -479,9 +479,9 @@ layer-2.h3 -> layer-3.a23 {style:{stroke: grey}}
 
 $$
 \begin{align}
-(j = 1): ~ a^2_1 = sigmoid~(~\color{red}{W^2_{11}*a^1_1} + \color{skyblue}{W^2_{12}*a^1_2} + \color{forestgreen}{W^2_{13}*a^1_3}~ + b^2_1)\\
-(j = 2): ~ a^2_2 = sigmoid~(~W^2_{21}*a^1_1 + W^2_{22}*a^1_2 + W^2_{23}*a^1_3~ + b^2_2 )\\
-(j = 3): ~ a^2_3 = sigmoid~(~W^2_{31}*a^1_1 + W^2_{32}*a^1_2 + W^2_{33}*a^1_3~ + b^2_3)\\
+(k = 1): ~ a_{12} = sigmoid~(~\color{red}{W^2_{11}*a_{11}} + \color{skyblue}{W^2_{21}*a_{21}} + \color{forestgreen}{W^2_{31}*a_{31}} ~ + b_{12})\\
+(k = 2): ~ a_{22} = sigmoid~(~W^2_{12}*a_{11} + W^2_{22}*a_{21} + W^2_{32}*a_{31}~ + b_{22} )\\
+(k = 3): ~ a_{32} = sigmoid~(~W^2_{13}*a_{11} + W^2_{23}*a_{21} + W^2_{33}*a_{31}~ + b_{32})\\
 \end{align}
 $$ 
 
@@ -489,25 +489,25 @@ In (dreaded?) matrix notation :
 
 $$
 \begin{bmatrix}
-a^2_1\\
-a^2_2\\
-a^2_3\\
+a_{12}\\
+a_{22}\\
+a_{32}\\
 \end{bmatrix} = 
 sigmoid~\Bigg(
 \begin{bmatrix}
-\color{red}{W^2_{11}} & \color{skyblue}{W^2_{12}} & \color{forestgreen}{W^2_{13}}\\
-W^2_{21} & W^2_{22} & W^2_{23}\\
-W^2_{31} & W^2_{32} & W^2_{33}\\
+\color{red}{W^2_{11}} & \color{skyblue}{W^2_{21}} & \color{forestgreen}{W^2_{31}}\\
+W^2_{12} & W^2_{22} & W^2_{32}\\
+W^2_{13} & W^2_{23} & W^2_{33}\\
 \end{bmatrix} * 
 \begin{bmatrix}
-\color{red}{a^1_1}\\
-\color{skyblue}{a^1_2}\\
-\color{forestgreen}{a^1_3}\\
+\color{red}{a_{11}}\\
+\color{skyblue}{a_{21}}\\
+\color{forestgreen}{a_{31}}\\
 \end{bmatrix} +
 \begin{bmatrix}
-b^2_1\\
-b^2_2\\
-b^2_3\\
+b_{12}\\
+b_{22}\\
+b_{32}\\
 \end{bmatrix}
 \Bigg)
 $$ 

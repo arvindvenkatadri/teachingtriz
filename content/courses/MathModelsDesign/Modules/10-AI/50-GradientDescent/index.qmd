@@ -148,18 +148,18 @@ We obtained the backpropagated error for each layer:
 $$
 \begin{bmatrix}
 e_{11}\\
-e_{12}\\
-e_{13}\\
+e_{21}\\
+e_{31}\\
 \end{bmatrix} \pmb{\sim}
 \begin{bmatrix}
-W_{11} & W_{21} & W_{31} \\
-W_{12} & W_{22}  & W_{32} \\
-W_{13} & W_{23} & W_{33} \\
+W_{11} & W_{12} & W_{13} \\
+W_{21} & W_{22}  & W_{23} \\
+W_{31} & W_{32} & W_{33} \\
 \end{bmatrix} * 
 \begin{bmatrix}
-{e_{21}}\\
+{e_{12}}\\
 {e_{22}}\\
-{e_{23}}\\
+{e_{32}}\\
 \end{bmatrix}
 $$
 
@@ -180,78 +180,191 @@ Now what? How do we use all these errors, from the output right up to those back
 
 ### Cost-Gradient for each Weight
 
-1a. The cost function was the squared error averaged over all $n$ neurons:
+1. The cost function was the squared error averaged over all $n$ neurons:
 
 $$
 \begin{align}
 C(W, b) &= \frac{1}{2n}\sum^{n ~ neurons}_{i=1}e^2(i)\\
-\\
-&= \frac{1}{2n}\sum^{n~neurons}_{k=1}(a_i - d_i)^2
 \end{align}
 $${#eq-cost-function}
 
 
 
-1b. ***Serious Magic***: We want to differentiate this sum for **each Weight**. Before we calculate $\frac{dC}{dW^l_{jk}}$, we realize that *any weight* $W^l_{jk}$ connects only as input to **one neuron** $j$, which outputs $a_j$. No other neuron-terms in the above summation depend upon this specific Weight, so the summation becomes *just one term*, pertaining to activation-output, say $a_j$!
+2. ***Serious Magic***: We want to differentiate this sum for **each Weight**. Before we calculate $\frac{dC}{dW^l_{jk}}$, we realize that *any weight* $W^l_{jk}$ connects only as input to **one neuron** $k$, which outputs $a_k$. No other neuron-terms in the above summation depend upon this specific Weight, so the summation becomes *just one term*, pertaining to activation-output, say $a_k$!
 
 $$
 \begin{align}
-\frac{d~C}{d~\color{orange}{\pmb{W^l_{jk}}}} &= \frac{1}{2n}\sum^{n~neurons}_{k=1}(a_i - d_i)^2\\
+\frac{d~C}{d~\color{orange}{\pmb{W^l_{jk}}}} &= \large\frac{d}{d~\color{orange}{\pmb{W^l_{jk}}}}\Bigg({\frac{1}{2n}\sum^{all~n~neurons}_{i=1}(e_i)^2}~\Bigg)\\
 \\
-&= \frac{1}{2n} ~ * ~\bigg(~\pmb{\color{orange}{W^l_{jk}}} * \pmb{\color{red}{a^l_j}}~ \bigg)^2 ~~only~~j^{th}~~term~~matters\\
+&= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * \frac{d}{d~\color{orange}{\pmb{W^l_{jk}}}} ~ \Bigg(\pmb{\color{red}{\Large{{e^{l}_k}}}} ~ \Bigg) ~~only~~k^{th}~neuron~l^{th}~layer\\
 \\
-&= {\color{red}{\pmb{a^l_j}}} ~ * ~ \frac{d~\color{red}{\pmb{a^l_j}}}{d~\color{orange}{\pmb{W^l_{jk}}}} ~~\text{(leave out the n scaling factor; 2 cancels !!)}
+&= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * ~ {\frac{d}{d~\color{orange}{\pmb{W^l_{jk}}}}\bigg(\Large{\color{red}{a^{l}_k - d^l_k}}}\bigg)
 \end{align}
 $$
 
-1b. Now, the relationship between $a^l_j$ and $W^l_{jk}$ involves the sigmoid function. 
+3. Now, the relationship between $a^{l}_k$ and $W^l_{jk}$ involves the sigmoid function. (And $d_k$ is not dependent upon anything!)
 
 $$
 \begin{align}
-\color{red}{\pmb{a^l_j}} ~ &= \sigma~\bigg(\sum^{k_{max}}_k \pmb{\color{orange}{W^l_{jk}}} ~ * ~{a^{l-1}_k + b^l_j}\bigg)\\
+\color{red}{\pmb{a^l_k}} ~ &= \sigma~\bigg(\sum^{neurons~in~l-1}_{j=1} \pmb{\color{orange}{W^l_{jk}}} ~ * ~{a^{l-1}_j + b^l_j}\bigg)\\
 &= \color{red}{\sigma(everything)}\\
 \end{align}
 $$
-where $k_{max}$ is the number of neurons in the previous layer $l-1$. We also know $\frac{d\sigma(x)}{dx} = \sigma(x) * \big(1 - \sigma(x)\big)$. 
 
-1c. **Final Leap**: Using the great [chain rule for differentiation](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions), we obtain:
+4. We also know 
+$$
+\large{\frac{d\sigma(x)}{dx}} = \sigma(x) * \big(1 - \sigma(x)\big)
+$$ 
 
+5. **Final Leap**: Using the great [chain rule for differentiation](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions), we obtain:
+
+::: column-screen-inset-right
 $$
 \begin{align}
-\frac{d~C}{d~\color{orange}{\pmb{W^l_{jk}}}} &= ~ a^l_j *  \frac{d~\color{red}{\pmb{a^l_j}}}{d~\color{orange}{\pmb{W^l_{jk}}}}\\
-&=a^l_j * \frac{d~ \color{red}{\sigma(everything)}}{d~\color{orange}{\pmb{W^l_{jk}}}}\\
+\frac{d~C}{d~\color{orange}{\pmb{W^l_{jk}}}} &= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * ~ {\frac{d}{d~\color{orange}{\pmb{W^l_{jk}}}}\bigg(\Large{\color{red}{a^{l}_k - d^l_k}}}\bigg)\\
+&= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * ~\frac{d~\color{red}{\pmb{a^l_k}}}{d~\color{orange}{\pmb{W^l_{jk}}}}\\
+&= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ *\frac{d~ \color{red}{\sigma(everything)}}{d~\color{orange}{\pmb{W^l_{jk}}}}\\
 \\
-&= \text{(Write this step yourself, DL peasants!)}\\
-\\
-&= ~ a^l_j * \sigma(everything) * (1 -\sigma(everything)) * \frac{d(everything)}{d~\color{orange}{\pmb{W^l_{jk}}}}~~ \text{Applying Chain Rule!}\\
-&= ~ a^l_j ~* ~ a^{l-1}_k * ~ \sigma~\bigg(\sum^{k_{max}}_k \pmb{\color{orange}{W^l_{jk}}} ~ * ~{a^{l-1}_k + b^l_j}\bigg) * \bigg(1-\sigma~\bigg(\sum^{k_{max}}_k \pmb{\color{orange}{W^l_{jk}}} ~ * ~{a^{l-1}_k + b^l_j}\bigg)\bigg)
+&= \frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * \sigma(everything) * (1 -\sigma(everything)) * \frac{d(everything)}{d~\color{orange}{\pmb{W^l_{jk}}}}~~ \text{Applying Chain Rule!}\\
+&= \huge{\frac{\color{skyblue}{\large{e^l_k}} }{n} ~ * \color{red}{~a^{l-1}_k} * ~\\
+\large{\sigma~\bigg(\sum^{neurons~in~l-1}_{j=1} \pmb{\color{orange}{W^l_{jk}}} ~ * ~ {a^{l-1}_j + b^l_j}\bigg) * \\
+\bigg(1 - \sigma~\bigg(\sum^{neurons~in~l-1}_{j=1} \pmb{\color{orange}{W^l_{jk}}} ~ * ~ {a^{l-1}_j + b^l_j}\bigg)\bigg)}}
 \end{align}
-$$
+$${#eq-gradient}
 
-### 
+:::
 
-If $d(k)$ are the desired outputs of the NN (over an entire training set), and $y(k)$ are the outputs of the ***output layer***, then we calculate the error **at the outputs** of the NN as:
 
-$$
-e(k) = a(k) - d(k)
-$${#eq-error-function}
 
-This error is calculated at *each output* for each training epoch/sample/batch. (More about the batch-mode in a bit.)
+How to understand this monster equation intuitively? Let us draw a diagram to visualize the components:
 
-### What is the Cost Function?
+```{d2}
+title: Gradient Interpreted {
+  shape: text
+  near: top-center
+  style: {
+    font-size: 60
+    italic: true
+  }
+}
+direction: right
+grid-columns: 3
+grid-gap: 400
 
-We define the **cost** or **objective** function as:
+layer-1: Layer-1 Index-j {
+  grid-columns: 1
+  grid-gap: 100
+  j {shape: circle
+     style: {
+      font-size: 60
+      fill: orange
+      stroke-width:6
+    }}
+  2 {shape: circle
+     style: {
+      font-size: 45
+    }}
+  3 {shape: circle
+     style: {
+      font-size: 45
+    }}
+}
+layer-2: Layer-2 Index-k {
+  grid-columns: 1
+  grid-gap: 100
+  h1 {shape: circle
+     style: {
+      font-size: 45
+    }}
+  k {shape: circle
+     style: {
+      font-size: 60
+      fill: orange
+      stroke-width:6
+    }}
+  h3 {shape: circle
+     style: {
+      font-size: 45
+    }}
+}
 
-$$
-\begin{align}
-C(W, b) &= \frac{1}{2n}\sum^n_{k=1}(e(k))^2\\
-&= \frac{1}{2n}\sum^n_{k=1}(a(k) - d(k))^2
-\end{align}
-$${#eq-cost-function}
+layer-3: {
+  grid-columns: 1
+  grid-gap: 100
+  style: {
+    opacity: 0
+  }
+    e12: "e12" {shape: circle
+     style: {
+      font-size: 45
+      stroke: white
+      fill: white
+    }}
+    e22: "ek2" {shape: circle
+     style: {
+      font-size: 80
+      stroke: white
+      fill: lightblue
+    }}
+    e32: "e32" {shape: circle
+     style: {
+      font-size: 45
+      stroke: white
+      fill: white
+     }
+     }
+}
+layer-1.j -> layer-2.k: Wjk {
+  source-arrowhead: {
+    label: a(L-1)j
+    style {
+    font-color: red
+    }
+  }
+  style: {
+    fill: orange
+    font-size: 80
+    stroke: FireBrick
+    stroke-width: 9
+    animated: true
+  }
+}
+#layer-1.j -> layer-2.h1
+#layer-1.j -> layer-2.h3
+layer-1.2 -> layer-2.k: W2k {
+  source-arrowhead.label: a(L-1)2
+  style: {
+    font-size: 45
+    fill: LightBlue
+    stroke: FireBrick
+    stroke-width: 9
+    animated: true
+  }
+}
+#layer-1.2 -> layer-2.h1
+#layer-1.2 -> layer-2.h3
+layer-1.3 -> layer-2.k: W3k {
+  source-arrowhead.label: a(L-1)3
+  style: {
+    font-size: 45
+    fill: LightBlue
+    stroke: FireBrick
+    stroke-width: 9
+    animated: true
+  }
+}
+#layer-1.3 -> layer-2.h1
+#layer-1.3 -> layer-2.h3
 
-We take each of the output $a(k)$s over $n$ training samples and $d(k)$ are the desired outputs for each of the training samples. 
+layer-2.k -> layer-3.e22 { style: {stroke-width: 9
+         stroke: FireBrick}}
+layer-2.h1 -> layer-3.e12
+layer-2.h3 -> layer-3.e32
 
-[The Cost Function is of course dependent upon the *Weights* and the *biases*]{.bg-light-red .black }, and is to be minimized by adapting these. Using the sum of *squared errors*, along with the *linear* operations in the NN guarantees that the Cost Function (usually) has one global, minimum. 
+```
+
+### What does this Gradient Look Like?
+
 
 ```{r}
 #| label: quad-surface
@@ -273,439 +386,17 @@ df %>% plot_ly(x = ~x, y = ~y, z = ~z, color = ~z,
 
 ```
 
-### What is Backpropagation of Error?
+This gradient is calculated (in vector fashion) for **all** weights. 
 
-As we stated earlier, error is calculated at the output. In order to adapt **all weights**, we need to *send error proportionately back along the network*, towards the input. This proportional error will enable will give us a basis to adapt the individual weights anywhere in the network. 
+### How Does the NN Use this Gradient?
 
-What does "proportional" mean here?
-
-- Consider the two diagrams below:
-
-:::: column-screen-inset-right
-:::: {.columns}
-::: {.column width="49%"}
-:::: {style="background-color: whitesmoke"}
-```{d2}
-title: Error Contributions to e21 {
-  shape: text
-  near: top-center
-  style: {
-    font-size: 60
-    italic: true
-  }
-}
-direction: right
-grid-columns: 3
-grid-gap: 400
-
-layer-1: {
-  grid-columns: 1
-  grid-gap: 100
-  1 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  2 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  3 {shape: circle
-     style: {
-      font-size: 45
-    }}
-}
-layer-2: {
-  grid-columns: 1
-  grid-gap: 100
-  h1 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  h2 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  h3 {shape: circle
-     style: {
-      font-size: 45
-    }}
-}
-
-layer-3: {
-  grid-columns: 1
-  grid-gap: 100
-  style: {
-    opacity: 0
-  }
-    e21: "e21" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-    }}
-    e22: "e22" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-    }}
-    e23: "e23" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-     }
-     }
-}
-layer-1.1 -> layer-2.h1: W11 {
-  source-arrowhead.label: a11
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.1 -> layer-2.h2
-layer-1.1 -> layer-2.h3
-layer-1.2 -> layer-2.h1: W12 {
-  source-arrowhead.label: a12
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.2 -> layer-2.h2
-layer-1.2 -> layer-2.h3
-layer-1.3 -> layer-2.h1: W13 {
-  source-arrowhead.label: a13
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.3 -> layer-2.h2
-layer-1.3 -> layer-2.h3
-
-layer-2.h1 -> layer-3.e21 { style: {stroke-width: 9
-         stroke: FireBrick}}
-layer-2.h2 -> layer-3.e22
-layer-2.h3 -> layer-3.e23
-
-```
-$$
-\begin{align}
-e_{21} = ~ a_{11} * \frac{W_{11}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}}\\
-+ a_{12} * \frac{W_{12}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}} \\
-+ a_{13} * \frac{W_{13}}{Sum~of~Weights~to~\color{magenta}{\pmb{h_1}}} \\
-\end{align}
-$$
-
+So now that we have the gradient of *Cost vs $W^l_{jk}$*, we can adapt $W^l_{jk}$ by moving a small tuning step in the **opposite direction**:
 
 $$
-\begin{align}
-e_{21} = ~ a_{11} * \frac{W_{11}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}}\\
-+ a_{12} * \frac{W_{12}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}} \\
-+ a_{13} * \frac{W_{13}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}}  \\
-\end{align}
-$$
-<br><br><br>
+W^l_{jk}~|~new = W^l_{jk}~|~old - \delta * gradient
+$${#eq-Wljk-adaptation}
 
-::::
-
-
-:::
-::: {.column width="2%"}
-:::
-::: {.column width="49%"}
-:::: {style="background-color: whitesmoke"}
-```{d2}
-title: Total Error at a11 {
-  shape: text
-  near: top-center
-  style: {
-    font-size: 60
-    italic: true
-  }
-}
-direction: right
-grid-columns: 3
-grid-gap: 400
-
-layer-1: {
-  grid-columns: 1
-  grid-gap: 100
-  1 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  2 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  3 {shape: circle
-     style: {
-      font-size: 45
-    }}
-}
-layer-2: {
-  grid-columns: 1
-  grid-gap: 100
-  h1 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  h2 {shape: circle
-     style: {
-      font-size: 45
-    }}
-  h3 {shape: circle
-     style: {
-      font-size: 45
-    }}
-}
-
-layer-3: {
-  grid-columns: 1
-  grid-gap: 100
-  style: {
-    opacity: 0
-  }
-    e21: "e21" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-    }}
-    e22: "e22" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-    }}
-    e23: "e23" {shape: circle
-     style: {
-      font-size: 45
-      stroke: white
-      fill: white
-     }
-     }
-}
-layer-1.1 -> layer-2.h1: W11 {
-  source-arrowhead.label: e11
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.1 -> layer-2.h2: W21 {
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.1 -> layer-2.h3: W31 {
-  style: {
-    font-size: 45
-    fill: LightBlue
-    stroke: FireBrick
-    stroke-width: 9
-    animated: true
-  }
-}
-layer-1.2 -> layer-2.h1
-layer-1.2 -> layer-2.h2
-layer-1.2 -> layer-2.h3
-layer-1.3 -> layer-2.h1
-layer-1.3 -> layer-2.h2
-layer-1.3 -> layer-2.h3
-
-layer-2.h1 -> layer-3.e21 { style: {stroke-width:9 
-         stroke: FireBrick}}
-layer-2.h2 ->layer-3.e22  { style: {stroke-width:9
-         stroke: FireBrick}}
-layer-2.h3 ->layer-3.e23  { style: {stroke-width:9
-         stroke: FireBrick}}
-
-```
-
-$$
-\begin{align}
-e_{11} = ~ e_1 * \frac{W_{11}}{Sum~of~weights~to~{\color{orange}{\pmb {h_1}}}}\\
-+ e_2 * \frac{W_{21}}{Sum~of~Weights~to~\color{pink}{\pmb{h_2}}} \\
-+ e_3 * \frac{W_{31}}{Sum~of~Weights~to~\color{teal}{\pmb{h_3}}}  \\
-\end{align}
-$$
-
-
-$$
-\begin{align}
-e_{11} = ~ e_{21} * \frac{W_{11}}{\pmb{\color{orange}{W_{11} + W_{12} + W_{13}}}}\\
-+ e_{22} * \frac{W_{21}}{\pmb{\color{pink}{W_{11} + W_{22} + W_{23}}}} \\
-+ e_{23} * \frac{W_{31}}{\pmb{\color{teal}{W_{31} + W_{32} + W_{33}}}}  \\
-\end{align}
-$$
-
-
-$$
-\begin{align}
-e_{12} = similar~expression!!\\
-\
-e_{13} = similar~expression!!\\
-\end{align}
-$$
-<br>
-::::
-:::
-::::
-::::
-
-- In the LHS column, we have taken one output error, $e_{21}$ and parcelled it back to the preceding neurons ***in proportion to their connecting Weights***. This makes intuitive sense; we are making those neurons put their money where their mouth is. As [Nassim Nicholas Taleb](https://philosophiatopics.wordpress.com/wp-content/uploads/2018/10/skin-in-the-game-nassim-nicholas-taleb.pdf) says, people (and neurons!) need to pay for their opinions, especially when things go wrong!
-- In the RHS column, we are doing the same thing, but looking at the error per connecting-neuron in layer $l-1$, rather than on a per output-error-basis). 
-- What is the *accumulated error* then, at each connecting neuron? We add up back-propagated error contributions from all subsequent neurons to which we are connected. 
-
-- So we can compactly write the relationships in the RHS column above as:
-
-$$
-\begin{bmatrix}
-e_{11}\\
-e_{12}\\
-e_{13}\\
-\end{bmatrix} = 
-\Bigg(
-\begin{bmatrix}
-\frac{W_{11}}{D_{11}} & \frac{W_{21}}{D_{21}} & \frac{W_{31}}{D_{31}}\\
-\frac{W_{12}}{D_{12}} & \frac{W_{22}}{D_{22}} & \frac{W_{32}}{D_{32}}\\
-\frac{W_{13}}{D_{13}} & \frac{W_{13}}{D_{13}} & \frac{W_{33}}{D_{33}}\\
-\end{bmatrix} * 
-\begin{bmatrix}
-{e_{21}}\\
-{e_{22}}\\
-{e_{23}}\\
-\end{bmatrix}
-\Bigg)
-$$
-
-The denominators make things look complicated! But if we are able to [simply ignore them]{.black .bg-light-red} for a moment, then we see a very interesting thing:
-
-$$
-\begin{bmatrix}
-e_{11}\\
-e_{12}\\
-e_{13}\\
-\end{bmatrix} \pmb{\sim}
-\begin{bmatrix}
-W_{11} & W_{21} & W_{31} \\
-W_{12} & W_{22}  & W_{32} \\
-W_{13} & W_{23} & W_{33} \\
-\end{bmatrix} * 
-\begin{bmatrix}
-{e_{21}}\\
-{e_{22}}\\
-{e_{23}}\\
-\end{bmatrix}
-$$
-
-[This new *approximate* matrix is the **tranpose** of our original Weight matrix]{.black .bg-light-red} from @eq-fwd-prop-1! The rows there have become columns here!!
-
-$$
-e^{l-1}  \pmb{\sim} ~ \Bigg(W^{lT} * e^{l}\Bigg)
-$${#eq-Back-Prop}
-
-This is our equation for backpropagation of error. 
-
-Why is ignoring all those *individual* denominators justified? Let us park that question until we have understood the one last step in NN training, the [Gradient Descent.](../Modules/50-GradientDescent/index.qmd)
-
-
-
-### Assumptions in the Training Process
-
-1. **Cost Function**: We will minimize the Cost function which is assumed to be a function of (all) outputs of a NN.
-
-1. **Training Error**: We can calculate overall training Cost as the average Cost taken over all/several input samples.
-$$
-C = \frac{1}{n}*\sum_{x}C_x
-$$
-In practice, the input samples are not presented one by one, but in batches, called *minbatches*. This is cheaper by way of computation since we adapt the weights on a per-batch basis, and also allows to perform *averaging* of errors over each batch. However is also seems to complicate the housekeeping necessary to manage batches. ( We will not, in the interest of time, deal with this idea more. It is dealt with in the references below. )
-
-1. **Global Minimum**: Cost function has a global minimum! (Bowl shaped surface which we can descend)
-
-## Backpropagation Numerically Demonstrated
-
-```{d2}
-direction: right
-grid-columns: 6
-grid-rows: 3
-###
-in1.style.opacity: 0
-in2.style.opacity: 0
-in3.style.opacity: 0
-1.shape: circle
-2.shape: circle
-3.shape: circle
-h1.shape: circle
-h2.shape: circle
-h3.shape: circle
-o1.shape: circle
-# o1 {
-#   icon: https://icons.terrastruct.com/infra/019-network.svg
-# }
-o2.shape: circle
-o3.shape: circle
-out1.style.opacity: 0
-out2.style.opacity: 0
-out3.style.opacity: 0
-###
-in1 -> 1
-in2 -> 2
-in3 -> 3
-1 -> h1: w21 {
-  style: {
-    stroke: deepskyblue}
-}
-1 -> h2: W21 {
-  style: {
-  fill: LightBlue
-  stroke: FireBrick
-  stroke-width: 2
-  animated: true
-  }
-}
-1 -> h3
-2 -> h1
-2 -> h2
-2 -> h3
-3 -> h1
-3 -> h2
-3 -> h3
-h1 -> o1
-h2 -> o1
-h3 -> o1
-h1 -> o2
-h2 -> o2
-h3 -> o2
-h1 -> o3
-h2 -> o3
-h3 -> o3
-
-o1 -> out1
-o2 -> out2
-o3 -> out3
-
-```
+and we adapt all weights in opposition to their individual cost gradient. 
 
 ## Here Comes the ~~Rain~~ Maths Again!
 
@@ -725,7 +416,7 @@ Now, we are ready (maybe?) to watch these two very beautifully made videos on Ba
 :::
 ::::
 
-## Backpropagation in Code
+## Gradient Descent in Code
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke "}
 

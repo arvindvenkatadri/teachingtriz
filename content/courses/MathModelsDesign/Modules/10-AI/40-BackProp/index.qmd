@@ -147,28 +147,28 @@ We saw how each layer works:
 
 $$
 \begin{bmatrix}
-a^2_1\\
-a^2_2\\
-a^2_3\\
+a_{12}\\
+a_{22}\\
+a_{32}\\
 \end{bmatrix} = 
 sigmoid~\Bigg(
 \begin{bmatrix}
-\color{red}{W^2_{11}} & \color{skyblue}{W^2_{12}} & \color{forestgreen}{W^2_{13}}\\
-W^2_{21} & W^2_{22} & W^2_{23}\\
-W^2_{31} & W^2_{32} & W^2_{33}\\
+\color{red}{W^2_{11}} & \color{skyblue}{W^2_{21}} & \color{forestgreen}{W^2_{31}}\\
+W^2_{12} & W^2_{22} & W^2_{32}\\
+W^2_{13} & W^2_{23} & W^2_{33}\\
 \end{bmatrix} * 
 \begin{bmatrix}
-\color{red}{a^1_1}\\
-\color{skyblue}{a^1_2}\\
-\color{forestgreen}{a^1_3}\\
+\color{red}{a_{11}}\\
+\color{skyblue}{a_{21}}\\
+\color{forestgreen}{a_{31}}\\
 \end{bmatrix} +
 \begin{bmatrix}
-b^2_1\\
-b^2_2\\
-b^2_3\\
+b_{12}\\
+b_{22}\\
+b_{32}\\
 \end{bmatrix}
 \Bigg)
-$$ {#eq-fwd-prop-1}
+$$  {#eq-fwd-prop-1}
 
 
 
@@ -255,7 +255,7 @@ What does "proportional" mean here? Consider the diagrams below:
 
 
 ```{d2}
-title: Error Backpropagated from e21 {
+title: Error Backpropagated from e12 {
   shape: text
   near: top-center
   style: {
@@ -306,7 +306,7 @@ layer-3: {
   style: {
     opacity: 0
   }
-    e21: "e21" {shape: circle
+    e12: "e12" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -318,7 +318,7 @@ layer-3: {
       stroke: white
       fill: white
     }}
-    e23: "e23" {shape: circle
+    e32: "e32" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -338,8 +338,8 @@ layer-1.1 <-> layer-2.h1: W11 {
 }
 layer-1.1 -> layer-2.h2
 layer-1.1 -> layer-2.h3
-layer-1.2 <-> layer-2.h1: W12 {
-  source-arrowhead.label: e12
+layer-1.2 <-> layer-2.h1: W21 {
+  source-arrowhead.label: e21
   style: {
     font-size: 45
     fill: LightBlue
@@ -350,8 +350,8 @@ layer-1.2 <-> layer-2.h1: W12 {
 }
 layer-1.2 -> layer-2.h2
 layer-1.2 -> layer-2.h3
-layer-1.3 <-> layer-2.h1: W13 {
-  source-arrowhead.label: e13
+layer-1.3 <-> layer-2.h1: W31 {
+  source-arrowhead.label: e31
   style: {
     font-size: 45
     fill: LightBlue
@@ -363,10 +363,10 @@ layer-1.3 <-> layer-2.h1: W13 {
 layer-1.3 -> layer-2.h2
 layer-1.3 -> layer-2.h3
 
-layer-2.h1 <-> layer-3.e21 { style: {stroke-width: 9
+layer-2.h1 <-> layer-3.e12 { style: {stroke-width: 9
          stroke: FireBrick}}
 layer-2.h2 -> layer-3.e22
-layer-2.h3 -> layer-3.e23
+layer-2.h3 -> layer-3.e32
 
 ```
 
@@ -375,9 +375,9 @@ layer-2.h3 -> layer-3.e23
 
 $$
 \begin{align}
-e_{11} ~~\pmb\sim~~ ~ e_{21} * \frac{W_{11}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}}\\
-e_{12} ~~\pmb\sim~~ ~ e_{21} * \frac{W_{12}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}} \\
-e_{13}~~\pmb\sim~~ ~ e_{21} * \frac{W_{13}}{Sum~of~Weights~to~\color{magenta}{\pmb{h_1}}} \\
+e_{11} ~~\pmb\sim~~ ~ e_{12} * \frac{W_{11}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}}\\
+e_{21} ~~\pmb\sim~~ ~ e_{12} * \frac{W_{21}}{Sum~of~Weights~to~{\color{magenta}{\pmb{h_1}}}} \\
+e_{31}~~\pmb\sim~~ ~ e_{12} * \frac{W_{31}}{Sum~of~Weights~to~\color{magenta}{\pmb{h_1}}} \\
 \end{align}
 $$
 :::
@@ -387,9 +387,9 @@ $$
 
 $$
 \begin{align}
-e_{11} ~~\pmb\sim~~ ~ e_{21} * \frac{W_{11}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}}\\
-e_{12} ~~\pmb\sim~~ ~ e_{21} *\frac{W_{12}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}} \\
-e_{13} ~~\pmb\sim~~ ~ e_{21} *\frac{W_{13}}{\pmb{\color{magenta}{W_{11} + W_{12} + W_{13}}}}  \\
+e_{11} ~~\pmb\sim~~ ~ e_{12} * \frac{W_{11}}{\pmb{\color{magenta}{W_{11} + W_{21} + W_{31}}}} \\
+e_{21} ~~\pmb\sim~~ ~ e_{12} *\frac{W_{21}}{\pmb{\color{magenta}{W_{11} + W_{21} + W_{31}}}} \\
+e_{31} ~~\pmb\sim~~ ~ e_{12} *\frac{W_{31}}{\pmb{\color{magenta}{W_{11} + W_{21} + W_{31}}}}  \\
 \end{align}
 $$
 :::
@@ -452,7 +452,7 @@ layer-3: {
   style: {
     opacity: 0
   }
-    e21: "e21" {shape: circle
+    e12: "e12" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -464,7 +464,7 @@ layer-3: {
       stroke: white
       fill: white
     }}
-    e23: "e23" {shape: circle
+    e32: "e32" {shape: circle
      style: {
       font-size: 45
       stroke: white
@@ -482,7 +482,7 @@ layer-1.1 <-> layer-2.h1: W11 {
     animated: true
   }
 }
-layer-1.1 <-> layer-2.h2: W21 {
+layer-1.1 <-> layer-2.h2: W12 {
   style: {
     font-size: 45
     fill: LightBlue
@@ -491,7 +491,7 @@ layer-1.1 <-> layer-2.h2: W21 {
     animated: true
   }
 }
-layer-1.1 <-> layer-2.h3: W31 {
+layer-1.1 <-> layer-2.h3: W13 {
   style: {
     font-size: 45
     fill: LightBlue
@@ -507,11 +507,11 @@ layer-1.3 -> layer-2.h1
 layer-1.3 -> layer-2.h2
 layer-1.3 -> layer-2.h3
 
-layer-2.h1 -> layer-3.e21 { style: {stroke-width:9 
+layer-2.h1 -> layer-3.e12 { style: {stroke-width:9 
          stroke: FireBrick}}
 layer-2.h2 ->layer-3.e22  { style: {stroke-width:9
          stroke: FireBrick}}
-layer-2.h3 ->layer-3.e23  { style: {stroke-width:9
+layer-2.h3 ->layer-3.e32  { style: {stroke-width:9
          stroke: FireBrick}}
 
 ```
@@ -531,9 +531,9 @@ $$
 ::: {.column width=48%}
 $$
 \begin{align}
-e_{11} = ~ e_{21} * \frac{W_{11}}{\pmb{\color{orange}{W_{11} + W_{12} + W_{13}}}}\\
-+ e_{22} * \frac{W_{21}}{\pmb{\color{pink}{W_{21} + W_{22} + W_{23}}}} \\
-+ e_{23} * \frac{W_{31}}{\pmb{\color{teal}{W_{31} + W_{32} + W_{33}}}}  \\
+e_{11} = ~ e_{12} * \frac{W_{11}}{\pmb{\color{orange}{W_{11} + W_{21} + W_{31}}}}\\
++ e_{22} * \frac{W_{12}}{\pmb{\color{pink}{W_{12} + W_{22} + W_{32}}}} \\
++ e_{32} * \frac{W_{13}}{\pmb{\color{teal}{W_{13} + W_{23} + W_{33}}}}  \\
 \end{align}
 $$
 
@@ -548,7 +548,7 @@ $$
 :::
 ::::
 
-- We have taken one output error, $e_{21}$ and parcelled it back to the preceding neurons ***in proportion to their connecting Weights***. This makes intuitive sense; we are making those neurons put their money where their mouth is. As [Nassim Nicholas Taleb](https://philosophiatopics.wordpress.com/wp-content/uploads/2018/10/skin-in-the-game-nassim-nicholas-taleb.pdf) says, people (and neurons!) need to pay for their opinions, especially when things go wrong!
+- We have taken one output error, $e_{12}$ and parcelled it back to the preceding neurons ***in proportion to their connecting Weights***. This makes intuitive sense; we are making those neurons put their money where their mouth is. As [Nassim Nicholas Taleb](https://philosophiatopics.wordpress.com/wp-content/uploads/2018/10/skin-in-the-game-nassim-nicholas-taleb.pdf) says, people (and neurons!) need to pay for their opinions, especially when things go wrong!
 
 - The *accumulated error* at each neuron in layer $l-1$ is the weighted sum of back-propagated error contributions from all layer $l$ neurons to which we are connected. 
 
@@ -557,19 +557,19 @@ $$
 $$
 \begin{bmatrix}
 e_{11}\\
-e_{12}\\
-e_{13}\\
+e_{21}\\
+e_{31}\\
 \end{bmatrix} = 
 \Bigg(
 \begin{bmatrix}
-\frac{W_{11}}{D_{11}} & \frac{W_{21}}{D_{21}} & \frac{W_{31}}{D_{31}}\\
-\frac{W_{12}}{D_{12}} & \frac{W_{22}}{D_{22}} & \frac{W_{32}}{D_{32}}\\
-\frac{W_{13}}{D_{13}} & \frac{W_{13}}{D_{13}} & \frac{W_{33}}{D_{33}}\\
+\frac{W_{11}}{D_{11}} & \frac{W_{12}}{D_{12}} & \frac{W_{13}}{D_{13}}\\
+\frac{W_{21}}{D_{21}} & \frac{W_{22}}{D_{22}} & \frac{W_{23}}{D_{23}}\\
+\frac{W_{31}}{D_{31}} & \frac{W_{32}}{D_{32}} & \frac{W_{33}}{D_{33}}\\
 \end{bmatrix} * 
 \begin{bmatrix}
-{e_{21}}\\
+{e_{12}}\\
 {e_{22}}\\
-{e_{23}}\\
+{e_{32}}\\
 \end{bmatrix}
 \Bigg)
 $$
@@ -579,18 +579,18 @@ The denominators make things look complicated! But if we are able to [simply ign
 $$
 \begin{bmatrix}
 e_{11}\\
-e_{12}\\
-e_{13}\\
+e_{21}\\
+e_{31}\\
 \end{bmatrix} \pmb{\sim}
 \begin{bmatrix}
-W_{11} & W_{21} & W_{31} \\
-W_{12} & W_{22}  & W_{32} \\
-W_{13} & W_{23} & W_{33} \\
+W_{11} & W_{12} & W_{13} \\
+W_{21} & W_{22}  & W_{23} \\
+W_{31} & W_{32} & W_{33} \\
 \end{bmatrix} * 
 \begin{bmatrix}
-{e_{21}}\\
+{e_{12}}\\
 {e_{22}}\\
-{e_{23}}\\
+{e_{32}}\\
 \end{bmatrix}
 $$
 
@@ -605,7 +605,7 @@ This is our equation for backpropagation of error.
 Why is ignoring all those *individual* denominators justified? Let us park that question until we have understood the one last step in NN training, the [Gradient Descent.](../Modules/50-GradientDescent/index.qmd)
 
 
-
+::: {.content-hidden}
 ## Backpropagation Numerically Demonstrated
 
 ```{d2}
@@ -669,6 +669,8 @@ o2 -> out2
 o3 -> out3
 
 ```
+:::
+
 
 ## Here Comes the ~~Rain~~ Maths Again!
 
