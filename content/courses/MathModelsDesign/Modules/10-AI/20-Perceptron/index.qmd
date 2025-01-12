@@ -8,9 +8,7 @@ tags:
 - Neural Nets
 - Perceptron
 - Weighted Average
-
 ---
-
 
 ```{r setup, include=FALSE}
 library(blogdown)
@@ -127,7 +125,6 @@ theme_set(new = theme_custom())
 #
 ```
 
-
 ```{r,echo = FALSE, eval = FALSE, fig.alt="Petr Slováček on Unsplash", fig.align='center'}
 knitr::include_graphics("featured.jpg")
 
@@ -135,81 +132,125 @@ knitr::include_graphics("featured.jpg")
 
 ## {{< iconify icons8 idea >}} Inspiration
 
-
 ## What is a Perceptron?
 
-The [perceptron](../../../../../materials/pdfs/Rosenblatt1958.pdf) was invented by Frank Rosenblatt is considered one of the foundational pieces of neural network structures. The output is viewed as a *decision* from the neuron and is usually propagated as an input to other neurons inside the neural network.
+The [perceptron](../../../../../materials/pdfs/Rosenblatt1958.pdf) was
+invented by Frank Rosenblatt is considered one of the foundational
+pieces of neural network structures. The output is viewed as a
+*decision* from the neuron and is usually propagated as an input to
+other neurons inside the neural network.
 
-![Perceptron](../../../../../materials/images/png/Neurons.png){height=360}
+![Perceptron](../../../../../materials/images/png/Neurons.png){height="360"}
 
 #### Math Intuition
 
-- We can imagine this as a set of inputs that *averaged in weighted fashion*. 
+-   We can imagine this as a set of inputs that *averaged in weighted
+    fashion*.
 
 $$
 y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
 $$
 
-- Since the inputs are added with linear weighting, this effectively acts like a **linear transformation** of the input data.
-  - A linear equation of this sort is the [equation of an n-dimensional plane](https://www.geeksforgeeks.org/equation-of-plane/).
-  - If we imagine the input as representing the n-coordinates in a plane, then the multiplications scale/stretch/compress the plane, like a rubber sheet. (But do not **fold it**.)
-  - If there were only 2 inputs, we could mentally picture this.
-- More metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching *different amounts of significance* to each opinion.
-- The Structure should remind you of [Linear Regression](../../../../Analytics/Modelling/Modules/LinReg/index.qmd) !
+-   Since the inputs are added with linear weighting, this effectively
+    acts like a **linear transformation** of the input data.
+    -   A linear equation of this sort is the [equation of an
+        n-dimensional
+        plane](https://www.geeksforgeeks.org/equation-of-plane/).
+    -   If we imagine the input as representing the n-coordinates in a
+        plane, then the multiplications scale/stretch/compress the
+        plane, like a rubber sheet. (But do not **fold it**.)
+    -   If there were only 2 inputs, we could mentally picture this.
+-   More metaphorically, it seems like the neuron is consulting each of
+    the inputs, asking for their opinion, and then making a decision by
+    attaching *different amounts of significance* to each opinion.
+-   The Structure should remind you of [Linear
+    Regression](../../../../Analytics/Modelling/Modules/LinReg/index.qmd)
+    !
 
 #### Why "Linear"?
-Why are (almost) all operations linear operations in a NN? 
 
-- We said that the weighted sums *are* a linear operation, but why is this so?
-- We wish to be able to set-up analytic functions for performance of the NN, and **be able to differentiate them** to be able to optimize them. 
-- Non-linear blocks, such as *threshold blocks/signum-function based slicers* are not differentiable and we are unable to set up such analysis. 
-- Note the title of [this reference](https://www.sscardapane.it/alice-book/).
+Why are (almost) all operations linear operations in a NN?
+
+-   We said that the weighted sums *are* a linear operation, but why is
+    this so?
+-   We wish to be able to set-up analytic functions for performance of
+    the NN, and **be able to differentiate them** to be able to optimize
+    them.
+-   Non-linear blocks, such as *threshold blocks/signum-function based
+    slicers* are not differentiable and we are unable to set up such
+    analysis.
+-   Note the title of [this
+    reference](https://www.sscardapane.it/alice-book/).
 
 #### Why is there a Bias input?
 
-- We want the weighted sum of the inputs to *mean something* significant, before we accept it. 
-- The bias is *subtracted* from the weighted sum of inputs, and the bias input could also (notionally) have a weight. 
-- The *bias* is like a threshold which the weighted sum has to exceed; if it does, the neuron is said to **fire**.  
+-   We want the weighted sum of the inputs to *mean something*
+    significant, before we accept it.
+-   The bias is *subtracted* from the weighted sum of inputs, and the
+    bias input could also (notionally) have a weight.
+-   The *bias* is like a threshold which the weighted sum has to exceed;
+    if it does, the neuron is said to **fire**.
 
 #### What is the Activation Block?
 
-- We said earlier that the weighting and adding is a linear operation. 
-- While this is great, simple linear translations of data are not capable of generating what we might call learning or generalization ability. 
-- We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as *curving it, or folding it, or creating bumps, depressions, twists*, and so on. 
+-   We said earlier that the weighting and adding is a linear operation.
+-   While this is great, simple linear translations of data are not
+    capable of generating what we might call learning or generalization
+    ability.
+-   We need to have some non-linear block to allow the data to create
+    nonlinear transformations of the data space, such as *curving it, or
+    folding it, or creating bumps, depressions, twists*, and so on.
 
-![Activation](../../../../../materials/images/png/Activation_Functions.png){height=360}
+![Activation](../../../../../materials/images/png/Activation_Functions.png){height="360"}
 
-- This nonlinear function needs to be chosen with care so that it is both differentiable and keeps the math analysis tractable. (More later)
-- Such a nonlinear mathematical function is implemented in the **Activation Block**.
-- See this example: red and blue areas, which we wish to **separate and classify these** with our DLNN, are not separable unless we fold and curve our 2D data space. 
-- The separation is achieved using a linear operation, i.e. a LINE!!
+-   This nonlinear function needs to be chosen with care so that it is
+    both differentiable and keeps the math analysis tractable. (More
+    later)
+-   Such a nonlinear mathematical function is implemented in the
+    **Activation Block**.
+-   See this example: red and blue areas, which we wish to **separate
+    and classify these** with our DLNN, are not separable unless we fold
+    and curve our 2D data space.
+-   The separation is achieved using a linear operation, i.e. a LINE!!
 
-![From [Colah Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif), used sadly without permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
+![From [Colah
+Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif),
+used sadly without
+permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
 
-
-- For instance in @fig-manifolds-and-neural-networks, no amount of stretching or compressing of the surface can separate the two sets ( blue and red ) using a line or plane, **unless** the surface can be warped into **another dimension** by folding. 
+-   For instance in @fig-manifolds-and-neural-networks, no amount of
+    stretching or compressing of the surface can separate the two sets (
+    blue and red ) using a line or plane, **unless** the surface can be
+    warped into **another dimension** by folding.
 
 #### What is the Sigmoid Function?
 
 So how do we implement this nonlinear Activation Block?
 
-- One of the popular functions used in the Activation Block is a function based on the exponential function $e^x$.
-- Why? Because this function retains is identity when differentiated! This is a very convenient property!
+-   One of the popular functions used in the Activation Block is a
+    function based on the exponential function $e^x$.
+-   Why? Because this function retains is identity when differentiated!
+    This is a very convenient property!
 
-![Sigmoid Activation](../../../../../materials/images/png/Sigmoid.png){height=360}
-
-
+![Sigmoid
+Activation](../../../../../materials/images/png/Sigmoid.png){height="360"}
 
 ::: callout-note
 #### Remembering Logistic Regression
-Recall your study of [Logistic Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd). There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.
+
+Recall your study of [Logistic
+Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd).
+There, the Sigmoid function was used to model the odds of the
+(Qualitative) target variable against the (Quantitative) predictor.
 :::
 
 ::: callout-note
 #### But Why Sigmoid?
-Because [the Sigmoid function is differentiable](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x). And linear in the mid ranges.
-Oh, and remember the [Chain Rule](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions)?
 
+Because [the Sigmoid function is
+differentiable](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x).
+And linear in the mid ranges. Oh, and remember the [Chain
+Rule](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions)?
 
 $$
 \begin{align}
@@ -222,20 +263,20 @@ $$
 &= f(x) * (1 - f(x))\\
 \end{align}
 $$
-
 :::
 
-So with all that vocabulary, we *might* want to watch this longish video by the great Dan Shiffman:
+So with all that vocabulary, we *might* want to watch this longish video
+by the great Dan Shiffman:
 
 {{< video https://youtu.be/ntKn5TPHHAk?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb >}}
-
 
 ## Perceptrons in Code
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-
 ### {{< iconify la r-project >}} R
-Let us try a simple single layer NN in R. We will use the R package `neuralnet`.
+
+Let us try a simple single layer NN in R. We will use the R package
+`neuralnet`.
 
 ```{r}
 #| label: nn-with-r
@@ -279,54 +320,58 @@ plot(nn)
 ![](nn.png)
 
 ### {{< iconify skill-icons p5js>}} p5.js
-To Be Written Up. 
 
+To Be Written Up.
 :::
 
 ## References
 
-
-1. The Neural Network Zoo - The Asimov Institute. <http://www.asimovinstitute.org/neural-network-zoo/>
-
-1. It’s just a linear model:  neural  networks edition. <https://lucy.shinyapps.io/neural-net-linear/>
-
-1. Neural Network Playground. <https://playground.tensorflow.org/>
-
-1. Rohit Patel (20 Oct 2024). *Understanding LLMs from Scratch Using Middle School Math: A self-contained, full explanation to inner workings of an LLM*. <https://towardsdatascience.com/understanding-llms-from-scratch-using-middle-school-math-e602d27ec876>
-
-1. Machine Learning Tokyo: Interactive Tools for ML/DL, and Math. <https://github.com/Machine-Learning-Tokyo/Interactive_Tool>
-
-1. *Anyone Can Learn AI Using This Blog*. <https://colab.research.google.com/drive/1g5fj7W6QMER4-03jtou7k1t7zMVE9TVt#scrollTo=V8Vq_6Q3zivl>
-
-1. Neural Networks Visual with [vcubingx](https://youtube.com/@vcubingx?feature=shared)
-    - Part 1. <https://youtu.be/UOvPeC8WOt8>
-    - Part 2. <https://www.youtube.com/watch?v=-at7SLoVK_I>
-  
-1. Practical Deep Learning for Coders: An Online Free Course.<https://course.fast.ai>
-
+1.  The Neural Network Zoo - The Asimov Institute.
+    <http://www.asimovinstitute.org/neural-network-zoo/>
+2.  It’s just a linear model: neural networks edition.
+    <https://lucy.shinyapps.io/neural-net-linear/>
+3.  Neural Network Playground. <https://playground.tensorflow.org/>
+4.  Rohit Patel (20 Oct 2024). *Understanding LLMs from Scratch Using
+    Middle School Math: A self-contained, full explanation to inner
+    workings of an LLM*.
+    <https://towardsdatascience.com/understanding-llms-from-scratch-using-middle-school-math-e602d27ec876>
+5.  Machine Learning Tokyo: Interactive Tools for ML/DL, and Math.
+    <https://github.com/Machine-Learning-Tokyo/Interactive_Tool>
+6.  *Anyone Can Learn AI Using This Blog*.
+    <https://colab.research.google.com/drive/1g5fj7W6QMER4-03jtou7k1t7zMVE9TVt#scrollTo=V8Vq_6Q3zivl>
+7.  Neural Networks Visual with
+    [vcubingx](https://youtube.com/@vcubingx?feature=shared)
+    -   Part 1. <https://youtu.be/UOvPeC8WOt8>
+    -   Part 2. <https://www.youtube.com/watch?v=-at7SLoVK_I>
+8.  Practical Deep Learning for Coders: An Online Free
+    Course.<https://course.fast.ai>
 
 #### Text Books
-1. Michael Nielsen. *Neural Networks and Deep Learning*, a free online book. <http://neuralnetworksanddeeplearning.com/index.html>
 
-1. Simone Scardapane. (2024) *Alice’s Adventures in a differentiable Wonderland*.<https://www.sscardapane.it/alice-book/>
-
+1.  Michael Nielsen. *Neural Networks and Deep Learning*, a free online
+    book. <http://neuralnetworksanddeeplearning.com/index.html>
+2.  Simone Scardapane. (2024) *Alice’s Adventures in a differentiable
+    Wonderland*.<https://www.sscardapane.it/alice-book/>
 
 #### Using R for DL
 
-1. David Selby (9 January 2018). Tea and Stats Blog. *Building a neural network from scratch in R*. <https://selbydavid.com/2018/01/09/neural-network/>
+1.  David Selby (9 January 2018). Tea and Stats Blog. *Building a neural
+    network from scratch in R*.
+    <https://selbydavid.com/2018/01/09/neural-network/>
+2.  *torch for R: An open source machine learning framework based on
+    PyTorch.* <https://torch.mlverse.org>
+3.  Akshaj Verma. (2020-07-24). *Building A Neural Net from Scratch
+    Using R - Part 1 and Part 2*.
+    <https://rviews.rstudio.com/2020/07/20/shallow-neural-net-from-scratch-using-r-part-1/>
+    and
+    <https://rviews.rstudio.com/2020/07/24/building-a-neural-net-from-scratch-using-r-part-2/>
 
-1. *torch for R: An open source machine learning framework based on PyTorch.* <https://torch.mlverse.org>
-1. Akshaj Verma. (2020-07-24). *Building A Neural Net from Scratch Using R - Part 1 and Part 2*.
-<https://rviews.rstudio.com/2020/07/20/shallow-neural-net-from-scratch-using-r-part-1/> and 
-<https://rviews.rstudio.com/2020/07/24/building-a-neural-net-from-scratch-using-r-part-2/>
- 
- 
 #### Maths
 
-1.  Parr and Howard (2018). *The Matrix Calculus You Need for Deep Learning*.<https://arxiv.org/abs/1802.01528>
+1.  Parr and Howard (2018). *The Matrix Calculus You Need for Deep
+    Learning*.<https://arxiv.org/abs/1802.01528>
 
 ::: {#refs style="font-size: 60%;"}
-
 ###### {{< iconify lucide package-check >}} R Package Citations
 
 ```{r}
@@ -340,5 +385,4 @@ grateful::cite_packages(
   knitr::kable(format = "simple")
 
 ```
-
 :::

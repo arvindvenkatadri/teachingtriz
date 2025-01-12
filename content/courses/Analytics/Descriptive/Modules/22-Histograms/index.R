@@ -96,23 +96,23 @@ skim(diamonds)
 inspect(diamonds)
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
-gf_histogram(~ price, data = diamonds) %>%
-  gf_labs(title = "Plot 1A: Diamond Prices",
-          caption = "ggformula")
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# gf_histogram(~ price, data = diamonds) %>%
+#   gf_labs(title = "Plot 1A: Diamond Prices",
+#           caption = "ggformula")
 
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-## More bins
-gf_histogram(~ price, data = diamonds, 
-             bins = 100) %>%
-  gf_labs(title = "Plot 1B: Diamond Prices",
-          caption = "ggformula")
-
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ## More bins
+# gf_histogram(~ price, data = diamonds,
+#              bins = 100) %>%
+#   gf_labs(title = "Plot 1B: Diamond Prices",
+#           caption = "ggformula")
+# 
 
 
 
@@ -131,24 +131,24 @@ ggplot(data = diamonds) +
        caption = "ggplot")
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
-diamonds %>% 
-  gf_histogram(~ carat) %>%
-  gf_labs(title = "Plot 2A: Carats of Diamonds",
-          caption = "ggformula")
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# diamonds %>%
+#   gf_histogram(~ carat) %>%
+#   gf_labs(title = "Plot 2A: Carats of Diamonds",
+#           caption = "ggformula")
 
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-## More bins
-diamonds %>% 
-  gf_histogram(~ carat, 
-  bins = 100) %>%
-  gf_labs(title = "Plot 2B: Carats of Diamonds",
-          caption = "ggformula")
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ## More bins
+# diamonds %>%
+#   gf_histogram(~ carat,
+#   bins = 100) %>%
+#   gf_labs(title = "Plot 2B: Carats of Diamonds",
+#           caption = "ggformula")
 
 
 
@@ -167,41 +167,41 @@ diamonds %>%
           caption = "ggplot")
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
-gf_histogram(~ price, fill = ~ cut, data = diamonds) %>%
-  gf_labs(title = "Plot 3A: Diamond Prices",caption = "ggformula") 
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# gf_histogram(~ price, fill = ~ cut, data = diamonds) %>%
+#   gf_labs(title = "Plot 3A: Diamond Prices",caption = "ggformula")
 
 
 
-diamonds %>% 
-  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
-  gf_labs(title = "Plot 3B: Prices by Cut",
-          caption = "ggformula")
+# diamonds %>%
+#   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
+#   gf_labs(title = "Plot 3B: Prices by Cut",
+#           caption = "ggformula")
 
 
 
-diamonds %>% 
-  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
-  gf_facet_wrap(~ cut) %>%
-  gf_labs(title = "Plot 3C: Prices by Filled and Facetted by Cut",
-          caption = "ggformula") %>%
-  gf_theme(theme(
-           axis.text.x = element_text(angle = 45, 
-           hjust = 1)))
+# diamonds %>%
+#   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
+#   gf_facet_wrap(~ cut) %>%
+#   gf_labs(title = "Plot 3C: Prices by Filled and Facetted by Cut",
+#           caption = "ggformula") %>%
+#   gf_theme(theme(
+#            axis.text.x = element_text(angle = 45,
+#            hjust = 1)))
 
 
 
-diamonds %>% 
-  gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>% 
-  gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
-  gf_labs(title = "Plot 3D: Prices Filled and Facetted by Cut", 
-          subtitle = "Free y-scale",
-          caption = "ggformula") %>%
-  gf_theme(theme(axis.text.x = 
-           element_text(angle = 45, 
-           hjust = 1)))
+# diamonds %>%
+#   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
+#   gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
+#   gf_labs(title = "Plot 3D: Prices Filled and Facetted by Cut",
+#           subtitle = "Free y-scale",
+#           caption = "ggformula") %>%
+#   gf_theme(theme(axis.text.x =
+#            element_text(angle = 45,
+#            hjust = 1)))
 
 
 
@@ -236,10 +236,10 @@ diamonds  %>% ggplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-install.packages("shiny")
-library(shiny)
-runExample("01_hello")      # an interactive histogram
-
+# install.packages("shiny")
+# library(shiny)
+# runExample("01_hello")      # an interactive histogram
+# 
 
 race_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv")
 rank_df <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv")
@@ -293,25 +293,25 @@ longest_races %>%
   count(nationality) %>% arrange(desc(n))
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# 
+# rank_df %>%
+#   gf_histogram(~ time_in_seconds, bins = 75) %>%
+#   gf_labs(title = "Histogram of Race Times")
+# 
 
-rank_df %>%
-  gf_histogram(~ time_in_seconds, bins = 75) %>%
-  gf_labs(title = "Histogram of Race Times")
 
 
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-##
-
-race_df %>%
-  gf_histogram(~ distance, bins =  50) %>%
-  gf_labs(title = "Histogram of Race Distances")
-
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# 
+# race_df %>%
+#   gf_histogram(~ distance, bins =  50) %>%
+#   gf_labs(title = "Histogram of Race Distances")
+# 
 
 ## Set graph theme
 theme_set(new = theme_custom())

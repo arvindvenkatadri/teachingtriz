@@ -41,7 +41,7 @@ library(vcd)
 #| label: Extra Pedagogical Packages
 #| echo: false
 #| message: false
-
+library(tinytable)
 library(checkdown)
 library(epoxy)
 library(TeachHist)
@@ -128,7 +128,7 @@ theme_set(new = theme_custom())
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
 Many experiments gather qualitative data across different segments of a
-population, for example, opinion about a topic among people who belog to
+population, for example, opinion about a topic among people who belong to
 different income groups, or who live in different parts of a city. This
 should remind us of the [Likert
 Plots](../../../Descriptive/Modules/45-SurveyData/index.qmd) that we
@@ -147,19 +147,20 @@ Journal](https://www.bmj.com/about-bmj/resources-readers/publications/statistics
 ![Breast
 Feeding](../../../../../materials/images/table-83.webp){#fig-breast-feeding}
 
-Clearly, we can see differences in counts/proportions of women who
-breast-fed their babies for three months or more, *based on* whether
-they were "printers wives" or "farmers' wives"! Is there a doctor in the
+Clearly, we can see differences in [counts/proportions of women who
+breast-fed their babies for three months or more]{.black .bg-pink}, ***based on*** whether
+they were ["printers wives" or "farmers' wives"]{.black .bg-green}! 
+
+Is there a doctor in the
 [House](https://www.imdb.com/title/tt0412142/)?
 
 ### {{< iconify flat-color-icons workflow >}} The CLT for Two Proportions
 
 We first need to establish some model assumptions prior to making our
 analysis. As before, we wish to see if the CLT applies here, and if so,
-in what form. The difference between two proportions can be modeled
-using a normal distribution when:
+in what form. The difference between two proportions $\hat{p_1}-\hat{p_2}$ can be modeled using a normal distribution when:
 
--   Independence (extended): The data are independent within and between
+-   **Independence (extended)**: The data are independent within and between
     the two groups. Generally this is satisfied if the data come from
     two independent random samples or if the data come from a randomized
     experiment.
@@ -252,7 +253,8 @@ The Contingency Table can be plotted, as we have seen, using a
 #### Using vcd
 
 ```{r}
-vcd::mosaic(gss_table, gp = shading_hsv)
+mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
+  vcd::mosaic(gp = shading_hsv)
 
 ```
 
@@ -321,7 +323,7 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 
 ## Hypotheses Definition
 
-What would our Hypotheses be?
+What would our Hypotheses be relating to the *proportions* of votes for or against the Death Penalty?
 
 $H_0: \text{Education does not affect votes for Death Penalty}\\$
 
@@ -337,18 +339,17 @@ complete the same task.
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 ### Code
 
-Let us now perform the base `chisq test`: We need a `table` and then the
-`chisq` test: We will calculate the `observed-chi-squared` value, and
-compare it with the `critical value`.
+Let us now perform the base `chisq test`: We need a `contingency table` and then the `chisq` test: We will calculate the `observed-chi-squared` value, and compare it with the `critical value`.
 
 ```{r}
 
-# Get the observed chi-square statistic
-observedChi2 <- mosaic::chisq(tally(DeathPenalty ~ Education, data = gss2002))
-observedChi2
+# Chi-square test
+mosaic::xchisq.test(mosaic::tally(DeathPenalty ~ Education, data = gss2002))
 
-# Actual chi-square test
-mosaic::xchisq.test(tally(DeathPenalty ~ Education, data = gss2002))
+
+# Get the observed chi-square statistic
+observedChi2 <- mosaic::chisq(mosaic::tally(DeathPenalty ~ Education, data = gss2002))
+observedChi2
 
 # Determine the Chi-Square critical value
 X_squared_critical <- qchisq(p = .05, 
@@ -364,13 +365,50 @@ $0.0001029$, very low as we would expect, indicating that the NULL
 Hypothesis should be rejected in favour of the alternate hypothesis,
 that opinions about the `DeathPenalty` are related to `Education`.
 
+```{r}
+#| echo: false
+mosaic::xqchisq(p = c(0.025, 0.975), 2, 2,
+               return = c("plot"), verbose = T,
+        system = "gg") %>%  
+   gf_labs(title = "Critical Chi-Square Value", 
+ x = "") %>% 
+  gf_vline(xintercept = observedChi2, color = "red", linewidth = 1) %>%
+  gf_refine(annotate(x = 21, y = 0.15, geom = "text", label = "Observed\n Chi-Square")) %>% 
+   gf_theme(theme_classic())
+ 
+```
+
 Let us now dig into that cryptic-looking table above!
 
 ### Intuitive Explanation
 
 Let us look at the Contingency Table that we have:
 
+```{r}
+#| label: fig-sample-contingency-table-picture
+#| fig-cap: "Contingency Table"
+#| echo: false
+
+data("GSS2002", package = "resampledata")
+gss2002 <- GSS2002 %>% 
+  dplyr::select(Education, DeathPenalty) %>% 
+  tidyr::drop_na(., c(Education, DeathPenalty))
+
+mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
+  addmargins() %>% 
+  as_tibble() %>% 
+  pivot_wider(id_cols = DeathPenalty, names_from = Education, values_from = n) %>% 
+  tt() %>% 
+  style_tt(color = "grey") %>% 
+  style_tt(i = 1, j = 2, color = "black", bold = TRUE, background = "yellow") %>% 
+  style_tt(i = 2, j = 5, color = "black", bold = TRUE, background = "yellow") %>% 
+   style_tt(i = 3, color = "black", bold = TRUE, background = "palegreen") 
+
+```
+
+
 ```{r echo=FALSE}
+#| eval: false
 mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>% 
   addmargins() %>% 
   kableExtra::kbl(caption = "Contingency Table") %>%
@@ -381,11 +419,11 @@ mosaic::tally(DeathPenalty ~ Education, data = gss2002) %>%
 <br> In the chi-square test, we check whether the two (or more)
 categorical variables are independent. To do this we perform a simple
 check on the Contingency Table. We first *re-compute* the totals in each
-row and column, based on what we could **expect** if there was
-independence (NULL Hypothesis). If the two variables were independent,
+row and column, based on what we could **expect** ***if there was
+independence (NULL Hypothesis)***. If the two variables were independent,
 then there should be **no difference** between real and expected scores.
 
-How do we know [what scores to expect]{.bg-lightred .black} if there was
+How do we know [what scores to expect]{.black .bg-light-red} if there was
 no relationship between the variables?
 
 Consider the entry in location (1,1): 117. The number of **expected**
@@ -396,7 +434,7 @@ $$
 \begin{align}
 \text{Expected Value[1,1]}
 &= p_{row_1} * p_{col_1} * Total~Scores\\\
-&= \frac{\sum_{r_{1}}}{\sum_{r_{all}c_{all}}} * \frac{\sum_{c_{1}}}{\sum_{r_{all}c_{all}}} * \sum_{r_{all}c_{all}} \\
+&= \Large{\frac{\sum_{r_{1}}}{\sum_{r_{all}c_{all}}} * \frac{\sum_{c_{1}}}{\sum_{r_{all}c_{all}}} * \sum_{r_{all}c_{all}}} \\
 &= \frac{898}{1307} * \frac{189}{1307} * 1307\\\
 &= 130
 \end{align}
@@ -440,40 +478,76 @@ gss_table %>%
 
 ```
 
+And here are the mosaic plots for the *actual* and *expected* Contingency Tables, along with the *association* plot showing the differences, as we did when plotting [Proportions](../../../Descriptive/Modules/40-CatData/index.qmd#coloured-tiles-actual-and-expected-contingency-tables):
+
+
 ```{r}
 #| echo: false
-#| layout-ncol: 2
+#| layout-ncol: 3
 #| fig-subcap: 
 #|  - "Actual"
 #|  - "Expected"
-  
-vcd::mosaic(gss_table)
-vcd::mosaic(gss_exp)
+#|  - "Tile-Wise Differences"
+counts_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002) # No margins added
+vcd::mosaic(counts_table)
+vcd::mosaic(counts_table, type = "expected")
+vcd::assoc(counts_table)
+
 ```
 
-<br> The $X^2$ statistic is **sum of squared differences** between
-`Observed` and `Expected` scores, scaled by the `Expected Scores`. For
-location \[1,1\] this would be: $(117-130)^2/130$. Do try to compute all
-of these and the $X^2$ statistic by hand !!
+<br> 
+
+Now, the **Pearson Residual** in each cell is equivalent to the
+`z-score` of that cell. Recall the [z-score](../22-Histograms/index.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the `z-score`.
+
+In the Contingency Table, we have **counts** which are usually modeled
+as an (integer) *Poisson distribution*, for which **mean (i.e Expected
+value) and variance are identical**. Thus we get the Pearson Residual
+as:
+
+$$
+r_{i,j} = \frac{(Actual - Expected)}{\sqrt{\displaystyle Expected}}
+$$ 
+
+and therefore:
+
+
+$$
+r_{i,j} = \frac{(o_{i,j}- e_{i,j})}{\sqrt{\displaystyle e_{i,j}}}
+$$
+
+
+The sum of all the squared Pearson residuals is the chi-square
+statistic, χ2, upon which the inferential analysis follows. 
+
+$$
+χ2 = \sum_{i=1}^R\sum_{j=1}^C{r_{i,j}^2} 
+$$ 
+
+
+where R and C are number of rows and columns in the Contingency
+Table, the levels in the two Qual variables.
+
+For location \[1,1\], its contribution to χ2 would be: $(117-130)^2/130 = 1.3$. 
+Do try to compute all of these and the $X^2$ statistic by hand !!
 
 All right, what of all this? How did this $X^2$ distribution come from?
 Here is a lovely, brief explanation from this [StackOverflow
 Post](https://stats.stackexchange.com/a/303548):
 
-> -   In a contingency table the null hypothesis states that the
+> -   In a Contingency Table the Null Hypothesis states that the
 >     variables in the rows and the variable in the columns are
 >     independent.\
-> -   The cell counts $E_{ij}$ are assumed to be Poisson distributed
->     with mean = $E_{ij}$ and as they are Poisson, their variance is
+> -   The cell counts $E_{ij}$ are assumed to be [Poisson distributed]{.bg-light-red .black} with mean = $E_{ij}$ and as they are Poisson, their variance is
 >     also $E_{ij}$.\
-> -   Asymptotically the Poisson distribution approaches the normal
->     distribution with mean = $E_{ij}$ and *standard deviation* with
->     $\sqrt(E_{ij})$ so, asymptotically
->     $\frac{(X_{ij} - E_{ij})}{\sqrt(E_{ij})}$ is approximately
->     standard normal.\
+> -   Asymptotically the Poisson distribution approaches the [normal
+>     distribution]{.bg-light-red .black}, with mean = $E_{ij}$ and *standard deviation* with
+>     $\sqrt{E_{ij}}$ so, asymptotically
+>     $\large{\frac{(X_{ij} - E_{ij})}{\sqrt{E_{ij}}}}$ is approximately
+>     standard normal $N(0,1)$.\
 > -   If you square standard normal variables and sum these squares then
 >     the result is a chi-square random variable so
->     $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt(E_{ij})}\right)^2$
+>     $\sum_{i,j}\left(\frac{(X_{ij}-E_{ij})}{\sqrt{E_{ij}}}\right)^2$
 >     has a (asymptotically) a [chi-square
 >     distribution]{.bg-light-red .black}.\
 > -   Asymptotics must hold and that is why most textbooks state that
@@ -481,8 +555,12 @@ Post](https://stats.stackexchange.com/a/303548):
 >     $E_{ij}$ are larger than 5, but that is just a rule of thumb that
 >     makes the approximation ''good enough''.
 
+
 ```{r}
+#| echo: false
+#| warning: false
 #| layout-ncol: 2
+
 # Set graph theme
 theme_set(new = theme_custom())
 #
@@ -490,11 +568,14 @@ df <- tibble(x = rnorm(500, mean = 0, sd = 2),
              y = x^2)
 df %>% gf_density(~x) %>% 
   gf_fitdistr(dist = "dnorm", title = "Normal Density")
+##
 df %>% gf_density(~y) %>% 
-  gf_fitdistr(title = "Chi-Square Density = Squared Normal Density")
+  gf_fitdistr(dist = "dchisq",start = list(df = 4),
+              title = "Chi-Square Density = Squared Normal Density")
 
 ```
 :::
+
 
 ## Permutation Test for `Education`
 
@@ -760,7 +841,7 @@ theme_set(new = theme_custom())
 #
 
 null_chisq <- do(9999) * 
-  chisq.test(tally(DeathPenalty ~ shuffle(Education), 
+  chisq.test(mosaic::tally(DeathPenalty ~ shuffle(Education), 
                    data = gss2002))
 
 head(null_chisq)

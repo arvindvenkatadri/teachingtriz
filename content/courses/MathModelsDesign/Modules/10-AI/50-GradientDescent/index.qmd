@@ -172,7 +172,7 @@ $${#eq-Back-Prop}
 
 Now what? How do we use all these errors, from the output right up to those backpropagated backwards up to the first ($l=1$) layer? To adapt the weights of the NN using these backpropagated errors, here are the steps:
 
-1. **Per-Weight Cost Gradient**: We are looking for something like $\pmb{\color{red}{\frac{dC}{W_{jk}}}}$ for all possible combos of $jk$.
+1. **Per-Weight Cost Gradient**: We are looking for something like $\large{\pmb{\color{red}{\frac{dC}{W_{jk}}}}}$ for all possible combos of $jk$.
 1. **Learn**: Adapt the Weights in the opposite direction to its Cost-Gradient. (Why?)
 
  Are you ready? ;-D Let us do this !
@@ -236,10 +236,10 @@ $${#eq-gradient}
 
 
 
-How to understand this monster equation intuitively? Let us draw a diagram to visualize the components:
+How to understand this monster equation intuitively? Let us first draw a diagram to visualize the components:
 
 ```{d2}
-title: Gradient Interpreted {
+title: Cost Gradient Interpreted {
   shape: text
   near: top-center
   style: {
@@ -251,7 +251,7 @@ direction: right
 grid-columns: 3
 grid-gap: 400
 
-layer-1: Layer-1 Index-j {
+layer-1: Layer: L-1 Index-j {
   grid-columns: 1
   grid-gap: 100
   j {shape: circle
@@ -269,7 +269,7 @@ layer-1: Layer-1 Index-j {
       font-size: 45
     }}
 }
-layer-2: Layer-2 Index-k {
+layer-2: Layer: L Index-k {
   grid-columns: 1
   grid-gap: 100
   h1 {shape: circle
@@ -300,7 +300,7 @@ layer-3: {
       stroke: white
       fill: white
     }}
-    e22: "ek2" {shape: circle
+    e22: "ekL" {shape: circle
      style: {
       font-size: 80
       stroke: white
@@ -363,6 +363,15 @@ layer-2.h3 -> layer-3.e32
 
 ```
 
+Let us take the *Weight* $Wjk$. It connects neuron $j^{l-1}$ with neuron $k^l$, using the activation $a^{l-1}_j$. The relevant output *error* ( that contributes to the Cost function) is $e^l_{k}$.
+
+- The product $\large{\color{red}{a^{l-1}_j} ~ * ~ \color{lightblue}{e^l_k}}$ is **like a correlation product** of the two quanties at the input and output of the neuron $k$. This product contributes to a sense of *slope*: the larger either of these, larger is the Cost-slope going from neuron $j$ to $k$.
+- How do we account for the magnitude of the *Weight* $Wjk$ itself? Surely that matters! Yes, but note that $Wjk$ is entwined with the remaining inputs and weights via the $\sigma$ function term!  We must differentiate that and put that differential into the product! That gives is the two other product terms in the formula above which involve the sigmoid function.
+
+So, monster as it is, the formula is quite intuitive and even beautiful!
+
+
+
 ### What does this Gradient Look Like?
 
 
@@ -393,14 +402,19 @@ This gradient is calculated (in vector fashion) for **all** weights.
 So now that we have the gradient of *Cost vs $W^l_{jk}$*, we can adapt $W^l_{jk}$ by moving a small tuning step in the **opposite direction**:
 
 $$
-W^l_{jk}~|~new = W^l_{jk}~|~old - \delta * gradient
+W^l_{jk}~|~new = W^l_{jk}~|~old - \alpha * gradient
 $${#eq-Wljk-adaptation}
 
-and we adapt all weights in opposition to their individual cost gradient. 
+and we adapt all weights in opposition to their individual cost gradient. The parameter $\alpha$ is called the **learning rate**.
+
+Yes, but not all neurons have a *desired output*; so what do we use for error?? Only the output neurons have a desired output!!
+
+The **backpropagated error**, peasants! Each neuron has already "received" its share of error, which is converted to Cost, whose gradient wrt all input weights of the specific neuron is calculated using @eq-gradient, and each weight thusly adapted using @eq-Wljk-adaptation.
+
 
 ## Here Comes the ~~Rain~~ Maths Again!
 
-Now, we are ready (maybe?) to watch these two very beautifully made videos on Backpropagation. One is of course from Dan Shiffman, and the other from Grant Sanderson a.ka. 3Blue1Brown.
+Now, we are ready (maybe?) to watch these two very beautifully made videos on Backpropagation. One is of course from Dan Shiffman, and the other from Grant Sanderson a.k.a. 3Blue1Brown.
 
 :::: {.columns}
 
