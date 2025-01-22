@@ -68,9 +68,10 @@ library(grateful)
 
 ```
 
+#### Plot Theme
 ```{r}
 #| label: Plot Sizing and theming
-#| echo: false
+#| code-fold: true
 #| message: false
 #| results: hide
 
@@ -261,7 +262,7 @@ Geometric Aesthetics from two Sankey Plot Packages
 
 Such diagrams are best used when you want to show a many-to-many mapping
 between two domains or multiple paths through a set of stages E.g
-Students going through multiple courses during a semester of study.
+`Students` pursruing different `degrees` going through multiple `courses` with multiple `departments` during a semester of study. Here `students`, `degrees`, `courses`, `departments` would be some variables we would plot and we would visualize the number of students moving across `courses` and `deparments` based on their `degree` etc. 
 
 Here is an example of a Sankey Diagram: This diagram show how energy is
 converted or transmitted before being consumed or lost: supplies are on
@@ -311,7 +312,7 @@ Titanic
 Note that this data is in **tidy wide** / **table** form, with separate
 columns for each Qualitative variable and a separate `count` column,
 which we saw when we examined Categorical Data. This is, in my opinion,
-intuitively the best form of data to plot a Sankey plot with. But there
+intuitively the best form of data to plot a Sankey plot with. Each variable gives us "**one part in the flow**". But there
 are other forms such as the **tidy long** form which we have been using
 practically all this while. You will find examples of on the
 `ggalluvial` website using **tidy long** form data.
@@ -352,14 +353,14 @@ Titanic %>% ggplot(data = .,
                fill = "white") + 
   
 # Labels for each "level" of the Categorical Axes
-  geom_text(stat = "stratum", 
+  geom_text(stat = "stratum", size = 3,
             aes(label = after_stat(stratum))) +
   
 
   
 # Scales and Colours
-  scale_x_discrete(limits = c("Class", "Sex", "Age"), 
-                   expand = c(.2, .05)) +
+  scale_x_discrete(limits = c("Class", "Sex", "Age", "Survived"), 
+                   expand = c(0.1, 0.1)) +
   
   scale_fill_manual(values = c("red3", "springgreen3")) + 
   
@@ -406,12 +407,12 @@ Titanic %>% ggplot(data = .,
 
 ### Using ggsankeyfier
 
-The `ggsankeyfier` also plots alluvial and sankey diagrams. Just for variety, we will convert the Titanic data to `long` form and then plot it with `ggsankeyfier`. 
+The `ggsankeyfier` also plots alluvial and sankey diagrams. This package takes data in **long-form**. See [this article.](https://pepijn-devries.github.io/ggsankeyfier/articles/data_management.html#wide-or-long-format). `ggsankeyfier` has builtin commands to convert data from wide to long: 
 
 ::::{.columns}
 :::{.column}
 ```{r}
-#| label: titanic-long
+#| label: titanic-long-sankeyfier
 #| eval: false
 Titanic %>% 
   as_tibble() %>% 
@@ -425,7 +426,7 @@ Titanic_long
 :::
 :::{.column}
 ```{r}
-#| ref.label: titanic-long
+#| ref.label: titanic-long-sankeyfier
 #| echo: false
 ```
 
@@ -433,7 +434,8 @@ Titanic_long
 ::::
 
 
-This data is in long form, with `stages` defining the *axes* in the graph, and the `node` variable giving us *levels* within each (Qualitative) axis. The `edge_id` labels **both ends** (from and to) of each `connector` or edge/flow/alluvium.
+This data is in long form, with `stages` defining the *axes* in the graph, and the `node` variable giving us *levels* within each (Qualitative) axis. The `edge_id` labels **both ends** (from and to) of each `connector` or edge/flow/alluvium. 
+
 Let us plot this now:
 
 ::::{.columns}

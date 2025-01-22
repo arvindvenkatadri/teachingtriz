@@ -39,6 +39,7 @@ The method followed will be based on
     for and achieved.
 -   **MAKE** : take an idea/concept of your own, and graph it.
 
+### Setting up R Packages
 Let's load up a few packages that we need to start:
 
 ```{r}
@@ -79,6 +80,73 @@ knitr::opts_chunk$set(
 
 ```
 
+### Setting up Plot Theme
+```{r}
+#| label: Plot-Sizing-and-theming
+#| code-fold: true
+#| message: false
+#| results: hide
+#| include: false
+
+# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# Chunk options
+knitr::opts_chunk$set(
+ fig.width = 7,
+ fig.asp = 0.618, # Golden Ratio
+ #out.width = "80%",
+ fig.align = "center"
+)
+### Ggplot Theme
+### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
+my_theme <- function(){ 
+    font <- "Roboto Condensed"   #assign font family up front
+    
+    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    
+    theme(
+      panel.grid.minor = element_blank(),    #strip minor gridlines
+      text = element_text(family = font),
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   #size = 20,               #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = 0,                #left align
+                   #vjust = 2                #raise slightly
+                   margin=margin(0,0,10,0)
+),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   #size = 14,                #font size
+                   hjust = 0,
+                   margin=margin(2,0,5,0)
+),               
+      
+      plot.caption = element_text(           #caption
+                   family = font,            #font family
+                   size = 8,                 #font size
+                   hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 10                 #font size
+),
+      
+      axis.text = element_text(              #axis text
+                   family = font,            #axis family
+                   size = 8)               #font size
+    )
+}
+
+# Set graph theme
+theme_set(new = my_theme())
+#
+```
+
+
 ### Using Google Fonts
 
 We will want to add a few new fonts to our graphs. The best way
@@ -93,10 +161,11 @@ might want to work with, spend some time looking over:
 
 ```{r}
 #| label: add_fonts
+#| echo: false
 library(sysfonts)
 library(showtext)
 
-sysfonts::font_add_google("Roboto", "roboto")
+sysfonts::font_add_google("Roboto Condensed", "roboto")
 font_add_google("Noto Sans", "noto")
 font_add_google("Open Sans", "open")
 font_add_google("Anton", "anton")
@@ -191,6 +260,7 @@ my_theme <- theme_set(theme_classic(base_size = 12,
 
 ## modify plot elements globally (for all following plots)
 theme_update(
+  text = element_text(family = "roboto"),
   axis.ticks = element_line(color = "grey92"),
   axis.ticks.length = unit(.5, "lines"),
   panel.grid.minor = element_blank(),
@@ -1136,12 +1206,16 @@ gg1b + theme(legend.position = "top")
 
 #ggsave("06a_legend_position.pdf", width = 9, height = 8, device = cairo_pdf)
 
-gg1b + 
+gg1b +
   theme(legend.position = "top") +
-  guides(color = guide_colorbar(title.position = "top", 
-                                title.hjust = .5, 
-                                barwidth = unit(20, "lines"), 
-                                barheight = unit(.5, "lines")))
+  guides(
+    color = guide_colorbar(
+      # title.position = "top",
+      # title.hjust = .5,
+      legend.key.width = unit(20, "lines"),
+      legend.bar.height = unit(.5, "lines")
+    )
+  )
 
 ```
 
@@ -1167,8 +1241,8 @@ img <- grid::rasterGrob(png, interpolate = TRUE)
 
 gg5 <- 
   gg1 + 
-  annotation_custom(img, ymin = 18, ymax = 28, 
-                    xmin = 58, xmax = 65) +
+  annotation_custom(img, ymin = 22, ymax = 28, 
+                    xmin = 65, xmax = 80) +
   labs(caption = "Data: Gorman, Williams & Fraser (2014) *PLoS ONE* &bull; Illustration: Allison Horst")   +
   coord_cartesian(clip = "off") # ensure no clipping of labels near the edge
 gg5
@@ -1188,7 +1262,7 @@ gg5
 Let us make two plots and combine them into a single patchwork plot.
 
 ```{r}
-theme_set(my_theme)
+theme_set(new = my_theme)
 theme_update(
   plot.title = ggtext::element_markdown(),
   plot.caption = ggtext::element_markdown(),
