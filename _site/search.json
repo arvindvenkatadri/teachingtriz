@@ -1408,7 +1408,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#setting-up-r-packages",
     "title": "\n Networks",
     "section": "\n Setting up R Packages",
-    "text": "Setting up R Packages\n\n# Fonts\n# Run these next few commands IN YOUR CONSOLE once. \n#install.packages(\"extrafontdb\")\n#library(extrafont)\n#extrafont::font_import(paths = NULL, recursive = TRUE, prompt = TRUE,pattern = NULL)\n\n########################################\n# For General Data Manipulation\nlibrary(tidyverse)\n\n########################################\n# Network Analysis Library (Handle data and Viz)\nlibrary(igraph)\n\n########################################\n# For Network \"Manipulation\"\nlibrary(tidygraph)\n\n# For Network Visualization\nlibrary(ggraph)\nlibrary(graphlayouts)\nlibrary(visNetwork)\n\n# For \"Network\" Datasets\nlibrary(igraphdata)\n\n# Fonts\nlibrary(ggtext) # Claus Wilke's package\nlibrary(showtext)\nlibrary(fontawesome)\n# For repeatable layouts, some can be random!!\nset.seed(12345)",
+    "text": "Setting up R Packages\n\n# Fonts\n# Run these next few commands IN YOUR CONSOLE once.\n# install.packages(\"extrafontdb\")\n# library(extrafont)\n# extrafont::font_import(paths = NULL, recursive = TRUE, prompt = TRUE,pattern = NULL)\n\n########################################\n# For General Data Manipulation\nlibrary(tidyverse)\n\n########################################\n# Network Analysis Library (Handle data and Viz)\nlibrary(igraph)\n\n########################################\n# For Network \"Manipulation\"\nlibrary(tidygraph)\n\n# For Network Visualization\nlibrary(ggraph)\nlibrary(graphlayouts)\nlibrary(visNetwork)\n\n# For \"Network\" Datasets\nlibrary(igraphdata)\n\n# Fonts\nlibrary(ggtext) # Claus Wilke's package\nlibrary(showtext)\nlibrary(fontawesome)\n# For repeatable layouts, some can be random!!\nset.seed(12345)",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1486,7 +1486,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#predictruninfer-1",
     "title": "\n Networks",
     "section": "Predict/Run/Infer-1",
-    "text": "Predict/Run/Infer-1\nUsing tidygraph and ggraph\n\ntidygraph and ggraph are modern R packages for network data. Graph Data setup and manipulation is done in tidygraph and graph visualization with ggraph.\n\n\ntidygraph Data -&gt; “Network Object” in R.\n\nggraph Network Object -&gt; Plots using a chosen layout/algo.\n\nBoth leverage the power of igraph, which is the Big Daddy of all network packages. We will be using the Grey’s Anatomy dataset in our first foray into networks.\nStep1. Read the data\nDownload these two datasets into your current project-&gt; data folder.\n Grey’s Anatomy Nodes \n Grey’s Anatomy Edges \ngrey_nodes &lt;- read_csv(\"files/data/grey_nodes.csv\")\ngrey_edges &lt;- read_csv(\"files/data/grey_edges.csv\")\n\ngrey_nodes\ngrey_edges\n\n\n\n\n  \n\n\n\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #1\n\n\n\nLook at the output thumbnails. What attributes (i.e. extra information) are seen for Nodes and Edges?\n\n\nStep 2.Create a network object using tidygraph:\nKey function:\n\n\ntbl_graph(): (aka “tibble graph”). Key arguments: nodes, edges and directed. Note this is a very versatile command and can take many input forms, such as data structures that result from other packages. Type ?tbl_graph in the Console and see the Usage section.\n\n\nga &lt;- tbl_graph(nodes = grey_nodes, \n                edges = grey_edges, \n                directed = FALSE)\nga\n\n# A tbl_graph: 54 nodes and 57 edges\n#\n# An undirected simple graph with 4 components\n#\n# Node Data: 54 × 7 (active)\n   name               sex   race  birthyear position  season sign    \n   &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   \n 1 Addison Montgomery F     White      1967 Attending      1 Libra   \n 2 Adele Webber       F     Black      1949 Non-Staff      2 Leo     \n 3 Teddy Altman       F     White      1969 Attending      6 Pisces  \n 4 Amelia Shepherd    F     White      1981 Attending      7 Libra   \n 5 Arizona Robbins    F     White      1976 Attending      5 Leo     \n 6 Rebecca Pope       F     White      1975 Non-Staff      3 Gemini  \n 7 Jackson Avery      M     Black      1981 Resident       6 Leo     \n 8 Miranda Bailey     F     Black      1969 Attending      1 Virgo   \n 9 Ben Warren         M     Black      1972 Other          6 Aquarius\n10 Henry Burton       M     White      1972 Non-Staff      7 Cancer  \n# ℹ 44 more rows\n#\n# Edge Data: 57 × 4\n   from    to weight type    \n  &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;   \n1     5    47      2 friends \n2    21    47      4 benefits\n3     5    46      1 friends \n# ℹ 54 more rows\n\n\n\n\n\n\n\n\nQuestions and Inferences #2\n\n\n\nWhat information does the graph object contain? What attributes do the nodes have? What about the edges?\n\n\nStep 3. Plot using ggraph\n\n3a. Quick Plot: autograph() This is to check quickly is the data is imported properly and to decide upon going on to a more elaborate plotting.\n\nautograph(ga)\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #3\n\n\n\nDescribe this graph, in simple words here. Try to use some of the new domain words we have just acquired: nodes/edges, connected/disconnected, directed/undirected.\n\n\n3b. More elaborate plot\nKey functions:\n\n\nggraph(layout = \"......\"): Create classic node-edge diagrams; i.e. Sets up the graph. Rather like ggplot for networks!\n\nTwo kinds of geom: one set for nodes, and another for edges\n\ngeom_node_point(aes(.....)): Draws node as “points”. Alternatives are circle / arc_bar / tile / voronoi. Remember the geoms that we have seen before in Grammar of Graphics!\ngeom_edge_link0(aes(.....)): Draws edges as “links”. Alternatives are arc / bend / elbow / hive / loop / parallel / diagonal / point / span /tile.\ngeom_node_text(aes(label = ......), repel = TRUE): Adds text labels (non-overlapping). Alternatives are label /...\nlabs(title = \"....\", subtitle = \"....\", caption = \"....\"): Change main titles, axis labels and legend titles. We know this from our work with ggplot.\n\n\n# Write Comments next to each line \n# About what that line does for the overall graph\n\nggraph(graph = ga,  layout = \"kk\") +\n  #\n  geom_edge_link0(width = 2, color = \"pink\") +\n  #\n  geom_node_point(shape = 21, size = 8,\n                  fill = \"blue\",\n                  color = \"green\",\n                  stroke = 2) +\n  \n  labs(title = \"Whoo Hoo! My First Silly Grey's Anatomy graph in R!\",\n       subtitle = \"Why did I ever get in this course...\",\n       caption = \"Bro, they are doing cool things in the other classes...\\n And the show is even more cool!\") +\n  \n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #4:\n\n\n\nWhat parameters have been changed here, compared to the earlier graph? Where do you see these changes in the code above?\n\n\nLet us Play with this graph and see if we can make some small changes. Colour? Fill? Width? Size? Stroke? Labs? Of course!\n\n# Change the parameters in each of the commands here to new ones\n# Use fixed values for colours or sizes...etc. \n\nggraph(graph = ga,  layout = \"kk\") + \n  geom_edge_link0(width = 2) + \n  geom_node_point(shape = 21, size = 4, \n                  fill = \"moccasin\", \n                  color = \"firebrick\", \n                  stroke = 2) +\n  labs(title = \"Whoo Hoo! My next silly Grey's Anatomy graph in R!\",\n       subtitle = \"Why did I ever get in this course...\",\n       caption = \"Bro, they are doing cool things in the other classes...\") + \nset_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #5\n\n\n\nWhat did the shape parameter achieve? What are the possibilities with shape? How about including alpha?\n\n\n3c. Aesthetic Mapping from Node and Edge attribute columns\nUp to now, we have assigned specific numbers to geometric aesthetics such as shape and size. Now we are ready ( maybe ?) change the meaning and significance of the entire graph and each element within it, and use aesthetics / metaphoric mappings to achieve new meanings or insights. Let us try using aes() inside each geom to map a variable to a geometric aspect.\nDon’t try to use more than 2 aesthetic mappings simultaneously!!\nThe node elements we can tweak are:\n\nTypes of Nodes: geom_node_****()\n\nNode Parameters: inside geom_node_****(aes(...............))\n-aes(alpha  = node-variable) : opacity; a value between 0 and 1\n-aes(shape  = node-variable) : node shape\n-aes(colour = node-variable) : node colour\n-aes(fill   = node-variable) : fill colour for node\n-aes(size   = node-variable) : size of node\n\nThe edge elements we can tweak are:\n\nType of Edges” geom_edge_****()\n\nEdge Parameters: inside geom_edge_****(aes(...............))\n-aes(colour = edge-variable) : colour of the edge\n-aes(width  = edge-variable) : width of the edge\n-aes(label  = some_variable) : labels for the edge\n\nType ?geom_node_point and ?geom-edge_link in your Console for more information.\n\nggraph(graph = ga, layout = \"fr\") +\n  geom_edge_link0(aes(width = weight)) + # change variable here\n  \n  geom_node_point(aes(color = race), size = 6) + # change variable here\n\n  labs(title = \"Whoo Hoo! Yet another Grey's Anatomy graph in R!\",\n       subtitle = \"Colouring Nodes by Attribute\",\n       caption = \"Grey's Anatomy\") +\n  \n  scale_edge_width(range = c(0.2,2)) +\n  set_graph_style(family = \"roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #6\n\n\n\nDescribe some of the changes here. What types of edges worked? Which variables were you able to use for nodes and edges and how? What did not work with either of the two?\n\n\n\n# Arc diagram\n\nggraph(ga, layout = \"linear\") +\n  geom_edge_arc0(aes(width = weight), alpha = 0.8) +\n  scale_edge_width(range = c(0.2, 2)) +\n  geom_node_point(size = 2, colour = \"red\") +\n  labs(edge_width = \"Weight\",title = \"Grey's Anatomy\", subtitle = \"Arc Layout\") +\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #7\n\n\n\nHow does this graph look “metaphorically” different? Do you see a difference in the relationships between people here? Why?\n\n\n\n# Coord diagram, circular\nggraph(ga, layout = \"linear\", circular = TRUE) + # Note the layout!\n  geom_edge_arc0(aes(width = weight), alpha = 0.8) + \n  scale_edge_width(range = c(0.2, 2)) +\n  \n  geom_node_point(size = 3,colour = \"red\") + \n  geom_node_text(aes(label = name),\n                 repel = TRUE, size = 2,check_overlap = TRUE, \n                 max.overlaps = 25) +\n  labs(edge_width = \"Weight\")  +\n  theme(aspect.ratio = 1) +\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #8\n\n\n\nHow does this graph look “metaphorically” different? Do you see a difference in the relationships between people here? Why?",
+    "text": "Predict/Run/Infer-1\nUsing tidygraph and ggraph\n\ntidygraph and ggraph are modern R packages for network data. Graph Data setup and manipulation is done in tidygraph and graph visualization with ggraph.\n\n\ntidygraph Data -&gt; “Network Object” in R.\n\nggraph Network Object -&gt; Plots using a chosen layout/algo.\n\nBoth leverage the power of igraph, which is the Big Daddy of all network packages. We will be using the Grey’s Anatomy dataset in our first foray into networks.\nStep1. Read the data\nDownload these two datasets into your current project-&gt; data folder.\n Grey’s Anatomy Nodes \n Grey’s Anatomy Edges \ngrey_nodes &lt;- read_csv(\"files/data/grey_nodes.csv\")\ngrey_edges &lt;- read_csv(\"files/data/grey_edges.csv\")\n\ngrey_nodes\ngrey_edges\n\n\n\n\n  \n\n\n\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #1\n\n\n\nLook at the output thumbnails. What attributes (i.e. extra information) are seen for Nodes and Edges?\n\n\nStep 2.Create a network object using tidygraph:\nKey function:\n\n\ntbl_graph(): (aka “tibble graph”). Key arguments: nodes, edges and directed. Note this is a very versatile command and can take many input forms, such as data structures that result from other packages. Type ?tbl_graph in the Console and see the Usage section.\n\n\nga &lt;- tbl_graph(\n  nodes = grey_nodes,\n  edges = grey_edges,\n  directed = FALSE\n)\nga\n\n# A tbl_graph: 54 nodes and 57 edges\n#\n# An undirected simple graph with 4 components\n#\n# Node Data: 54 × 7 (active)\n   name               sex   race  birthyear position  season sign    \n   &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   \n 1 Addison Montgomery F     White      1967 Attending      1 Libra   \n 2 Adele Webber       F     Black      1949 Non-Staff      2 Leo     \n 3 Teddy Altman       F     White      1969 Attending      6 Pisces  \n 4 Amelia Shepherd    F     White      1981 Attending      7 Libra   \n 5 Arizona Robbins    F     White      1976 Attending      5 Leo     \n 6 Rebecca Pope       F     White      1975 Non-Staff      3 Gemini  \n 7 Jackson Avery      M     Black      1981 Resident       6 Leo     \n 8 Miranda Bailey     F     Black      1969 Attending      1 Virgo   \n 9 Ben Warren         M     Black      1972 Other          6 Aquarius\n10 Henry Burton       M     White      1972 Non-Staff      7 Cancer  \n# ℹ 44 more rows\n#\n# Edge Data: 57 × 4\n   from    to weight type    \n  &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;   \n1     5    47      2 friends \n2    21    47      4 benefits\n3     5    46      1 friends \n# ℹ 54 more rows\n\n\n\n\n\n\n\n\nQuestions and Inferences #2\n\n\n\nWhat information does the graph object contain? What attributes do the nodes have? What about the edges?\n\n\nStep 3. Plot using ggraph\n\n3a. Quick Plot: autograph() This is to check quickly is the data is imported properly and to decide upon going on to a more elaborate plotting.\n\nautograph(ga)\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #3\n\n\n\nDescribe this graph, in simple words here. Try to use some of the new domain words we have just acquired: nodes/edges, connected/disconnected, directed/undirected.\n\n\n3b. More elaborate plot\nKey functions:\n\n\nggraph(layout = \"......\"): Create classic node-edge diagrams; i.e. Sets up the graph. Rather like ggplot for networks!\n\nTwo kinds of geom: one set for nodes, and another for edges\n\ngeom_node_point(aes(.....)): Draws node as “points”. Alternatives are circle / arc_bar / tile / voronoi. Remember the geoms that we have seen before in Grammar of Graphics!\ngeom_edge_link0(aes(.....)): Draws edges as “links”. Alternatives are arc / bend / elbow / hive / loop / parallel / diagonal / point / span /tile.\ngeom_node_text(aes(label = ......), repel = TRUE): Adds text labels (non-overlapping). Alternatives are label /...\nlabs(title = \"....\", subtitle = \"....\", caption = \"....\"): Change main titles, axis labels and legend titles. We know this from our work with ggplot.\n\n\n# Write Comments next to each line\n# About what that line does for the overall graph\n\nggraph(graph = ga, layout = \"kk\") +\n  #\n  geom_edge_link0(width = 2, color = \"pink\") +\n  #\n  geom_node_point(\n    shape = 21, size = 8,\n    fill = \"blue\",\n    color = \"green\",\n    stroke = 2\n  ) +\n\n  labs(\n    title = \"Whoo Hoo! My First Silly Grey's Anatomy graph in R!\",\n    subtitle = \"Why did I ever get in this course...\",\n    caption = \"Bro, they are doing cool things in the other classes...\\n And the show is even more cool!\"\n  ) +\n\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #4:\n\n\n\nWhat parameters have been changed here, compared to the earlier graph? Where do you see these changes in the code above?\n\n\nLet us Play with this graph and see if we can make some small changes. Colour? Fill? Width? Size? Stroke? Labs? Of course!\n\n# Change the parameters in each of the commands here to new ones\n# Use fixed values for colours or sizes...etc.\n\nggraph(graph = ga, layout = \"kk\") +\n  geom_edge_link0(width = 2) +\n  geom_node_point(\n    shape = 21, size = 4,\n    fill = \"moccasin\",\n    color = \"firebrick\",\n    stroke = 2\n  ) +\n  labs(\n    title = \"Whoo Hoo! My next silly Grey's Anatomy graph in R!\",\n    subtitle = \"Why did I ever get in this course...\",\n    caption = \"Bro, they are doing cool things in the other classes...\"\n  ) +\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #5\n\n\n\nWhat did the shape parameter achieve? What are the possibilities with shape? How about including alpha?\n\n\n3c. Aesthetic Mapping from Node and Edge attribute columns\nUp to now, we have assigned specific numbers to geometric aesthetics such as shape and size. Now we are ready ( maybe ?) change the meaning and significance of the entire graph and each element within it, and use aesthetics / metaphoric mappings to achieve new meanings or insights. Let us try using aes() inside each geom to map a variable to a geometric aspect.\nDon’t try to use more than 2 aesthetic mappings simultaneously!!\nThe node elements we can tweak are:\n\nTypes of Nodes: geom_node_****()\n\nNode Parameters: inside geom_node_****(aes(...............))\n-aes(alpha  = node-variable) : opacity; a value between 0 and 1\n-aes(shape  = node-variable) : node shape\n-aes(colour = node-variable) : node colour\n-aes(fill   = node-variable) : fill colour for node\n-aes(size   = node-variable) : size of node\n\nThe edge elements we can tweak are:\n\nType of Edges” geom_edge_****()\n\nEdge Parameters: inside geom_edge_****(aes(...............))\n-aes(colour = edge-variable) : colour of the edge\n-aes(width  = edge-variable) : width of the edge\n-aes(label  = some_variable) : labels for the edge\n\nType ?geom_node_point and ?geom-edge_link in your Console for more information.\n\nggraph(graph = ga, layout = \"fr\") +\n  geom_edge_link0(aes(width = weight)) + # change variable here\n\n  geom_node_point(aes(color = race), size = 6) + # change variable here\n\n  labs(\n    title = \"Whoo Hoo! Yet another Grey's Anatomy graph in R!\",\n    subtitle = \"Colouring Nodes by Attribute\",\n    caption = \"Grey's Anatomy\"\n  ) +\n\n  scale_edge_width(range = c(0.2, 2)) +\n  set_graph_style(family = \"roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #6\n\n\n\nDescribe some of the changes here. What types of edges worked? Which variables were you able to use for nodes and edges and how? What did not work with either of the two?\n\n\n\n# Arc diagram\n\nggraph(ga, layout = \"linear\") +\n  geom_edge_arc0(aes(width = weight), alpha = 0.8) +\n  scale_edge_width(range = c(0.2, 2)) +\n  geom_node_point(size = 2, colour = \"red\") +\n  labs(edge_width = \"Weight\", title = \"Grey's Anatomy\", subtitle = \"Arc Layout\") +\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #7\n\n\n\nHow does this graph look “metaphorically” different? Do you see a difference in the relationships between people here? Why?\n\n\n\n# Coord diagram, circular\nggraph(ga, layout = \"linear\", circular = TRUE) + # Note the layout!\n  geom_edge_arc0(aes(width = weight), alpha = 0.8) +\n  scale_edge_width(range = c(0.2, 2)) +\n\n  geom_node_point(size = 3, colour = \"red\") +\n  geom_node_text(aes(label = name),\n    repel = TRUE, size = 2, check_overlap = TRUE,\n    max.overlaps = 25\n  ) +\n  labs(edge_width = \"Weight\") +\n  theme(aspect.ratio = 1) +\n  set_graph_style(family = \"Roboto\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #8\n\n\n\nHow does this graph look “metaphorically” different? Do you see a difference in the relationships between people here? Why?",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1499,7 +1499,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#hierarchical-layouts",
     "title": "\n Networks",
     "section": "Hierarchical layouts",
-    "text": "Hierarchical layouts\nThese provide for some alternative metaphorical views of networks. Note that not all layouts are possible for all datasets!!\n\n# set_graph_style()\n\n# This dataset contains the graph that describes the class \n# hierarchy for the Flare visualization library.\n# Type ?flare in your Console\nhead(flare$vertices)\n\n\n  \n\n\nhead(flare$edges)\n\n\n  \n\n\n# flare class hierarchy\ngraph &lt;-  tbl_graph(edges = flare$edges, nodes = flare$vertices)\n\n##\nset_graph_style(family = \"Roboto\")\n##\n\n# dendrogram\nggraph(graph, layout = \"dendrogram\") + \n  geom_edge_diagonal() + \n  labs(title = \"Dendrogram\") \n\n# circular dendrogram\nggraph(graph, layout = \"dendrogram\", circular = TRUE) + \n  geom_edge_diagonal0() + \n  geom_node_point(aes(filter = leaf)) + \n  coord_fixed()+ \n  labs(title = \"Circular Dendrogram\")\n\n# rectangular tree map\nggraph(graph, layout = \"treemap\", weight = size) + \n  geom_node_tile(aes(fill = depth), size = 0.25) + \n  scale_fill_distiller(palette = \"Pastel1\") + \n  labs(title = \"Rectangular Tree Map\")\n\n\n# circular tree map\nggraph(graph, layout = \"circlepack\", weight = size) + \n  geom_node_circle(aes(fill = depth), size = 0.25, n = 50) + \n  scale_fill_distiller(palette = \"Accent\") + \n  coord_fixed() + \n  labs(title = \"Circular Tree Map\")\n\n\n# icicle\nggraph(graph, layout = \"partition\") + \n  geom_node_tile(aes(y = -y, fill = depth)) + \n  scale_fill_distiller(palette = \"Set3\") + \n  labs(title = \"Icicle Chart\")\n\n# sunburst (circular icicle)\nggraph(graph, layout = \"partition\", circular = TRUE) +\n  geom_node_arc_bar(aes(fill = depth)) +\n  scale_fill_distiller(palette = \"Spectral\") + \n  coord_fixed() + \n  labs(title = \"Circular Icicle\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #9\n\n\n\nHow do graphs look “metaphorically” different? Do they reveal different aspects of the group? How?",
+    "text": "Hierarchical layouts\nThese provide for some alternative metaphorical views of networks. Note that not all layouts are possible for all datasets!!\n\n# set_graph_style()\n\n# This dataset contains the graph that describes the class\n# hierarchy for the Flare visualization library.\n# Type ?flare in your Console\nhead(flare$vertices)\n\n\n  \n\n\nhead(flare$edges)\n\n\n  \n\n\n# flare class hierarchy\ngraph &lt;- tbl_graph(edges = flare$edges, nodes = flare$vertices)\n\n##\nset_graph_style(family = \"Roboto\")\n##\n\n# dendrogram\nggraph(graph, layout = \"dendrogram\") +\n  geom_edge_diagonal() +\n  labs(title = \"Dendrogram\")\n\n# circular dendrogram\nggraph(graph, layout = \"dendrogram\", circular = TRUE) +\n  geom_edge_diagonal0() +\n  geom_node_point(aes(filter = leaf)) +\n  coord_fixed() +\n  labs(title = \"Circular Dendrogram\")\n\n# rectangular tree map\nggraph(graph, layout = \"treemap\", weight = size) +\n  geom_node_tile(aes(fill = depth), size = 0.25) +\n  scale_fill_distiller(palette = \"Pastel1\") +\n  labs(title = \"Rectangular Tree Map\")\n\n\n# circular tree map\nggraph(graph, layout = \"circlepack\", weight = size) +\n  geom_node_circle(aes(fill = depth), size = 0.25, n = 50) +\n  scale_fill_distiller(palette = \"Accent\") +\n  coord_fixed() +\n  labs(title = \"Circular Tree Map\")\n\n\n# icicle\nggraph(graph, layout = \"partition\") +\n  geom_node_tile(aes(y = -y, fill = depth)) +\n  scale_fill_distiller(palette = \"Set3\") +\n  labs(title = \"Icicle Chart\")\n\n# sunburst (circular icicle)\nggraph(graph, layout = \"partition\", circular = TRUE) +\n  geom_node_arc_bar(aes(fill = depth)) +\n  scale_fill_distiller(palette = \"Spectral\") +\n  coord_fixed() +\n  labs(title = \"Circular Icicle\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #9\n\n\n\nHow do graphs look “metaphorically” different? Do they reveal different aspects of the group? How?",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1512,7 +1512,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#faceting",
     "title": "\n Networks",
     "section": "Faceting",
-    "text": "Faceting\nFaceting allows to create sub-plots according to the values of a qualitative attribute on nodes or edges.\n##\nset_graph_style(family = \"Roboto\",size = 8)\n##\n# facet edges by type\nggraph(ga,layout = \"linear\", circular = TRUE) + \n  geom_edge_link0(aes(color = type)) + \n  geom_node_point() +\n  facet_edges(~ type) +\n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1)\n# facet nodes by sex\nggraph(ga,layout = \"linear\", circular = TRUE) + \n  geom_edge_link0() + \n  geom_node_point() +\n  facet_nodes(~race) +\n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1)\n# facet both nodes and edges\nggraph(ga,layout = \"linear\", circular = TRUE) + \n  geom_edge_link0(aes(color = type)) + \n  geom_node_point() +\n  facet_graph(type ~ race) + \n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1, legend.position = \"right\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #10\n\n\n\nDoes splitting up the main graph into sub-networks give you more insight? Describe some of these.",
+    "text": "Faceting\nFaceting allows to create sub-plots according to the values of a qualitative attribute on nodes or edges.\n##\nset_graph_style(family = \"Roboto\", size = 8)\n##\n# facet edges by type\nggraph(ga, layout = \"linear\", circular = TRUE) +\n  geom_edge_link0(aes(color = type)) +\n  geom_node_point() +\n  facet_edges(~type) +\n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1)\n# facet nodes by sex\nggraph(ga, layout = \"linear\", circular = TRUE) +\n  geom_edge_link0() +\n  geom_node_point() +\n  facet_nodes(~race) +\n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1)\n# facet both nodes and edges\nggraph(ga, layout = \"linear\", circular = TRUE) +\n  geom_edge_link0(aes(color = type)) +\n  geom_node_point() +\n  facet_graph(type ~ race) +\n  th_foreground(border = TRUE) +\n  theme(aspect.ratio = 1, legend.position = \"right\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #10\n\n\n\nDoes splitting up the main graph into sub-networks give you more insight? Describe some of these.",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1525,7 +1525,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#network-analysis-with-tidygraph",
     "title": "\n Networks",
     "section": "Network analysis with tidygraph",
-    "text": "Network analysis with tidygraph\nThe data frame graph representation can be easily augmented with metrics or statistics computed on the graph. Remember how we computed counts with the penguin dataset in Grammar of Graphics.\nBefore computing a metric on nodes or edges use the activate() function to activate either node or edge data frames. Use dplyr verbs (filter, arrange, mutate) to achieve your computation in the proper way.\nNetwork Centrality: Go-To and Go-Through People!\nCentrality is a an “ill-defined” metric of node and edge importance in a network. It is therefore calculated in many ways. Type ?centrality in your Console.\n\n\n\n\n\nStandards\n\nLet’s add a few columns to the nodes and edges based on network centrality measures:\n\nga %&gt;% \n  activate(nodes) %&gt;% \n  \n  # Node with  the most connections?\n  mutate(degree = centrality_degree(mode = c(\"in\"))) %&gt;% \n  filter(degree &gt; 0) %&gt;% \n  \n  activate(edges) %&gt;% \n  # \"Busiest\" edge?\n  mutate(betweenness = centrality_edge_betweenness())\n\n# A tbl_graph: 54 nodes and 57 edges\n#\n# An undirected simple graph with 4 components\n#\n# Edge Data: 57 × 5 (active)\n    from    to weight type         betweenness\n   &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;\n 1     5    47      2 friends             20.3\n 2    21    47      4 benefits            44.7\n 3     5    46      1 friends             39  \n 4     5    41      1 friends             66.3\n 5    18    41      6 friends             39  \n 6    21    41     12 benefits            91.5\n 7    37    41      5 professional       164. \n 8    31    41      2 professional        98.8\n 9    20    31      3 professional        47.2\n10    17    31      4 friends            102. \n# ℹ 47 more rows\n#\n# Node Data: 54 × 8\n  name               sex   race  birthyear position  season sign   degree\n  &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;\n1 Addison Montgomery F     White      1967 Attending      1 Libra       3\n2 Adele Webber       F     Black      1949 Non-Staff      2 Leo         1\n3 Teddy Altman       F     White      1969 Attending      6 Pisces      4\n# ℹ 51 more rows\n\n\nPackages tidygraph and ggraph can be pipe-lined to perform analysis and visualization tasks in one go.\n\n##\nset_graph_style(family = \"Roboto\")\n##\nggraph(ga,layout = \"nicely\") +\n    geom_edge_link0(aes(alpha = centrality_edge_betweenness())) + \n    \n    geom_node_point(aes(colour = centrality_degree(), \n                        size = centrality_degree())) +\n    \n    geom_node_text(aes(label = name), repel = TRUE, size = 1.5) +\n    \n    scale_size(name = \"Degree\", range = c(0.5, 5)) + \n    \n    scale_color_gradient(name = \"Degree\", # SAME NAME!!\n                         low = \"blue\", high = \"red\", \n                         aesthetics = c(\"colour\", \"fill\"), \n                         guide = guide_legend(reverse = FALSE)) + \n    \n    scale_edge_alpha(name = \"Betweenness\", range = c(0.05, 1)) +\n    labs(title = \"Grey's Anatomy\", \n         subtitle = \"Nodes Scaled by Degree, Edges shaded by Betweenness\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #11\n\n\n\nHow do the Centrality Measures show up in the graph? Would you “agree” with the way we have done it? Try to modify the aesthetics by copy-pasting this chunk below and see how you can make an alternative representation.\n\n\nAnalysis and Visualizing Network Communities\nWho is close to whom? Which are the groups you can see?\n\n##\nset_graph_style(family = \"Roboto\")\n##\n# visualize communities of nodes\nga %&gt;% \n  activate(nodes) %&gt;%\n  mutate(community = as.factor(group_louvain())) %&gt;% \n  ggraph(layout = \"graphopt\") + \n  geom_edge_link0() + \n  geom_node_point(aes(color = community), size = 3) +\n  labs(title = \"Grey's Anatomy\", subtitle = \"Nodes Coloured by Community Detection Algorithm (Louvain)\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #12\n\n\n\nIs the Community depiction clear? How would you do it, with which aesthetic? Copy Paste this chunk below and try.\n\n\nInteractive Graphs with visNetwork\n\nExploring the VisNetwork package. Make graphs wiggle and shake using tidy commands! The package implements interactivity using the physical metaphor of weights and springs we discussed earlier.\nThe visNetwork() function uses a nodes list and edges list to create an interactive graph. The nodes list must include an “id” column, and the edge list must have “from” and “to” columns. The function also plots the labels for the nodes, using the names of the cities from the “label” column in the node list.\nlibrary(visNetwork)\n\n# Prepare the data for plotting by visNetwork\ngrey_nodes\ngrey_edges\n# Relabel greys anatomy nodes and edges for VisNetwork\ngrey_nodes_vis &lt;- grey_nodes %&gt;% \n  rowid_to_column(var = \"id\") %&gt;% \n  rename(\"label\" = name) %&gt;% \n  mutate(sex = case_when(sex == \"F\" ~ \"Female\",\n                         sex == \"M\" ~ \"Male\")) %&gt;% \n  replace_na(., list(sex = \"Transgender?\")) %&gt;% \n  rename(\"group\" = sex)\ngrey_nodes_vis\ngrey_edges_vis &lt;- grey_edges %&gt;% \n  select(from, to) %&gt;% \n  left_join(., grey_nodes_vis, \n            by = c(\"from\" = \"label\")) %&gt;% \n  left_join(., grey_nodes_vis, \n            by = c(\"to\" = \"label\")) %&gt;%\n  select(\"from\"= id.x, \"to\" = id.y)\ngrey_edges_vis\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\nUsing fontawesome icons\n\ngrey_nodes_vis %&gt;%\n\n  visNetwork(nodes = ., edges = grey_edges_vis) %&gt;% \n  visNodes(font = list(size = 40)) %&gt;% \n  \n  # Colour and icons for each of the gender-groups\n  visGroups(groupname = \"Female\", shape = \"icon\", \n            icon = list(code = \"f182\", size = 75, color = \"tomato\"),\n            shadow = list(enabled = TRUE)) %&gt;% \n  \n  visGroups(groupname = \"Male\", shape = \"icon\", \n            icon = list(code = \"f183\", size = 75, color = \"slateblue\"), \n            shadow = list(enabled = TRUE)) %&gt;% \n  \n  visGroups(groupname = \"Transgender?\", shape = \"icon\", \n            icon = list(code = \"f22c\", size = 75, color = \"fuchsia\"), \n            shadow = list(enabled = TRUE)) %&gt;% \n  \n  #visLegend() %&gt;%\n  #Add the fontawesome icons!!\n  addFontAwesome(version = \"4.7.0\") %&gt;% \n  \n  # Add Interaction Controls\n  visInteraction(navigationButtons = TRUE,\n                 hover = TRUE,\n                 selectConnectedEdges = TRUE,\n                 hoverConnectedEdges = TRUE,\n                 zoomView = TRUE)\n\n\n\n\n\nThere is another family of icons available in visNetwork, called ionicons. Let’s see how they look:\n\ngrey_nodes_vis %&gt;%\n\n  visNetwork(nodes = ., edges = grey_edges_vis,) %&gt;%\n  visLayout(randomSeed = 12345) %&gt;%\n  visNodes(font = list(size = 50)) %&gt;%\n  visEdges(color = \"green\") %&gt;%\n  visGroups(\n    groupname = \"Female\",\n    shape = \"icon\",\n    icon = list(\n      face = 'Ionicons',\n      code = \"f25d\",\n      color = \"fuchsia\",\n      size = 125\n    )\n  ) %&gt;%\n  \n  visGroups(\n    groupname = \"Male\",\n    shape = \"icon\",\n    icon = list(\n      face = 'Ionicons',\n      code = \"f202\",\n      color = \"green\",\n      size = 125\n    )\n  ) %&gt;%\n  \n  visGroups(\n    groupname = \"Transgender?\",\n    shape = \"icon\",\n    icon = list(\n      face = 'Ionicons',\n      code = \"f233\",\n      color = \"dodgerblue\",\n      size = 125\n    )\n  ) %&gt;%\n  visLegend() %&gt;%\n  addIonicons() %&gt;%\n  visInteraction(\n    navigationButtons = TRUE,\n    hover = TRUE,\n    selectConnectedEdges = TRUE,\n    hoverConnectedEdges = TRUE,\n    zoomView = TRUE\n  )\n\n\n\n\n\nSome idea of interactivity and controls with visNetwork:\n Star Wars Nodes \n Star Wars Edges \n\n# let's look again at the data\nstarwars_nodes &lt;- read_csv(\"files/data/star-wars-network-nodes.csv\")\nstarwars_edges &lt;- read_csv(\"files/data/star-wars-network-edges.csv\")\n\n# We need to rename starwars nodes dataframe and edge dataframe columns for visNetwork\nstarwars_nodes_vis &lt;- \n  starwars_nodes %&gt;% \n  rename(\"label\" = name)\n\n# Convert from and to columns to **node ids**\nstarwars_edges_vis &lt;- \n  starwars_edges %&gt;% \n  \n  # Matching Source &lt;- Source Node id (\"id.x\")\n  left_join(., starwars_nodes_vis, by = c(\"source\" = \"label\")) %&gt;% \n  \n  # Matching Target &lt;- Target Node id (\"id.y\")\n  left_join(., starwars_nodes_vis, by = c(\"target\" = \"label\")) %&gt;% \n  \n# Select \"id.x\" and \"id.y\" ONLY\n# Rename them as \"from\" and \"to\"\n# keep \"weight\" column for aesthetics of edges\n  select(\"from\" = id.x, \"to\" = id.y, \"value\" = weight)\n\n# Check everything once\nstarwars_nodes_vis\nstarwars_edges_vis\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\nOk, let’s make things move and shake!!\n\nvisNetwork(nodes = starwars_nodes_vis,\n           edges = starwars_edges_vis) %&gt;% \n  visNodes(font = list(size = 30)) %&gt;% \n  visEdges(color = \"red\")\n\n\n\n\n\n\nvisNetwork(nodes = starwars_nodes_vis,\n           edges = starwars_edges_vis) %&gt;% \n  visNodes(font = list(size = 30), shape = \"icon\", \n           icon = list(code = \"f1e3\", size = 75)) %&gt;% \n  visEdges(color = list(color = \"red\", hover = \"green\", highlight = \"black\")) %&gt;% \n  visInteraction(hover = TRUE) %&gt;% \n  addFontAwesome(version = \"4.7.0\")",
+    "text": "Network analysis with tidygraph\nThe data frame graph representation can be easily augmented with metrics or statistics computed on the graph. Remember how we computed counts with the penguin dataset in Grammar of Graphics.\nBefore computing a metric on nodes or edges use the activate() function to activate either node or edge data frames. Use dplyr verbs (filter, arrange, mutate) to achieve your computation in the proper way.\nNetwork Centrality: Go-To and Go-Through People!\nCentrality is a an “ill-defined” metric of node and edge importance in a network. It is therefore calculated in many ways. Type ?centrality in your Console.\n\n\n\n\n\nStandards\n\nLet’s add a few columns to the nodes and edges based on network centrality measures:\n\nga %&gt;%\n  activate(nodes) %&gt;%\n  # Node with  the most connections?\n  mutate(degree = centrality_degree(mode = c(\"in\"))) %&gt;%\n  filter(degree &gt; 0) %&gt;%\n  activate(edges) %&gt;%\n  # \"Busiest\" edge?\n  mutate(betweenness = centrality_edge_betweenness())\n\n# A tbl_graph: 54 nodes and 57 edges\n#\n# An undirected simple graph with 4 components\n#\n# Edge Data: 57 × 5 (active)\n    from    to weight type         betweenness\n   &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;\n 1     5    47      2 friends             20.3\n 2    21    47      4 benefits            44.7\n 3     5    46      1 friends             39  \n 4     5    41      1 friends             66.3\n 5    18    41      6 friends             39  \n 6    21    41     12 benefits            91.5\n 7    37    41      5 professional       164. \n 8    31    41      2 professional        98.8\n 9    20    31      3 professional        47.2\n10    17    31      4 friends            102. \n# ℹ 47 more rows\n#\n# Node Data: 54 × 8\n  name               sex   race  birthyear position  season sign   degree\n  &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;\n1 Addison Montgomery F     White      1967 Attending      1 Libra       3\n2 Adele Webber       F     Black      1949 Non-Staff      2 Leo         1\n3 Teddy Altman       F     White      1969 Attending      6 Pisces      4\n# ℹ 51 more rows\n\n\nPackages tidygraph and ggraph can be pipe-lined to perform analysis and visualization tasks in one go.\n\n##\nset_graph_style(family = \"Roboto\")\n##\nggraph(ga, layout = \"nicely\") +\n  geom_edge_link0(aes(alpha = centrality_edge_betweenness())) +\n\n  geom_node_point(aes(\n    colour = centrality_degree(),\n    size = centrality_degree()\n  )) +\n\n  geom_node_text(aes(label = name), repel = TRUE, size = 1.5) +\n\n  scale_size(name = \"Degree\", range = c(0.5, 5)) +\n\n  scale_color_gradient(\n    name = \"Degree\", # SAME NAME!!\n    low = \"blue\", high = \"red\",\n    aesthetics = c(\"colour\", \"fill\"),\n    guide = guide_legend(reverse = FALSE)\n  ) +\n\n  scale_edge_alpha(name = \"Betweenness\", range = c(0.05, 1)) +\n  labs(\n    title = \"Grey's Anatomy\",\n    subtitle = \"Nodes Scaled by Degree, Edges shaded by Betweenness\"\n  )\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #11\n\n\n\nHow do the Centrality Measures show up in the graph? Would you “agree” with the way we have done it? Try to modify the aesthetics by copy-pasting this chunk below and see how you can make an alternative representation.\n\n\nAnalysis and Visualizing Network Communities\nWho is close to whom? Which are the groups you can see?\n\n##\nset_graph_style(family = \"Roboto\")\n##\n# visualize communities of nodes\nga %&gt;%\n  activate(nodes) %&gt;%\n  mutate(community = as.factor(group_louvain())) %&gt;%\n  ggraph(layout = \"graphopt\") +\n  geom_edge_link0() +\n  geom_node_point(aes(color = community), size = 3) +\n  labs(title = \"Grey's Anatomy\", subtitle = \"Nodes Coloured by Community Detection Algorithm (Louvain)\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestions and Inferences #12\n\n\n\nIs the Community depiction clear? How would you do it, with which aesthetic? Copy Paste this chunk below and try.\n\n\nInteractive Graphs with visNetwork\n\nExploring the VisNetwork package. Make graphs wiggle and shake using tidy commands! The package implements interactivity using the physical metaphor of weights and springs we discussed earlier.\nThe visNetwork() function uses a nodes list and edges list to create an interactive graph. The nodes list must include an “id” column, and the edge list must have “from” and “to” columns. The function also plots the labels for the nodes, using the names of the cities from the “label” column in the node list.\nlibrary(visNetwork)\n\n# Prepare the data for plotting by visNetwork\ngrey_nodes\ngrey_edges\n# Relabel greys anatomy nodes and edges for VisNetwork\ngrey_nodes_vis &lt;- grey_nodes %&gt;%\n  rowid_to_column(var = \"id\") %&gt;%\n  rename(\"label\" = name) %&gt;%\n  mutate(sex = case_when(\n    sex == \"F\" ~ \"Female\",\n    sex == \"M\" ~ \"Male\"\n  )) %&gt;%\n  replace_na(., list(sex = \"Transgender?\")) %&gt;%\n  rename(\"group\" = sex)\ngrey_nodes_vis\ngrey_edges_vis &lt;- grey_edges %&gt;%\n  select(from, to) %&gt;%\n  left_join(., grey_nodes_vis,\n    by = c(\"from\" = \"label\")\n  ) %&gt;%\n  left_join(., grey_nodes_vis,\n    by = c(\"to\" = \"label\")\n  ) %&gt;%\n  select(\"from\" = id.x, \"to\" = id.y)\ngrey_edges_vis\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\nUsing fontawesome icons\n\ngrey_nodes_vis %&gt;%\n  visNetwork(nodes = ., edges = grey_edges_vis) %&gt;%\n  visNodes(font = list(size = 40)) %&gt;%\n  # Colour and icons for each of the gender-groups\n  visGroups(\n    groupname = \"Female\", shape = \"icon\",\n    icon = list(code = \"f182\", size = 75, color = \"tomato\"),\n    shadow = list(enabled = TRUE)\n  ) %&gt;%\n  visGroups(\n    groupname = \"Male\", shape = \"icon\",\n    icon = list(code = \"f183\", size = 75, color = \"slateblue\"),\n    shadow = list(enabled = TRUE)\n  ) %&gt;%\n  visGroups(\n    groupname = \"Transgender?\", shape = \"icon\",\n    icon = list(code = \"f22c\", size = 75, color = \"fuchsia\"),\n    shadow = list(enabled = TRUE)\n  ) %&gt;%\n  # visLegend() %&gt;%\n  # Add the fontawesome icons!!\n  addFontAwesome(version = \"4.7.0\") %&gt;%\n  # Add Interaction Controls\n  visInteraction(\n    navigationButtons = TRUE,\n    hover = TRUE,\n    selectConnectedEdges = TRUE,\n    hoverConnectedEdges = TRUE,\n    zoomView = TRUE\n  )\n\n\n\n\n\nThere is another family of icons available in visNetwork, called ionicons. Let’s see how they look:\n\ngrey_nodes_vis %&gt;%\n  visNetwork(nodes = ., edges = grey_edges_vis, ) %&gt;%\n  visLayout(randomSeed = 12345) %&gt;%\n  visNodes(font = list(size = 50)) %&gt;%\n  visEdges(color = \"green\") %&gt;%\n  visGroups(\n    groupname = \"Female\",\n    shape = \"icon\",\n    icon = list(\n      face = \"Ionicons\",\n      code = \"f25d\",\n      color = \"fuchsia\",\n      size = 125\n    )\n  ) %&gt;%\n  visGroups(\n    groupname = \"Male\",\n    shape = \"icon\",\n    icon = list(\n      face = \"Ionicons\",\n      code = \"f202\",\n      color = \"green\",\n      size = 125\n    )\n  ) %&gt;%\n  visGroups(\n    groupname = \"Transgender?\",\n    shape = \"icon\",\n    icon = list(\n      face = \"Ionicons\",\n      code = \"f233\",\n      color = \"dodgerblue\",\n      size = 125\n    )\n  ) %&gt;%\n  visLegend() %&gt;%\n  addIonicons() %&gt;%\n  visInteraction(\n    navigationButtons = TRUE,\n    hover = TRUE,\n    selectConnectedEdges = TRUE,\n    hoverConnectedEdges = TRUE,\n    zoomView = TRUE\n  )\n\n\n\n\n\nSome idea of interactivity and controls with visNetwork:\n Star Wars Nodes \n Star Wars Edges \n\n# let's look again at the data\nstarwars_nodes &lt;- read_csv(\"files/data/star-wars-network-nodes.csv\")\nstarwars_edges &lt;- read_csv(\"files/data/star-wars-network-edges.csv\")\n\n# We need to rename starwars nodes dataframe and edge dataframe columns for visNetwork\nstarwars_nodes_vis &lt;-\n  starwars_nodes %&gt;%\n  rename(\"label\" = name)\n\n# Convert from and to columns to **node ids**\nstarwars_edges_vis &lt;-\n  starwars_edges %&gt;%\n  # Matching Source &lt;- Source Node id (\"id.x\")\n  left_join(., starwars_nodes_vis, by = c(\"source\" = \"label\")) %&gt;%\n  # Matching Target &lt;- Target Node id (\"id.y\")\n  left_join(., starwars_nodes_vis, by = c(\"target\" = \"label\")) %&gt;%\n  # Select \"id.x\" and \"id.y\" ONLY\n  # Rename them as \"from\" and \"to\"\n  # keep \"weight\" column for aesthetics of edges\n  select(\"from\" = id.x, \"to\" = id.y, \"value\" = weight)\n\n# Check everything once\nstarwars_nodes_vis\nstarwars_edges_vis\n\n\n\n\n  \n\n\n\n\n  \n\n\n\n\nOk, let’s make things move and shake!!\n\nvisNetwork(\n  nodes = starwars_nodes_vis,\n  edges = starwars_edges_vis\n) %&gt;%\n  visNodes(font = list(size = 30)) %&gt;%\n  visEdges(color = \"red\")\n\n\n\n\n\n\nvisNetwork(\n  nodes = starwars_nodes_vis,\n  edges = starwars_edges_vis\n) %&gt;%\n  visNodes(\n    font = list(size = 30), shape = \"icon\",\n    icon = list(code = \"f1e3\", size = 75)\n  ) %&gt;%\n  visEdges(color = list(color = \"red\", hover = \"green\", highlight = \"black\")) %&gt;%\n  visInteraction(hover = TRUE) %&gt;%\n  addFontAwesome(version = \"4.7.0\")",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1538,7 +1538,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#your-turn",
     "title": "\n Networks",
     "section": "\n Your Turn",
-    "text": "Your Turn\n\n\n\n\n\n\nAirline Data:\n\n\n\n Airlines Nodes \n Airlines Edges \nStart with this bit of code in your second chunk, after set up\n\n```{r}\n#| label: start up code for Airlines\n#| eval: false ## remove this!!\nairline_nodes &lt;-\n  read_csv(\"./mydatafolder/AIRLINES-NODES.csv\") %&gt;% \n  mutate(Id = Id + 1)\n\nairline_edges &lt;-\n  read_csv(\"./mydatafolder/AIRLINES-EDGES.csv\") %&gt;%\n  mutate(Source = Source + 1, Target = Target + 1)\n```\n\n\n\n\n\n\n\n\n\nThe Famous Zachary Karate Club dataset\n\n\n\n\nStart with pulling this data into your Quarto:\n\n\n```{r}\n#| eval: false ## remove this!\ndata(\"karate\",package= \"igraphdata\")\nkarate\n```\n\n\nTry ?karate in the console\n\nNote that this is not a set of nodes, nor edges, but already a graph-object!\n\nSo no need to create a graph object using tbl_graph.\n\nYou will need to just go ahead and plot using ggraph.\n\n\n\n\n\n\n\n\n\nGame of Thrones:\n\n\n\n GoT Networks \n\nStart with pulling this data into your Rmarkdown:\n\n\n```{r}\n#| label: start-up code for GoT\n#| eval: false ## remove this!!\n\nGoT &lt;- read_rds(\"data/GoT.RDS\")\n```\n\n\nNote that this is a list of 7 graphs from Game of Thrones.\nSelect one using GoT[[index]] where index = 1…7 and then plot directly.\nTry to access the nodes and edges and modify them using any attribute data\n\n\n\n\n\n\n\n\n\nOther Datasets\n\n\n\n\nChoose any other graph dataset from igraphdata\n\n(type ?igraphdata in console)\n\nAsk me for help if you need any\n\n\n\n\nMake-2: Literary Network with TV Show / Book / Story / Play\nYou need to create a Network Graph for your favourite Book, play, TV serial or Show. (E.g. Friends, BBT, or LB or HIMYM, B99, TGP, JTV…or Hamlet, Little Women , Pride and Prejudice, or LoTR)\n\nStep 1. Go to: Literary Networks for instructions.\n\nStep 2. Make your data using the instructions.\n\nIn the nodes excel, use id and names as your columns. Any other details in other columns to the right.\n\nIn your edges excel, use from and to as your first columns.\n\nEntries in these columns can be names or ids but be consistent and don’t mix.\n\n\n\nStep 3. Decide on 3 answers that you to seek and plan to make graphs for.\nStep 4. Create graph objects. Say 3 visualizations.\nStep 5. Write comments/answers in the code and narrative text. Add pictures from the web using Markdown syntax.\nStep 6. Write Reflection ( ok, a short one!) inside your Quarto document. Make sure it renders !!\nStep 7. Group Submission: Submit the render-able .qmd file AND the data. Quarto Markdown with joint authorship. Each person submits on their Assignments. All get the same grade on this one.\n\nAsk me for clarifications on what to do after you have read the Instructions in your group.",
+    "text": "Your Turn\n\n\n\n\n\n\nAirline Data:\n\n\n\n Airlines Nodes \n Airlines Edges \nStart with this bit of code in your second chunk, after set up\n\n```{r}\n#| label: start up code for Airlines\n#| eval: false ## remove this!!\nairline_nodes &lt;-\n  read_csv(\"./mydatafolder/AIRLINES-NODES.csv\") %&gt;%\n  mutate(Id = Id + 1)\n\nairline_edges &lt;-\n  read_csv(\"./mydatafolder/AIRLINES-EDGES.csv\") %&gt;%\n  mutate(Source = Source + 1, Target = Target + 1)\n```\n\n\n\n\n\n\n\n\n\nThe Famous Zachary Karate Club dataset\n\n\n\n\nStart with pulling this data into your Quarto:\n\n\n```{r}\n#| eval: false ## remove this!\ndata(\"karate\", package = \"igraphdata\")\nkarate\n```\n\n\nTry ?karate in the console\n\nNote that this is not a set of nodes, nor edges, but already a graph-object!\n\nSo no need to create a graph object using tbl_graph.\n\nYou will need to just go ahead and plot using ggraph.\n\n\n\n\n\n\n\n\n\nGame of Thrones:\n\n\n\n GoT Networks \n\nStart with pulling this data into your Rmarkdown:\n\n\n```{r}\n#| label: start-up code for GoT\n#| eval: false ## remove this!!\n\nGoT &lt;- read_rds(\"data/GoT.RDS\")\n```\n\n\nNote that this is a list of 7 graphs from Game of Thrones.\nSelect one using GoT[[index]] where index = 1…7 and then plot directly.\nTry to access the nodes and edges and modify them using any attribute data\n\n\n\n\n\n\n\n\n\nOther Datasets\n\n\n\n\nChoose any other graph dataset from igraphdata\n\n(type ?igraphdata in console)\n\nAsk me for help if you need any\n\n\n\n\nMake-2: Literary Network with TV Show / Book / Story / Play\nYou need to create a Network Graph for your favourite Book, play, TV serial or Show. (E.g. Friends, BBT, or LB or HIMYM, B99, TGP, JTV…or Hamlet, Little Women , Pride and Prejudice, or LoTR)\n\nStep 1. Go to: Literary Networks for instructions.\n\nStep 2. Make your data using the instructions.\n\nIn the nodes excel, use id and names as your columns. Any other details in other columns to the right.\n\nIn your edges excel, use from and to as your first columns.\n\nEntries in these columns can be names or ids but be consistent and don’t mix.\n\n\n\nStep 3. Decide on 3 answers that you to seek and plan to make graphs for.\nStep 4. Create graph objects. Say 3 visualizations.\nStep 5. Write comments/answers in the code and narrative text. Add pictures from the web using Markdown syntax.\nStep 6. Write Reflection ( ok, a short one!) inside your Quarto document. Make sure it renders !!\nStep 7. Group Submission: Submit the render-able .qmd file AND the data. Quarto Markdown with joint authorship. Each person submits on their Assignments. All get the same grade on this one.\n\nAsk me for clarifications on what to do after you have read the Instructions in your group.",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -1551,7 +1551,7 @@
     "href": "content/courses/Analytics/Descriptive/Modules/100-Networks/index.html#references",
     "title": "\n Networks",
     "section": "\n References",
-    "text": "References\n\n\nHadley Wickham, Danielle Navarro, and Thomas Lin Pedersen, ggplot2: Elegant Graphics for Data Analysis. https://ggplot2-book.org/networks\n\nOmar Lizardo and Isaac Jilbert, Social Networks: An Introduction. https://bookdown.org/omarlizardo/_main/\n\nMark Hoffman, Methods for Network Analysis. https://bookdown.org/markhoff/social_network_analysis/\n\n\nStatistical Analysis of Network Data with R, 2nd Edition.https://github.com/kolaczyk/sand\n\n\nThomas Lin Pedersen - 1 giraffe, 2 giraffe,GO!\n\nTyner, Sam, François Briatte, and Heike Hofmann. 2017. “Network Visualization with ggplot2.” The R Journal 9 (1): 27–59. https://journal.r-project.org/archive/2017/RJ-2017-023/index.html\n\nNetwork Datasets https://icon.colorado.edu/#!/networks\n\nYunran Chen, Introduction to Network Analysis Using R\n\n\n\n\n R Package Citations\n\n\n\n\nPackage\nVersion\nCitation\n\n\n\nggraph\n2.2.1\nPedersen (2024a)\n\n\nggtext\n0.1.2\nWilke and Wiernik (2022)\n\n\ngraphlayouts\n1.1.1\nDavid Schoch (2023)\n\n\nigraph\n2.0.3\n\nCsardi and Nepusz (2006); Csárdi et al. (2024)\n\n\n\nigraphdata\n1.0.1\nCsardi (2015)\n\n\nsand\n2.0.0\nKolaczyk and Csárdi (2020)\n\n\nshowtext\n0.9.7\nQiu and See file AUTHORS for details. (2024)\n\n\ntidygraph\n1.3.1\nPedersen (2024b)\n\n\nvisNetwork\n2.1.2\nAlmende B.V. and Contributors and Thieurmel (2022)\n\n\n\n\n\n\nAlmende B.V. and Contributors, and Benoit Thieurmel. 2022. visNetwork: Network Visualization Using “vis.js” Library. https://CRAN.R-project.org/package=visNetwork.\n\n\nCsardi, Gabor. 2015. igraphdata: A Collection of Network Data Sets for the “igraph” Package. https://CRAN.R-project.org/package=igraphdata.\n\n\nCsardi, Gabor, and Tamas Nepusz. 2006. “The Igraph Software Package for Complex Network Research.” InterJournal Complex Systems: 1695. https://igraph.org.\n\n\nCsárdi, Gábor, Tamás Nepusz, Vincent Traag, Szabolcs Horvát, Fabio Zanini, Daniel Noom, and Kirill Müller. 2024. igraph: Network Analysis and Visualization in r. https://doi.org/10.5281/zenodo.7682609.\n\n\nDavid Schoch. 2023. “graphlayouts: Layout Algorithms for Network Visualizations in r.” Journal of Open Source Software 8 (84): 5238. https://doi.org/10.21105/joss.05238.\n\n\nKolaczyk, Eric, and Gábor Csárdi. 2020. sand: Statistical Analysis of Network Data with r, 2nd Edition. https://CRAN.R-project.org/package=sand.\n\n\nPedersen, Thomas Lin. 2024a. ggraph: An Implementation of Grammar of Graphics for Graphs and Networks. https://CRAN.R-project.org/package=ggraph.\n\n\n———. 2024b. tidygraph: A Tidy API for Graph Manipulation. https://CRAN.R-project.org/package=tidygraph.\n\n\nQiu, Yixuan, and authors/contributors of the included software. See file AUTHORS for details. 2024. showtext: Using Fonts More Easily in r Graphs. https://CRAN.R-project.org/package=showtext.\n\n\nWilke, Claus O., and Brenton M. Wiernik. 2022. ggtext: Improved Text Rendering Support for “ggplot2”. https://CRAN.R-project.org/package=ggtext.",
+    "text": "References\n\n\nHadley Wickham, Danielle Navarro, and Thomas Lin Pedersen, ggplot2: Elegant Graphics for Data Analysis. https://ggplot2-book.org/networks\n\nOmar Lizardo and Isaac Jilbert, Social Networks: An Introduction. https://bookdown.org/omarlizardo/_main/\n\nMark Hoffman, Methods for Network Analysis. https://bookdown.org/markhoff/social_network_analysis/\n\n\nStatistical Analysis of Network Data with R, 2nd Edition.https://github.com/kolaczyk/sand\n\n\nThomas Lin Pedersen - 1 giraffe, 2 giraffe,GO!\n\nTyner, Sam, François Briatte, and Heike Hofmann. 2017. “Network Visualization with ggplot2.” The R Journal 9 (1): 27–59. https://journal.r-project.org/archive/2017/RJ-2017-023/index.html\n\nNetwork Datasets https://icon.colorado.edu/#!/networks\n\nYunran Chen, Introduction to Network Analysis Using R\n\n\n\n\n R Package Citations\n\n\n\n\nPackage\nVersion\nCitation\n\n\n\nggraph\n2.2.1\nPedersen (2024a)\n\n\nggtext\n0.1.2\nWilke and Wiernik (2022)\n\n\ngraphlayouts\n1.2.2\nDavid Schoch (2023)\n\n\nigraph\n2.1.4\n\nCsardi and Nepusz (2006); Csárdi et al. (2025)\n\n\n\nigraphdata\n1.0.1\nCsardi (2015)\n\n\nsand\n2.0.0\nKolaczyk and Csárdi (2020)\n\n\nshowtext\n0.9.7\nQiu and See file AUTHORS for details. (2024)\n\n\ntidygraph\n1.3.1\nPedersen (2024b)\n\n\nvisNetwork\n2.1.2\nAlmende B.V. and Contributors and Thieurmel (2022)\n\n\n\n\n\n\nAlmende B.V. and Contributors, and Benoit Thieurmel. 2022. visNetwork: Network Visualization Using “vis.js” Library. https://CRAN.R-project.org/package=visNetwork.\n\n\nCsardi, Gabor. 2015. igraphdata: A Collection of Network Data Sets for the “igraph” Package. https://CRAN.R-project.org/package=igraphdata.\n\n\nCsardi, Gabor, and Tamas Nepusz. 2006. “The Igraph Software Package for Complex Network Research.” InterJournal Complex Systems: 1695. https://igraph.org.\n\n\nCsárdi, Gábor, Tamás Nepusz, Vincent Traag, Szabolcs Horvát, Fabio Zanini, Daniel Noom, and Kirill Müller. 2025. igraph: Network Analysis and Visualization in r. https://doi.org/10.5281/zenodo.7682609.\n\n\nDavid Schoch. 2023. “graphlayouts: Layout Algorithms for Network Visualizations in r.” Journal of Open Source Software 8 (84): 5238. https://doi.org/10.21105/joss.05238.\n\n\nKolaczyk, Eric, and Gábor Csárdi. 2020. sand: Statistical Analysis of Network Data with r, 2nd Edition. https://CRAN.R-project.org/package=sand.\n\n\nPedersen, Thomas Lin. 2024a. ggraph: An Implementation of Grammar of Graphics for Graphs and Networks. https://CRAN.R-project.org/package=ggraph.\n\n\n———. 2024b. tidygraph: A Tidy API for Graph Manipulation. https://CRAN.R-project.org/package=tidygraph.\n\n\nQiu, Yixuan, and authors/contributors of the included software. See file AUTHORS for details. 2024. showtext: Using Fonts More Easily in r Graphs. https://CRAN.R-project.org/package=showtext.\n\n\nWilke, Claus O., and Brenton M. Wiernik. 2022. ggtext: Improved Text Rendering Support for “ggplot2”. https://CRAN.R-project.org/package=ggtext.",
     "crumbs": [
       "Teaching",
       "Data Analytics for Managers and Peasants",
@@ -6439,32 +6439,6 @@
     ]
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/500-Tech/50-OSC/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/500-Tech/50-OSC/index.html#introduction",
-    "title": "The Open Sound Protocol",
-    "section": "Introduction",
-    "text": "Introduction",
-    "crumbs": [
-      "Teaching",
-      "Math Models for Creative Coders",
-      "Tech",
-      "The Open Sound Protocol"
-    ]
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/500-Tech/50-OSC/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/500-Tech/50-OSC/index.html#references",
-    "title": "The Open Sound Protocol",
-    "section": "References",
-    "text": "References\n\nTramontana: A platform for interactive spaces, interactive objects and prototyping. https://tramontana.xyz/\nThe Coding Train set of video tutorials https://www.youtube.com/@TheCodingTrain\nDan Shiffman. The Nature of Code book. https://natureofcode.com\nCodeAcademy. p5.js short cheatsheet. https://www.codecademy.com/learn/learn-p5js/modules/p5js-introduction-to-creative-coding/cheatsheet",
-    "crumbs": [
-      "Teaching",
-      "Math Models for Creative Coders",
-      "Tech",
-      "The Open Sound Protocol"
-    ]
-  },
-  {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/30-Fractals/index.html",
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/30-Fractals/index.html",
     "title": "Fractals",
@@ -6521,7 +6495,7 @@
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/30-Fractals/index.html#wait-but-why",
     "title": "Fractals",
     "section": "\n Wait, But Why?",
-    "text": "Wait, But Why?\n\nFractal shapes are all around us in nature\nThese mathematically created fractal shapes can have uses that are limited only by your imagination: want to design footwear that does not slip?\nDifferent parts of the Mandelbrot fractal allow us to contemplate a variety of fractal shapes\nAnd if we choose a different IFS function (rather than \\(x -&gt; x^2 + c\\)), we can think of entire familues of shapes!",
+    "text": "Wait, But Why?\n\nFractal shapes are all around us in nature\nThese mathematically created fractal shapes can have uses that are limited only by your imagination: want to design footwear that does not slip?\nDifferent parts of the Mandelbrot fractal allow us to contemplate a variety of fractal shapes\nAnd if we choose a different IFS function (rather than \\(x -&gt; x^2 + c\\)), we can think of entire families of shapes!",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
@@ -6534,7 +6508,7 @@
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/30-Fractals/index.html#references",
     "title": "Fractals",
     "section": "\n References",
-    "text": "References\n\nBatty, M. and Longley, P. A. (1994) “Fractal Cities: A Geometry of Form and Function”, London: Academic Press, 1994.\nWang H, Luo S, Luo T. Fractal characteristics of urban surface transit and road networks: Case study of Strasbourg, France. Advances in Mechanical Engineering. 2017;9(2). doi:10.1177/1687814017692289\n\nTurtle Graphics in R: https://cran.r-project.org/web/packages/TurtleGraphics/vignettes/TurtleGraphics.pdf\n\nhttps://www.reddit.com/r/CitiesSkylines/comments/9r0y4e/grid_idea_im_working_on_fractal_squares/\nMenger Sponge: https://blogs.scientificamerican.com/roots-of-unity/a-few-of-my-favorite-spaces-the-menger-sponge/\n\nhttp://fractalfoundation.org/resources/fractal-software/\nAn Intrepid Tour of the Complex Fractal World using Dark Heart Package 2.2.0 for Mac. https://dhushara.com/DarkHeart/#Anchor-Introduction-35326",
+    "text": "References\n\nAn Intrepid Tour of the Complex Fractal World using Dark Heart Package 2.2.0 for Mac. https://dhushara.com/DarkHeart/#Anchor-Introduction-35326\n\nGary William Flake.(28 August 1988) The Computational Beauty of Nature. ISBN: 978-0262062008. MIT Press.\nBatty, M. and Longley, P. A. (1994) Fractal Cities: A Geometry of Form and Function, London: Academic Press, 1994.\nWang H, Luo S, Luo T. Fractal characteristics of urban surface transit and road networks: Case study of Strasbourg, France. Advances in Mechanical Engineering. 2017;9(2). doi:10.1177/1687814017692289\n\nTurtle Graphics in R: https://cran.r-project.org/web/packages/TurtleGraphics/vignettes/TurtleGraphics.pdf\n\nhttps://www.reddit.com/r/CitiesSkylines/comments/9r0y4e/grid_idea_im_working_on_fractal_squares/\nMenger Sponge: https://blogs.scientificamerican.com/roots-of-unity/a-few-of-my-favorite-spaces-the-menger-sponge/\n\nhttp://fractalfoundation.org/resources/fractal-software/",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
@@ -6606,90 +6580,6 @@
       "Geometry",
       "<iconify-icon icon=\"tabler:math-xy\" width=\"1.2em\" height=\"1.2em\"></iconify-icon> Complex Numbers"
     ]
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html",
-    "title": "\n Iterated Functions",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nIterated Function Systems and Fractals\n\nSymmetries in Space\n\nL Systems, Mandalas and Kolams\n\nLogistic Functions\n\nProjections"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#introduction",
-    "title": "\n Iterated Functions",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nIterated Function Systems and Fractals\n\nSymmetries in Space\n\nL Systems, Mandalas and Kolams\n\nLogistic Functions\n\nProjections"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#inspiration",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#inspiration",
-    "title": "\n Iterated Functions",
-    "section": "\n Inspiration",
-    "text": "Inspiration\nThis equation will change how you see the world. It’s about the Logistic Map, bifurcation diagrams, the Mandelbrot set, animal populations, dripping faucets, neuron firing rates and more.\n\nSo let us see how we can construct this algorithmically, the different parts of it. And of course why we should bother!"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#what-is-an-iterated-function",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#what-is-an-iterated-function",
-    "title": "\n Iterated Functions",
-    "section": "What is an Iterated Function?",
-    "text": "What is an Iterated Function?\nWell, we know what a function is don’t we? A relationship between numbers. One varies as the others, and the relationship is specified by the function. E.g. \\(y = \\sin(x)\\).\nSo what is iteration then, and how do you do that to a function? It is applying the same function over and over again, by piping the results of the previous step i.e. iteration back into the function. Let us hear from Ron Eglash, the author of African Fractals: Modern Computing and Indigenous Design"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#some-examples-of-iterated-functions",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#some-examples-of-iterated-functions",
-    "title": "\n Iterated Functions",
-    "section": "Some Examples of Iterated Functions",
-    "text": "Some Examples of Iterated Functions"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#wait-but-why",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#wait-but-why",
-    "title": "\n Iterated Functions",
-    "section": "\n Wait, But Why?",
-    "text": "Wait, But Why?"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/40-IteratedFunctions/index.html#references",
-    "title": "\n Iterated Functions",
-    "section": "\n References",
-    "text": "References\n\n\n\n\n\n\n R Package Citations\n\n\n\n\nPackage\nVersion\nCitation\n\n\n\nambient\n1.0.2\nPedersen and Peck (2022)\n\n\nmosaicCalc\n0.6.4\nKaplan, Pruim, and Horton (2024)\n\n\nplot3D\n1.4.1\nSoetaert (2024)\n\n\n\n\n\n\nKaplan, Daniel T., Randall Pruim, and Nicholas J. Horton. 2024. mosaicCalc: R-Language Based Calculus Operations for Teaching. https://CRAN.R-project.org/package=mosaicCalc.\n\n\nPedersen, Thomas Lin, and Jordan Peck. 2022. ambient: A Generator of Multidimensional Noise. https://CRAN.R-project.org/package=ambient.\n\n\nSoetaert, Karline. 2024. plot3D: Plotting Multi-Dimensional Data. https://CRAN.R-project.org/package=plot3D."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html",
-    "title": "Non-Euclidean Geometry",
-    "section": "",
-    "text": "Replicated from :\nhttps://github.com/stla/PlaneGeometry/blob/master/vignettes/examples.Rmd\n\n# devtools::install_github(\"https://github.com/AdamRahman/sdpt3r\")\n# devtools::install_github(\"https://github.com/stla/PlaneGeometry\")\nlibrary(PlaneGeometry)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#introduction",
-    "title": "Non-Euclidean Geometry",
-    "section": "",
-    "text": "Replicated from :\nhttps://github.com/stla/PlaneGeometry/blob/master/vignettes/examples.Rmd\n\n# devtools::install_github(\"https://github.com/AdamRahman/sdpt3r\")\n# devtools::install_github(\"https://github.com/stla/PlaneGeometry\")\nlibrary(PlaneGeometry)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#elliptical-steiner-chain",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#elliptical-steiner-chain",
-    "title": "Non-Euclidean Geometry",
-    "section": "Elliptical Steiner chain",
-    "text": "Elliptical Steiner chain\nBy applying an affine transformation to a Steiner chain, we can get an elliptical Steiner chain.\n\nc0 &lt;- Circle$new(c(3, 0), 3) # exterior circle\ncircles &lt;- SteinerChain(c0, 3, -0.2, 0.5)\n# take an ellipse\nell &lt;- Ellipse$new(c(-4, 0), 4, 2.5, 140)\n# take the affine transformation which maps the exterior circle to this ellipse\nf &lt;- AffineMappingEllipse2Ellipse(c0, ell)\n# take the images of the Steiner circles by this transformation\nellipses &lt;- lapply(circles, f$transformEllipse)\n\n\nopar &lt;- par(mar = c(0, 0, 0, 0))\nplot(NULL,\n  asp = 1, xlim = c(-8, 6), ylim = c(-4, 4),\n  xlab = NA, ylab = NA, axes = FALSE\n)\n# draw the Steiner chain\ninvisible(lapply(circles, draw, lwd = 2, col = \"blue\"))\ndraw(c0, lwd = 2)\n# draw the elliptical Steiner chain\ninvisible(lapply(ellipses, draw, lwd = 2, col = \"red\", border = \"forestgreen\"))\ndraw(ell, lwd = 2, border = \"forestgreen\")\n\n\n\n\n\n\npar(opar)\n\nHere is how I got the animation below, by varying the shift parameter of the Steiner chain.\n\nlibrary(gifski)\n\nc0 &lt;- Circle$new(c(3, 0), 3)\nell &lt;- Ellipse$new(c(-4, 0), 4, 2.5, 140)\nf &lt;- AffineMappingEllipse2Ellipse(c0, ell)\n\nfplot &lt;- function(shift) {\n  circles &lt;- SteinerChain(c0, 3, -0.2, shift)\n  ellipses &lt;- lapply(circles, f$transformEllipse)\n  opar &lt;- par(mar = c(0, 0, 0, 0))\n  plot(NULL,\n    asp = 1, xlim = c(-8, 0), ylim = c(-4, 4),\n    xlab = NA, ylab = NA, axes = FALSE\n  )\n  invisible(lapply(ellipses, draw, lwd = 2, col = \"blue\", border = \"black\"))\n  draw(ell, lwd = 2)\n  par(opar)\n  invisible()\n}\n\nshift_ &lt;- seq(0, 3, length.out = 100)[-1L]\n\nsave_gif(\n  for (shift in shift_) {\n    fplot(shift)\n  },\n  \"SteinerChainElliptical.gif\",\n  512, 512, 1 / 12,\n  res = 144\n)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#nested-steiner-chains",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#nested-steiner-chains",
-    "title": "Non-Euclidean Geometry",
-    "section": "Nested Steiner chains",
-    "text": "Nested Steiner chains\nWe can choose the exterior circle of the Steiner chain. Therefore, given a circle of a Steiner chain, we can nest another Steiner chain in this circle.\n\nc0 &lt;- Circle$new(c(3, 0), 3) # exterior circle\ncircles &lt;- SteinerChain(c0, 3, -0.2, 0.5)\n# Steiner chain for each circle, except the small one (it is too small)\nchains &lt;- lapply(circles[1:3], function(c0) {\n  SteinerChain(c0, 3, -0.2, 0.5)\n})\n\n\nopar &lt;- par(mar = c(0, 0, 0, 0))\nplot(NULL,\n  asp = 1, xlim = c(0, 6), ylim = c(-4, 4),\n  xlab = NA, ylab = NA, axes = FALSE\n)\n# draw the big Steiner chain\ninvisible(lapply(circles, draw, lwd = 2, border = \"blue\"))\ndraw(c0, lwd = 2)\n# draw the nested Steiner chain\ninvisible(lapply(chains, function(circles) {\n  lapply(circles, draw, lwd = 2, border = \"red\")\n}))\n\n\n\n\n\n\npar(opar)\n\nOf course you can also nest elliptical Steiner chains, and animate the picture!"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/files/index.html#references",
-    "title": "Non-Euclidean Geometry",
-    "section": "References",
-    "text": "References\n\nMark Liu.(2015). Non-Euclidean Pattern Making. https://www.drmarkliu.com/noneuclidean\nhttps://fablab.ruc.dk/interactive-maps/\nhttps://fablab.ruc.dk/tag/learn/\nProjection Mapping Library for p5.js. https://github.com/jdeboi/p5.mapper\nDavid Bouchard’s (Java) Processing Keystone Library. http://keystonep5.sourceforge.net/\nJenny Louthan, projection transform algorithms. https://github.com/jlouthan/perspective-transform\np5.js + OSC protocol. https://github.com/genekogan/p5js-osc\n\nAdditional Readings\n\nCracked: 6 TV Shows That Put Insane Work Into Details Nobody Noticed. https://www.cracked.com/article_21544_6-tv-shows-that-put-insane-work-into-details-nobody-noticed.html\nMark Liu. (2016). Why STEM subjects and fashion design go hand in hand. https://theconversation.com/why-stem-subjects-and-fashion-design-go-hand-in-hand-63649"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/10-Circles/index.html",
@@ -6891,7 +6781,14 @@
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html",
     "title": "Kolams and Lusona",
     "section": "",
-    "text": "Africa Fabric Map: What’s your next T-Shirt?"
+    "text": "Look at this fabric map of Africa:\n\n\n\n\n\nFigure 1: Africa Fabric Map: What’s your next T-Shirt?\n\n\nAnd look at this map of Nobel prize winners!\n\n\n\n\n\nFigure 2: Network of Nobel Prize Winners\n\n\nWould there be anything in common between these two 😮 ??!! How???!!!"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration",
+    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration",
+    "title": "Kolams and Lusona",
+    "section": "",
+    "text": "Look at this fabric map of Africa:\n\n\n\n\n\nFigure 1: Africa Fabric Map: What’s your next T-Shirt?\n\n\nAnd look at this map of Nobel prize winners!\n\n\n\n\n\nFigure 2: Network of Nobel Prize Winners\n\n\nWould there be anything in common between these two 😮 ??!! How???!!!"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#introduction",
@@ -6901,10 +6798,10 @@
     "text": "Introduction\nThe South Indian tradition of Kolam, and the Angolan tradition of Lusona art have quite a few things in common. Both are also strongly linked to finite grammars and networks."
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration",
+    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration-1",
+    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#inspiration-1",
     "title": "Kolams and Lusona",
-    "section": " Inspiration",
+    "section": "\n Inspiration",
     "text": "Inspiration\n\n\nClick to generate a fresh Kolam!"
   },
   {
@@ -6919,21 +6816,28 @@
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#by-hand",
     "title": "Kolams and Lusona",
     "section": "By Hand!",
-    "text": "By Hand!\nSee if you can manually mimic some of the moves here! As an exercise, try to anchor your elbow and forearm to the table, and draw the pattern by rotating the paper! What are your observations?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod #1: Using Canonical Pieces\nWhat does canonical piece mean? These are pieces like the alphabet: pieces that can be repeatedly used to create a vast variety of patterns? Sounds familiar again?\nCheck the Polypad: https://polypad.amplify.com/p#patterns\nHere we use “pieces of Kolam” that are standard: by repeated usage of combinations of these pieces, ( I believe ) any kolam can be produced. Here is a video showing kolams with a few canonical pieces:\n\nWhich are the canonical pieces here?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod #2: Using Mirrors and Light\nThis follows the development of Paul Gerdes.\nFirst let us get a printable grid to make our Kolams manually, since making grids can become tedious when you are making a lot of Kolams. We can use the grid to place “pulli-s” on the grid to make our Kolam. Head off to: https://editor.p5js.org/arvindv/sketches/UuHApkvqd and open it in your p5.js web-editor. Print out a few samples of the .svg grid file that is generated.\nNow consider that each of your Kolam “lines” or “trajectories” is made of light. And place some single horizontal or vertical mirrors, at some locations midway between adjacent pulli-s. See the figure below:\n\n\n\nKolam with Mirrors\n\n\nThe black lines here are to be imagined as “made of light”. Whenever they hit a mirror, a “curved reflection” occurs. Note how the arrangement of mirrors is symmetric here. Can we take computational liberties here and make asymmetric mirror arrangements? Can the grid also be non-square? Try?\nFor more inspiration, see here. This is a multipage article with many different grid+mirror arrangements! There is also an intriguing technique shown therein of colouring the squares in the grid alternatively white and black, to generate very symmetric shaded patterns!\n\n\nKolams in p5.js\n\n&lt;iframe width=“780px” height=“600px” \n\nThis is also the idea embedded in this toy called Kolam Tiles.\n\n\nKolams in R"
+    "text": "By Hand!\nSee if you can manually mimic some of the moves here! As an exercise, try to anchor your elbow and forearm to the table, and draw the pattern by rotating the paper! What are your observations?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod #1: Using Canonical Pieces\n\nWhat does canonical piece mean? These are pieces like the alphabet: pieces that can be repeatedly used to create a vast variety of patterns? Sounds familiar again?\nCheck the Polypad: https://polypad.amplify.com/p#patterns\nHere we use “pieces of Kolam” that are standard: by repeated usage of combinations of these pieces, ( I believe ) any kolam can be produced. Here is a video showing kolams with a few canonical pieces:\n\nWhich are the canonical pieces here?\nThis is also the idea embedded in this toy called Kolam Tiles. See this YT Playlist on Kolam Tiles.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod #2: Using Mirrors and Light\nThis follows the development of Paul Gerdes.\nFirst let us get a printable grid to make our Kolams manually, since making grids can become tedious when you are making a lot of Kolams. We can use the grid to place “pulli-s” on the grid to make our Kolam. Head off to: https://editor.p5js.org/arvindv/sketches/UuHApkvqd and open it in your p5.js web-editor. Print out a few samples of the .svg grid file that is generated.\nNow consider that each of your Kolam “lines” or “trajectories” is made of light. And place some single horizontal or vertical mirrors, at some locations midway between adjacent pulli-s. See the figure below:\n\n\n\n\n\nFigure 3: Kolam with Mirrors\n\n\nThe black lines here are to be imagined as “made of light”. Whenever they hit a mirror, a “curved reflection” occurs. Note how the arrangement of mirrors is symmetric here. Can we take computational liberties here and make asymmetric mirror arrangements? Can the grid also be non-square? Try?\nFor more inspiration, see here. This is a multipage article with many different grid+mirror arrangements! There is also an intriguing technique shown therein of colouring the squares in the grid alternatively white and black, to generate very symmetric shaded patterns!"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#kolams-with-code",
+    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#kolams-with-code",
+    "title": "Kolams and Lusona",
+    "section": "Kolams with Code",
+    "text": "Kolams with Code\n\n\nUsing p5.js\nUsing R\n\n\n\n\n&lt;iframe width=“780px” height=“600px”"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#wait-but-why",
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#wait-but-why",
     "title": "Kolams and Lusona",
-    "section": " Wait, But Why?",
+    "section": "\n Wait, But Why?",
     "text": "Wait, But Why?\nKolams and Sona are powerful metaphors for graphs and networks. These ideas show up in a variety of situations, such as tranportation networks, supply-chain, friendship networks, tracing literary and artistic influence, and so on."
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#references",
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/60-Kolams/index.html#references",
     "title": "Kolams and Lusona",
-    "section": " References",
-    "text": "References\n\nSome kolam like patterns for inspiration. https://www.pinterest.com/gbenainous/p5js-teaching-ideas/\nDr. Gift Siromoney’s webpage. https://www.cmi.ac.in/gift/Kolam.htm\nMirror Designs and Mirror Curves: Comparing Kolam and Tchokwe Art. https://www.mi.sanu.ac.rs/vismath/paulus/pg1.htm\nYANAGISAWA, Kiwamu & Nagata, Shojiro. (2007). Fundamental Study on Design System of Kolam Pattern. {Available Online](https://www.researchgate.net/publication/237442288_Fundamental_Study_on_Design_System_of_Kolam_Pattern)\nPaulus Gerdes. Lunda Geometry: Mirror Curves, Designs, Knots, Polyominoes, Patterns, Symmetries. https://www.sahistory.org.za/sites/default/files/archive-files3/paulus_gerdes_lunda_geometry_mirror_curves_desbook4you.pdf\nVisual Mathematics. Mathematical Institute of the Serbian Academy of Sciences and Arts. Editor: Ljiljana Radovic. ISSN: 1821-1437. https://www.mi.sanu.ac.rs/vismath/\nImaginary.Org. Frozen Light App. https://www.imaginary.org/program/frozenlight\nhttps://kolamtiles.com\nhttps://alpaca.pubpub.org/pub/eljjyi80/release/6\nhttps://algorithmicpattern.org\nAscher, M. (2002). The Kolam Tradition: A tradition of figure-drawing in southern India expresses mathematical ideas and has attracted the attention of computer science. American Scientist, 90(1), 56+. https://link.gale.com/apps/doc/A81528419/AONE?u=anon~274c1208&sid=googleScholar&xid=4105e718"
+    "section": "\n References",
+    "text": "References\n\nSome kolam like patterns for inspiration. https://www.pinterest.com/gbenainous/p5js-teaching-ideas/\n\nDr. Gift Siromoney’s webpage. https://www.cmi.ac.in/gift/Kolam.htm\n\nMirror Designs and Mirror Curves: Comparing Kolam and Tchokwe Art. https://www.mi.sanu.ac.rs/vismath/paulus/pg1.htm\n\nYANAGISAWA, Kiwamu & Nagata, Shojiro. (2007). Fundamental Study on Design System of Kolam Pattern.https://www.researchgate.net/publication/237442288_Fundamental_Study_on_Design_System_of_Kolam_Pattern)\nPaulus Gerdes. Lunda Geometry: Mirror Curves, Designs, Knots, Polyominoes, Patterns, Symmetries. https://www.sahistory.org.za/sites/default/files/archive-files3/paulus_gerdes_lunda_geometry_mirror_curves_desbook4you.pdf\n\nVisual Mathematics. Mathematical Institute of the Serbian Academy of Sciences and Arts. Editor: Ljiljana Radovic. ISSN: 1821-1437. https://www.mi.sanu.ac.rs/vismath/\n\nImaginary.Org. Frozen Light App. https://www.imaginary.org/program/frozenlight\n\nhttps://kolamtiles.com\nAnu Reddy and Alex McLean.(March 2024). Drawing Kolam Patterns in Stitches and Code. https://alpaca.pubpub.org/pub/eljjyi80/release/6\n\nhttps://algorithmicpattern.org\nAscher, M. (2002). The Kolam Tradition: A tradition of figure-drawing in southern India expresses mathematical ideas and has attracted the attention of computer science. American Scientist, 90(1), 56+.https://link.gale.com/apps/doc/A81528419/AONE?u=anon\\~274c1208&sid=googleScholar&xid=4105e718"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/1000-Projects/index.html",
@@ -7068,13 +6972,6 @@
     ]
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/10-Physics/listing.html",
-    "href": "content/courses/MathModelsDesign/Modules/10-Physics/listing.html",
-    "title": "Physics",
-    "section": "",
-    "text": "Dancing With Newton\n\n\n\n\n2 min\n\n\n\n\nNo matching items\n Back to top"
-  },
-  {
     "objectID": "content/courses/MathModelsDesign/Modules/05-Maths/50-Matrices/index.html",
     "href": "content/courses/MathModelsDesign/Modules/05-Maths/50-Matrices/index.html",
     "title": "Matrix Algebra Whirlwind Tour",
@@ -7124,11 +7021,39 @@
     "text": "References\n\nGilbert Strang. Linear Algebra and its Applications. Thomson/Brooks-Cole.\nGlenn Henshaw.(Sep 28, 2019) Three Ways to Understand Matrix Multiplication. https://ghenshaw-work.medium.com/3-ways-to-understand-matrix-multiplication-fe8a007d7b26"
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/listing.html",
-    "href": "content/courses/MathModelsDesign/Modules/55-Connections/listing.html",
-    "title": "Connections",
+    "objectID": "content/courses/MathModelsDesign/Modules/05-Maths/listing.html",
+    "href": "content/courses/MathModelsDesign/Modules/05-Maths/listing.html",
+    "title": "Math Concepts",
     "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n\n\n\nWorking with Networks\n\n\n3 min\n\n\n\n\n\n\nNo matching items\n Back to top"
+    "text": "Vectors\n\n\n\n\n6 min\n\n\n\n\n\n\nMatrix Algebra Whirlwind Tour\n\n\n\n\n4 min\n\n\n\n\nNo matching items\n Back to top"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html",
+    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html",
+    "title": "Working with Networks",
+    "section": "",
+    "text": "Do you think your friends have more friends than you have? Do you think that you are outside the herd, and that what you think or do is from your own mind?\nAnyways…"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#introduction",
+    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#introduction",
+    "title": "Working with Networks",
+    "section": "",
+    "text": "Do you think your friends have more friends than you have? Do you think that you are outside the herd, and that what you think or do is from your own mind?\nAnyways…"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#activities",
+    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#activities",
+    "title": "Working with Networks",
+    "section": "Activities",
+    "text": "Activities\nActivity-1: Secret Santa Game\nLet us play this in the vanilla way: Paper chits with names in a bin and drawing them in turn. What can go wrong with this?\nShould we use this instead? https://www.drawnames.com.sg/secret-santa-generator\nDiscussion: Nodes, Links, Link Directionality, Connected and Disconnected Networks\nActivity-2: Barabasi Cocktail Party Game\nThis is a game “invented” by Alberto-Laszlo Barabasi, a Network Science pioneer and expert, who has written a wonderful, and wonderfully acessible, book on Network Science, available online http://networksciencebook.com/\nDiscussion: Network Mechanisms, Information Flow, Giant Component,Emergence\nActivity-3: Indian Surnames Game\n\nHow many common India surnames do we know? Let us write them on the board.\nEach of us will now look at each surname and recollect how many people they know with that surname.\nWrite down the score for each surname.\nLet’s plot this on (yet another ) network!!\nTry also to create a map using this website: The Memory Underground https://memoryunderground.com\n\n\nDiscussion: Node Degree, Giant Component?  Small Worlds?  Multi-Link network, Link Values or Costs\nActivity-4: Way-Spotting Game\nNow that we have an idea of nodes, links and costs, let us get an experience of some more network science ideas:\n\nMake groups of 3.\nHead over to http://www.wayspotting.com/index.html\n\nPlay!! Make a note of your route each time ( your “traversal” of the network)\nNote if you can see the following:\n\n\n\nFrequently Used Nodes\nFrequently used Links\n\n\n\nSee here for more info: https://medium.com/@ran_katzir/teaching-network-science-using-board-games-f78489a3b3bd\n\n\nDiscussion: Network Traversal, Node Degree, Centrality, Betweenness, Link Values or Costs\nActivity-5: Hi, I am Kevin Bacon, SMI Foundation 2022 Batch\nLet us find a Keven Bacon in SMI Foundation Studies Programme!!\n\nCollect friends Data from across college/class, import and plot, analyze and comment\nUse this online tool at DataBasic.io https://databasic.io to Connect the Dots, OR\nEven more fun at at GraphCommons https://graphcommons.com/graphs/new\n\n\nDiscussion: Node Degree, Centrality, Betweenness, Link Values or Costs\nActivity-6: Can you Introduce me to Chandler, again?\n\nTake your favourite Literary Work / TV Serial / Movie and create a Network Database for it.\nVisualize it either with or without tech tools From Teach Engineering, this Activity Sheet https://www.teachengineering.org/activities/view/uno_graphtheory_lesson01_activity2\n\nCan also use Graph Comicshttps://aviz.fr/~bbach/graphcomics/\n\n\nDiscussion: Networks are everywhere, Cannot \"unsee\" them, You are a node and you are a link..are you?\nActivity-7: Why are all Metro Maps at 45 degrees?\n\nhttps://artsandculture.google.com/asset/the-tate-gallery-by-tube-david-booth/PAG-Gx_SV2jNiw?hl=en\nhttps://search.r-project.org/CRAN/refmans/ggraph/html/layout_tbl_graph_metro.html\nHenry Beck’s London Underground Map. https://artsandculture.google.com/asset/underground-map-henry-c-beck-london-transport-and-waterlow-sons-ltd/fAHJweSexswKxw?hl=en and\n\nhttps://g.co/arts/UNfBm6QL5kukYm4r9"
+  },
+  {
+    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#references",
+    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#references",
+    "title": "Working with Networks",
+    "section": "References",
+    "text": "References\n\nDmitry Zinoniev, Network Science Intro Slides, https://www.slideshare.net/DmitryZinoviev/workshop-20212296\nMark Newman, The Physics of Networks,Read the PDF\nA Network oriented short story. Frigyes Karinthy, “Chains”. Read PDF\nWho told you about Srishti? Where? Read Mark Granovetter, The Strength of Weak Ties. https://www.cs.cmu.edu/~jure/pub/papers/granovetter73ties.pdf\nPlamen Ch. Ivanov.(30 June 2021) The New Field of Network Physiology: Building the Human Physiolome. https://doi.org/10.3389/fnetp.2021.711778"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/100-AI/60-Convnet/index.html#convolutional-neural-networks",
@@ -7205,7 +7130,7 @@
     "href": "content/courses/MathModelsDesign/Modules/100-AI/listing.html",
     "title": "AI",
     "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n\n\n\n  Working with Neural Nets\n\n\n9 min\n\n\n\n\n\n\n\n\n\nThe Perceptron\n\n\n12 min\n\n\n\n\n\n\n\n\n\nThe Multilayer Perceptron\n\n\n13 min\n\n\n\n\n\n\n\n\n\nMLPs and Backpropagation\n\n\n15 min\n\n\n\n\n\n\n\n\n\nGradient Descent\n\n\n12 min\n\n\n\n\n\n\n\n\n\nAI by Hand\n\n\n12 min\n\n\n\n\n\n\n\n\n\nConvolutional Neural Nets\n\n\n9 min\n\n\n\n\n\n\n\n\n\nLarge Language Models\n\n\n7 min\n\n\n\n\n\n\nNo matching items\n Back to top",
+    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n  Working with Neural Nets\n\n\n9 min\n\n\n\n\n\n\nThe Perceptron\n\n\n12 min\n\n\n\n\n\n\nThe Multilayer Perceptron\n\n\n13 min\n\n\n\n\n\n\nMLPs and Backpropagation\n\n\n15 min\n\n\n\n\n\n\nGradient Descent\n\n\n12 min\n\n\n\n\n\n\nAI by Hand\n\n\n12 min\n\n\n\n\n\n\nConvolutional Neural Nets\n\n\n9 min\n\n\n\n\n\n\nLarge Language Models\n\n\n7 min\n\n\n\n\n\n\nNo matching items\n Back to top",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
@@ -7361,13 +7286,6 @@
     "title": "Working With Chaos",
     "section": "References",
     "text": "References\nWebsites\n\nhttps://openprocessing.org\nhttps://timrodenbroeker.de/processing-or-p5/\nCode References\n\nAnimations, coding, interactives in this video by Jonny Hyman 🙌 Try the code yourself: https://github.com/jonnyhyman/Chaos\n\nPapers\n\nMay, R. Simple mathematical models with very complicated dynamics. Nature 261, 459–467 (1976). https://doi.org/10.1038/261459a0\nRobert Shaw, The Dripping Faucet as a Model Chaotic System https://archive.org/details/ShawRober…\nCrevier DW, Meister M. Synchronous period-doubling in flicker vision of salamander and man. J Neurophysiol. 1998 Apr;79(4):1869-78.\nBing Jia, Huaguang Gu, Li Li, Xiaoyan Zhao. Dynamics of period-doubling bifurcation to chaos in the spontaneous neural firing patterns Cogn Neurodyn (2012) 6:89–106 DOI 10.1007/s11571-011-9184-7\nA Garfinkel, ML Spano, WL Ditto, JN Weiss. Controlling cardiac chaos Science 28 Aug 1992: Vol. 257, Issue 5074, pp. 1230-1235 DOI: 10.1126/science.1519060\nR. M. May, D. M. G. Wishart, J. Bray and R. L. Smith Chaos and the Dynamics of Biological Populations Source: Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences, Vol. 413, No. 1844, Dynamical Chaos (Sep. 8, 1987), pp. 27-44\nChialvo, D., Gilmour Jr, R. & Jalife, J. Low dimensional chaos in cardiac tissue. Nature 343, 653–657 (1990). https://doi.org/10.1038/343653a0\nXujun Ye, Kenshi Sakai. A new modified resource budget model for nonlinear dynamics in citrus production. Chaos, Solitons and Fractals 87 (2016) 51–60\nLibchaber, A. & Laroche, C. & Fauve, Stephan. (1982). Period doubling cascade in mercury, a quantitative measurement. http://dx.doi.org/10.1051/jphyslet:01…. 43. 10.1051/jphyslet:01982004307021100."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/45-Uncertainty/listing.html",
-    "href": "content/courses/MathModelsDesign/Modules/45-Uncertainty/listing.html",
-    "title": "Uncertainty",
-    "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n\n\n\nWorking with Chance\n\n\n1 min\n\n\n\n\n\n\n\n\n\nWorking With Thoughts\n\n\n6 min\n\n\n\n\n\n\n\n\n\nWorking With Chaos\n\n\n2 min\n\n\n\n\n\n\n\n\n\nWorking with Agents\n\n\n1 min\n\n\n\n\n\n\n\n\n\nWorking with Time\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top"
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/45-Uncertainty/50-Thoughts/index.html",
@@ -7663,27 +7581,6 @@
       "Media",
       "Additive Sound Synthesis"
     ]
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html",
-    "title": "Working with Text",
-    "section": "",
-    "text": "Topics that may be covered here: - Text Analysis for Authenticity - Detection of Authorship - Sentiment Analysis"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html#introduction",
-    "title": "Working with Text",
-    "section": "",
-    "text": "Topics that may be covered here: - Text Analysis for Authenticity - Detection of Authorship - Sentiment Analysis"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html#resources",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/40-Text/index.html#resources",
-    "title": "Working with Text",
-    "section": "Resources",
-    "text": "Resources\n\nhttps://worrydream.com/Tangle/ Reactive text documents. Brett Victor( “Worrydream”)"
   },
   {
     "objectID": "content/courses/MathModelsDesign/listing.html#introduction",
@@ -13049,96 +12946,12 @@
     "href": "content/courses/MathModelsDesign/Modules/35-Media/listing.html",
     "title": "Media",
     "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n\n\n\nFourier Series\n\n\n8 min\n\n\n\n\n\n\n\n\n\nAdditive Sound Synthesis\n\n\n9 min\n\n\n\n\n\n\n\n\n\n  FM based Sound Synthesis\n\n\n8 min\n\n\n\n\n\n\n\n\n\n Making Noise Predictably\n\n\n21 min\n\n\n\n\n\n\n\n\n\nWorking With Video\n\n\n1 min\n\n\n\n\n\n\n\n\n\nWorking with Text\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
+    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\nFourier Series\n\n\n8 min\n\n\n\n\n\n\nAdditive Sound Synthesis\n\n\n9 min\n\n\n\n\n\n\n  FM based Sound Synthesis\n\n\n8 min\n\n\n\n\n\n\n Making Noise Predictably\n\n\n21 min\n\n\n\n\n\n\nWorking With Video\n\n\n1 min\n\n\n\n\n\n\nWorking with Text\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
       "Media"
     ]
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html",
-    "title": "Working With Video",
-    "section": "",
-    "text": "We will integrate p5.js with the hydra library to be able to use webcams, add shapes, noise and a whole lot of other things to make our sketches interact with the external world."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html#introduction",
-    "title": "Working With Video",
-    "section": "",
-    "text": "We will integrate p5.js with the hydra library to be able to use webcams, add shapes, noise and a whole lot of other things to make our sketches interact with the external world."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/30-Video/index.html#references",
-    "title": "Working With Video",
-    "section": "References",
-    "text": "References\n\nhydra video synth. https://hydra.ojack.xyz/docs/\nTidal Cycles: Live coding music with Algorithmic patterns. https://tidalcycles.org.\n\nUses Supercollider"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html",
-    "title": "\n FM based Sound Synthesis",
-    "section": "",
-    "text": "So we understand the Fourier Transform: we can express any waveform as a sum of sinusoids that are appropriately weighted and are at discrete multiples of a chosen “fundamental frequency”.\nIn the module Additive Synthesis, we learnt about how a sum of properly tuned and weighted frequency components can be used to synthesize sounds. Here is another approach: of modulating or changing the frequency of a carrier wave to generate a large multiple of harmonic and in-harmonic sidetones to synthesize sound."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#introduction",
-    "title": "\n FM based Sound Synthesis",
-    "section": "",
-    "text": "So we understand the Fourier Transform: we can express any waveform as a sum of sinusoids that are appropriately weighted and are at discrete multiples of a chosen “fundamental frequency”.\nIn the module Additive Synthesis, we learnt about how a sum of properly tuned and weighted frequency components can be used to synthesize sounds. Here is another approach: of modulating or changing the frequency of a carrier wave to generate a large multiple of harmonic and in-harmonic sidetones to synthesize sound."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#inspiration",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#inspiration",
-    "title": "\n FM based Sound Synthesis",
-    "section": "\n Inspiration",
-    "text": "Inspiration\nTo be Found!!"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#what-is-the-frequency-modulation",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#what-is-the-frequency-modulation",
-    "title": "\n FM based Sound Synthesis",
-    "section": "What is the Frequency Modulation?",
-    "text": "What is the Frequency Modulation?\n\nnus &lt;- c(0:5, 10, 20)\n\nx &lt;- seq(0, 40, length.out = 801)\nyl &lt;- c(-.5, 1)\nplot(x, x,\n  ylim = yl, ylab = \"\", type = \"n\",\n  main = \"Bessel Functions  J_nu(x)\"\n)\nabline(h = 0, v = 0, lty = 3)\nfor (nu in nus) lines(x, besselJ(x, nu = nu), col = nu + 2)\nlegend(\"topright\", legend = paste(\"nu=\", nus), col = nus + 2, lwd = 1, bty = \"n\")\n\n\n\n\n\nBessel Functions"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#what-is-fm-based-sound-synthesis",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#what-is-fm-based-sound-synthesis",
-    "title": "\n FM based Sound Synthesis",
-    "section": "What is FM based Sound Synthesis?",
-    "text": "What is FM based Sound Synthesis?"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#design-principles-for-fm-synthesis",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#design-principles-for-fm-synthesis",
-    "title": "\n FM based Sound Synthesis",
-    "section": "Design Principles for FM Synthesis",
-    "text": "Design Principles for FM Synthesis\nWe will follow the Chowning method here."
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#fm-synthesis-with-code",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#fm-synthesis-with-code",
-    "title": "\n FM based Sound Synthesis",
-    "section": "FM Synthesis with Code",
-    "text": "FM Synthesis with Code\n\n\nUsing p5.js\nUsing R"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#wait-but-why",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#wait-but-why",
-    "title": "\n FM based Sound Synthesis",
-    "section": "\n Wait, But Why?",
-    "text": "Wait, But Why?"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/35-Media/16-ModulationSynth/index.html#references",
-    "title": "\n FM based Sound Synthesis",
-    "section": "\n References",
-    "text": "References\n\nJohn Chowning.(September 1973). The Synthesis of Complex Audio Spectra by Means of Frequency Modulation. Journal of the Audio Society. PDF\n\nChapter 4: The Synthesis of Sound by Computer; Section 4.7: FM Synthesis. http://sites.music.columbia.edu/cmc/MusicAndComputers/chapter4/04_07.php\n\n\n\n\n R Package Citations\n\n\n\n\nPackage\nVersion\nCitation\n\n\n\nambient\n1.0.2\nPedersen and Peck (2022)\n\n\ngm\n2.0.0\n(gm?)\n\n\nmosaicCalc\n0.6.4\nKaplan, Pruim, and Horton (2024)\n\n\nplot3D\n1.4.1\nSoetaert (2024)\n\n\n\n\n\n\nKaplan, Daniel T., Randall Pruim, and Nicholas J. Horton. 2024. mosaicCalc: R-Language Based Calculus Operations for Teaching. https://CRAN.R-project.org/package=mosaicCalc.\n\n\nPedersen, Thomas Lin, and Jordan Peck. 2022. ambient: A Generator of Multidimensional Noise. https://CRAN.R-project.org/package=ambient.\n\n\nSoetaert, Karline. 2024. plot3D: Plotting Multi-Dimensional Data. https://CRAN.R-project.org/package=plot3D."
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/35-Media/20-MakingNoise/index.html",
@@ -13471,34 +13284,6 @@
     ]
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html",
-    "title": "Working with Networks",
-    "section": "",
-    "text": "Do you think your friends have more friends than you have? Do you think that you are outside the herd, and that what you think or do is from your own mind?\nAnyways…"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#introduction",
-    "title": "Working with Networks",
-    "section": "",
-    "text": "Do you think your friends have more friends than you have? Do you think that you are outside the herd, and that what you think or do is from your own mind?\nAnyways…"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#activities",
-    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#activities",
-    "title": "Working with Networks",
-    "section": "Activities",
-    "text": "Activities\nActivity-1: Secret Santa Game\nLet us play this in the vanilla way: Paper chits with names in a bin and drawing them in turn. What can go wrong with this?\nShould we use this instead? https://www.drawnames.com.sg/secret-santa-generator\nDiscussion: Nodes, Links, Link Directionality, Connected and Disconnected Networks\nActivity-2: Barabasi Cocktail Party Game\nThis is a game “invented” by Alberto-Laszlo Barabasi, a Network Science pioneer and expert, who has written a wonderful, and wonderfully acessible, book on Network Science, available online http://networksciencebook.com/\nDiscussion: Network Mechanisms, Information Flow, Giant Component,Emergence\nActivity-3: Indian Surnames Game\n\nHow many common India surnames do we know? Let us write them on the board.\nEach of us will now look at each surname and recollect how many people they know with that surname.\nWrite down the score for each surname.\nLet’s plot this on (yet another ) network!!\nTry also to create a map using this website: The Memory Underground https://memoryunderground.com\n\n\nDiscussion: Node Degree, Giant Component?  Small Worlds?  Multi-Link network, Link Values or Costs\nActivity-4: Way-Spotting Game\nNow that we have an idea of nodes, links and costs, let us get an experience of some more network science ideas:\n\nMake groups of 3.\nHead over to http://www.wayspotting.com/index.html\n\nPlay!! Make a note of your route each time ( your “traversal” of the network)\nNote if you can see the following:\n\n\n\nFrequently Used Nodes\nFrequently used Links\n\n\n\nSee here for more info: https://medium.com/@ran_katzir/teaching-network-science-using-board-games-f78489a3b3bd\n\n\nDiscussion: Network Traversal, Node Degree, Centrality, Betweenness, Link Values or Costs\nActivity-5: Hi, I am Kevin Bacon, SMI Foundation 2022 Batch\nLet us find a Keven Bacon in SMI Foundation Studies Programme!!\n\nCollect friends Data from across college/class, import and plot, analyze and comment\nUse this online tool at DataBasic.io https://databasic.io to Connect the Dots, OR\nEven more fun at at GraphCommons https://graphcommons.com/graphs/new\n\n\nDiscussion: Node Degree, Centrality, Betweenness, Link Values or Costs\nActivity-6: Can you Introduce me to Chandler, again?\n\nTake your favourite Literary Work / TV Serial / Movie and create a Network Database for it.\nVisualize it either with or without tech tools From Teach Engineering, this Activity Sheet https://www.teachengineering.org/activities/view/uno_graphtheory_lesson01_activity2\n\nCan also use Graph Comicshttps://aviz.fr/~bbach/graphcomics/\n\n\nDiscussion: Networks are everywhere, Cannot \"unsee\" them, You are a node and you are a link..are you?\nActivity-7: Why are all Metro Maps at 45 degrees?\n\nhttps://artsandculture.google.com/asset/the-tate-gallery-by-tube-david-booth/PAG-Gx_SV2jNiw?hl=en\nhttps://search.r-project.org/CRAN/refmans/ggraph/html/layout_tbl_graph_metro.html\nHenry Beck’s London Underground Map. https://artsandculture.google.com/asset/underground-map-henry-c-beck-london-transport-and-waterlow-sons-ltd/fAHJweSexswKxw?hl=en and\n\nhttps://g.co/arts/UNfBm6QL5kukYm4r9"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/55-Connections/10-GraphNetworks/index.html#references",
-    "title": "Working with Networks",
-    "section": "References",
-    "text": "References\n\nDmitry Zinoniev, Network Science Intro Slides, https://www.slideshare.net/DmitryZinoviev/workshop-20212296\nMark Newman, The Physics of Networks,Read the PDF\nA Network oriented short story. Frigyes Karinthy, “Chains”. Read PDF\nWho told you about Srishti? Where? Read Mark Granovetter, The Strength of Weak Ties. https://www.cs.cmu.edu/~jure/pub/papers/granovetter73ties.pdf\nPlamen Ch. Ivanov.(30 June 2021) The New Field of Network Physiology: Building the Human Physiolome. https://doi.org/10.3389/fnetp.2021.711778"
-  },
-  {
     "objectID": "content/courses/MathModelsDesign/Modules/05-Maths/20-Vectors/index.html#references",
     "href": "content/courses/MathModelsDesign/Modules/05-Maths/20-Vectors/index.html#references",
     "title": "\n Vectors",
@@ -13628,96 +13413,12 @@
     "href": "content/courses/MathModelsDesign/Modules/25-Geometry/listing.html",
     "title": "Geometry",
     "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n\n\n\n  Circles\n\n\n25 min\n\n\n\n\n\n\n\n\n\n  Iterated Functions\n\n\n7 min\n\n\n\n\n\n\n\n\n\n  Affine Transformation Fractals\n\n\n16 min\n\n\n\n\n\n\n\n\n\n  Chaos Games\n\n\n7 min\n\n\n\n\n\n\n\n\n\nL-Systems\n\n\n13 min\n\n\n\n\n\n\n\n\n\nKolams and Lusona\n\n\n4 min\n\n\n\n\n\n\n\n\n\nNon-Euclidean Geometry\n\n\n37 min\n\n\n\n\n\n\n\n\n\n Complex Numbers\n\n\n6 min\n\n\n\n\n\n\n\n\n\nNon-Euclidean Geometry\n\n\n37 min\n\n\n\n\n\n\n\n\n\nFractals\n\n\n9 min\n\n\n\n\n\n\n\n\n\nGenerative Art in R\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
+    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n  Circles\n\n\n25 min\n\n\n\n\n\n\n Complex Numbers\n\n\n6 min\n\n\n\n\n\n\nFractals\n\n\n9 min\n\n\n\n\n\n\n  Iterated Functions\n\n\n7 min\n\n\n\n\n\n\n  Affine Transformation Fractals\n\n\n16 min\n\n\n\n\n\n\n  Chaos Games\n\n\n7 min\n\n\n\n\n\n\nL-Systems\n\n\n13 min\n\n\n\n\n\n\nKolams and Lusona\n\n\n4 min\n\n\n\n\n\n\nNon-Euclidean Geometry\n\n\n37 min\n\n\n\n\n\n\nNon-Euclidean Geometry\n\n\n37 min\n\n\n\n\n\n\nGenerative Art\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
       "Geometry"
     ]
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html",
-    "title": "Non-Euclidean Geometry",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nHyperbolic Geometry\n\n\n# devtools::install_github(\"https://github.com/AdamRahman/sdpt3r\")\n# devtools::install_github(\"https://github.com/stla/PlaneGeometry\")\nlibrary(PlaneGeometry)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#introduction",
-    "title": "Non-Euclidean Geometry",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nHyperbolic Geometry\n\n\n# devtools::install_github(\"https://github.com/AdamRahman/sdpt3r\")\n# devtools::install_github(\"https://github.com/stla/PlaneGeometry\")\nlibrary(PlaneGeometry)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#elliptical-steiner-chain",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#elliptical-steiner-chain",
-    "title": "Non-Euclidean Geometry",
-    "section": "Elliptical Steiner chain",
-    "text": "Elliptical Steiner chain\nBy applying an affine transformation to a Steiner chain, we can get an elliptical Steiner chain.\n\nc0 &lt;- Circle$new(c(3, 0), 3) # exterior circle\ncircles &lt;- SteinerChain(c0, 3, -0.2, 0.5)\n# take an ellipse\nell &lt;- Ellipse$new(c(-4, 0), 4, 2.5, 140)\n# take the affine transformation which maps the exterior circle to this ellipse\nf &lt;- AffineMappingEllipse2Ellipse(c0, ell)\n# take the images of the Steiner circles by this transformation\nellipses &lt;- lapply(circles, f$transformEllipse)\n\n\nopar &lt;- par(mar = c(0, 0, 0, 0))\nplot(NULL,\n  asp = 1, xlim = c(-8, 6), ylim = c(-4, 4),\n  xlab = NA, ylab = NA, axes = FALSE\n)\n# draw the Steiner chain\ninvisible(lapply(circles, draw, lwd = 2, col = \"blue\"))\ndraw(c0, lwd = 2)\n# draw the elliptical Steiner chain\ninvisible(lapply(ellipses, draw, lwd = 2, col = \"red\", border = \"forestgreen\"))\ndraw(ell, lwd = 2, border = \"forestgreen\")\n\n\n\n\n\n\npar(opar)\n\nHere is how I got the animation below, by varying the shift parameter of the Steiner chain.\n\nlibrary(gifski)\n\nc0 &lt;- Circle$new(c(3, 0), 3)\nell &lt;- Ellipse$new(c(-4, 0), 4, 2.5, 140)\nf &lt;- AffineMappingEllipse2Ellipse(c0, ell)\n\nfplot &lt;- function(shift) {\n  circles &lt;- SteinerChain(c0, 3, -0.2, shift)\n  ellipses &lt;- lapply(circles, f$transformEllipse)\n  opar &lt;- par(mar = c(0, 0, 0, 0))\n  plot(NULL,\n    asp = 1, xlim = c(-8, 0), ylim = c(-4, 4),\n    xlab = NA, ylab = NA, axes = FALSE\n  )\n  invisible(lapply(ellipses, draw, lwd = 2, col = \"blue\", border = \"black\"))\n  draw(ell, lwd = 2)\n  par(opar)\n  invisible()\n}\n\nshift_ &lt;- seq(0, 3, length.out = 100)[-1L]\n\nsave_gif(\n  for (shift in shift_) {\n    fplot(shift)\n  },\n  \"SteinerChainElliptical.gif\",\n  512, 512, 1 / 12,\n  res = 144\n)"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#nested-steiner-chains",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#nested-steiner-chains",
-    "title": "Non-Euclidean Geometry",
-    "section": "Nested Steiner chains",
-    "text": "Nested Steiner chains\nWe can choose the exterior circle of the Steiner chain. Therefore, given a circle of a Steiner chain, we can nest another Steiner chain in this circle.\n\nc0 &lt;- Circle$new(c(3, 0), 3) # exterior circle\ncircles &lt;- SteinerChain(c0, 3, -0.2, 0.5)\n# Steiner chain for each circle, except the small one (it is too small)\nchains &lt;- lapply(circles[1:3], function(c0) {\n  SteinerChain(c0, 3, -0.2, 0.5)\n})\n\n\nopar &lt;- par(mar = c(0, 0, 0, 0))\nplot(NULL,\n  asp = 1, xlim = c(0, 6), ylim = c(-4, 4),\n  xlab = NA, ylab = NA, axes = FALSE\n)\n# draw the big Steiner chain\ninvisible(lapply(circles, draw, lwd = 2, border = \"blue\"))\ndraw(c0, lwd = 2)\n# draw the nested Steiner chain\ninvisible(lapply(chains, function(circles) {\n  lapply(circles, draw, lwd = 2, border = \"red\")\n}))\n\n\n\n\n\n\npar(opar)\n\nOf course you can also nest elliptical Steiner chains, and animate the picture!"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/70-NonEuclidean/index.html#references",
-    "title": "Non-Euclidean Geometry",
-    "section": "References",
-    "text": "References\n\nMark Liu.(2015). Non-Euclidean Pattern Making. https://www.drmarkliu.com/noneuclidean\nhttps://fablab.ruc.dk/interactive-maps/\nhttps://fablab.ruc.dk/tag/learn/\nProjection Mapping Library for p5.js. https://github.com/jdeboi/p5.mapper\nDavid Bouchard’s (Java) Processing Keystone Library. http://keystonep5.sourceforge.net/\nJenny Louthan, projection transform algorithms. https://github.com/jlouthan/perspective-transform\np5.js + OSC protocol. https://github.com/genekogan/p5js-osc\n\nAdditional Readings\n\nCracked: 6 TV Shows That Put Insane Work Into Details Nobody Noticed. https://www.cracked.com/article_21544_6-tv-shows-that-put-insane-work-into-details-nobody-noticed.html\nMark Liu. (2016). Why STEM subjects and fashion design go hand in hand. https://theconversation.com/why-stem-subjects-and-fashion-design-go-hand-in-hand-63649"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html",
-    "title": "\n Chaos Games",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nIterated Function Systems and Fractals\n\nSymmetries in Space\n\nL Systems, Mandalas and Kolams\n\nLogistic Functions\n\nProjections"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#introduction",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#introduction",
-    "title": "\n Chaos Games",
-    "section": "",
-    "text": "Topics that may be covered here:\n\nIterated Function Systems and Fractals\n\nSymmetries in Space\n\nL Systems, Mandalas and Kolams\n\nLogistic Functions\n\nProjections"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#inspiration",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#inspiration",
-    "title": "\n Chaos Games",
-    "section": "\n Inspiration",
-    "text": "Inspiration\n\nAnd how about this? Click anywhere on the canvas to restart the graphic and see what happens!\n\n\nSo let us see how we can construct this algorithmically, the different parts of it. And of course why we should bother!"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#what-is-an-iterated-function",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#what-is-an-iterated-function",
-    "title": "\n Chaos Games",
-    "section": "What is an Iterated Function?",
-    "text": "What is an Iterated Function?\nWell, we know what a function is don’t we? A relationship between numbers. One varies as the others, and the relationship is specified by the function. E.g. \\(y = \\sin(x)\\).\nSo what is iteration then, and how do you do that to a function? It is applying the same function over and over again, by piping the results of the previous step i.e. iteration back into the function. Let us hear from Ron Eglash, the author of African Fractals: Modern Computing and Indigenous Design"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#some-examples-of-iterated-functions",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#some-examples-of-iterated-functions",
-    "title": "\n Chaos Games",
-    "section": "Some Examples of Iterated Functions",
-    "text": "Some Examples of Iterated Functions"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#wait-but-why",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#wait-but-why",
-    "title": "\n Chaos Games",
-    "section": "\n Wait, But Why?",
-    "text": "Wait, But Why?"
-  },
-  {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#references",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/44-ChaosGames/index.html#references",
-    "title": "\n Chaos Games",
-    "section": "\n References",
-    "text": "References\n\n\n\n\n\n\n R Package Citations\n\n\n\n\nPackage\nVersion\nCitation\n\n\n\nambient\n1.0.2\nPedersen and Peck (2022)\n\n\nmosaicCalc\n0.6.4\nKaplan, Pruim, and Horton (2024)\n\n\nplot3D\n1.4.1\nSoetaert (2024)\n\n\n\n\n\n\nKaplan, Daniel T., Randall Pruim, and Nicholas J. Horton. 2024. mosaicCalc: R-Language Based Calculus Operations for Teaching. https://CRAN.R-project.org/package=mosaicCalc.\n\n\nPedersen, Thomas Lin, and Jordan Peck. 2022. ambient: A Generator of Multidimensional Noise. https://CRAN.R-project.org/package=ambient.\n\n\nSoetaert, Karline. 2024. plot3D: Plotting Multi-Dimensional Data. https://CRAN.R-project.org/package=plot3D."
   },
   {
     "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/42-AffineFractals/index.html",
@@ -13824,18 +13525,11 @@
     ]
   },
   {
-    "objectID": "content/courses/MathModelsDesign/Modules/25-Geometry/200-Art/index.html",
-    "href": "content/courses/MathModelsDesign/Modules/25-Geometry/200-Art/index.html",
-    "title": "Generative Art in R",
-    "section": "",
-    "text": "https://github.com/cutterkom/generativeart\nhttps://youtu.be/h0i6KAahLY8?si=aVTOqtSoQ6YJdBvk\n\n\n\n Back to top"
-  },
-  {
     "objectID": "content/courses/MathModelsDesign/Modules/500-Tech/listing.html",
     "href": "content/courses/MathModelsDesign/Modules/500-Tech/listing.html",
     "title": "Tools and Tech",
     "section": "",
-    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\nTools and Installation\n\n\n2 min\n\n\n\n\n\n\nThe Open Sound Protocol\n\n\n1 min\n\n\n\n\n\n\nAdding Libraries to p5.js\n\n\n1 min\n\n\n\n\n\n\nUsing Constructor Objects in p5.js\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
+    "text": "Title\n\n\n\nReading Time\n\n\n\n\n\n\n\n\nTools and Installation\n\n\n2 min\n\n\n\n\n\n\nAdding Libraries to p5.js\n\n\n1 min\n\n\n\n\n\n\nUsing Constructor Objects in p5.js\n\n\n1 min\n\n\n\n\n\n\nNo matching items\n Back to top",
     "crumbs": [
       "Teaching",
       "Math Models for Creative Coders",
