@@ -251,7 +251,7 @@ df %>% plot_ly(x = ~x, y = ~y, z = ~z, color = ~z,
 
 As we stated earlier, error is calculated at the output. In order to adapt **all weights**, we need to *send error proportionately back along the network*, towards the input. This proportional error will enable will give us a basis to adapt the individual weights anywhere in the network. 
 
-What does "proportional" mean here? Consider the diagrams below:
+What does "proportional" mean here? Consider the diagram below:
 
 
 ```{d2}
@@ -395,7 +395,7 @@ $$
 :::
 ::::
 
-
+These are the contributions of the error $e_{12}$ to each of the previous neurons. 
 
 Another way of looking at this:
 
@@ -501,9 +501,19 @@ layer-1.1 <-> layer-2.h3: W13 {
   }
 }
 layer-1.2 -> layer-2.h1
-layer-1.2 -> layer-2.h2
+layer-1.2 -> layer-2.h2{
+  source-arrowhead.label: e21
+  style: {
+    font-size: 45
+  }
+}
 layer-1.2 -> layer-2.h3
-layer-1.3 -> layer-2.h1
+layer-1.3 -> layer-2.h1{
+  source-arrowhead.label: e31
+  style: {
+    font-size: 45
+  }
+}
 layer-1.3 -> layer-2.h2
 layer-1.3 -> layer-2.h3
 
@@ -520,9 +530,9 @@ layer-2.h3 ->layer-3.e32  { style: {stroke-width:9
 ::: {.column width=48%}
 $$
 \begin{align}
-e_{11} =~ e_{21} * \frac{W_{11}}{Sum~of~weights~to~{\color{orange}{\pmb {h_1}}}}\\
+e_{11} =~ e_{12} * \frac{W_{11}}{Sum~of~weights~to~{\color{orange}{\pmb {h_1}}}}\\
 + ~ e_{22} * \frac{W_{21}}{Sum~of~Weights~to~\color{pink}{\pmb{h_2}}} \\
-+ ~ e_{23} * \frac{W_{31}}{Sum~of~Weights~to~\color{teal}{\pmb{h_3}}}  \\
++ ~ e_{32} * \frac{W_{31}}{Sum~of~Weights~to~\color{teal}{\pmb{h_3}}}  \\
 \end{align}
 $$
 :::
@@ -532,26 +542,28 @@ $$
 $$
 \begin{align}
 e_{11} = ~ e_{12} * \frac{W_{11}}{\pmb{\color{orange}{W_{11} + W_{21} + W_{31}}}}\\
-+ e_{22} * \frac{W_{12}}{\pmb{\color{pink}{W_{12} + W_{22} + W_{32}}}} \\
-+ e_{32} * \frac{W_{13}}{\pmb{\color{teal}{W_{13} + W_{23} + W_{33}}}}  \\
++ ~e_{22} * \frac{W_{12}}{\pmb{\color{pink}{W_{12} + W_{22} + W_{32}}}} \\
++ ~e_{32} * \frac{W_{13}}{\pmb{\color{teal}{W_{13} + W_{23} + W_{33}}}}  \\
 \end{align}
 $$
 
 
 $$
 \begin{align}
-e_{12} = similar~expression!!\\
+e_{21} = similar~expression!!\\
 \
-e_{13} = similar~expression!!\\
+e_{31} = similar~expression!!\\
 \end{align}
 $$
 :::
 ::::
 
-- We have taken one output error, $e_{12}$ and parcelled it back to the preceding neurons ***in proportion to their connecting Weights***. This makes intuitive sense; we are making those neurons put their money where their mouth is. As [Nassim Nicholas Taleb](https://philosophiatopics.wordpress.com/wp-content/uploads/2018/10/skin-in-the-game-nassim-nicholas-taleb.pdf) says, people (and neurons!) need to pay for their opinions, especially when things go wrong!
+[Equation corrected by Gayatri Jadhav April 2025]{.aside}
 
+This is the ***total error*** at $e_{11}$ from all the three output errors. So:
+
+- We have taken each output error, $e_{*2}$ and parcelled it back to the preceding neurons ***in proportion to the connecting Weight***. This makes intuitive sense; we are making those neurons put their money where their mouth is. As [Nassim Nicholas Taleb](https://philosophiatopics.wordpress.com/wp-content/uploads/2018/10/skin-in-the-game-nassim-nicholas-taleb.pdf) says, people (and neurons!) need to pay for their opinions, especially when things go wrong!
 - The *accumulated error* at each neuron in layer $l-1$ is the weighted sum of back-propagated error contributions from all layer $l$ neurons to which we are connected. 
-
 - So we can compactly write the relationships above as:
 
 $$
@@ -594,10 +606,12 @@ W_{31} & W_{32} & W_{33} \\
 \end{bmatrix}
 $$
 
-[This new *approximate* matrix is the **tranpose** of our original Weight matrix]{.black .bg-light-red} from @eq-fwd-prop-1! The rows there have become columns here!!
+[This new *approximate* matrix is the **tranpose** of our original Weight matrix]{.black .bg-light-red} from @eq-fwd-prop-1! The rows there have become columns here!! That makes intuitive sense: in the forward information direction, we were accounting for information from the point of view of the ***destinations***; in the reverse error backpropagation direction, we are accounting for information from the point of view of the ***sources***.
+
+Writing this equation in a compact way:
 
 $$
-e^{l-1} ~ \pmb{\sim} ~ {W^l}^{\pmb{\color{red}{T}}}* e^{l}
+\Large{e^{l-1} ~ \pmb{\sim} ~ {W^l}^{\pmb{\color{red}{T}}}* e^{l}}
 $${#eq-Back-Prop}
 
 This is our equation for backpropagation of error. 
