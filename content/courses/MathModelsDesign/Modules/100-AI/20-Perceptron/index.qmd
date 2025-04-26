@@ -142,30 +142,48 @@ other neurons inside the neural network.
 
 ![Perceptron](../../../../../materials/images/png/Neurons.png){height="360"}
 
+
 #### Math Intuition
 
 -   We can imagine this as a set of inputs that *averaged in weighted
     fashion*.
 
 $$
-y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
-$$
+y_k = sign~(~\sum_{k=1}^n W_k*x_k + b~)
+$${#eq-perceptron}
 
 -   Since the inputs are added with linear weighting, this effectively
     acts like a **linear transformation** of the input data.
-    -   A linear equation of this sort is the [equation of an
-        n-dimensional
-        plane](https://www.geeksforgeeks.org/equation-of-plane/).
+    -   A linear equation of this sort is the [general equation of an
+        n-dimensional plane](https://www.geeksforgeeks.org/equation-of-plane/).
     -   If we imagine the input as representing the n-coordinates in a
         plane, then the multiplications scale/stretch/compress the
         plane, like a rubber sheet. (But do not **fold it**.)
-    -   If there were only 2 inputs, we could mentally picture this.
+    -   If there were only 2 inputs, we could mentally picture this with a handkerchief.
 -   More metaphorically, it seems like the neuron is consulting each of
     the inputs, asking for their opinion, and then making a decision by
     attaching *different amounts of significance* to each opinion.
 -   The Structure should remind you of [Linear
     Regression](../../../../Analytics/Modelling/Modules/LinReg/index.qmd)
     !
+
+So how does it work? Consider the interactive diagram below:
+
+<iframe height=480 width=680
+src="https://editor.p5js.org/arvindv/full/qx7rMp3RI">
+</iframe>
+
+- The coordinate axes are as shown [X]{.red}, [Y]{.green}, and [Z]{.blue} 
+
+- The [grey]{.black .bg-gray} and [yellow]{.black .bg-yellow} points are the data we wish to classify into two categories, unsurprisingly "yellow" and grey".
+- The [Weight vector]{.black .bg-red} line is a vector of all the weights in the Perceptron. 
+
+- Now, as per the [point-normal form of an n-dimensional plane](https://www.geeksforgeeks.org/equation-of-plane/), the multiplication of the input data with the weight vector is like taking a ***vector dot product*** ( aka inner product) ! And: every point on the plane has a dot product of ZERO. See the [purple vector]{.bg-purple} which is **normal** to the Weight vector: its dot product with the Weight vector is zero. 
+- Data points that are off this "normal plane" in either direction (above and below) will have dot-products which will be positive or negative depending upon the direction!
+- Hence we can use the dot-product POLARITY to decide if a point is above or below the plane defined by the Weight vector. Which is what is done in the threshold-based activation!
+- The bias $b$ defines the POSITION of the plane; and the Weights define the direction. Together, they classify the points based on the @eq-perceptron. 
+- Try to move the slider to get an intuition of how the plane moves with the bias.  Clearly, the bias is very influential in deciding the POLARITY of the dot-products. When it aligns with the purple vector ($dot product = 0$), it works best. 
+
 
 #### Why "Linear"?
 
@@ -191,81 +209,6 @@ Why are (almost) all operations linear operations in a NN?
 -   The *bias* is like a threshold which the weighted sum has to exceed;
     if it does, the neuron is said to **fire**.
 
-#### What is the Activation Block?
-
--   We said earlier that the weighting and adding is a linear operation.
--   While this is great, simple linear translations of data are not
-    capable of generating what we might call learning or generalization
-    ability.
--   We need to have some non-linear block to allow the data to create
-    nonlinear transformations of the data space, such as *curving it, or
-    folding it, or creating bumps, depressions, twists*, and so on.
-
-![Activation](../../../../../materials/images/png/Activation_Functions.png){height="360"}
-
--   This nonlinear function needs to be chosen with care so that it is
-    both differentiable and keeps the math analysis tractable. (More
-    later)
--   Such a nonlinear mathematical function is implemented in the
-    **Activation Block**.
--   See this example: red and blue areas, which we wish to **separate
-    and classify these** with our DLNN, are not separable unless we fold
-    and curve our 2D data space.
--   The separation is achieved using a linear operation, i.e. a LINE!!
-
-![From [Colah
-Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif),
-used sadly without
-permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
-
--   For instance in @fig-manifolds-and-neural-networks, no amount of
-    stretching or compressing of the surface can separate the two sets (
-    blue and red ) using a line or plane, **unless** the surface can be
-    warped into **another dimension** by folding.
-
-#### What is the Sigmoid Function?
-
-So how do we implement this nonlinear Activation Block?
-
--   One of the popular functions used in the Activation Block is a
-    function based on the exponential function $e^x$.
--   Why? Because this function retains is identity when differentiated!
-    This is a very convenient property!
-
-![Sigmoid
-Activation](../../../../../materials/images/png/Sigmoid.png){height="360"}
-
-::: callout-note
-#### Remembering Logistic Regression
-
-Recall your study of [Logistic
-Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd).
-There, the Sigmoid function was used to model the odds of the
-(Qualitative) target variable against the (Quantitative) predictor.
-:::
-
-::: callout-note
-#### But Why Sigmoid?
-
-Because [the Sigmoid function is
-differentiable](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x).
-And linear in the mid ranges. Oh, and remember the [Chain
-Rule](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions)?
-
-$$
-\begin{align}
-\frac{df(x)}{dx}
-&= \frac{d}{dx} * \frac{1}{1 + e^{-x}} \\\
-&= -(1 + e^{-x})^{-2} * \frac{d}{dx}(1 + e^{-x})~~\text{(Using Chain Rule)}\\
-&= -(1 + e^{-x})^{-2} * (-e^{-x})\\
-&=  \frac{e^{-x}}{(1 + e^{-x})^{2}}\\
-&= \frac{(1 + e^{-x}) -1}{(1 + e^{-x})^{2}}\\
-&= \frac{1}{1 + e^{-x}} * \Bigg({\frac{1 + e^{-x}}{1 + e^{-x}}} - \frac{1}{1 + e^{-x}}\Bigg)\\\
-&\text{ and therefore}\\\
-\Large{\frac{df(x)}{dx}} &= \Large{f(x) * (1 - f(x))}\\
-\end{align}
-$$
-:::
 
 So with all that vocabulary, we *might* want to watch this longish video
 by the great Dan Shiffman:

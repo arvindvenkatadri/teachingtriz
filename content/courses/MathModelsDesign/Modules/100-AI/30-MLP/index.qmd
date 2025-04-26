@@ -143,6 +143,10 @@ knitr::include_graphics("featured.jpg")
 This was our bare bones Perceptron, or neuron as we will refer to it
 henceforth:
 
+$$
+y_k = sign~(~\sum_{k=1}^n W_k*x_k + b~)
+$$
+
 ```{d2}
 direction: right
 grid-gap: 10
@@ -191,8 +195,123 @@ act -> out
 
 ```
 
-<br> We add (one or more ) **hidden layers** to setup a *Multilayer
-Perceptron*:
+
+For the multi-layer perceptron, two changes were made:
+
+- Changing the hard-threshold activation into a more soft sigmoid activation
+
+- addition of (one or more ) **hidden layers**.
+
+Let us discuss these changes in detail. 
+
+#### What is the Activation Block?
+
+-   We said earlier that the weighting and adding is a linear operation.
+-   While this is great, simple linear translations of data are not
+    capable of generating what we might call learning or generalization
+    ability.
+-   The outout of the perceptron is a "learning decision" that is made by deciding if the combined output is greater or smaller than a ***threshold***. 
+-   We need to have some non-linear block to allow the data to create
+    nonlinear transformations of the data space, such as *curving it, or
+    folding it, or creating bumps, depressions, twists*, and so on.
+
+![Activation](../../../../../materials/images/png/Activation_Functions.png){height="360"}
+
+-   This nonlinear function needs to be chosen with care so that it is
+    both differentiable and keeps the math analysis tractable. (More
+    later)
+-   Such a nonlinear mathematical function is implemented in the
+    **Activation Block**.
+-   See this example: red and blue areas, which we wish to **separate
+    and classify these** with our DLNN, are not separable unless we fold
+    and curve our 2D data space.
+-   The separation is achieved using a linear operation, i.e. a LINE!!
+
+![From [Colah
+Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif),
+used sadly without
+permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
+
+-   For instance in @fig-manifolds-and-neural-networks, no amount of
+    stretching or compressing of the surface can separate the two sets (
+    blue and red ) using a line or plane, **unless** the surface can be
+    warped into **another dimension** by folding.
+    
+
+#### What is the Sigmoid Function?
+
+The hard-threshold used in the [Perceptron](../20-Perceptron/index.qmd) allowed us to make certain decisions based on **linear combinations** of the input data. But what is the dataset possesses *classes* that are not separable in a linear way? What if different categories of points are intertwined with a curved boundary between classes?
+
+We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as *curving it, or folding it, or creating bumps, depressions, twists*, and so on. 
+
+![Activation](../../../../../materials/images/png/Activation_Functions.png){height="360"}
+
+-   This nonlinear function needs to be chosen with care so that it is
+    both differentiable and keeps the math analysis tractable. (More
+    later)
+-   Such a nonlinear mathematical function is implemented in the
+    **Activation Block**.
+-   See this example: red and blue areas, which we wish to **separate
+    and classify these** with our DLNN, are not separable unless we fold
+    and curve our 2D data space.
+-   The separation is achieved using a linear operation, i.e. a LINE!!
+
+![From [Colah
+Blog](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif),
+used sadly without
+permission](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif){#fig-manifolds-and-neural-networks}
+
+-   For instance in @fig-manifolds-and-neural-networks, no amount of
+    stretching or compressing of the surface can separate the two sets (
+    blue and red ) using a line or plane, **unless** the surface can be
+    warped into **another dimension** by folding.
+
+So how do we implement this nonlinear Activation Block?
+
+-   One of the popular functions used in the Activation Block is a
+    function based on the exponential function $e^x$.
+-   Why? Because this function retains is identity when differentiated!
+    This is a very convenient property!
+
+![Sigmoid
+Activation](../../../../../materials/images/png/Sigmoid.png){height="360"}
+
+::: callout-note
+#### Remembering Logistic Regression
+
+Recall your study of [Logistic
+Regression](../../../../Analytics/Modelling/Modules/LogReg/index.qmd).
+There, the Sigmoid function was used to model the odds of the
+(Qualitative) target variable against the (Quantitative) predictor.
+:::
+
+::: callout-note
+#### But Why Sigmoid?
+
+Because [the Sigmoid function is
+differentiable](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x).
+And linear in the mid ranges. Oh, and remember the [Chain
+Rule](https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions)?
+
+$$
+\begin{align}
+\frac{df(x)}{dx}
+&= \frac{d}{dx} * \frac{1}{1 + e^{-x}} \\\
+&= -(1 + e^{-x})^{-2} * \frac{d}{dx}(1 + e^{-x})~~\text{(Using Chain Rule)}\\
+&= -(1 + e^{-x})^{-2} * (-e^{-x})\\
+&=  \frac{e^{-x}}{(1 + e^{-x})^{2}}\\
+&= \frac{(1 + e^{-x}) -1}{(1 + e^{-x})^{2}}\\
+&= \frac{1}{1 + e^{-x}} * \Bigg({\frac{1 + e^{-x}}{1 + e^{-x}}} - \frac{1}{1 + e^{-x}}\Bigg)\\\
+&\text{ and therefore}\\\
+\Large{\frac{df(x)}{dx}} &= \Large{f(x) * (1 - f(x))}\\
+\end{align}
+$$
+:::
+
+
+#### What are Hidden Layers?
+
+The MLP adds several layers of perceptrons, in **layers**, as shown below:
 
 ```{d2}
 title: Multilayer Perceptron {
@@ -524,6 +643,15 @@ $$
 $$
 a^l_j=σ(\sum_kW^l_{jk} * a^{l−1}_k+b^l_j)
 $$ {#eq-forward-prop}
+
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?
+
+- The "vanilla" perceptron was big advance in AI and learning. However, it was realized that this can only make classification decisions with data that are [linearly separable](https://www.wikiwand.com/en/articles/Linear_separability).
+- Including a differentiable non-linearity in the activation block allows us to deform the coordinate space in which the data points are mapped.
+- This deformation may permit unique views of the data wherein the categories of data are separable by an n-dimensional plane. 
+- This idea is also used in a machine learning algorithm called [Support Vector Machines.](../../../../ML4Artists/Modules/35-SVM/index.qmd)
+
 
 ## MLPs in Code
 

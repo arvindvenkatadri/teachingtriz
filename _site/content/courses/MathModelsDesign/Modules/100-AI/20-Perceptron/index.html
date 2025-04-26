@@ -1481,7 +1481,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">April 9, 2025</p>
+      <p class="date-modified">April 26, 2025</p>
     </div>
   </div>
     
@@ -1501,19 +1501,32 @@ window.Quarto = {
 <ul>
 <li>We can imagine this as a set of inputs that <em>averaged in weighted fashion</em>.</li>
 </ul>
-<p><span class="math display">\[
-y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
-\]</span></p>
+<p><span id="eq-perceptron"><span class="math display">\[
+y_k = sign~(~\sum_{k=1}^n W_k*x_k + b~)
+\tag{1}\]</span></span></p>
 <ul>
 <li>Since the inputs are added with linear weighting, this effectively acts like a <strong>linear transformation</strong> of the input data.
 <ul>
-<li>A linear equation of this sort is the <a href="https://www.geeksforgeeks.org/equation-of-plane/">equation of an n-dimensional plane</a>.</li>
+<li>A linear equation of this sort is the <a href="https://www.geeksforgeeks.org/equation-of-plane/">general equation of an n-dimensional plane</a>.</li>
 <li>If we imagine the input as representing the n-coordinates in a plane, then the multiplications scale/stretch/compress the plane, like a rubber sheet. (But do not <strong>fold it</strong>.)</li>
-<li>If there were only 2 inputs, we could mentally picture this.</li>
+<li>If there were only 2 inputs, we could mentally picture this with a handkerchief.</li>
 </ul>
 </li>
 <li>More metaphorically, it seems like the neuron is consulting each of the inputs, asking for their opinion, and then making a decision by attaching <em>different amounts of significance</em> to each opinion.</li>
 <li>The Structure should remind you of <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LinReg/index.html">Linear Regression</a> !</li>
+</ul>
+<p>So how does it work? Consider the interactive diagram below:</p>
+<iframe height="480" width="680" src="https://editor.p5js.org/arvindv/full/qx7rMp3RI">
+</iframe>
+<ul>
+<li><p>The coordinate axes are as shown <span class="red">X</span>, <span class="green">Y</span>, and <span class="blue">Z</span></p></li>
+<li><p>The <span class="black bg-gray">grey</span> and <span class="black bg-yellow">yellow</span> points are the data we wish to classify into two categories, unsurprisingly “yellow” and grey”.</p></li>
+<li><p>The <span class="black bg-red">Weight vector</span> line is a vector of all the weights in the Perceptron.</p></li>
+<li><p>Now, as per the <a href="https://www.geeksforgeeks.org/equation-of-plane/">point-normal form of an n-dimensional plane</a>, the multiplication of the input data with the weight vector is like taking a <strong><em>vector dot product</em></strong> ( aka inner product) ! And: every point on the plane has a dot product of ZERO. See the <span class="bg-purple">purple vector</span> which is <strong>normal</strong> to the Weight vector: its dot product with the Weight vector is zero.</p></li>
+<li><p>Data points that are off this “normal plane” in either direction (above and below) will have dot-products which will be positive or negative depending upon the direction!</p></li>
+<li><p>Hence we can use the dot-product POLARITY to decide if a point is above or below the plane defined by the Weight vector. Which is what is done in the threshold-based activation!</p></li>
+<li><p>The bias <span class="math inline">\(b\)</span> defines the POSITION of the plane; and the Weights define the direction. Together, they classify the points based on the <a href="#eq-perceptron" class="quarto-xref">Equation&nbsp;1</a>.</p></li>
+<li><p>Try to move the slider to get an intuition of how the plane moves with the bias. Clearly, the bias is very influential in deciding the POLARITY of the dot-products. When it aligns with the purple vector (<span class="math inline">\(dot product = 0\)</span>), it works best.</p></li>
 </ul></section><section id="why-linear" class="level4"><h4 class="anchored" data-anchor-id="why-linear">Why “Linear”?</h4>
 <p>Why are (almost) all operations linear operations in a NN?</p>
 <ul>
@@ -1526,81 +1539,7 @@ y_k = sigmoid~(~\sum_{k=1}^n W_k*x_k + b~)
 <li>We want the weighted sum of the inputs to <em>mean something</em> significant, before we accept it.</li>
 <li>The bias is <em>subtracted</em> from the weighted sum of inputs, and the bias input could also (notionally) have a weight.</li>
 <li>The <em>bias</em> is like a threshold which the weighted sum has to exceed; if it does, the neuron is said to <strong>fire</strong>.</li>
-</ul></section><section id="what-is-the-activation-block" class="level4"><h4 class="anchored" data-anchor-id="what-is-the-activation-block">What is the Activation Block?</h4>
-<ul>
-<li>We said earlier that the weighting and adding is a linear operation.</li>
-<li>While this is great, simple linear translations of data are not capable of generating what we might call learning or generalization ability.</li>
-<li>We need to have some non-linear block to allow the data to create nonlinear transformations of the data space, such as <em>curving it, or folding it, or creating bumps, depressions, twists</em>, and so on.</li>
 </ul>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><a href="../../../../../materials/images/png/Activation_Functions.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Activation"><img src="../../../../../materials/images/png/Activation_Functions.png" height="360" alt="Activation" class="figure-img"></a></p>
-<figcaption>Activation</figcaption></figure>
-</div>
-<ul>
-<li>This nonlinear function needs to be chosen with care so that it is both differentiable and keeps the math analysis tractable. (More later)</li>
-<li>Such a nonlinear mathematical function is implemented in the <strong>Activation Block</strong>.</li>
-<li>See this example: red and blue areas, which we wish to <strong>separate and classify these</strong> with our DLNN, are not separable unless we fold and curve our 2D data space.</li>
-<li>The separation is achieved using a linear operation, i.e.&nbsp;a LINE!!</li>
-</ul>
-<div id="fig-manifolds-and-neural-networks" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-manifolds-and-neural-networks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;1: From Colah Blog, used sadly without permission"><img src="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" class="img-fluid figure-img"></a>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-manifolds-and-neural-networks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: From <a href="https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif">Colah Blog</a>, used sadly without permission
-</figcaption></figure>
-</div>
-<ul>
-<li>For instance in <a href="#fig-manifolds-and-neural-networks" class="quarto-xref">Figure&nbsp;1</a>, no amount of stretching or compressing of the surface can separate the two sets ( blue and red ) using a line or plane, <strong>unless</strong> the surface can be warped into <strong>another dimension</strong> by folding.</li>
-</ul></section><section id="what-is-the-sigmoid-function" class="level4"><h4 class="anchored" data-anchor-id="what-is-the-sigmoid-function">What is the Sigmoid Function?</h4>
-<p>So how do we implement this nonlinear Activation Block?</p>
-<ul>
-<li>One of the popular functions used in the Activation Block is a function based on the exponential function <span class="math inline">\(e^x\)</span>.</li>
-<li>Why? Because this function retains is identity when differentiated! This is a very convenient property!</li>
-</ul>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><a href="../../../../../materials/images/png/Sigmoid.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Sigmoid Activation"><img src="../../../../../materials/images/png/Sigmoid.png" height="360" alt="Sigmoid Activation" class="figure-img"></a></p>
-<figcaption>Sigmoid Activation</figcaption></figure>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Remembering Logistic Regression
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Recall your study of <a href="../../../../../../content/courses/Analytics/Modelling/Modules/LogReg/index.html">Logistic Regression</a>. There, the Sigmoid function was used to model the odds of the (Qualitative) target variable against the (Quantitative) predictor.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-But Why Sigmoid?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Because <a href="https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x">the Sigmoid function is differentiable</a>. And linear in the mid ranges. Oh, and remember the <a href="https://en.wikipedia.org/wiki/Derivative#Rules_for_basic_functions">Chain Rule</a>?</p>
-<p><span class="math display">\[
-\begin{align}
-\frac{df(x)}{dx}
-&amp;= \frac{d}{dx} * \frac{1}{1 + e^{-x}} \\\
-&amp;= -(1 + e^{-x})^{-2} * \frac{d}{dx}(1 + e^{-x})~~\text{(Using Chain Rule)}\\
-&amp;= -(1 + e^{-x})^{-2} * (-e^{-x})\\
-&amp;=  \frac{e^{-x}}{(1 + e^{-x})^{2}}\\
-&amp;= \frac{(1 + e^{-x}) -1}{(1 + e^{-x})^{2}}\\
-&amp;= \frac{1}{1 + e^{-x}} * \Bigg({\frac{1 + e^{-x}}{1 + e^{-x}}} - \frac{1}{1 + e^{-x}}\Bigg)\\\
-&amp;\text{ and therefore}\\\
-\Large{\frac{df(x)}{dx}} &amp;= \Large{f(x) * (1 - f(x))}\\
-\end{align}
-\]</span></p>
-</div>
-</div>
 <p>So with all that vocabulary, we <em>might</em> want to watch this longish video by the great Dan Shiffman:</p>
 <div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/ntKn5TPHHAk?list=PLRqwX-V7Uu6Y7MdSCaIfsxc561QI0U0Tb" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 </section></section><section id="perceptrons-in-code" class="level2"><h2 class="anchored" data-anchor-id="perceptrons-in-code">Perceptrons in Code</h2>
@@ -1612,7 +1551,7 @@ But Why Sigmoid?
 <div class="tab-content nav-pills" style="background: whitesmoke;">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>Let us try a simple single layer NN in R. We will use the R package <code>neuralnet</code>.</p>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <details class="code-fold"><summary>Show the Code</summary><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Load the package</span></span>
 <span><span class="co"># library(neuralnet)</span></span>
 <span></span>
@@ -1653,7 +1592,7 @@ But Why Sigmoid?
 <span><span class="co"># pred %&gt;% as_tibble()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><a href="nn.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="nn.png" class="img-fluid"></a></p>
+<p><a href="nn.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="nn.png" class="img-fluid"></a></p>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>To Be Written Up.</p>
@@ -1709,7 +1648,7 @@ But Why Sigmoid?
 <div id="refs" style="font-size: 60%;" role="list">
 <section id="r-package-citations" class="level6"><h6 class="anchored" data-anchor-id="r-package-citations">
 <iconify-icon inline="" icon="lucide:package-check" aria-label="Icon package-check from lucide Iconify.design set." title="Icon package-check from lucide Iconify.design set."></iconify-icon> R Package Citations</h6>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <thead><tr class="header">
