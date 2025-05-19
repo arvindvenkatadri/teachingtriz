@@ -1,29 +1,32 @@
 ---
 title: "Using Observable"
+code-fold: true
 ---
-```{r}
-#| label: setup
-#| echo: false
-#| message: false
-#| warning: false
-#| cache: false
 
-penguins
-# ojs_define(data = penguins)
-```
-
-
-Import `aquero`, a `dplyr` equivalent in Observable:
+## Setting up OJS Packages
 
 ```{ojs}
+//Import `aquero`, a `dplyr` equivalent in Observable:
 import {aq, op} from "@uwdata/arquero"
 ```
 
+Let's import and view the `penguins` dataset:
 
 ```{ojs}
 penguins = FileAttachment("palmer-penguins.csv").csv({ typed: true })
 ```
 
+```{ojs}
+//df_penguins = aq.from(penguins)
+//Inputs.table(df_penguins)
+//
+Inputs.table(penguins)
+
+```
+
+## Discovering `plot` library in OJS
+
+Let's create a slider for making variable histograms with facetting:
 ```{ojs}
 viewof bill_length_min = Inputs.range(
   [32, 50], 
@@ -38,6 +41,7 @@ viewof islands = Inputs.checkbox(
 ```
 
 Put a interactive filter on the data:
+
 ```{ojs}
 filtered = penguins.filter(function(data) {
   return bill_length_min < data.bill_length_mm &&
@@ -52,6 +56,8 @@ Plot.rectY(filtered,
     {x: "body_mass_g", fill: "species", thresholds: 20}
   ))
   .plot({
+    title: "Facetted Histogram",
+    caption: "Figure 1. A chart with a title, subtitle, and caption.",
     facet: {
       data: filtered,
       x: "sex",
@@ -65,28 +71,10 @@ Plot.rectY(filtered,
 )
 ```
 
-## Trying Counts and Summaries with `aquero`
 
 ```{ojs}
-df_penguins = aq.from(penguins)
-Inputs.table(df_penguins)
-```
+//| label: fig-ojs-1
 
-```{ojs}
-df_penguins.groupby("species").count().view()
-```
-
-```{ojs}
-df_penguins
-  .groupby("species")
-  .rollup({ mean: (d) => op.mean(d.body_mass_g) })
-  .view()
-```
-
-
-## Discovering `plot`
-
-```{ojs}
 Plot.plot({
   grid: true,
   inset: 10,
@@ -94,16 +82,20 @@ Plot.plot({
   color: {legend: true},
   marks: [
     Plot.frame(),
-    Plot.rectY(df_penguins, Plot.binX({y: "count"}, {x: "body_mass_g"}, 
-                                   {color: "species"}, {fill: "species"})
+    Plot.rectY(df_penguins, 
+      Plot.binX({y: "count"}, {x: "body_mass_g"}, 
+                {color: "species"}, {fill: "species"})
               ),
-    Plot.ruleY([0],)
+    Plot.ruleY([0])
   ],
-  title: "For charts, an informative title",
-  subtitle: "Subtitle to follow with additional context",
-  caption: "Figure 2. A chart with a title, subtitle, and caption.",
+  title: "TITLE: Histogram of Body Mass of Penguins",
+  subtitle: "SUBTITLE: Using OJS",
+  caption: "Figure 1. A chart with a title, subtitle, and caption.",
 })
 ```
+
+@fig-ojs-1 is a histogram.
+
 
 Trying to master the syntax, step by step:
 
@@ -137,7 +129,10 @@ Plot.boxX(
   df_penguins, 
   
 // Aesthetics
-          {x: "body_mass_g", y: "species", fy: "island", fill: "species", sort: {y: "x"}}
+          {x: "body_mass_g", y: "species", fy: "island", 
+          fill: "species", 
+          sort: {y: "x"},
+          }
 )
 // Plot options, concatenated
   .plot({
@@ -169,19 +164,27 @@ Plot.plot({
 ```
 
 
+### Scatter Plot
 
 ```{ojs}
 Plot.plot({
   grid: true,
   inset: 10,
-  aspectRatio: fixed? 1 : undefined, //works online ;-()
   color: {legend: true},
+  x: {labelAnchor: "center"},
+  y: {labelAnchor: "center"},
+  //title: "Scatter Plot for Penguins",
+  marginLeft: 40,
   marks: [
     Plot.frame(),
-    Plot.dot(penguins, {x: "culmen_length_mm", y: "culmen_depth_mm", stroke: "species"})
+    Plot.dot(penguins, 
+      {x: "bill_length_mm", y: "bill_depth_mm", 
+      stroke: "black", fill: "species", strokeWidth: 0.2})
   ]
 })
 ```
+
+
 
 
 ### Grouping and Aggregation within `Plot`
@@ -196,5 +199,29 @@ Plot.plot({
     Plot.ruleX([0])
   ]
 })
+```
+
+
+
+
+
+
+
+
+
+
+## Trying Counts and Summaries with `aquero`
+
+
+```{ojs}
+df_penguins = aq.from(penguins)
+df_penguins.groupby("species").count().view()
+```
+
+```{ojs}
+df_penguins
+  .groupby("species")
+  .rollup({ mean: (d) => op.mean(d.body_mass_g) })
+  .view()
 ```
 

@@ -9,6 +9,7 @@ order: 20
 #| label: setup
 #| message: false
 #| warning: false
+#| 
 library(tidyverse)
 library(mosaic)
 library(skimr)
@@ -106,21 +107,24 @@ This is a dataset pertaining to movies and genres, modified for ease of analysis
 #| label: read-data
 #| echo: false
 #| message: false
+#| cache: false
+#| 
 
-library(tidytuesdayR)
-movie_profit_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-10-23/movie_profit.csv")
+#library(tidytuesdayR)
+movie_profit_raw <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-10-23/movie_profit.csv")
+
 
 # Data cleaning
 movie_profit <- movie_profit_raw %>%
   select(-...1) %>%
-  mutate(release_date = as.Date(parse_date_time(release_date, "%m!/%d/%Y"))) %>%
+  dplyr::mutate(release_date = as.Date(parse_date_time(release_date, "%m!/%d/%Y"))) %>%
   filter(release_date < "2018-01-01") %>%
   arrange(desc(row_number())) %>%
   distinct(movie, release_date, .keep_all = TRUE) %>%
-  mutate(distributor = fct_lump(distributor, 5)) %>%
+  dplyr::mutate(distributor = fct_lump(distributor, 5)) %>%
   filter(worldwide_gross > 0) %>%
   group_by(distributor,genre) %>% 
-  mutate(profit_ratio = worldwide_gross / production_budget,
+  dplyr::mutate(profit_ratio = worldwide_gross / production_budget,
          decade = 10 * floor(year(release_date) / 10))
 movie_profit
 
@@ -169,6 +173,9 @@ Write in.
 
 ## Plot the Data
 
+::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
+
+### Using R
 ```{r}
 #| echo: false
 movie_profit %>%
@@ -186,6 +193,11 @@ movie_profit %>%
 
 ```
 
+### Using Observable
+
+
+:::
+
 ## Task and Discussion
 Complete the Data Dictionary.
 Create the graph shown and discuss the following questions:
@@ -195,4 +207,5 @@ Create the graph shown and discuss the following questions:
 -   If you were to invest in movie production ventures, which are the two best genres that you might decide to invest in?
 -   Which R command might have been used to obtain the separate plots for each distributor?
 -   If the original dataset had BUDGETS and PROFITS in separate columns, what preprocessing might have been done to achieve this plot?
+
 
