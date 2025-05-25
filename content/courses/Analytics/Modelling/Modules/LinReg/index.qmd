@@ -61,6 +61,8 @@ library(nomnoml)
 library(grateful)
 library(equatiomatic)
 library(geomtextpath)
+library(mlbench)
+library(reghelper)
 
 ```
 
@@ -134,14 +136,14 @@ theme_set(new = theme_custom())
 
 One of the most common problems in Prediction Analytics is that of
 predicting a Quantitative response variable, based on one or more
-Quantitative predictor variables or *features*. This is called Linear
-Regression. We will use the intuitions built up during our study of
+Quantitative predictor variables or *features*. This is called ***Linear
+Regression***. We will use the intuitions built up during our study of
 ANOVA to develop our ideas about Linear Regression.
 
 Suppose we have data on salaries in a Company, with years of study and
 previous experience. Would we be able to predict the prospective salary
 of a new candidate, based on their years of study and experience? Or
-based on mileage done, could we predict the resale price of a used car?
+based on the mileage done, could we predict the resale price of a used car?
 These are typical problems in Linear Regression.
 
 In this tutorial, we will use the Boston housing dataset. Our research
@@ -171,19 +173,19 @@ that the relationship is linear:[^1]
     
 
 $$
-    y_i \sim \beta_1*x_i + \beta_0\\
-$$ 
+\Large{y_i \sim \beta_1*x_i + \beta_0\\}
+$${#eq-linear-model-1}
     
 or 
     
 $$
-    y_1 \sim exp(\beta_1)*x_i + \beta_0
-$$ 
+\Large{y_1 \sim exp(\beta_1)*x_i + \beta_0}
+$${#eq-linear-model-2}
 
 but not: 
     
 $$
-    y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\
+\color{red}{y_i \sim \beta_1*exp(\beta_2*x_i) + \beta_0\\}
 $$
 
 
@@ -191,17 +193,12 @@ $$
 or 
 
 $$
-    y_i \sim \beta_1 *x^{\beta_2} + \beta_0
-$$
-
-$$
-y = \beta_0 + \beta_1 *x
+\color{red}{y_i \sim \beta_1 *x^{\beta_2} + \beta_0}
 $$
 
 
-$\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear
-fit, that **predicts** the value of y based the value of x. Each
-prediction leaves a small "residual" error between the actual and
+
+In @eq-linear-model-1, $\beta_0$ is the *intercept* and $\beta_1$ is the slope of the linear fit, that **predicts** the value of y based the value of x. Each prediction leaves a small "residual" error between the actual and
 predicted values. $\beta_0$ and $\beta_1$ are calculated based on
 minimizing the *sum of square*s of these residuals, and hence this
 method is called "ordinary least squares" (**OLS**) regression.
@@ -211,41 +208,9 @@ method is called "ordinary least squares" (**OLS**) regression.
 
 
 The net *area* of all the shaded squares is minimized in the calculation
-of $\beta_0$ and $\beta_1$. It is also possible that there is more than
-one explanatory variable: this is **multiple regression.**
+of $\beta_0$ and $\beta_1$. As per Lindoloev, many statistical tests, going from one-sample `t-tests` to `two-way ANOVA`, are special cases of this system. Also see [Jeffrey Walker "A linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables).
 
-$$
-y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
-$$
 
-where each of the $\beta_i$ are slopes defining the relationship between
-y and $x_i$. Together, the RHS of that equation defines an n-dimensional
-*hyperplane*. The model is **linear in the parameters** $\beta_i$, e.g.
-these are OK:
-
-$$
-\color{blue}{
-\begin{cases}
- & y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
- & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
-\end{cases}
-}
-$$
-
-but not, for example, these:
-
-$$
-\color{red}{
-\begin{cases}
- & y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
- & y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
-\end{cases}
-}
-$$
-
-As per Lindoloev, many statistical tests, going from one-sample
-`t-tests` to `two-way ANOVA`, are special cases of this system. Also see
-[Jeffrey Walker "A linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables"](https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/intro-linear-models.html#a-linear-model-can-be-fit-to-data-with-continuous-discrete-or-categorical-x-variables).
 
 ## {{< iconify simple-icons hypothesis >}} Linear Models as Hypothesis Tests
 
@@ -256,7 +221,13 @@ variables at hand, explanatory and responses. The Alternative Hypothesis
 typically states that there *is* a relationship between the variables.
 
 Accordingly, in fitting a linear model, we follow the process as
-follows: With $y = \beta_0 + \beta_1 *x$
+follows: 
+
+::: callout-note
+
+### Modelling Process
+
+With $y = \beta_0 + \beta_1 *x$
 
 1.  Make the following hypotheses: 
 
@@ -270,8 +241,8 @@ $$
 
 2.  We "assume" that $H_0$ is true.
 3.  We calculate $\beta_1$.
-4.  We then find probability **p** that $\beta_1 = Estimated\ Value$
-    **when the NULL Hypothesis** is **assumed** TRUE. This is the
+4.  We then find probability **p**($\beta_1 = Estimated\ Value$
+    **when the NULL Hypothesis** is **assumed** TRUE). This is the
     **p-value**. If that probability is **p\>=0.05**, we say we "cannot
     reject" $H_0$ and there is unlikely to be significant linear
     relationship.
@@ -280,15 +251,18 @@ $$
     probability **p** that $\beta_1 = Estimated\ Value$ by mere chance
     under $H_0$ is very small.
 
+:::
+
+
 ## {{< iconify icon-park-outline thinking-problem >}} Assumptions in Linear Models{#sec-assumptions-in-linear-models}
 
-We can write the assumptions in Linear Regression Models as an acronym,
+When does a Linear Model work? We can write the assumptions in Linear Regression Models as an acronym,
 **LINE**:\
-1. **L**: $\color{blue}{linear}$ relationship\
+1. **L**: $\color{blue}{linear}$ relationship\ between variables
 2. **I**: Errors are **independent** (across observations)\
-3. **N**: y is $\color{red}{normally}$ distributed at each "level" of
-x.\
-4. **E**: equal variance at all levels of x. No *heteroscedasticity*.\
+3. **N**: $y$ is $\color{red}{normally}$ distributed at each "level" of
+$x$.\
+4. **E**: $y$ has the same variance at all levels of $x$. No *heteroscedasticity*.\
 
 ![OLS Assumptions](../../../../../materials/images/ols_assumptions.png){#fig-ols-assumptions}
 
@@ -298,7 +272,7 @@ x.\
 Hence a very concise way of expressing the Linear Model is:
 
 $$
-y \sim N(x_i^T * \beta, ~~\sigma^2)
+\Large{y \sim N(x_i^T * \beta, ~~\sigma^2)}
 $$
 
 ::: callout-important
@@ -309,11 +283,16 @@ The target variable $y$ is modelled as a *normally* distribute variable
 $x$, and whose variance is $\sigma^2$.
 :::
 
+
+
+## {{< iconify flat-color-icons workflow >}} Linear Model Workflow
+
+OK, on with the computation!
+
+### {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
+
 Let us now read in the data and check for these assumptions as part of
 our Workflow.
-
-## {{< iconify flat-color-icons workflow >}} Workflow: Read the Data
-
 ```{r}
 
 data("BostonHousing2", package = "mlbench")
@@ -357,7 +336,7 @@ owner-occupied homes in USD 1000'*s. Their are many Quantitative feature
 variables that we can use to predict `cmedv`. And there are two
 Qualitative features, `chas` and `tax`.
 
-## {{< iconify flat-color-icons workflow >}} Workflow: EDA
+### {{< iconify flat-color-icons workflow >}} Workflow: EDA
 
 In order to fit the linear model, we need to choose **predictor**
 variables that have strong correlations with the **target** variable. We
@@ -367,7 +346,7 @@ this dataset.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-### Correlations with GGally
+### {{< iconify flat-color-icons workflow >}} Workflow: Correlations with GGally
 
 Let us select a few sets of Quantitative and Qualitative features, along
 with the target variable `cmedv` and do a pairs-plots with them:
@@ -424,7 +403,7 @@ and `crim`(crime rate) also have fairly large correlations with `cmedv`,
 as seen from the pairs plots.
 
 ::: callout-important
-## Correlation Scores and Uncertainty
+### Correlation Scores and Uncertainty
 
 Recall that `cor.test` reports a correlation score and the `p-value` for
 the same. There is also a `confidence interval` reported for the
@@ -506,7 +485,7 @@ Qualitative variable is given a **one-hot** kind of encoding. See for
 example <https://www.statology.org/dummy-variables-regression/>
 :::
 
-### Correlations using cor.test and purrr
+### {{< iconify flat-color-icons workflow >}} Correlations using cor.test and purrr
 
 This is somewhat advanced material: We will use the `purrr` package to
 develop all correlations with respect to our target variable in one shot
@@ -581,41 +560,15 @@ We can clearly see that `rm` and `lstat` have strong correlations with
 regression model. (`medv` is the older errored version of `cmedv`)
 :::
 
-::: callout-note
-## Simple Regression vs Multiple Regression
 
-If there are many predictor variables, we would typically want to use
-more of them to make our model and predictions. There are three ways[^2]
-to include more predictors:
-
--   **Backward Selection**: We would typically start with a **maximal
-    model**[^3] and progressively simplify the model by knocking off
-    predictors that have the least impact on model accuracy.
--   **Forward Selection**: Start with no predictors and systematically
-    add them one by one to increase the quality of the model
--   **Mixed Selection**: Wherein we start with no predictors and add
-    them to gain improvement, or remove them at as their *significance*
-    changes based on other predictors that have been added.
-
-The first two are covered in the other tutorials above; Mixed Selection we will leave for a more advanced course. But for now we will first use just one predictor `rm`(Avg. no. of Rooms) to model housing prices.
-:::
-
-[^2]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
-    *Introduction to Statistical Learning, Springer, 2021. Chapter 3.
-    Linear Regression*. [Available
-    Online](https://www.statlearning.com/)
-
-[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
-    Statistical Modelling*
-
-## {{< iconify flat-color-icons workflow >}} Workflow: Model Building
+### {{< iconify flat-color-icons workflow >}} Model Building
 
 We will first execute the `lm` test with code and evaluate the results.
 Then we will do an intuitive walk through of the process and finally,
 hand-calculate entire analysis for clear understanding.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
-### {{< iconify mingcute code-fill >}} Model Code
+#### {{< iconify mingcute code-fill >}} Model Code
 
 R offers a very simple command `lm` to execute an Linear Model: Note the
 familiar `formula` of stating the variables: ( $y \sim x$; where $y$ =
@@ -646,15 +599,14 @@ $$ {#eq-rm-model}
 ::: callout-important
 -   The **effect size** of `rm` on predicting `cmedv` a (slope) value of
     $9.09967$ which is significant at p-value of $<2.2e-16$; for every
-    one room increase in `rm`, we have a \$ USD 90997\$ increase in
+    one room increase in `rm`, we have a $USD~90997$ increase in
     median price `cmedv`.
--   The **F-statistic** for the Linear Model is given by $474.3$, which
+-   The **F-statistic** for the Linear Model is given by $F = 474.3$, which
     is very high. (We will use the F-statistic again when we do Multiple
     Regression.)
--   The `R-squared` value is 48% which means that `rm` is able to
+-   The `R-squared` value is $R^2 = 0.48$ which means that `rm` is able to
     explain about half of the trend in `cmedv`; there is substantial
-    variation in `cmedv` that is left to explain, an indication that we
-    should perhaps use a richer model, with more predictors. These aspects are explored in the Tutorials.
+    variation in `cmedv` that is still left to explain, an indication that      we should perhaps use a richer model, with more predictors. These aspects are explored in the Tutorials.
 :::
 
 We can plot the scatter plot of these two variables with the model also
@@ -745,7 +697,7 @@ For any new value of `rm`, we go up to the vertical blue line and read
 off the predicted median price by following the horizontal blue line.
 That is how the model is used (by hand).
 
-### {{< iconify carbon forecast-hail >}} Forecasting with the Linear Model
+#### {{< iconify carbon forecast-hail >}} Forecasting with the Linear Model
 
 In practice, we use the `broom` package functions (`tidy`, `glance` and
 `augment`) to obtain a clear view of the model parameters and
@@ -772,7 +724,7 @@ new %>% mutate(predictions =
 
 Note that "negative values" for predicted `cmedv` would have no meaning!
 
-### {{< iconify mdi thinking >}} Linear Model Intuitive {#sec-lm-intuitive}
+#### {{< iconify mdi thinking >}} Linear Model Intuitive {#sec-lm-intuitive}
 
 All that is very well, but what is happening under the hood of the `lm`
 command? Consider the `cmedv` (target) variable and the `rm`
@@ -907,7 +859,7 @@ of these residuals in Fig A is called the [**Total Sum of Squares**
 
 $$
 SST = \Sigma (y - \mu_{tot})^2
-$$ {#eq-SST}
+$${#eq-SST}
 
 In Fig B, the vertical [red lines]{style="color: red;"} are the
 residuals of each point from the potential line of fit. The sum of the
@@ -916,7 +868,7 @@ residuals of each point from the potential line of fit. The sum of the
 
 $$
 SSE = \Sigma [(y - a - b * rm)^2]
-$$ {#eq-SSE}
+$${#eq-SSE}
 
 It should be apparent that if there is any positive linear relationship
 between `cmedv` and `rm`,then $SSE < SST$.
@@ -952,7 +904,7 @@ We see that there is a quadratic minimum $SSE$ at the optimum value of
 slope and at all other slopes, the $SSE$ is higher. We can use this to
 find the optimum slope, which is what the function `lm` does.
 
-### {{< iconify material-symbols slideshow-sharp >}} Linear Models Manually Demonstrated (Apologies to Spinoza)
+#### {{< iconify material-symbols slideshow-sharp >}} Linear Models Manually Demonstrated (Apologies to Spinoza)
 
 Let us hand-calculate the numbers so we know what the test is doing.
 Here is the SST: we pretend that there is no relationship between
@@ -1103,7 +1055,7 @@ intercept
 So, there we are! All of this is done for us by one simple formula,
 `lm()`!
 
-### {{< iconify iconoir stats-report >}} Using Other Packages {#sec-using-other-packages}
+#### {{< iconify iconoir stats-report >}} Using Other Packages {#sec-using-other-packages}
 
 There is a very neat package called `ggstatsplot`[^5] that allows us to
 plot very comprehensive statistical graphs. Let us quickly do this:
@@ -1147,7 +1099,7 @@ in Judd et al @sec-references.
 
 [^6]: <https://github.com/UCLATALL/supernova>
 
-## {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
+### {{< iconify flat-color-icons workflow >}} Workflow: Model Checking and Diagnostics {#sec-diagnostics}
 
 We will follow much of the treatment on Linear Model diagnostics, given
 [here on the STHDA
@@ -1173,7 +1125,7 @@ website](http://www.sthda.com/english/articles/39-regression-model-diagnostics/1
 > examine the distribution of **residuals errors**, that can tell us
 > more about our data.
 
-### {{< iconify ic twotone-rule >}} Checks for Uncertainty
+### {{< iconify ic twotone-rule >}} Workflow: Checks for Uncertainty
 
 Let us first look at the uncertainties in the estimates of slope and
 intercept. These are most easily read off from the `broom::tidy`-ed
@@ -1207,11 +1159,12 @@ housing_lm_tidy %>%
 ##
 housing_lm_tidy %>% 
   gf_pointrange(estimate + conf.low + conf.high ~ term,
-                title = "Model Point Range Plot for Estimates with Confidence Intervals") %>% 
+                title = "Model Point-Range Plot for Estimates with Confidence Intervals") %>% 
   gf_hline(yintercept = 0) %>% 
   gf_theme(theme = theme_custom())
 
 ```
+
 The point-range plot helps to avoid what has been called ["within-the-bar bias"](https://graphics.cs.wisc.edu/Papers/2014/CG14/Preprint.pdf). The estimate is just a value, which we might plot as a *bar* or as a *point*, with uncertainty error-bars.
 
 Values **within the bar** are not more likely!! This is the bias that the point-range plot avoids. 
@@ -1309,6 +1262,67 @@ lm(cmedv ~ poly(rm,2), data = housing) %>%
 ```
 :::
 
+
+## Extras
+    
+::: callout-note
+### Multiple Regression
+It is also possible that there is more than
+one explanatory variable: this is **multiple regression.**
+
+$$
+y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 ...+ \beta_n*x_n
+$${#eq-multiple-regression}
+
+where each of the $\beta_i$ are slopes defining the relationship between
+y and $x_i$. Note that this is a vector dot-product, or inner-product, taken with a *vector* of input variables $x_i$ and a vector of weights, $\beta_i$. 
+Together, the RHS of that equation defines an n-dimensional
+*hyperplane*. The model is **linear in the parameters** $\beta_i$, e.g.
+these are OK:
+
+$$
+\color{black}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1 + \pmb\beta_2x_1^2 + \epsilon_i\\
+ & y_1 = \pmb\beta_0 + \pmb\gamma_1\pmb\delta_1x_1 + exp(\pmb\beta_2)x_2+ \epsilon_i\\
+\end{cases}
+}
+$$
+
+but not, for example, these:
+
+$$
+\color{red}{
+\begin{cases}
+ & y_i = \pmb\beta_0 + \pmb\beta_1x_1^{\beta_2} + \epsilon_i\\
+ & y_i = \pmb\beta_0 + exp(\pmb\beta_1x_1) + \epsilon_i\\
+\end{cases}
+}
+$$
+:::
+
+There are three ways[^2] to include more predictors:
+
+-   **Backward Selection**: We would typically start with a **maximal
+    model**[^3] and progressively simplify the model by knocking off
+    predictors that have the least impact on model accuracy.
+-   **Forward Selection**: Start with no predictors and systematically
+    add them one by one to increase the quality of the model
+-   **Mixed Selection**: Wherein we start with no predictors and add
+    them to gain improvement, or remove them at as their *significance*
+    changes based on other predictors that have been added.
+
+The first two are covered in the other tutorials above; Mixed Selection we will leave for a more advanced course. But for now we will first use just one predictor `rm`(Avg. no. of Rooms) to model housing prices.
+
+
+[^2]: Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
+    *Introduction to Statistical Learning, Springer, 2021. Chapter 3.
+    Linear Regression*. [Available
+    Online](https://www.statlearning.com/)
+
+[^3]: Michael Crawley, *The R Book, Third Edition 2023. Chapter 9.
+    Statistical Modelling*
+    
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 
 We have seen how starting from a basic EDA of the data, we have been
@@ -1415,7 +1429,7 @@ Apply Model {shape: oval}
 4.  Andrew Gelman, Jennifer Hill, Aki Vehtari. *Regression and Other
     Stories*, Cambridge University Press, 2023.[Available
     Online](https://users.aalto.fi/~ave/ROS.pdf)\
-5.  Michael Crawley, The R Book,second edition, 2013. Chapter 11.\
+5.  Michael Crawley.(2013). *The R Book,second edition*. Chapter 11.\
 6.  Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani,
     *Introduction to Statistical Learning*, Springer, 2021. Chapter 3.
     <https://www.statlearning.com/>\
@@ -1440,7 +1454,7 @@ Apply Model {shape: oval}
 #| echo: false
 # scan_packages()
 cite_packages(
-  output = "table",
+  output = "table",cite.tidyverse = FALSE,
   out.dir = ".",
   out.format = "html",
   pkgs = c("broom", "corrgram", "corrplot", "GGally", "geomtextpath",
