@@ -81,8 +81,14 @@ library(rnaturalearthhires)
 # Plotting Maps
 library(tidyverse) # Maps using ggplot + geom_sf
 library(tmap) # Thematic Maps, static and interactive
+library(tmaptools)
+library(tmap.mapgl)
 library(osmdata) # Fetch map data from osmdata.org
+## Interactive Maps
 library(leaflet) # interactive Maps
+library(leaflet)
+library(leaflet.providers)
+library(leaflet.extras)
 library(threejs) # Globe maps in R. Part of the htmlwidgets family of packages
 
 # For Spatial Data Frame Processing
@@ -415,15 +421,15 @@ We can also create a map using a package called `tmap`. Here we also
 have the option of making the map *interactive*. `tmap` plots are made
 with code in "groups": each group starts with a `tm_shape()` command.
 
+
 ```{r}
 #| label: using-tmap
 
 ## Let's see if we can Malleswaram look like Venice
 ## Red roof tops
-tmap_mode("plot")
 # Group-1
 tm_shape(buildings) +
-  tm_polygons(col = "red",border.col = "red") +
+  tm_polygons(fill = "firebrick", col = "firebrick") +
 
 #Group-2
 tm_shape(roads) +
@@ -431,20 +437,15 @@ tm_shape(roads) +
 
 #Group-3  
 tm_shape(greenery) +
-  tm_polygons(col = "limegreen",border.col = "limegreen") +
+  tm_polygons(fill = "limegreen", col = "limegreen") +
   
 
 #Group-4
 # Malleswaram has only Banyan Trees, suppose
 tm_shape(trees) +
-  tm_dots(col = "darkgreen",size = 2)
+  tm_dots(fill = "darkgreen",size = 0.25)
 
 ```
-
-How do we make this map interactive? One more line of code !! Add this
-line in your console and then run the above chunk again
-
-`tmap_mode("view")`
 
 ## Using data from `tmap`
 
@@ -487,16 +488,20 @@ tm_shape(World) + # dataset = World.
 # Group 2
 tm_shape(metro) + # dataset = metro
   tm_bubbles(size = "pop2030", 
-             col = "red") 
+             col = "red") + 
 # Plot cities as bubbles
 # Size proportional to numeric variable `pop2030`
+
+tm_crs("auto")
+
+
 ```
 
 ```{r}
 #| label:  My Interactive Water Colour World
-tmap_mode("view")
+# tmap_mode("view")
 # Let's use WaterColor Map this time!!
-tm_tiles("OpenTopoMap") + # Watercolor map only with interactive
+#tm_tiles("OpenTopoMap") + 
 tm_shape(World) +
     tm_polygons("HPI") + # Color by Happiness Index
   
@@ -557,7 +562,7 @@ tmap_mode("plot")
 # Plot India
   tm_shape(india) +
   tm_polygons("name", # Colour by States in India
-              legend.show = FALSE) +
+              fill.legend = tm_legend_hide()) +
   
 # Plot Neighbours
   tm_shape(india_neighbours) +
@@ -566,7 +571,8 @@ tmap_mode("plot")
 # Plot the cities in India alone
   tm_shape(metro %>% dplyr::filter(iso_a3 == "IND")) +
     
-  tm_dots(size = "pop2020",legend.size.show = FALSE) +
+  tm_dots(size = "pop2020",
+          size.legend = tm_legend_hide()) +
     # size by population in 2020
     
   tm_layout(legend.show = FALSE) +
@@ -574,8 +580,8 @@ tmap_mode("plot")
              size = 0.5,
              position = "right") +
   tm_compass(position = c("right", "top")) +
-  tm_scale_bar(position = "left") +
-  tmap_style(style = "classic") 
+  tm_scalebar(position = "left") +
+  tmap_style(style = "white") 
 
 #Try other map styles
 #cobalt #gray #white #watercolor #beaver #classic #watercolor #albatross #bw #col_blind
@@ -622,7 +628,7 @@ write_sf(dat_R, dsn = "restaurants.gpkg",append = FALSE, quiet = FALSE)
 
 ```
 
-Now reading the saved Restaurant Data
+Now reading the saved Restaurant Data:
 
 ```{r}
 restaurants <- st_read("./restaurants.gpkg")
@@ -814,7 +820,7 @@ globejs(
 
 ## Scope and Packages for Exploration!!
 
-### sfnetworks
+### sfnetworks / tmap networks
 
 ### mapsf
 
@@ -822,9 +828,10 @@ globejs(
 
 ## Resources
 
+1. Free Map Tile services. <https://alexurquhart.github.io/free-tiles/>
+1. Martijn Tennekes and Jakub Nowosad (2025). *Elegant and informative maps with tmap*. <https://tmap.geocompx.org>
 1.  Emine Fidan, [Guide to Creating Interactive Maps in
     R](https://bookdown.org/eneminef/DRR_Bookdown/)
-
 2.  Nikita Voevodin,[R, Not the Best
     Practices](https://bookdown.org/voevodin_nv/R_Not_the_Best_Practices/maps.html)
 
@@ -844,7 +851,7 @@ globejs(
 1.  Burkhart, Christian. n.d. "Streetmaps."
     [StreetMaps](https://ggplot2tutor.com/tutorials/streetmaps)
 
-![](https://ggplot2tutor.com/static/093466a0f94f04f36e2c028fe7ae3f23/fd84e/maps.png)
+![](../../../materials/images/Streetmaps.jpeg)
 
 2.  *Making Vector Maps*, Computing for the Social Sciences, [Univ. of
     Chicago](https://cfss.uchicago.edu/notes/vector-maps/)

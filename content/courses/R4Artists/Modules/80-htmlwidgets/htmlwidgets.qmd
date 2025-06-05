@@ -7,7 +7,7 @@ date-modified: "`r Sys.Date()`"
 summary: "Using Javascript libraries in R"
 df-print: paged
 order: 80
-view: 2
+
 image: featured.jpg
 image-alt: "Image credit: [**Alice In Wonderland dot Net**](https://www.alice-in-wonderland.net/)"
 ---
@@ -23,7 +23,6 @@ image-alt: "Image credit: [**Alice In Wonderland dot Net**](https://www.alice-in
 #| warning: false
 # Data manipulation and data sources
 options(htmltools.preserve.raw = FALSE, echo = TRUE)
-library(tidyverse)
 library(tidygraph)
 library(igraph)
 library(palmerpenguins)
@@ -53,7 +52,7 @@ library(crosstalk)
 # Linkable widgets in crosstalk - github repo only
 #devtools::install_github("kent37/summarywidget")
 library(summarywidget)
-
+library(tidyverse)
 ```
 
 ## Introduction
@@ -209,8 +208,8 @@ forceNetwork(
 
 ### Creating a Sankey Diagram.
 
-```{r sankeyNetwork}
-#| label: Sankey Network
+```{r}
+#| label: SankeyNetwork
 #| eval: false
 
 # Code is not working need to fix
@@ -374,17 +373,17 @@ Prentice's FlightStream page:
 <http://callumprentice.github.io/apps/flight_stream/index.html>
 
 ```{r}
-data("flights",package = "threejs")
-flights %>% head()
+
+threejs::flights() %>% head()
 
 frequent_destinations <-
-  flights %>% group_by(dest_lat, dest_long) %>% 
+  threejs::flights() %>% dplyr::group_by(dest_lat, dest_long) %>% 
   count(sort = TRUE) %>% 
   ungroup() %>% 
   slice_max(n = 10, order_by = n)
 frequent_destinations
 
-frequent_flights <- flights %>% 
+frequent_flights <- threejs::flights() %>% 
   semi_join(frequent_destinations,
             by = c("dest_lat" = "dest_lat", "dest_long" = "dest_long")) %>% unique() 
 
