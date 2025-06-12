@@ -53,6 +53,8 @@ library(mosaic)
 library(ggformula)
 library(skimr)
 
+##
+library(tinyplot) # Fast dependency free charting package
 ```
 
 
@@ -164,9 +166,11 @@ theme_custom <- function(){
     )
 }
 
-# Set graph theme
+# Set graph theme for ggplot/ggformula
 theme_set(new = theme_custom())
 #
+# Set graph theme for tinyplot
+tinyplot::tinytheme("clean")
 ```
 
 
@@ -544,6 +548,27 @@ ggplot(taxi_modified)  +
 :::
 ::::
 
+### Using tinyplot
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: bar-tip-tinyplot
+#| eval: false
+
+tinyplot(~ tip, data = taxi_modified,
+        type = "barplot",
+        main = "Plot 1A: Counts of Tips")
+
+```
+:::
+::: {.column}
+```{r}
+#| ref.label: bar-tip-tinyplot
+#| echo: false
+```
+:::
+::::
+
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
@@ -712,6 +737,108 @@ taxi_modified %>%
        y = "Proportion")
 
 ```
+
+
+### Using tinyplot
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: research-tinyplot-2-1
+#| eval: false
+
+tinyplot(~ local | tip, data = taxi_modified,
+  type = "barplot",
+  beside = TRUE, # for placing bars beside one another
+  main = "Plot 2A: Dodged Bar Chart")
+
+```
+:::
+
+::: {.column}
+```{r}
+#| ref.label: research-tinyplot-2-1
+#| echo: false
+```
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: research-tinyplot-2-2
+#| eval: false
+tinyplot(~ local | tip, data = taxi_modified,
+  type = "barplot",
+  beside = FALSE, xlevels = c("no","yes"), # try reversing
+  main = "Plot 2A: Stacked Bar Chart",
+  sub = "Can we spot per group differences in proportions??")
+
+
+```
+:::
+
+::: {.column}
+```{r}
+#| ref.label: research-tinyplot-2-2
+#| echo: false
+```
+
+:::
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: research-tinyplot-2-3
+#| eval: false
+
+## Showing "per capita" percentages
+
+tinyplot(tip ~ local, data = taxi_modified,
+        type = "barplot", beside = FALSE,
+        FUN = "prop",
+        main = "Plot 2C: Filled Bar Chart",
+        sub= "Shows Per group differences in Proportions!")
+```
+
+:::
+
+::: {.column}
+```{r}
+#| ref.label: research-tinyplot-2-3
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: research-tinyplot-2-4
+#| eval: false
+## Set graph theme
+theme_set(new = theme_custom())
+##
+## Showing "per capita" percentages
+## Better labelling of Y-axis 
+taxi_modified %>% 
+  gf_props(~ local, fill = ~ tip, 
+  position = "fill") %>% 
+  gf_labs(title = "Plot 2D: Filled Bar Chart",
+          subtitle = "Shows Per group differences in Proportions!")
+
+```
+:::
+
+::: {.column}
+```{r}
+#| ref.label: research-tinyplot-2-4
+#| echo: false
+```
+
+:::
+::::
+
+::::
 
 
 ### {{< iconify noto-v1 spider-web >}} web-r

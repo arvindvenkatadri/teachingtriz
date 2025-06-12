@@ -13,6 +13,7 @@ library(tidyverse)
 library(mosaic)
 library(skimr)
 library(ggformula)
+library(ggprism) # Interesting Categorical Axes
 library(ggridges)
 library(supernova)
 #devtools::install_github('cttobin/ggthemr')
@@ -114,9 +115,9 @@ This is a dataset pertaining to tyres from different companies and their lifetim
 #| message: false
 
 tyre <- read_csv("../../../../../materials/Data/tyre.csv")
-tyre <- tyre %>% 
+tyre_modified <- tyre %>% 
   mutate(Brands = as_factor(Brands))
-
+tyre_modified
 ```
 
 ## Download the Modified data
@@ -126,7 +127,7 @@ tyre <- tyre %>%
 
 library(downloadthis)
 
-tyre %>% 
+tyre_modified %>% 
    downloadthis::download_this(output_name = "tyre", 
       output_extension = ".csv", button_label = "Tyre Data", button_type = "default", icon = "fa fa-save")
 
@@ -167,10 +168,15 @@ Write in.
 #| echo: false
 #
 ##
-tyre %>% 
-  gf_boxplot(Mileage ~ Brands, fill = ~ Brands) %>% 
-  gf_theme(theme_av)
+tyre_modified %>% 
+  gf_boxplot(Mileage ~ Brands, fill = ~ Brands,
+             title = "Tyre Brands and their Mileages",
+             caption = "Note the segmented Categorical X-axis made with ggprism") %>% 
+  
+  gf_theme(theme_av) %>% 
 
+  gf_refine(scale_x_discrete(guide = "prism_bracket"),
+            guides(fill = guide_legend(title = "Tyre Brands")))
 ```
 
 ## Task and Discussion: ANOVA
@@ -199,9 +205,15 @@ supernova::supernova(model)
 #| echo: false
 # Set graph theme
 theme_set(new = mytheme)
-model %>% supernova::pairwise(correction = "Tukey", alpha = 0.05, var_equal = TRUE, plot = TRUE) 
+pairwise_model <- model %>% supernova::pairwise(correction = "Tukey", 
+                              alpha = 0.05, var_equal = TRUE, 
+                              plot = FALSE) 
+pairwise_model
+
+plot(pairwise_model)
 
 ```
+
 
 ### Conclusion
 5. State a conclusion about the effect of `Brands` on `Mileage`.

@@ -1,0 +1,324 @@
+---
+title: "Data, DataViz, and Stats with the Stars"
+format: 
+  revealjs: 
+    chalkboard: false
+    incremental: false
+    preview-links: true
+    scrollable: true
+    slide-number: true
+    show-slide-number: print
+    embed-resources: true
+    touch: true
+    controls: true
+    controls-layout: bottom-right
+    footer: "Arvind V.| VizChitra2025 | June 2025"
+    html-math-method: katex
+    include-in-header: 
+      - text: '<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>'
+###
+    webcam: 
+      toggleKey: "W" # Change the key to toggle the video
+      enabled: false # Enable the video stream directly at startup. Pressing [W] will still allow you to toggle it.
+      persistent: false # Keep the stream open (the camera active) after opening it once. If it is enabled the plugin will keep the camera on even if the video is not used. This avoids repeat permission request dialogs.
+
+###
+    pointer:
+      key: "q"
+      color: "green"
+      pointerSize: 48
+      alwaysVisible: false
+
+###
+revealjs-plugins:
+  - animate-graph
+  - revealjs-text-resizer
+  - pointer
+  - excalidraw
+  - webcam
+#  - drop # console drop-down # not working at all
+#  - spotlight
+#  - subtitles # works, but not needed
+
+filters: 
+   - highlight-text #colour #bg-colour #fg
+   - gadenbuie/tachyons
+---
+
+## Agenda!
+
+-   Orange? What is this Orange stuff, anyhow?
+-   Throwing it All Away with Brad Pitt: Data Summaries
+-   Counting Letters with Sherlock Holmes: Bar Charts
+-   Nursery Rhymes with Ben Affleck: Line Charts
+-   Being a Mermaid with Katie Ledecky: Box Plots
+-   Jack and Rose lived happily ever after: Mosaic Plots
+-   The Art of Surprise with Gabbar Singh: Permutation Tests
+
+::: notes
+{{< downloadthis data/penguins.csv dname="penguins.csv" label="Download the Penguins data" icon="database-fill-down" type="info" >}}
+
+datasaurus_dozen %>% download_this(output_name = "datasaurus", output_extension = ".csv", button_label = "DataSaurus Dirty Dozen", button_type = "default", icon = "fa fa-save",   class = "hvr-sweep-to-left")
+
+:::
+
+---
+
+
+## Setup {visibility="hidden"}
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: setup
+
+library(tidyverse)
+library(tinytable)
+library(downloadthis)
+```
+
+---
+
+## Orange? What is this Orange stuff, anyhow? {.center}
+
+---
+
+## Installing and Getting Used to Orange
+
+some stuff here
+
+---
+
+## Brad Pitt: Throwing it All Away {.center}
+
+---
+
+## Brad Pitt: Throwing it All Away
+
+<center>
+{{< video https://youtu.be/PlKDQqKh03Y height=540 width=760 title='None of them!'>}}
+</center>
+
+::: notes
+What was Brad Pitt throwing away? He was throwing away the individuality of the measures, subsuming them to one summary. This is a big idea in statistics, and it is called aggregation.
+:::
+
+---
+
+## Brad Pitt: Throwing it All Away{.smaller}
+
+:::: {.columns}
+
+::: {.column width="65%"}
+
+Steven Stigler (2016) in “The Seven Pillars of Statistical Wisdom”:
+
+-   One of the Big Ideas in Statistics is: ***Aggregation***
+-   How is it revolutionary? 
+- By stipulating that, given a number of observations, [you can actually gain information by throwing information away]{.bg-light-red .black}
+-   In taking a simple arithmetic mean, we discard the individuality of the measures, subsuming them to one summary.
+
+:::
+
+::: {.column width="30%"}
+![](../../../../materials/images/SevenPillarsStigler.jpeg){width=300}
+:::
+
+::::
+
+
+------------------------------------------------------------------------
+
+## Brad Pitt: Throwing it All Away
+
+### What was he throwing away?
+
+::::: columns
+::: {.column width="45%"}
+data table here
+:::
+
+::: {.column width="45%"}
+"OBP" as aggregate column explanation here
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Counting Letters with Sherlock Holmes {.center}
+
+------------------------------------------------------------------------
+
+## Sherlock Holmes: The Adventure of the Dancing Men
+
+:::: {.columns}
+
+::: {.column width="40%"}
+In the Sherlock Holmes story, [The Adventure of the Dancing Men](https://www.gutenberg.org/files/108/108-h/108-h.htm#chap03), a criminal known to one of the characters communicates with her using a childish/child-like drawing which looks like this:
+:::
+
+::: {.column width="60%"}
+![Am Here, Abe Slaney](../../../../materials/images/holmes-message-1.jpg)
+
+How would Holmes decipher this message?
+:::
+
+::::
+
+
+------------------------------------------------------------------------
+
+## Sherlock Holmes: The Adventure of the Dancing Men
+
+:::: {.columns}
+
+::: {.column width="55%"}
+- Using Conjectures: Symbols -> Letters
+  - Holmes deduces that the most common letter in the message is "E"
+  - He then deduces that the second most common letter is "T"
+
+:::
+::: {.column width="40%"}
+![Zipf's Law](../../../../materials/images/zipf.png){height=200}
+
+- Based on well-known ***Counts*** of letters (Zipf's Law)
+
+:::
+
+::::
+---
+
+## What Charts work for counting?
+ 
+| Variable #1 | Variable #2 | Chart Names |              Chart Shape              |
+|:-----------:|:-----------:|:-----------:|:-------------------------------------:|
+|    Qual    |    None     |  Bar Chart  | {{< iconify ion bar-chart size=4x >}} |
+
+::: {.smaller}
+Bar are used to show "counts" and "tallies" with respect to Qual variables. For instance, in a survey, how many people vs Gender? In a Target Audience survey on *Weekly Consumption*, how many low, medium, or high expenditure people?
+:::
+
+---
+
+## Where's our Data?
+
+OK,
+Let's get some data to count: 
+```{r}
+#| echo: false
+#| eval: false
+
+penguins %>% downloadthis::download_this(output_name = "penguins", output_extension = ".csv", button_label = "Penguins", button_type = "info", icon = "fa fa-save",   class = "hvr-sweep-to-left")
+```
+
+<a href="./data/penguins.csv"><i class="fas fa-save"></i> Penguins Data </a>
+
+And let's for now use a pre-set Workflow in Orange
+
+<a href="./Orange/barchart.ows"><i class="fas fa-save"></i> Barchart Workflow </a>
+
+
+
+---
+
+## Workflow#1: Bar Charts
+
+- We will look at the data
+- Make a Data dictionary
+- Identify the Qual and Quant variables
+- Prepare Counts and Bar Charts wrt Qual variables
+- In Orange! Point, Click, and See!
+
+---
+
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
+
+- `species`: Species of the penguin (Qual)
+- `island`: Island where the penguin was observed (Qual)
+- `bill_length_mm`: Length of the penguin's bill in millimeters (Quant)
+- `bill_depth_mm`: Depth of the penguin's bill in millimeters (Quant)
+- `flipper_length_mm`: Length of the penguin's flipper in millimeters (Quant)
+- `body_mass_g`: Mass of the penguin in grams (Quant)
+
+
+---
+
+## {{< iconify material-symbols query-stats >}} Counting our Data
+
+
+
+:::: {.columns}
+
+::: {.column width="55%"}
+::: callout-note
+### Research Question
+How many penguins of different `species` are there in the dataset?
+:::
+:::
+::: {.column width="55%"}
+
+:::
+::::
+
+---
+
+## {{< iconify mingcute thought-line >}} Wait, But Why?{.smaller}
+
+-   Always ~~count your chickens~~ count your data before you model or infer!
+-   Counts first give you an absolute sense of how much data you have.
+-   Counts by different Qual variables give you a sense of the **combinations** you have in your data: $(Male/Female) * (Species) * (Island)$ (Say 2 \* 3 \* 3 = 18 combinations in the data)
+-   Counts then give an idea whether your data is lop-sided: do you have too many observations of one category(level) and too few of another category(level) in a given Qual variable?
+-   Balance is important in order to draw decent inferences
+-   And for ML algorithms, to train them properly.
+-   Since the X-axis in bar charts is *Qualitative* (the bars don't touch, remember!) it is possible to sort the bars at will.
+
+
+
+
+---
+
+
+
+
+## Nursery Rhymes with Ben Affleck {.center}
+
+---
+
+## Who was Solomon Grundy?
+
+{{< downloadthis data/US_births_2000-2014_SSA.csv dname="US_births_2000-2014_SSA" label="Download the US Births data" icon="database-fill-down" type="info" >}}
+---
+
+## Who was Solomon Grundy?
+
+---
+
+## Being a Mermaid with Katie Ledecky {.center}
+
+---
+
+## Being a Mermaid with Katie Ledecky
+
+---
+
+## Jack and Rose lived happily ever after {.center}
+
+---
+
+## Jack and Rose lived happily ever after
+
+---
+
+## The Art of Surprise with Gabbar Singh {.center}
+
+
+---
+
+## The Art of Surprise with Gabbar Singh
+Why is this slide always showing up?
+
+---
+
+
+---
+
