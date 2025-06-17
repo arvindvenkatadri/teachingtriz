@@ -27,6 +27,7 @@ editor:
 ```{r}
 #| label: setup
 #| include: true
+#| message: true
 library(tidyverse)
 library(mosaic)
 library(ggmosaic) # plotting mosaic plots for Categorical Data
@@ -489,9 +490,9 @@ And here are the mosaic plots for the *actual* and *expected* Contingency Tables
 #|  - "Expected"
 #|  - "Tile-Wise Differences"
 counts_table <- mosaic::tally(DeathPenalty ~ Education, data = gss2002) # No margins added
-vcd::mosaic(counts_table)
-vcd::mosaic(counts_table, type = "expected")
-vcd::assoc(counts_table)
+vcd::mosaic(counts_table,gp = shading_max)
+vcd::mosaic(counts_table, type = "expected", gp = shading_max)
+vcd::assoc(counts_table,gp = shading_max)
 
 ```
 
@@ -609,12 +610,14 @@ data1 <- tibble(evaluator = rep(x = "F", times = 24),
                candidate_selected = sample(c(0,1), 
                                size = 24, 
                                replace = T, 
-                                prob = c(0.1, 0.9)))
+                               prob = c(0.1, 0.9))) %>% 
+  mutate(evaluator = as_factor(evaluator))
 
 data2 <- tibble(evaluator = rep(x = "M", times = 24),
                candidate_selected = sample(c(0,1), size = 24, 
                                 replace = T, 
-                                prob = c(0.6, 0.4)))
+                                prob = c(0.6, 0.4))) %>% 
+  mutate(evaluator = as_factor(evaluator))
 
 #data1
 #data2
@@ -626,15 +629,15 @@ data <-  rbind(data1, data2) %>%
   cbind(expand.grid(x = 1:4, y = seq(4, 48,4))) %>%
   mutate(evaluator = as_factor(evaluator))
 
-data %>% 
-  select(evaluator, candidate_selected) %>% 
+data <- data %>% 
+  dplyr::select(evaluator, candidate_selected) %>% 
   as_tibble()
-
+data
 summary <- data %>%
-  group_by(evaluator) %>%
-  summarise(selection_ratio = mean(candidate_selected == "0"),
-            count = count(candidate_selected == "0"),
-            n = n())
+  dplyr::group_by(evaluator) %>%
+  dplyr::summarise(selection_ratio = mean(candidate_selected == 0),
+            count = sum(candidate_selected == 0),
+            n = dplyr::n())
 summary
 
 ```
@@ -718,14 +721,22 @@ How would that pooled shuffled set of evaluations look like?
 #| echo: false
 
 data_shuffled <- data %>%
+  
+  # knock off the coordinates prior to shuffle
+  select(evaluator, candidate_selected) %>%
+  #mutate(candidate_selected = shuffle(candidate_selected, replace = FALSE)) %>%
+  arrange(evaluator, candidate_selected) %>%
+  
+  # reassign coordinates
+  cbind(., expand.grid(x = 1:4, y = seq(4, 24, 4))) %>% # Not 48!!
   mutate(evaluator = shuffle(evaluator))
 #data_shuffled %>% select(evaluator, candidate)
 data_shuffled %>%
   group_by(evaluator) %>%
-  summarise(
+  dplyr::summarise(
     selection_ratio = mean(candidate_selected == "0"),
-    count = count(candidate_selected == "0"),
-    n = n()
+    count = sum(candidate_selected == "0"),
+    n = dplyr::n()
   )
 ```
 
@@ -751,7 +762,7 @@ data_shuffled %>%
   # knock off the coordinates
   # Do not use "group_by"!! Why not?
   select(evaluator, candidate_selected) %>% 
-  arrange(evaluator,candidate_selected) %>% 
+  arrange(evaluator, candidate_selected) %>% 
   
   # reassign coordinates
   cbind(., expand.grid(x = 1:4, y = seq(4, 24,4))) %>% # Not 48!!
@@ -759,7 +770,7 @@ data_shuffled %>%
   ggplot(data = ., aes(x = x, y = y, 
              group = evaluator, 
              fill = as_factor(candidate_selected))) + 
-  geom_point(shape = 21, size = 8) + 
+  geom_point(shape = 21, size = 8) + # plot circles with borders
   scale_fill_manual(name = NULL,
                     values = c("red", "blue"),
                     labels = c("Rejected","Selected")) + 
@@ -811,9 +822,10 @@ null_dist <- do(4999) * diff(mean(
   candidate_selected ~ shuffle(evaluator), 
   data = data))
 # null_dist %>% names()
-null_dist %>% gf_histogram( ~ M, 
+null_dist %>% 
+  gf_histogram( ~ M, 
                   fill = ~ (M <= obs_difference), 
-                  bins = 25,show.legend = FALSE,
+                  bins = 25, show.legend = FALSE,
                   xlab = "Bias Proportion", 
                   ylab = "How Often?",
                   title = "Permutation Test on Difference between Groups",
@@ -822,7 +834,7 @@ null_dist %>% gf_histogram( ~ M,
   gf_label(500 ~ obs_difference, label = "Observed\n Bias", 
            show.legend = FALSE) 
 
-mean(~ M<= obs_difference, data = null_dist)
+mean(~ M <= obs_difference, data = null_dist)
 
 ```
 
@@ -840,7 +852,7 @@ We should now repeat the test with permutations on `Education`:
 theme_set(new = theme_custom())
 #
 
-null_chisq <- do(9999) * 
+null_chisq <- do(4999) * 
   chisq.test(mosaic::tally(DeathPenalty ~ shuffle(Education), 
                    data = gss2002))
 

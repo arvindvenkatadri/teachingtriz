@@ -13,6 +13,7 @@ format:
     controls: true
     controls-layout: bottom-right
     footer: "Arvind V.| VizChitra2025 | June 2025"
+    logo: ""
     html-math-method: katex
     include-in-header: 
       - text: '<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>'
@@ -73,7 +74,11 @@ datasaurus_dozen %>% download_this(output_name = "datasaurus", output_extension 
 #| label: setup
 
 library(tidyverse)
+library(tinyplot)
+library(kableExtra) # html styled tables
 library(tinytable)
+library(mosaic)
+library(vcd)
 library(downloadthis)
 ```
 
@@ -127,7 +132,7 @@ Steven Stigler (2016) in “The Seven Pillars of Statistical Wisdom”:
 ::::
 
 
-------------------------------------------------------------------------
+---
 
 ## Brad Pitt: Throwing it All Away
 
@@ -143,11 +148,11 @@ data table here
 :::
 :::::
 
-------------------------------------------------------------------------
+---
 
 ## Counting Letters with Sherlock Holmes {.center}
 
-------------------------------------------------------------------------
+---
 
 ## Sherlock Holmes: The Adventure of the Dancing Men
 
@@ -166,7 +171,7 @@ How would Holmes decipher this message?
 ::::
 
 
-------------------------------------------------------------------------
+---
 
 ## Sherlock Holmes: The Adventure of the Dancing Men
 
@@ -186,6 +191,7 @@ How would Holmes decipher this message?
 :::
 
 ::::
+
 ---
 
 ## What Charts work for counting?
@@ -204,12 +210,6 @@ Bar are used to show "counts" and "tallies" with respect to Qual variables. For 
 
 OK,
 Let's get some data to count: 
-```{r}
-#| echo: false
-#| eval: false
-
-penguins %>% downloadthis::download_this(output_name = "penguins", output_extension = ".csv", button_label = "Penguins", button_type = "info", icon = "fa fa-save",   class = "hvr-sweep-to-left")
-```
 
 <a href="./data/penguins.csv"><i class="fas fa-save"></i> Penguins Data </a>
 
@@ -233,13 +233,20 @@ And let's for now use a pre-set Workflow in Orange
 
 ### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
 
+::: callout-note
+### Qualitative Variables
 - `species`: Species of the penguin (Qual)
 - `island`: Island where the penguin was observed (Qual)
+- `sex`: Male / Female penguin (Qual)
+:::
+
+::: callout-note
+### Quantitative Variables
 - `bill_length_mm`: Length of the penguin's bill in millimeters (Quant)
 - `bill_depth_mm`: Depth of the penguin's bill in millimeters (Quant)
 - `flipper_length_mm`: Length of the penguin's flipper in millimeters (Quant)
 - `body_mass_g`: Mass of the penguin in grams (Quant)
-
+:::
 
 ---
 
@@ -249,27 +256,52 @@ And let's for now use a pre-set Workflow in Orange
 
 :::: {.columns}
 
-::: {.column width="55%"}
+::: {.column width="45%"}
 ::: callout-note
 ### Research Question
-How many penguins of different `species` are there in the dataset?
+Are there more penguins of some `species` than there are in others?
 :::
-:::
-::: {.column width="55%"}
+```{r}
+#| echo: false
+#| message: false
+#| fig-height: 7
+tinytheme("classic")
+tinyplot::plt(data = penguins, x = ~ species | species,
+              type = "barplot", alpha = 0.5,
+              main = "Penguin Counts by Species")
+```
 
 :::
+
+::: {.column width="45%"}
+::: callout-note
+### Research Question
+Are the penguin polulations on different `island` the same?
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| fig-height: 7
+tinytheme("classic")
+tinyplot::plt(data = penguins, x = ~ island | island,
+              type = "barplot", alpha = 0.5,
+              main = "Penguin Counts by Island",
+              xlab = "Island")
+```
+:::
+
 ::::
 
 ---
 
-## {{< iconify mingcute thought-line >}} Wait, But Why?{.smaller}
+## {{< iconify mingcute thought-line >}} Wait, But Why?
 
--   Always ~~count your chickens~~ count your data before you model or infer!
 -   Counts first give you an absolute sense of how much data you have.
+
 -   Counts by different Qual variables give you a sense of the **combinations** you have in your data: $(Male/Female) * (Species) * (Island)$ (Say 2 \* 3 \* 3 = 18 combinations in the data)
--   Counts then give an idea whether your data is lop-sided: do you have too many observations of one category(level) and too few of another category(level) in a given Qual variable?
--   Balance is important in order to draw decent inferences
--   And for ML algorithms, to train them properly.
+-   Counts then give an idea whether your data is lop-sided
+
 -   Since the X-axis in bar charts is *Qualitative* (the bars don't touch, remember!) it is possible to sort the bars at will.
 
 
@@ -305,9 +337,173 @@ How many penguins of different `species` are there in the dataset?
 
 ---
 
-## Jack and Rose lived happily ever after
+## Jack and Rose lived happily ever after?
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+ - What are the chances?
+ - What did the chances depend on?
+
+:::
+
+::: {.column width="50%"}
+
+![](../../../../materials/images/titanic.webp){height=400}
+
+:::
+
+::::
 
 ---
+
+## Jack and Rose lived happily ever after?
+
+- Let's get the `titanic` data, using the `Datasets` widget in Orange.
+
+- There were 2201 passengers, as per this dataset.
+
+- And let's use a pre-set Workflow in Orange
+
+<a href="./Orange/orange/orange-mosaic-chart.ows"><i class="fas fa-save"></i> Mosaic Chart Workflow </a>
+
+
+---
+
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary: `titanic`{.smaller} 
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+::: callout-note
+### Quantitative Data
+None.
+
+:::
+
+::: callout-note
+### Qualitative Data
+
+-   `survived`: (chr) yes or no
+-   `status`: (chr) Class of Travel, else "crew"
+-   `age`: (chr) Adult, Child
+-   `sex`: (chr) Male / Female. 
+:::
+
+:::
+
+
+::: {.column width="45%"}
+
+![](../../../../materials/images/Orange/titanic-data-table.png){height=500 width=450}
+
+:::
+
+::::
+
+---
+
+
+## {{< iconify tabler variable >}} What kind of Data Variables will we choose?
+
+
+| Variable #1 | Variable #2 |       Chart Names       |                                            Chart Shape                                            |
+|:---------------:|:---------------:|:-----------------:|:------------------:|
+|    Qual     |    Qual     | ~~Pies~~, Mosaic Charts | {{< iconify carbon chart-marimekko size=4x >}} |
+
+
+Here, $area \sim count$, so the area of the tile is proportional to the count of observations in that tile.
+
+---
+
+
+### {{< iconify material-symbols query-stats >}} Research Question #1{.smaller}
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+::: callout-note
+
+What is the dependence of `survived` upon `sex`?
+:::
+
+![](../../../../materials/images/Orange/titanic-sex-survived.png)
+:::
+
+
+::: {.column width="45%"}
+::: callout-note
+- Note the huge imbalance in `survived` with `sex`
+- Men have clearly perished in larger numbers than women. 
+- Colouring shows large [*positive* residuals]{style="color: blue;"} for men who died, and large [*negative* residuals]{style="color: red;"} for women who died. 
+
+So sadly Jack is far more likely to have died than Rose. 
+:::
+
+:::
+
+::::
+
+---
+
+### {{< iconify material-symbols query-stats >}} Research Question #2{.smaller}
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+::: callout-note
+### How does `survived` depend upon `status`?
+:::
+
+![](../../../../materials/images/Orange/titanic-mosaic-survived-status.png)
+:::
+
+
+::: {.column width="45%"}
+::: callout-note
+- Crew has seen deaths in large numbers, 
+  - as seen by the large [*negative* residual]{style="color: red;"} for crew-survivals. 
+- [First Class passengers have had speedy access to the boats](https://youtu.be/kQ8WsD9AGX4) and have survived in larger proportions than say second or third class. 
+- There is a large [*positive* residual]{style="color: blue;"} for first-class survivals. 
+- Rose travelled `first class` and Jack was `third class`. So again the odds are stacked against him. 
+:::
+:::
+::::
+
+---
+
+## What are these Residuals anyhow?{.smaller}
+
+When differences between the actual and expected counts are large, we deduce that one Qual variable has an effect on the other Qual variable. (speaking counts-wise or ratio-wise)
+
+```{r}
+#| echo: false
+#| layout-ncol: 3
+#| fig-height: 12
+#| fig-subcap: 
+#|  - "Actual Counts"
+#|  - "Expected Counts!!"
+#|  - "Tile-Wise Differences = Residuals"
+data("titanic", package = "ggmosaic")
+
+counts_table <- mosaic::tally(Survived ~ Sex, data = titanic) # No margins added
+vcd::mosaic(counts_table,gp = shading_max, 
+            main = "Titanic Mosaic Chart")
+vcd::mosaic(counts_table, gp = shading_max, type = "expected", main = "Titanic Mosaic Chart, Expected")
+vcd::assoc(counts_table, gp = shading_max)
+
+```
+
+
+---
+
+
+
+
 
 ## The Art of Surprise with Gabbar Singh {.center}
 
