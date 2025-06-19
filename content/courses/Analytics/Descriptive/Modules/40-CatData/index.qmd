@@ -5,6 +5,7 @@ date: 27/Dec/2022
 date-modified: '`r Sys.Date()`'
 abstract: Types, Categories, and Counts
 order: 40
+warning: true
 categories:
 - Proportions
 - Frequency Tables
@@ -46,14 +47,15 @@ library(mosaic) # Our trusted friend
 library(skimr)
 library(vcd) # Michael Friendly's package, Visualizing Categorical Data
 library(vcdExtra) # Categorical Data Sets
-library(ggmosaic) # Mosaic Plots
+
 library(resampledata) # More datasets
 
 library(GGally) # Correlation Plots
-
-library(ggpubr) # Colours, Themes and new geometries in ggplot
+library(visStatistics) # Comprehensive all-in-one stats viz/test package
 library(ca) # Correspondence Analysis, for use some day
 
+library(ggmosaic) # Mosaic Plots
+library(ggpubr) # Colours, Themes and new geometries in ggplot
 ## Making Tables
 library(kableExtra) # html styled tables
 library(gt)
@@ -112,7 +114,7 @@ theme_custom <- function(){
                    hjust = 0,                #left align
                    #vjust = 2                #raise slightly
                    margin=margin(0,0,10,0)
-),               
+),    plot.title.position = "plot",                
       
       plot.subtitle = element_text(          #subtitle
                    family = font,            #font family
@@ -817,6 +819,7 @@ COLUMN, giving us @fig-gss-mosaic-chart-step2.
 Let us now make this plot with a variety of approaches.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
+
 #### Using vcd
 
 The `vcd::mosaic()` function needs the data in *contingency table* form.
@@ -978,6 +981,18 @@ gf_col(edu_prop ~ Education, data = gss_summary,
 ```
 :::
 :::
+
+#### Using visStatistics
+
+`visStatistics` is a recent package that allows a very wide variety of statistical charts to be created **automagically** based on the variables chosen. Let us plot a mosaic chart directly with this package
+
+```{r}
+#| label: visstat-1
+
+visstat(gss2002$DeathPenalty, gss2002$Education)
+```
+
+
 :::
 
 ## Coloured Tiles: **Actual** and **Expected** Contingency Tables
@@ -1487,7 +1502,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("ggmosaic", "ggpubr", "janitor", "kableExtra", "resampledata", "sjPlot", "sjlabelled", "tinytable", "vcd",
-           "vcdExtra")) %>%
+           "vcdExtra", "visStatistics")) %>%
   knitr::kable(format = "simple")
 
 ```

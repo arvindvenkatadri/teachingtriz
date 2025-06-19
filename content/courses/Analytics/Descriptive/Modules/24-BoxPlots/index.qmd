@@ -54,6 +54,7 @@ webr:
 library(tidyverse)
 library(mosaic)
 library(ggformula)
+library(visStatistics) # All in one plot + stats test package
 library(palmerpenguins) # Our new favourite dataset
 
 ```
@@ -115,7 +116,8 @@ theme_custom <- function(){
                    hjust = 0,                #left align
                    #vjust = 2                #raise slightly
                    margin=margin(0,0,10,0)
-),               
+),   
+      plot.title.position = "plot",            
       
       plot.subtitle = element_text(          #subtitle
                    family = font,            #font family
@@ -183,7 +185,7 @@ Box Plots are an extremely useful data visualization that gives us an idea of th
 #| label: fig-boxplot-diagram
 #| echo: false
 #| fig-cap: "Box Plot Definitions"
-#| fig-height: 7
+#| fig-height: 4
 # Set graph theme
 theme_set(new = theme_custom())
 #
@@ -224,9 +226,46 @@ The former uses the *values* of the Quant variable, whereas the latter uses thei
 
 Box plots are often used for example in HR operations to understand Salary distributions across grades of employees. Marks of students in competitive exams are also declared using Quartiles. 
 
-Box plots can show skew in distributions. In such cases the "bottom" and the "lid" of the box may not be the same size!
+Box plots can show skew in distributions, with a large number of outliers on one side, as in @fig-distributions-boxplots.
 
-::: {#fig-boxplots-with-skewness layout-ncol=2}
+
+```{r}
+#| label: fig-distributions-boxplots
+#| echo: false
+#| warning: false
+#| fig-cap:
+#| - "Skewed Distributions and Boxplots"
+
+# Set graph theme
+theme_set(new = theme_custom())
+library(sn)
+rand_data <- tibble(
+#left  = rsn(n=5000, xi=0, omega=1, alpha=-8, tau=0, dp=NULL), 
+left_skew = rbeta(5000,3,1) * 10,
+#right = rsn(n=5000, xi=0, omega=1, alpha=8, tau=0, dp=NULL),
+right_skew = rbeta(5000,1,3) * 10,
+#center = rsn(n=5000, xi=0, omega=1, alpha=0, tau=0, dp=NULL),
+center = rbeta(5000, 1.5, 1.5) * 10) %>% 
+  pivot_longer(cols = everything(), 
+               names_to = "type", values_to = "value")
+rand_data %>% 
+  gf_dhistogram(~ value, fill = ~ type, alpha = 0.3) %>% 
+  gf_boxplot(0.3 ~ value, fill = ~ type, alpha = 0.3, width = 0.05) %>%
+  gf_vline(data = rand_data %>% 
+              dplyr::group_by(type) %>% 
+              dplyr::summarise(mean = mean(value)), inherit = F,
+           xintercept = ~ mean, linetype = "dashed", color = "black") %>%
+  gf_labs(title = "Distribution of Random Data",
+          subtitle = "Left, Right, and Symmetric Skewed Distributions", caption = "Dotted Line = Mean") %>%
+  gf_facet_wrap(~ type, ncol = 3) %>% 
+  gf_theme(theme(plot.title.position = "plot",
+           legend.position = "none"))
+
+```
+
+In other cases, there may be no ouliers, but the "bottom" and the "lid" of the box may not be the same size!
+
+::: {#fig-three-boxplots layout-ncol=2}
 
 ![Box Plot and Skewness](../../../../../materials/images/Boxplots_with_skewness.png){#fig-three-boxplots}
 
@@ -1097,6 +1136,8 @@ Foundation of “Student’s” t*. Journal of Economic Perspectives—Volume 22
 
 1. Doriane Lambelet Coleman.(2017) *Sex in Sport, 80 Law and Contemporary Problems*. Available at: <https://scholarship.law.duke.edu/lcp/vol80/iss4/5>
 
+1. Distributome - An Interactive Web-based Resource for Probability Distributions <https://distributome.org>
+
 [^1]:“Ah, Misha, he has a stormy spirit. His mind is in bondage. He is haunted by a great, unsolved doubt. He is one of those who don't want millions, but an answer to their questions.”
 ― Fyodor Dostoevsky, The Brothers Karamazov: A Novel in Four Parts With Epilogue
 
@@ -1114,7 +1155,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("ggridges", "NHANES", "TeachHist",
-           "TeachingDemos", "visualize")
+           "TeachingDemos", "visualize", "visStatistics")
 ) %>%
   knitr::kable(format = "simple")
 
