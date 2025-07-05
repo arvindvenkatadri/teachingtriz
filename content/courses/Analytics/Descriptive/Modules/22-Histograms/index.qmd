@@ -270,26 +270,28 @@ methods we have seen.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### {{< iconify la r-project >}} R
+#### {{< iconify la r-project >}} dplyr::glimpse
 ```{r}
 #| label: glimpse-diamonds
 glimpse(diamonds)
 
 ```
 
+#### {{< iconify la r-project >}} skimr::skim
 ```{r}
 #| label: skim-diamonds
 skim(diamonds)
 
 ```
 
+#### {{< iconify la r-project >}} mosaic::inspect
 ```{r}
 #| label: inspect-diamonds
 inspect(diamonds)
 
 ```
 
-### {{< iconify noto-v1 spider-web >}} web-r
+#### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
 #| label: glimpse-diamonds-webr
@@ -353,11 +355,15 @@ These have 5, 7, and 8 levels respectively. The fact that the `class` for these 
     54K entries.
 :::
 
-## {{< iconify  material-symbols lab-research >}} Hypothesis and Research Questions
+### {{< iconify carbon clean >}} Data Munging
+
+We will not do any data munging for this dataset, as it is already clean and ready to use.
+
+### {{< iconify  material-symbols lab-research >}} Hypothesis and Research Questions
 Let us formulate a few Questions about this dataset. At some point, we might develop a hunch or two, and these would become our hypotheses to investigate. This is an iterative process!
 
 ::: callout-note
-### Hypothesis and Research Questions
+#### Hypothesis and Research Questions
 - The `target variable` for an experiment that resulted in this data might be the `price` variable. Which is a numerical Quant variable.\
 - There are also `predictor variables` such as `carat` (Quant), `color`(Qual), `cut`(Qual), and `clarity`(Qual).\
 - Other `predictor variables` might be `x, y, depth, table`(all Quant)\
@@ -369,7 +375,7 @@ Let us formulate a few Questions about this dataset. At some point, we might dev
 These should do for now. Try and think of more Questions!
 :::
 
-## {{< iconify ph chart-bar >}} Plotting Histograms
+### {{< iconify ph chart-bar >}} Plotting Histograms
 
 Let's plot some histograms to answer each of the Hypothesis questions above. 
 
@@ -814,9 +820,8 @@ Let us look at the dataset using all our three methods:
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### {{< iconify la r-project >}} R
-We will stick with just `glimpse` for this time, and not use `skim` or `inspect` in the interest of brevity:
 
+#### {{< iconify la r-project >}} dplyr
 ```{r}
 #| label: glimpse-race-data
 glimpse(race_df)
@@ -824,19 +829,21 @@ glimpse(rank_df)
 
 ```
 
+#### {{< iconify la r-project >}} skimr
 ```{r}
-#| label: glimpse-race-data-1
-#| include: false
+#| label: skimr-race-data-1
 skim(race_df)
 
 ```
 
 ```{r}
-#| label: glimpse-race-data-2
-#| include: false
+#| label: skimr-race-data-2
 skim(rank_df)
 
 ```
+
+
+#### {{< iconify la r-project >}} mosaic
 
 ```{r}
 #| label: inspect-race
@@ -861,6 +868,8 @@ rank_df %>%
 
 ```
 
+
+#### {{< iconify la r-project >}} crosstable
 ::: callout-note
 ### Introducing `crosstable`
 `mosaic::favstats` allows to summarise just **one variable at a time**. On occasion we may need to see summaries of several Quant variables, over levels of Qual variables. This is where the package `crosstable` is so effective: note how `crosstable` also conveniently uses the **formula interface** that we are getting accustomed to. 
@@ -877,7 +886,7 @@ crosstable(time_in_seconds + age ~ gender, data = rank_df) %>%
 
 (The `as_flextable` command from the `crosstable` package helped to render this elegant HTML table we see. It should be possible to do Word/PDF also, which we might see later.)
 
-### {{< iconify noto-v1 spider-web >}} web-r
+#### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
 #| label: glimpse-race-data-webr-1
@@ -907,9 +916,42 @@ inspect(rank_df)
 
 :::
 
+### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
+
+::: callout-note
+#### Quantitative Data
+From `race_df`, we have the following Quantitative variables:
+
+- `race_year_id`: A number uniquely identifying the race event
+- `distance`: Race Distance (miles?)
+- `elevation_gain`: Gain in Elevation along the route (feet?)
+- `elevation_loss`: Loss in Elevation along the route (feet?)
+- `particants`: No. of participants
+- `aid_stations`: No. of aid stations along the race route. 
+
+And from `rank_df` we have the following Quantitative variables:
+
+- `rank`: Placement Rank of the Athlete
+- `time`: Race completion time ( h:m:s)
+- `time_in_seconds`: Race Completion Time in seconds
+- `age`: Age of the athlete in years;
+
+
+
+:::
+
+::: callout-note
+#### Qualitative Data
+- `country`: Country of the Race
+- `city`: Location
+- `gender`: Of the Athlete
+- `participation`: Solo / solo, relay, team. Badly coded?. 
+
+:::
 
 
 ::: callout-note
+
 ### Business Insights from `race` data
 
 -   We have two datasets, one for races (`race_df`) and one for the
@@ -928,6 +970,7 @@ inspect(rank_df)
 
 
 ### {{< iconify fluent-mdl2 explore-data >}} EDA with `race` datasets
+
 Since this dataset is somewhat complex, we may for now just have a detailed set of Questions, that helps us get better acquainted with it. On the way, we may get surprised by some finding then want to go deeper, with a hunch or hypothesis.
 
 ### {{< iconify el question-sign >}} Question-1: Max. Races and participants
@@ -943,16 +986,16 @@ countries send the maximum number of participants??
 ### {{< iconify la r-project >}} R
 
 ```{r}
-race_df %>% count(country) %>% arrange(desc(n))
-rank_df %>% count(nationality) %>% arrange(desc(n))
+race_df %>% count(country) %>% arrange(desc(n)) %>% top_n(3, n)
+rank_df %>% count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 ```
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
-race_df %>% count(country) %>% arrange(desc(n))
-rank_df %>% count(nationality) %>% arrange(desc(n))
+race_df %>% count(country) %>% arrange(desc(n)) %>% top_n(3, n)
+rank_df %>% count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 ```
 
@@ -977,7 +1020,7 @@ ranks)?
 ```{r}
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
-  count(nationality) %>% arrange(desc(n))
+  count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 ```
 
@@ -986,7 +1029,7 @@ rank_df %>%
 ```{webr-r}
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
-  count(nationality) %>% arrange(desc(n))
+  count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 ```
 
@@ -1017,9 +1060,11 @@ observations in **both** datasets.
 #| layout-nrow: 2
 
 longest_races <- race_df %>%
-  slice_max(n = 5, order_by = distance) # Longest distance races
+  slice_max(n = 5, order_by = distance) %>%  # Longest distance races
+  select (race_year_id, country, distance) # Select only relevant columns)
 longest_races
 
+### Now join this with the `rank_df` dataset
 longest_races %>%
   left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
   filter(rank %in% c(1:10)) %>% # Top 10 ranks
@@ -1605,13 +1650,10 @@ embedr::embed_audio("../../../../../materials/audio/Quantities.wav")
 ## {{< iconify ooui references-rtl >}} References
 
 1. Winston Chang (2024). *R Graphics Cookbook*. <https://r-graphics.org>
-
 1. See the scrolly animation for a histogram at this website: *Exploring Histograms, an essay by Aran Lunzer and Amelia McNamara*
 <https://tinlizzie.org/histograms/?s=09>\
-
 1. Minimal R using
 `mosaic`.<https://cran.r-project.org/web/packages/mosaic/vignettes/MinimalRgg.pdf>\
-
 1. Sebastian Sauer, *Plotting multiple plots using purrr::map and ggplot* [](https://data-se.netlify.app/2021/02/06/plotting-multiple-plots-using-purrr-map-and-ggplot/)\
 
 ::: {#refs style="font-size: 60%;"}

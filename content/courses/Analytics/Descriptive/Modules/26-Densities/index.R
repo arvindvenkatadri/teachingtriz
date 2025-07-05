@@ -104,38 +104,45 @@ glimpse(penguins)
 skim(penguins)
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
-penguins <- penguins %>% drop_na()
+inspect(penguins)
 
-gf_density( ~ body_mass_g, data = penguins) %>%
-  gf_labs(title = "Plot A: Penguin Masses", caption = "ggformula")
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# penguins <- penguins %>% drop_na()
+# 
+# gf_density( ~ body_mass_g, data = penguins) %>%
+#   gf_labs(title = "Plot A: Penguin Masses", caption = "ggformula")
+# 
 
-###
-penguins %>% gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
-  gf_refine(scale_color_viridis_d(option = "magma", aesthetics = c("colour", "fill"))) %>%
-  gf_labs(title = "Plot B: Penguin Body Mass by Species", caption = "ggformula")
 
-###
-penguins %>%
-  gf_density(
-    ~ body_mass_g,
-    fill = ~ species,
-    color = "black",
-    alpha = 0.3
-  ) %>%
-  gf_facet_wrap(vars(sex)) %>%
-  gf_labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex", caption = "ggformula")
 
-###
-penguins %>%
-  gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
-  gf_facet_wrap(vars(sex), scales = "free_y", nrow = 2) %>%
-  gf_labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
-          subtitle = "Free y-scale",
-          caption = "ggformula") %>%
-  gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+# penguins %>% gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
+#   gf_refine(scale_color_viridis_d(option = "magma", aesthetics = c("colour", "fill"))) %>%
+#   gf_labs(title = "Plot B: Penguin Body Mass by Species", caption = "ggformula")
+
+
+
+# penguins %>%
+#   gf_density(
+#     ~ body_mass_g,
+#     fill = ~ species,
+#     color = "black",
+#     alpha = 0.3
+#   ) %>%
+#   gf_facet_wrap(vars(sex)) %>%
+#   gf_labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex", caption = "ggformula")
+
+
+
+# penguins %>%
+#   gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
+#   gf_facet_wrap(vars(sex), scales = "free_y", nrow = 2) %>%
+#   gf_labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
+#           subtitle = "Free y-scale",
+#           caption = "ggformula") %>%
+#   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+# 
 
 
 
@@ -176,17 +183,33 @@ penguins %>% ggplot() +
   theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# 
+# gf_density_ridges(drv ~ hwy, fill = ~ drv,
+#                   alpha = 0.3, # colour saturation
+#                   rel_min_height = 0.005, # separation between plots
+#                   data = mpg) %>%
+#   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+#             scale_x_continuous(expand = c(0.01, 0))) %>%
+#   gf_labs(title = "Ridge Plot")
+# 
 
 
-gf_density_ridges(drv ~ hwy, fill = ~ drv, 
-                  alpha = 0.3, 
-                  rel_min_height = 0.005, data = mpg) %>% 
-  gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-            scale_x_continuous(expand = c(0.01, 0))) %>% 
-  gf_labs(title = "Ridge Plot")
+
+# ## Set graph theme
+# theme_set(new = theme_custom())
+# ##
+# 
+# gf_density_ridges(drv ~ hwy, fill = ~ drv,
+#                   alpha = 0.3,
+#                   rel_min_height = 0.005, data = mpg) %>%
+#   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
+#             scale_x_continuous(expand = c(0.01, 0))) %>%
+#   gf_labs(title = "Ridge Plot")
+# 
+
 
 
 

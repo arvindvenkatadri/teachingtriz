@@ -23,15 +23,11 @@ citation: true
 #   markdown: 
 #     wrap: 72
 webr:
-  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins']
+  packages: ['readr', 'tidyr', 'dplyr','mosaic', 'skimr', 'ggformula','ggridges', 'palmerpenguins', 'tidyplots']
 
 ---
 
 ## {{< fa folder-open >}} Slides and Tutorials
-
-|                                                                                                 |                                                                                                    |                                                                                        |
-|------------------------|------------------------|------------------------|
-| <a href="../../../../../materials/Data/qdd-data.zip"><i class="fa-brands fa-r-project"></i> R (Static Viz)</a>   | <a href="./files/distributions.rda"> <i class="fa-solid fa-person-rays"></i> Radiant Tutorial</a>  | <a href="./files/data/qdd-data.zip"> <i class="fa-solid fa-database"></i> Datasets</a> |
 
 
 :::: {.pa4}
@@ -48,13 +44,20 @@ webr:
 #| include: true
 #| message: false
 #| warning: false
+
 library(tidyverse)
 library(mosaic)
 library(ggformula)
 library(skimr)
-
 ##
-library(tinyplot) # Fast dependency free charting package
+library(tidyplots) # Easily Produced Publication-Ready Plots
+##
+library(tinyplot) # Plots with Base R
+##
+library(systemfonts) # For custom fonts. Sigh. 
+##
+knitr::opts_chunk$set(dev = "ragg_png") # Plot backend engine
+knitr::opts_chunk$set(tidy = "styler") # Styling Code in HTML output
 ```
 
 
@@ -70,17 +73,16 @@ library(TeachingDemos)
 library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
 library(grateful)
 library(MKdescr)
-library(shinylive) # To create a Shiny app in a Quarto HTML doc
-# Will not work if webr is also used in the SAME Quarto doc!
+
+library(systemfonts)
 library(sysfonts)
 library(gfonts)
 library(kableExtra)
-# library(conflicted)
-# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
 library(downloadthis)
-knitr::opts_chunk$set(tidy = "styler")
+
 #devtools::install_github("mccarthy-m-g/embedr")
 library(embedr) # Embed multimedia in HTML files
+
 ## Figures
 ## A. Markdown
 ##![A nice image.](foo/bar.png){width=300}{#fig-nice}
@@ -106,9 +108,9 @@ library(embedr) # Embed multimedia in HTML files
 ```
 
 
-#### Plot Theme
+#### `ggplot` Plot Theme
 ```{r}
-#| label: Plot-Sizing-and-theming
+#| label: ggPlot-Sizing-and-theming
 #| code-fold: true
 #| message: false
 #| results: hide
@@ -123,7 +125,9 @@ knitr::opts_chunk$set(
  fig.align = "center"
 )
 ### Ggplot Theme
+## systemfonts::get_from_google_fonts("RobotoCondensed")
 ### https://rpubs.com/mclaire19/ggplot2-custom-themes
+
 
 theme_custom <- function(){ 
     font <- "Roboto Condensed"   #assign font family up front
@@ -168,9 +172,36 @@ theme_custom <- function(){
 
 # Set graph theme for ggplot/ggformula
 theme_set(new = theme_custom())
-#
-# Set graph theme for tinyplot
-tinyplot::tinytheme("clean")
+
+```
+
+
+#### `tidyplots` Plot Theme
+
+```{r}
+#| label: Tidyplot-Sizing-and-theming
+#| code-fold: true
+#| message: false
+#| results: hide
+
+## Tidyplots Theme
+
+# Define custom style
+# my_style <- function(x) x |>
+#   adjust_font(plot, fontsize = 10,
+#               family = "sans",
+#               face = "bold", color = "black") %>%
+#   adjust_colors(new_colors = colors_discrete_friendly)
+
+
+# Set tidyplots options
+# tidyplots_options(
+#   height = 3, width = 4.85, unit = "inches",
+#   dodge_width = 1,
+#   my_style = my_style
+#   )
+
+
 ```
 
 
@@ -200,18 +231,18 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 
 ![Capital Cities](capitals-vs-rest.jpeg){#fig-column-chart-inspiration}
 
-How much does the (financial) capital of a country contribute to its GDP? Which would be India's city? What would be the reduction in percentage? And these Germans are crazy.(Toc, toc, toc, toc!)
+How much does the (financial) capital of a country contribute to its GDP? Which would be India's city? What would be the reduction in percentage? [And these Germans are crazy.(Toc, toc, toc, toc!)](https://www.youtube.com/watch?v=KfnnvifnpDU)
 
 Note how the axis variable that defines the bar `locations` is a ...Qual variable!
 
-### {{< iconify ic round-addchart >}} Graphing Packages in R
+## {{< iconify ic round-addchart >}} Graphing Packages in R
 
 There are several Data Visualization packages, even systems, within R.
 
--   Base R supports graph making out of the box;
+-   Base R supports graph making out of the box; (fast, very flexible, but a bit complex)(Update July 2025: There is a new(?) package called `tinyplots` that creates base R plots with syntax that is much more intuitive. (We will include some here for reference.)
 
 -   The most well known is `ggplot` <https://ggplot2-book.org/> which
-    uses Leland Wilkinson's concept of a "Grammar of Graphics";
+    uses Leland Wilkinson's concept of a "Grammar of Graphics"; `ggformula` is a wrapper around `ggplot` that makes the syntax a little more concise and intuitive.
 
 -   There is the `lattice` package
     <https://lattice.r-forge.r-project.org/> which uses the "Trellis
@@ -223,11 +254,7 @@ There are several Data Visualization packages, even systems, within R.
     allows extremely fine control of `shapes` plotted on the graph.
 
 Each system has its benefits and learning complexities. We will look at
-plots created using the simpler and intuitive `ggformula` system that
-uses the popular`ggplot` framework, but provides a simplified interface
-that is easy to recall and apply. While our first option will be to use
-`ggformula`, we will, where appropriate state `ggplot` code too for
-comparison.
+plots created using `ggformula`, and the recently introduced `tidyplots` package, which allows intuitive creation of ***publication-ready charts*** based on the famous and established `ggplot` framework. We will, where appropriate state `ggplot` code too for comparison.
 
 A quick reminder on how `mosaic` and `ggformula` and `ggplot` work in a very similar fashion:
 
@@ -252,7 +279,7 @@ want to plot with.
 ::: callout-tip
 ### `ggplot` command template
 
-The `ggplot`2 template is used to identify the dataframe, identify the x
+The `ggplot` template is used to identify the dataframe, identify the x
 and y axis, and define visualized layers:
 
 `ggplot(data = ---, mapping = aes(x = ---, y = ---)) + geom_----()`
@@ -265,6 +292,14 @@ than typing the formal arguments, code is typically shorthanded to this:
 
 `dataframe %>%  ggplot(aes(xvar, yvar)) + geom_----()`
 :::
+
+::: callout-tip
+### `tidyplots` command template
+
+`tidyplot(data = ---, x = ---, y = ---, color = ---) |> add_***_***()`
+
+:::
+
 
 ## {{< iconify icon-park-outline chart-histogram >}} Bar Charts and Histograms
 
@@ -363,26 +398,31 @@ methods we have seen.
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### {{< iconify la r-project >}} R
+#### {{< iconify la r-project >}} dplyr
+
 ```{r}
 #| label: glimpse-taxi
-glimpse(taxi)
+dplyr::glimpse(taxi)
 
 ```
+
+#### {{< iconify la r-project >}} skimr
 
 ```{r}
 #| label: skim-taxi
-skim(taxi)
+skimr::skim(taxi)
 
 ```
+
+#### {{< iconify la r-project >}} mosaic
 
 ```{r}
 #| label: inspect-taxi
-inspect(taxi)
+mosaic::inspect(taxi)
 
 ```
 
-### {{< iconify noto-v1 spider-web >}} web-r
+#### {{< iconify noto-v1 spider-web >}} web-r
 
 ```{webr-r}
 #| label: glimpse-taxi-webr
@@ -406,6 +446,23 @@ inspect(taxi)
 ### {{< iconify streamline dictionary-language-book-solid >}} Data Dictionary
 
 ::: callout-note
+#### Quantitative Data
+-   `distance`:  Continuous Quant variable, the distance of the trip in miles.
+
+:::
+
+::: callout-note
+#### Qualitative Data
+- `tip`:  Yes/No type Qual variable, whether a tip was given or not.
+- `company`: 7 levels, the cab company that was used for the ride.
+- `local`: 2 levels, whether the trip was local or not.
+- `hour` :  24 levels, the hour of the day when the trip started.
+- `dow`: 7 levels, the day of the week.
+- `month`: 12 levels, the month of the year.
+
+:::
+
+::: callout-note
 ### Business Insights on Examining the `taxi` dataset
 
 -   This is a large dataset (10K rows), 8 columns/variables.
@@ -416,39 +473,26 @@ inspect(taxi)
 :::
 
 
-### {{< iconify  material-symbols lab-research >}} Hypothesis and Research Questions
-- The target variable for an experiment that resulted in this data might be the `tip` variable. Which is a binary i.e. Yes/No type Qual variable. 
-
-::: callout-note
-### Research Questions:
-  - Do more people  `tip` than not?
-  - Does a `tip` depend upon whether the trip is `local` or not?
-  - Do some cab `company`-ies get more tips than others?
-  - And does a `tip` depend upon the `distance`, `hour` of day, and `dow` and `month`?
-
-
-Try and think of more Questions!
-:::
-
-## {{< iconify ic baseline-bar-chart >}} Plotting Barcharts
-
-Let's plot some bar graphs: recall that for bar charts, we need to
-choose **Qual** variables to count with! In each case, we will state a Hypothesis/Question and try to answer it with a chart. 
-
-
 ### {{< iconify carbon clean >}} Data Munging
 
-We will keep the target variable `tip` in mind at all times. And convert the `dow`, `local` and `month` variables into factors beforehand.
+We will convert the `tip`, `company`, `dow`, `local`, `hour`, and `month` variables into factors beforehand.
 
 ```{r}
 #| label: data-factor-conversion
 #| message: false
 
-## Convert `dow`, `local`, and `month` into ordered factors
+## Convert `dow`, `local`, `month`, and `hour` into ordered factors
 taxi_modified <- taxi %>%
-  mutate(dow = factor(dow,
-    levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-    labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+  mutate(
+    ##
+    tip = factor(tip, levels = c("yes", "no"), labels = c("yes", "no"),
+                 ordered = TRUE),
+    ##
+    company = factor(company), # Any order is OK. 
+    ##
+    dow = factor(dow,
+         levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
+         labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
     ordered = TRUE),
     ##
     local = factor(local,
@@ -456,10 +500,13 @@ taxi_modified <- taxi %>%
                    labels = c("no", "yes"),
                    ordered = TRUE),
     ##
-  month = factor(month, 
+    month = factor(month, 
                  levels = c("Jan", "Feb", "Mar", "Apr"),
                  labels = c("Jan", "Feb", "Mar", "Apr"),
-                 ordered = TRUE))
+                 ordered = TRUE),
+    ##
+    hour = factor(hour, levels = c(0:23), labels = c(0:23), 
+                  ordered = TRUE))
 taxi_modified %>% glimpse()
 
 ```
@@ -489,21 +536,45 @@ taxi_modified %>% glimpse()
 
 
 
-### {{< iconify el question-sign >}} Question-1: Do more people `tip` than not?
+### {{< iconify  material-symbols lab-research >}} Hypothesis and Research Questions
 
-::: column-page-inset-right
+The ***target variable*** for an experiment that resulted in this data might be the `tip` variable, since that looks like a response, or an outcome. It is a binary i.e. Yes/No type Qual variable. 
+
+We will use the `tip` variable to ask questions about the data, and then plot the answers to these questions.
+
+::: callout-note
+### Research Questions:
+
+  1. Do more people  `tip` than not?
+  1. Does a `tip` depend upon whether the trip is `local` or not?
+  1. Do some cab `company`-ies get more tips than others?
+  1. And does a `tip` depend upon the `distance`, `hour` of day, and `dow` and `month`?
+
+
+Try and think of more Questions!
+:::
+
+### {{< iconify ic baseline-bar-chart >}} Plotting Barcharts
+
+Let's plot some bar graphs: recall that for bar charts, we need to
+choose **Qual** variables to count with! In each case, we will state a Hypothesis/Question and try to answer it with a chart. 
+
+
+### {{< iconify el question-sign >}} Question-1: Do more people `tip` than not?
 
 ::: callout-note
 ### Question-1: Do more people `tip` than not?
 
+
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### Using ggformula
-:::: {.columns}
-::: {.column}
+
+
+#### ggformula-1
+
 ```{r}
-#| label: bar-tip-ggformula
-#| eval: false
+#| label: fig-bar-tip-ggformula
+#| code-fold: true
 
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -513,22 +584,13 @@ gf_bar(~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 1A: Counts of Tips")
 
 ```
-:::
-::: {.column}
-```{r}
-#| ref.label: bar-tip-ggformula
-#| echo: false
-```
-:::
-::::
 
 
-### Using ggplot
-:::: {.columns}
-::: {.column}
+#### ggplot-1
+
 ```{r}
-#| label: bar-tip-ggplot
-#| eval: false
+#| label: fig-bar-tip-ggplot
+#| code-fold: true
 
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -538,45 +600,52 @@ ggplot(taxi_modified)  +
   labs(title = "Plot 1A: Counts of Tips")
 
 ```
-:::
-::: {.column}
+
+
+#### tidyplots-1
+
 ```{r}
-#| ref.label: bar-tip-ggplot
-#| echo: false
+#| label: fig-bar-tip-tidyplots
+#| code-fold: true
+
+tidyplot(x = tip, data = taxi_modified) %>% 
+  add_count_bar() %>% 
+  add_title("Plot 1A: Counts of Tips") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10)
+
+
 ```
 
-:::
-::::
+#### tinyplot-1
 
-### Using tinyplot
-:::: {.columns}
-::: {.column}
 ```{r}
-#| label: bar-tip-tinyplot
-#| eval: false
-
+#| label: fig-bar-tip-tinyplot
+#| code-fold: true
+#| 
+tinyplot::tinytheme("ipsum") #clean2 #basic #minimal...
 tinyplot(~ tip, data = taxi_modified,
         type = "barplot",
         main = "Plot 1A: Counts of Tips")
 
 ```
-:::
-::: {.column}
-```{r}
-#| ref.label: bar-tip-tinyplot
-#| echo: false
-```
-:::
-::::
 
-### {{< iconify noto-v1 spider-web >}} web-r
+#### {{< iconify noto-v1 spider-web >}} web-r-1
 
 ```{webr-r}
 #| label: bar-charts-ggformula-webr
-#| layout-ncol: 2
+#| layout-ncol: 3
+
+tidyplot(x = tip, data = taxi_modified) %>% 
+  add_count_bar() %>% 
+  add_title("Plot 1A: Counts of Tips") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_seaside) %>%
+  theme_tidyplot(fontsize = 12)
 
 gf_bar(~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot A: Counts of Tips")
+  gf_labs(title = "Plot 1A: Counts of Tips")
 
 ggplot(taxi_modified)  + 
   geom_bar(aes(x = tip)) + 
@@ -585,11 +654,12 @@ ggplot(taxi_modified)  +
 ```
 :::
 
-### Business Insights-1
-- Far more people `tip` than not. 
-- (Future) The counts of `tip` are very imbalanced and if we are to setup a model for that (e.g. logistic regression) we would need to  very carefully subset the data for `training` and `testing` our model. 
+#### Business Insights-1
+- Far more people do `tip` than not. Which is nice. 
+- (Future) The counts of `tip` are very imbalanced and if we are to setup a model for that ([logistic regression](../../../Modelling/Modules/LogReg/index.qmd)) we would need to  very carefully subset the data for `training` and `testing` our model. 
 
 :::
+
 
 
 
@@ -599,13 +669,15 @@ ggplot(taxi_modified)  +
 
 ::: callout-note
 ### Question-2: Does the `tip` depend upon whether the trip is `local` or not?
+
+
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### Using ggformula
+#### ggformula-2
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-2-1
+#| label: fig-research-ggformula-2-1
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -620,7 +692,7 @@ taxi_modified %>%
 
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-2-1
+#| ref-label: fig-research-ggformula-2-1
 #| echo: false
 ```
 :::
@@ -629,7 +701,7 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-2-2
+#| label: fig-research-ggformula-2-2
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -645,7 +717,7 @@ taxi_modified %>%
 
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-2-2
+#| ref-label: fig-research-ggformula-2-2
 #| echo: false
 ```
 
@@ -655,7 +727,7 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-2-3
+#| label: fig-research-ggformula-2-3
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -672,7 +744,7 @@ taxi_modified %>%
 
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-2-3
+#| ref-label: fig-research-ggformula-2-3
 #| echo: false
 ```
 
@@ -682,7 +754,7 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-2-4
+#| label: fig-research-ggformula-2-4
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -700,14 +772,14 @@ taxi_modified %>%
 
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-2-4
+#| ref-label: fig-research-ggformula-2-4
 #| echo: false
 ```
 
 :::
 ::::
 
-### Using ggplot
+#### ggplot-2
 ```{r}
 #| layout-ncol: 2
 ## Set graph theme
@@ -738,14 +810,91 @@ taxi_modified %>%
 
 ```
 
+#### tidyplots-2
 
-### Using tinyplot
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-tinyplot-2-1
+#| label: fig-tidyplots-2-1
 #| eval: false
+tidyplots::tidyplot(local, colour = tip, #<1>
+                    data = taxi_modified) %>% 
+  add_count_bar() %>% 
+  add_title("Plot 2A: Dodged Bar Chart") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10) 
 
+```
+
+:::
+::: {.column}
+
+```{r}
+#| ref-label: fig-tidyplots-2-1
+#| echo: false
+```
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-2-2
+#| eval: false
+tidyplots::tidyplot(local, colour = tip, data = taxi_modified) %>% 
+  add_barstack_absolute() %>%                     #<1>
+  add_title("Plot 2B: Stacked Bar Chart") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10) 
+
+```
+:::
+
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-2-2
+#| echo: false
+```
+:::
+::::
+
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-2-3
+#| eval: false
+tidyplots::tidyplot(local, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_relative() %>% 
+  add_title("Plot 2C: Dodged Bar Chart") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10) 
+
+```
+:::
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-2-3
+#| echo: false
+```
+:::
+::::
+
+
+
+
+#### tinyplot-2
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tinyplot-2-1
+#| eval: false
+tinytheme("ipsum")
 tinyplot(~ local | tip, data = taxi_modified,
   type = "barplot",
   beside = TRUE, # for placing bars beside one another
@@ -756,7 +905,7 @@ tinyplot(~ local | tip, data = taxi_modified,
 
 ::: {.column}
 ```{r}
-#| ref.label: research-tinyplot-2-1
+#| ref-label: fig-tinyplot-2-1
 #| echo: false
 ```
 :::
@@ -765,12 +914,13 @@ tinyplot(~ local | tip, data = taxi_modified,
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-tinyplot-2-2
+#| label: fig-tinyplot-2-2
 #| eval: false
 tinyplot(~ local | tip, data = taxi_modified,
   type = "barplot",
-  beside = FALSE, xlevels = c("no","yes"), # try reversing
-  main = "Plot 2A: Stacked Bar Chart",
+  beside = FALSE,                                  # <1>
+  xlevels = c("no","yes"), # try reversing
+  main = "Plot 2B: Stacked Bar Chart",
   sub = "Can we spot per group differences in proportions??")
 
 
@@ -779,7 +929,7 @@ tinyplot(~ local | tip, data = taxi_modified,
 
 ::: {.column}
 ```{r}
-#| ref.label: research-tinyplot-2-2
+#| ref-label: fig-tinyplot-2-2
 #| echo: false
 ```
 
@@ -787,23 +937,25 @@ tinyplot(~ local | tip, data = taxi_modified,
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-tinyplot-2-3
+#| label: fig-tinyplot-2-3
 #| eval: false
 
 ## Showing "per capita" percentages
 
-tinyplot(tip ~ local, data = taxi_modified,
-        type = "barplot", beside = FALSE,
-        FUN = "prop",
-        main = "Plot 2C: Filled Bar Chart",
-        sub= "Shows Per group differences in Proportions!")
+tinyplot(~ local | tip, data = taxi_modified,
+  type = "barplot",
+  beside = FALSE,                                  
+  xlevels = c("no","yes"), # try reversing
+  main = "Plot 2B: Stacked Bar Chart",
+  sub = "Can we spot per group differences in proportions??")
+
 ```
 
 :::
 
 ::: {.column}
 ```{r}
-#| ref.label: research-tinyplot-2-3
+#| ref-label: fig-tinyplot-2-3
 #| echo: false
 ```
 
@@ -813,7 +965,7 @@ tinyplot(tip ~ local, data = taxi_modified,
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-tinyplot-2-4
+#| label: fig-tinyplot-2-4
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -831,7 +983,7 @@ taxi_modified %>%
 
 ::: {.column}
 ```{r}
-#| ref.label: research-tinyplot-2-4
+#| ref-label: fig-tinyplot-2-4
 #| echo: false
 ```
 
@@ -841,7 +993,7 @@ taxi_modified %>%
 ::::
 
 
-### {{< iconify noto-v1 spider-web >}} web-r
+#### {{< iconify noto-v1 spider-web >}} web-r-2
 ```{webr-r}
 taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "dodge") %>% 
@@ -865,16 +1017,17 @@ taxi_modified %>%
           subtitle = "Shows Per group differences in Proportions!")
 ```
 
-
-
 :::
-### Business Insights-2
+
+
+#### Business Insights-2
 - Counting the frequency of `tip` by `local` gives us grouped counts, but we cannot tell the percentage per group (local or not) of those who tip and those who do not. 
 - We need per-group percentages because the number of `local` trips are not balanced
-- Hence we tried bar charts with `position = stack`, but finally it is the `position = fill` that works best.
+- Hence with `tidyplots`, we find that `add_barstack_relative` gives the clearest visual indication of a difference in proportion.
+- Likewise with `ggformula`, we tried bar charts with `position = stack`, but finally it is the `position = fill` that works best.
 - We see that the percentage of tippers is somewhat higher with people who make non-local trips. Not surprising. 
-:::
 
+:::
 
 
 ### {{< iconify el question-sign >}} Question-3: Do some cab `company`-ies get more `tips` than others?
@@ -882,26 +1035,27 @@ taxi_modified %>%
 ::: callout-note
 ### Question-3: Do some cab `company`-ies get more `tips` than others?
 
+
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### Using ggformula
+#### ggformula-3
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-3-1
+#| label: fig-ggformula-3-1
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
-  gf_labs(title = "Plot 2A: Dodged Bar Chart") %>% 
+  gf_labs(title = "Plot 3A: Dodged Bar Chart") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ```
 :::
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-3-1
+#| ref-label: fig-ggformula-3-1
 #| echo: false
 ```
 
@@ -911,21 +1065,21 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-3-2
+#| label: fig-ggformula-3-2
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
 #
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "stack") %>% 
-  gf_labs(title = "Plot 2B: Stacked Bar Chart",
+  gf_labs(title = "Plot 3B: Stacked Bar Chart",
           subtitle = "Can we spot per group differences in proportions??") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ```
 :::
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-3-2
+#| ref-label: fig-ggformula-3-2
 #| echo: false
 ```
 
@@ -935,15 +1089,15 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-3-3
+#| label: fig-ggformula-3-3
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
 #
 ## Showing "per capita" percentages
 taxi_modified %>% 
-  gf_bar(~ company, fill = ~ tip, position = "fill") %>% 
-  gf_labs(title = "Plot 2C: Filled Bar Chart",
+  gf_percents(~ company, fill = ~ tip, position = "fill") %>% 
+  gf_labs(title = "Plot 3C: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ```
@@ -951,7 +1105,7 @@ taxi_modified %>%
 :::
 ::: {.column}
 ```{r}
-#| ref.label: research-ggformula-3-1
+#| ref-label: fig-ggformula-3-1
 #| echo: false
 ```
 
@@ -961,7 +1115,7 @@ taxi_modified %>%
 :::: {.columns}
 ::: {.column}
 ```{r}
-#| label: research-ggformula-3-4
+#| label: fig-ggformula-3-4
 #| eval: false
 ## Set graph theme
 theme_set(new = theme_custom())
@@ -970,7 +1124,7 @@ theme_set(new = theme_custom())
 ## Better labelling of Y-axis
 taxi_modified %>% 
   gf_props(~ company, fill = ~ tip, position = "fill") %>% 
-  gf_labs(title = "Plot 2D: Filled Bar Chart",
+  gf_labs(title = "Plot 3D: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 
@@ -979,7 +1133,7 @@ taxi_modified %>%
 
 :::{.column}
 ```{r}
-#| ref.label: research-ggformula-3-4
+#| ref-label: fig-ggformula-3-4
 #| echo: false
 ```
 
@@ -987,7 +1141,7 @@ taxi_modified %>%
 ::::
 
 
-### Using ggplot
+#### ggplot-3
 ```{r}
 #| layout-ncol: 2
 ## Set graph theme
@@ -996,20 +1150,20 @@ theme_set(new = theme_custom())
 taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "dodge") + 
-  labs(title = "Plot 2A: Dodged Bar Chart") + 
+  labs(title = "Plot 3A: Dodged Bar Chart") + 
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ##
 taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "stack") +
-  labs(title = "Plot 2B: Stacked Bar Chart",
+  labs(title = "Plot 3B: Stacked Bar Chart",
        subtitle = "Can we spot per group differences in proportions??") +
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
 taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "fill") +
-  labs(title = "Plot 2C: Filled Bar Chart",
+  labs(title = "Plot 3C: Filled Bar Chart",
        subtitle = "Shows Per group differences in Proportions!") +
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
@@ -1017,37 +1171,121 @@ taxi_modified %>%
 taxi_modified %>% 
   ggplot() + 
   geom_bar(aes(x = company, fill = tip), position = "fill") +
-  labs(title = "Plot 2D: Filled Bar Chart",
+  labs(title = "Plot 3D: Filled Bar Chart",
        subtitle = "Shows Per group differences in Proportions!",
        y = "Proportions") +
   theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 
 ```
 
-### {{< iconify noto-v1 spider-web >}} web-r
+
+#### tidyplots-3
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-3-1
+#| eval: false
+tidyplots::tidyplot(company, colour = tip, #<1>
+                    data = taxi_modified) %>% 
+  add_count_bar() %>% 
+  add_title("Plot 3A: Dodged Bar Chart") %>% 
+  adjust_size(height = 2, width = 4.8, unit = "inches") %>%
+  adjust_x_axis(rotate_labels = 45) %>%
+  theme_tidyplot(fontsize = 10)
+
+```
+:::
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-3-1
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-3-2
+#| eval: false
+
+tidyplots::tidyplot(company, colour = tip, #<1>
+                    data = taxi_modified) %>% 
+  add_barstack_absolute() %>% 
+  add_title("Plot 3B: Stacked Bar Chart") %>% 
+  adjust_size(height = 2, width = 4.8, unit = "inches") %>%
+  adjust_x_axis(rotate_labels = 45) %>%
+  theme_tidyplot(fontsize = 10)
+```
+:::
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-3-2
+#| echo: false
+```
+
+:::
+::::
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-3-3
+#| eval: false
+tidyplots::tidyplot(company, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_relative() %>% # <1>
+  add_title("Plot 3C: Stacked Bar Chart") %>% 
+  add_annotation_text(text = "Proportions of Tippers per Company", 
+                      x = 4.25,  y = 1.25) %>% 
+  adjust_size(height = 2, width = 4.8, unit = "inches") %>%
+  adjust_x_axis(title = "", rotate_labels = 45) %>%
+  adjust_y_axis(title = "Proportions") %>% # Not happening??
+  theme_tidyplot(fontsize = 10)
+  
+```
+
+:::
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-3-3
+#| echo: false
+```
+
+:::
+::::
+
+
+#### tinyplot-3
+
+To be Coded!!
+
+#### {{< iconify noto-v1 spider-web >}} web-r-3
 ```{webr-r}
 
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
-  gf_labs(title = "Plot 2A: Dodged Bar Chart") %>% 
+  gf_labs(title = "Plot 3A: Dodged Bar Chart") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ##
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "stack") %>% 
-  gf_labs(title = "Plot 2B: Stacked Bar Chart",
+  gf_labs(title = "Plot 3B: Stacked Bar Chart",
           subtitle = "Can we spot per group differences in proportions??") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "fill") %>% 
-  gf_labs(title = "Plot 2C: Filled Bar Chart",
+  gf_labs(title = "Plot 3C: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
 taxi_modified %>% 
   gf_props(~ company, fill = ~ tip, position = "fill") %>% 
-  gf_labs(title = "Plot 2D: Filled Bar Chart",
+  gf_labs(title = "Plot 3D: Filled Bar Chart",
           subtitle = "Shows Per group differences in Proportions!") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, angle = 45, hjust = 1)))
 
@@ -1057,8 +1295,8 @@ taxi_modified %>%
 
 :::
 
-### Business Insights-3
-- Using `stack`, `dodge`, and `fill` in bar plots gives us different ways of looking at the sets of counts;
+#### Business Insights-3
+- Using `stack`-ed, `dodge`-ed, and `fill`-ed in ggformula (and `bars`, `absolute-stacked-bars`, and `relative-stacked-bars` in tidyplots) in bar plots gives us different ways of looking at the sets of counts;
 - `fill`: gives us a per-group proportion of another Qual variable for a chosen Qual variable. This chart view is useful in [Inference for Proportions](../../../Inference/Modules/190-TwoProp/index.qmd);
 - Most cab `company`-ies have similar usage, if you neglect the `other` category of `company`;
 - Does seem that of all the `company`-ies, `tips` are not so good for the `Flash Cab` company. A driver issue? Or are the cars too old? Or don't they offer service everywhere?
@@ -1073,7 +1311,8 @@ taxi_modified %>%
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke; "}
 
-### Using ggformula
+
+#### ggformula-4
 :::: {.columns}
 ::: {.column}
 ```{r}
@@ -1084,14 +1323,14 @@ taxi_modified %>%
 theme_set(new = theme_custom())
 ## 
 gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot B: Counts of Tips by Hour")
+  gf_labs(title = "Plot 4A: Counts of Tips by Hour")
 ```
 
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-1
+#| ref-label: bar-tip-others-ggformula-4-1
 #| echo: false
 ```
 
@@ -1106,14 +1345,14 @@ gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
 #| eval: false
 ##
 gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot C: Counts of Tips by Day of Week")
+  gf_labs(title = "Plot 4B: Counts of Tips by Day of Week")
 ```
 
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-2
+#| ref-label: bar-tip-others-ggformula-4-2
 #| echo: false
 ```
 
@@ -1129,13 +1368,13 @@ gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
 #| eval: false
 ##
 gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot D: Counts of Tips by Month")
+  gf_labs(title = "Plot 4C: Counts of Tips by Month")
 ```
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-3
+#| ref-label: bar-tip-others-ggformula-4-3
 #| echo: false
 ```
 
@@ -1152,13 +1391,13 @@ gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
 #| eval: false
 ##
 gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot E: Counts of Tips by Day of Week and Month")
+  gf_labs(title = "Plot 4D: Counts of Tips by Day of Week and Month")
 ```
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-4
+#| ref-label: bar-tip-others-ggformula-4-4
 #| echo: false
 ```
 
@@ -1176,14 +1415,14 @@ gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
 ##
 ## This may be too busy a graph...
 gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
+  gf_labs(title = "Plot 4E: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ```
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-5
+#| ref-label: bar-tip-others-ggformula-4-5
 #| echo: false
 ```
 
@@ -1200,14 +1439,14 @@ gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
 #| eval: false
 ## This is better!
 gf_bar(~ hour | dow, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot G: Counts of Tips by Hour and Day of Week",
+  gf_labs(title = "Plot 4F: Counts of Tips by Hour and Day of Week",
           subtitle = "Swapped the Facets")  
 ```
 :::
 
 :::{.column}
 ```{r}
-#| ref.label: bar-tip-others-ggformula-4-6
+#| ref-label: bar-tip-others-ggformula-4-6
 #| echo: false
 ```
 
@@ -1215,7 +1454,7 @@ gf_bar(~ hour | dow, fill = ~ tip, data = taxi_modified) %>%
 ::::
 
 
-### Using ggplot
+#### ggplot-4
 ```{r}
 #| label: bar-tip-others-ggplot
 #| layout-ncol: 2
@@ -1227,77 +1466,228 @@ theme_set(new = theme_custom())
 ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(hour)) + 
-  labs(title = "Plot B: Counts of Tips by Hour")
+  labs(title = "Plot 4A: Counts of Tips by Hour")
 ##
 ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(dow)) + 
-  labs(title = "Plot C: Counts of Tips by Day of Week")
+  labs(title = "Plot 4B: Counts of Tips by Day of Week")
 ##
 ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_wrap(vars(month)) + 
-  labs(title = "Plot D: Counts of Tips by Month")
+  labs(title = "Plot 4C: Counts of Tips by Month")
 ##
 ggplot(data = taxi_modified) + 
   geom_bar(aes(x = tip)) + 
   facet_grid(rows = vars(dow), cols = vars(month)) + 
-  labs(title = "Plot E: Counts of Tips by Day of Week and Month")
+  labs(title = "Plot 4D: Counts of Tips by Day of Week and Month")
 ##
 ## This may be too busy a graph...
 ggplot(data = taxi_modified) +
   geom_bar(aes(x = dow, fill = tip)) +
   facet_wrap(vars(hour)) + 
-  labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
+  labs(title = "Plot 4E: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ## This is better!
 ggplot(data = taxi_modified) +
   geom_bar(aes(x = hour, fill = tip)) +
   facet_wrap(vars(dow)) +           
-  labs(title = "Plot G: Counts of Tips by Hour and Day of Week",
+  labs(title = "Plot 4F: Counts of Tips by Hour and Day of Week",
           subtitle = "Swapped the Facets")   
 
 ```
 
+#### tidyplots-4
 
-### {{< iconify noto-v1 spider-web >}} web-r
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| label: fig-tidyplots-4-1
+#| eval: false
+tidyplots::tidyplot(hour, colour = tip,
+                    data = taxi_modified) %>% 
+  add_count_bar() %>% 
+  add_title("Plot 4A: Counts of Tips by Hour") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10)
+  
+```
+
+:::
+
+::: {.column}
+
+```{r}
+#| ref-label: fig-tidyplots-4-1
+#| echo: false
+```
+
+:::
+
+::::
+
+
+:::: {.columns}
+
+::: {.column}
+
+```{r}
+#| label: fig-tidyplots-4-2
+#| eval: false
+tidyplots::tidyplot(hour, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_absolute() %>% 
+  add_title("Plot 4B: Counts of Tips by Hour") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10)
+```
+
+:::
+
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-4-2
+#| echo: false
+```
+
+:::
+
+::::
+
+
+:::: {.columns}
+
+::: {.column}
+
+```{r}
+#| label: fig-tidyplots-4-3
+#| eval: false
+tidyplots::tidyplot(hour, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_relative() %>% 
+  add_title("Plot 4C: Counts of Tips by Hour") %>% 
+  adjust_size(height = 3, width = 4.8, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10)
+```
+
+:::
+
+::: {.column}
+```{r}
+#| ref-label: fig-tidyplots-4-3
+#| echo: false
+```
+
+:::
+
+::::
+
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-4-4
+#| eval: false
+##
+tidyplots::tidyplot(month, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_absolute() %>% 
+  add_title("Plot 4D: Counts of Tips by Day of Week and Month") %>% 
+  adjust_size(height = 5, width = 7, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  theme_tidyplot(fontsize = 10) %>% 
+  split_plot(by = dow, 
+             ncol = 3, nrow = 3, guides = "collect") 
+  
+```
+:::
+
+:::{.column}
+```{r}
+#| ref-label: fig-tidyplots-4-4
+#| echo: false
+```
+
+:::
+::::
+
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: fig-tidyplots-4-5
+#| eval: false
+##
+tidyplots::tidyplot(dow, colour = tip,
+                    data = taxi_modified) %>% 
+  add_barstack_absolute() %>% 
+  add_title("Plot 4D: Counts of Tips by Day of Week and Month") %>% 
+  adjust_size(height = 5, width = 7, unit = "inches") %>% 
+  adjust_colors(colors_discrete_friendly) %>%
+  adjust_x_axis(rotate_labels = 45) %>%
+  theme_tidyplot(fontsize = 10) %>% 
+  split_plot(by = hour, 
+             ncol = 3, nrow = 8, guides = "collect") 
+  
+```
+:::
+
+:::{.column}
+```{r}
+#| ref-label: fig-tidyplots-4-5
+#| echo: false
+```
+
+:::
+::::
+
+
+#### tinyplot-4
+
+To be Coded. 
+
+#### {{< iconify noto-v1 spider-web >}} web-r-4
 
 ```{webr-r}
 gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot B: Counts of Tips by Hour")
+  gf_labs(title = "Plot 4A: Counts of Tips by Hour")
 ##
 gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot C: Counts of Tips by Day of Week")
+  gf_labs(title = "Plot 4B: Counts of Tips by Day of Week")
 ##
 gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot D: Counts of Tips by Month")
+  gf_labs(title = "Plot 4C: Counts of Tips by Month")
 
 ##
 gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot E: Counts of Tips by Day of Week and Month")
+  gf_labs(title = "Plot 4D: Counts of Tips by Day of Week and Month")
 ##
 ## This may be too busy a graph...
 gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
-  gf_labs(title = "Plot F: Counts of Tips by Hour and Day of Week",
+  gf_labs(title = "Plot 4E: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?")
 ## This is better!
 gf_bar(~ hour | dow, fill = ~ tip, data = taxi) %>%
-  gf_labs(title = "Plot G: Counts of Tips by Hour and Day of Week",
+  gf_labs(title = "Plot 4F: Counts of Tips by Hour and Day of Week",
           subtitle = "Swapped the Facets")  
 
 ```
 
 :::
+
 ### Business Insights-4
 - Note: We were using `fill = ~ tip` here! Why is that a good idea?
 - `tips` vs `hour`: There are always more people who `tip` than those who do not. Of course there are fewer **trips** during the early morning hours and the late night hours, based on the very small bar-pairs we see at those times
 - `tips` vs `dow`: Except for Sunday, the `tip` count patterns (Yes/No) look similar across all days.
 - `tips` vs `month`: We have data for 4 months only. Again, the `tip` count patterns (Yes/No) look similar across all months. Perhaps slightly fewer **trips** in Jan, when it is cold in Chicago and people may not go out much.
 - `tips` vs `dow` vs `month`: Very similar counts for `tips`(Yes/No) across day-of-week and month. 
-:::
 
 :::
-
 
 ## {{< iconify mdi size-extra-large size=2x >}} Bar Plot Extras
 
@@ -1319,6 +1709,7 @@ We have already seen `gf_props` in our two case studies above. Also check out `g
 
 :::: {.columns}
 ::: {.column}
+
 ```{r}
 #| label: props-chart-1
 #| eval: false
@@ -1335,9 +1726,10 @@ gf_props(~ substance,
 ```
 :::
 
+
 :::{.column}
 ```{r}
-#| ref.label: props-chart-1
+#| ref-label: props-chart-1
 #| echo: false
 ```
 
@@ -1369,7 +1761,7 @@ gf_props(~ substance,
 ::: {.column}
 
 ```{r}
-#| ref.label: props-chart-2
+#| ref-label: props-chart-2
 #| echo: false
 ```
 
@@ -1397,7 +1789,7 @@ gf_percents(~ substance,
 :::
 ::: {.column}
 ```{r}
-#| ref.label: percents-chart
+#| ref-label: percents-chart
 #| echo: false
 ```
 
@@ -1506,9 +1898,10 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggformula", "ggplot2", "mosaic")
+  pkgs = c("ggformula", "ggplot2", "mosaic", "tidyplots", "tinyplot")
 ) %>%
   knitr::kable(format = "simple")
 
 ```
 :::
+
