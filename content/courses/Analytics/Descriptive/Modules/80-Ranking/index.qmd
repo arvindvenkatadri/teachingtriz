@@ -82,6 +82,17 @@ library(ggalt) # New geometries, coordinate systems, statistical transformations
 # devtools::install_github("ricardo-bion/ggradar")
 library(ggradar) # Radar Plots
 
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ```
 
 
@@ -93,73 +104,6 @@ library(ggradar) # Radar Plots
 library(checkdown)
 library(epoxy)
 library(grateful)
-
-```
-
-#### Plot Theme
-```{r}
-#| label: Plot Sizing and theming
-#| code-fold: true
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
-
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)),               
-      plot.title.position = "plot", 
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10),               #font size
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8),                #font size
-    
-      legend.text = element_text(
-                    family = font,           
-                    size = 8)               
-      )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
 
 ```
 
@@ -201,8 +145,7 @@ df1
 #| label: lollipop-1
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ###
 gf_segment(0 + rank ~ product + product, data = df1) %>% 
@@ -230,8 +173,7 @@ gf_segment(0 + rank ~ product + product, data = df1) %>%
 ```{r}
 #| label: lollipop-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ###
 gf_segment(0 + rank ~ fct_reorder(product, - rank) + 
@@ -264,8 +206,7 @@ We have flipped the chart horizontally *and* reordered the $x$ categories in ord
 ```{r}
 #| layout-ncol: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ###
 ggplot(df1) +
@@ -295,8 +236,7 @@ Yes, R has ( nearly) everything, including a `geom_lollipop` command: Here!
 ```{r}
 #| label: ggalt-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 #library(ggalt)
 
@@ -321,9 +261,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-###
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ggplot(df1) +
   geom_lollipop(aes(y = rank, x = product), 
                 point.size = 3, horizontal = T) +
@@ -343,8 +281,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-3
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ###
 ggplot(df1) +
   geom_lollipop(aes(y = rank, x = product), 
@@ -368,8 +305,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-4
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ##
 ggplot(df1) +
   geom_lollipop(aes(x = rank, 
@@ -459,8 +395,7 @@ A cool visualization of this operation was created by [Garrick Aden-Buie](https:
 ```{r}
 #| label: dumbbell-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ## With Wide Form Data
 ## 
@@ -474,7 +409,8 @@ df2 %>%
            colour = "#123456") %>% 
   gf_point(product ~ rank_year2, size = 3, 
            colour = "#bad744") %>% 
-  gf_labs(x = "Rank", y = "Product")
+  gf_labs(x = "Rank", y = "Product", title = "Product Ranks in Year1 and Year2")
+
 ```
 
 :::
@@ -493,8 +429,7 @@ df2 %>%
 ```{r}
 #| label: dumbbell-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ## Rearranging `product` in order of rank_year2
 df2 %>% 
   gf_segment(
@@ -527,8 +462,9 @@ df2 %>%
 ### Using ggplot
 
 ```{r}
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed"))
+# Set consistent graph theme
+# 
 ## With Wide Format Data
 ggplot(df2, aes(y = product, yend = product, x = rank_year1, xend = rank_year2)) + 
   geom_segment(size = 3, color="#e3e2e1",
@@ -560,8 +496,7 @@ ggplot(df2, aes(y = reorder(product,rank_year2), yend = reorder(product,rank_yea
 ```{r}
 #| label: ggalt-dumbbell-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 df2 %>% ggplot() + 
   geom_dumbbell(aes(y = reorder(product,rank_year2),
@@ -577,7 +512,6 @@ df2 %>% ggplot() +
        title = "ggplot2 geom_dumbbell with dot guide",
        subtitle = "Products in Decreasing order of Year2 Rank",
        caption = "Made with ggalt") +
-  #theme_minimal() +
   theme(panel.grid.major.x=element_line(size=0.05)) +
   theme(panel.grid.major.y=element_blank())
 
@@ -600,8 +534,7 @@ df2 %>% ggplot() +
 ```{r}
 #| label: barplot-for-comparison
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 df2_long %>% 
   gf_col(product ~ scores, group = ~ year, 
@@ -673,8 +606,7 @@ Note the `+` syntax with `ggplot` code!!
 ```{r}
 #| label: bump-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 df3 %>%  
   ggplot() +
   geom_bump(aes(x = year, y = position, color = product)) +
@@ -683,7 +615,7 @@ df3 %>%
   xlab("Year") +
   ylab("Rank") +
   scale_color_brewer(palette = "RdBu") + # Change Colour Scale
-  scale_x_discrete(limits = c(2019, 2020, 2021)) # Check warning here...
+  scale_x_discrete(limits = c(2019:2021)) # Check warning here...
   
 ```
 :::
@@ -706,8 +638,7 @@ altogether:
 ```{r}
 #| label: bump-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ###
 ggplot(df3) +
@@ -806,14 +737,14 @@ And now plot it with both packages.
 ```{r}
 #| label: radar-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ggradar::ggradar(plot.data = df4,
                  axis.label.size = 3, # Titles of Params
                  grid.label.size = 4, # Score Values/Circles
                  group.point.size = 3,# Product Points Sizes
                  group.line.width = 1, # Product Line Widths
+                 group.colours = c("#123456", "#fad744", "#03e2e1"), # Product Colours
                  fill = TRUE, # fill the radar polygons
                  fill.alpha = 0.3, # Not too dark, Arvind
                  legend.title = "Product") 
@@ -847,18 +778,16 @@ From the `ggiraphExtra` website:
 ```{r}
 #| label: radar-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 # library(ggiraphExtra)
 
 ggiraphExtra::ggRadar(data = df4,
         aes(colour = Product),
         interactive = FALSE, # try TRUE
         rescale = FALSE,
-        title = "Using ggiraphExtra"
-          )  + # recale = TRUE makes it look different...try!!
-  theme_minimal()
-
+        title = "Using ggiraphExtra")   + # recale = TRUE makes it look different...try!!
+        theme_minimal(base_family = "Roboto Condensed")
 
 ```
 
@@ -911,7 +840,6 @@ ggiraphExtra::ggRadar(data = df4,
 
 1. Highcharts Blog. [Why you need to start using dumbbell charts](https://www.highcharts.com/blog/tutorials/why-you-need-to-start-using-dumbbell-charts/)\
 <https://github.com/hrbrmstr/ggalt#lollipop-charts>\
-
 1. See this use of Radar Charts in Education. Choose the country/countries of choice and plot their ranks on various educational parameters in a radar chart.  <https://gpseducation.oecd.org/Home>
 
 ::: {#refs style="font-size: 60%;"}

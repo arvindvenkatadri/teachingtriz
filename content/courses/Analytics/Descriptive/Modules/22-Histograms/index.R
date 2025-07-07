@@ -4,7 +4,16 @@ library(ggformula)
 library(skimr)
 ##
 library(crosstable) # Fast stats for multiple variables in table form
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
 
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 library(checkdown)
 library(epoxy)
@@ -15,76 +24,14 @@ library(grateful)
 library(MKdescr)
 library(shinylive) # To create a Shiny app in a Quarto HTML doc
 # Will not work if webr is also used in the SAME Quarto doc!
-library(sysfonts)
-library(gfonts)
-library(kableExtra)
-# library(conflicted)
-# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+
 library(downloadthis)
 #devtools::install_github("mccarthy-m-g/embedr")
 library(embedr) # Embed multimedia in HTML files
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",              
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
-
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "1") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 
 glimpse(diamonds)
@@ -96,17 +43,16 @@ skim(diamonds)
 inspect(diamonds)
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # gf_histogram(~ price, data = diamonds) %>%
 #   gf_labs(title = "Plot 1A: Diamond Prices",
 #           caption = "ggformula")
 
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # ## More bins
 # gf_histogram(~ price, data = diamonds,
 #              bins = 100) %>%
@@ -116,9 +62,8 @@ inspect(diamonds)
 
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 ggplot(data = diamonds) + 
   geom_histogram(aes(x = price)) +
@@ -131,9 +76,8 @@ ggplot(data = diamonds) +
        caption = "ggplot")
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # diamonds %>%
 #   gf_histogram(~ carat) %>%
 #   gf_labs(title = "Plot 2A: Carats of Diamonds",
@@ -141,8 +85,8 @@ ggplot(data = diamonds) +
 
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # ## More bins
 # diamonds %>%
 #   gf_histogram(~ carat,
@@ -152,8 +96,8 @@ ggplot(data = diamonds) +
 
 
 
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 diamonds %>% 
   ggplot() + 
   geom_histogram(aes(x = carat)) + 
@@ -167,14 +111,16 @@ diamonds %>%
           caption = "ggplot")
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # ##
 # gf_histogram(~ price, fill = ~ cut, data = diamonds) %>%
 #   gf_labs(title = "Plot 3A: Diamond Prices",caption = "ggformula")
 
 
 
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # diamonds %>%
 #   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
 #   gf_labs(title = "Plot 3B: Prices by Cut",
@@ -182,6 +128,9 @@ diamonds %>%
 
 
 
+# 
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # diamonds %>%
 #   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
 #   gf_facet_wrap(~ cut) %>%
@@ -193,6 +142,8 @@ diamonds %>%
 
 
 
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # diamonds %>%
 #   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
 #   gf_facet_wrap(~ cut, scales = "free_y", nrow = 2) %>%
@@ -205,9 +156,8 @@ diamonds %>%
 
 
 
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 diamonds %>% ggplot() + 
   geom_histogram(aes(x = price, fill = cut), alpha = 0.3) + 
   labs(title = "Plot 3A: Prices by Cut", caption = "ggplot")
@@ -274,27 +224,29 @@ rank_df %>%
 crosstable(time_in_seconds + age ~ gender, data = rank_df) %>% 
   crosstable::as_flextable()
 
-race_df %>% count(country) %>% arrange(desc(n))
-rank_df %>% count(nationality) %>% arrange(desc(n))
+race_df %>% count(country) %>% arrange(desc(n)) %>% top_n(3, n)
+rank_df %>% count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 
 rank_df %>% 
   filter(rank %in% c(1,2,3)) %>%
-  count(nationality) %>% arrange(desc(n))
+  count(nationality) %>% arrange(desc(n)) %>% top_n(6, n)
 
 
 longest_races <- race_df %>%
-  slice_max(n = 5, order_by = distance) # Longest distance races
+  slice_max(n = 5, order_by = distance) %>%  # Longest distance races
+  select (race_year_id, country, distance) # Select only relevant columns)
 longest_races
 
+### Now join this with the `rank_df` dataset
 longest_races %>%
   left_join(., rank_df, by  = "race_year_id") %>% # total participants in longest 4 races
   filter(rank %in% c(1:10)) %>% # Top 10 ranks
   count(nationality) %>% arrange(desc(n))
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # ##
 # 
 # rank_df %>%
@@ -304,18 +256,14 @@ longest_races %>%
 
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # race_df %>%
 #   gf_histogram(~ distance, bins =  50) %>%
 #   gf_labs(title = "Histogram of Race Distances")
 # 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 race_df %>%
   gf_histogram(~ distance, bins =  50) %>%
@@ -333,9 +281,8 @@ race_times
 
 # Demo purposes only!
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 race_start_factor <- race_df %>%
   filter(distance == 0) %>%  # Races that actually took place
@@ -391,9 +338,8 @@ pop
 inspect(pop)
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 ##
 gf_histogram(~ value, data = pop, title = "Long Tailed Histogram") 
@@ -401,9 +347,8 @@ gf_histogram(~ value, data = pop, title = "Long Tailed Histogram")
 gf_density(~ value, data = pop, title = "Long Tailed Density")
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 gf_histogram(~ log10(value), data = pop, title = "Histogram with Log transformed x-variable") 
 ##
@@ -412,6 +357,9 @@ gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-v
 
 # Build dataset with different distributions
 library(hrbrthemes)
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 data <- data.frame(
   type = c( rep("edge peak", 1000), rep("comb", 1000), rep("normal", 1000), rep("uniform", 1000), rep("bimodal", 1000), rep("skewed", 1000) ),
   value = c( rnorm(900), rep(3, 100), rnorm(360, sd=0.5), rep(c(-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75), 80), rnorm(1000), runif(1000), rnorm(500, mean=-2), rnorm(500, mean=2), abs(log(rnorm(1000))) )
@@ -432,9 +380,8 @@ data %>%
 
 library(TeachHist)
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 p1 <- TeachHistDens(Mean = 60, Sd = 5, VLine1 = 70, AxisFontSize = 14)
 xpnorm(mean = 60, sd = 5, q = 70)
@@ -447,9 +394,8 @@ xpnorm(mean = 60, sd = 5, q = 70)
 
 library(TeachHist)
 
-## Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 # p1 <- TeachHistDens(Mean = 60, Sd = 5,VLine1 = 70)
 # xpnorm(mean = 60, sd = 5, q = 70)

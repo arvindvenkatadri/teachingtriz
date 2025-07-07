@@ -55,6 +55,18 @@ library(ggsankey)
 library(networkD3)
 library(echarts4r) # Interactive graphs
 
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+
 ```
 
 ```{r}
@@ -68,70 +80,6 @@ library(grateful)
 
 ```
 
-#### Plot Theme
-```{r}
-#| label: Plot Sizing and theming
-#| code-fold: true
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),                 
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),    plot.title.position = "plot",                
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-
-```
 
 ## {{< iconify entypo line-graph >}} What Time Evolution Charts can we plot?
 
@@ -176,8 +124,7 @@ health_filtered <- health %>%
 #| layout-ncol: 2
 #| results: hold
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 gf_point(data = health_filtered,
              public_health_expenditure_pc_gdp ~ Year, 
@@ -288,11 +235,9 @@ For the next few charts, there are (as yet) no equivalents in
 #| label: titanic-data
 #| eval: false
 
-# library(ggalluvial)
-data("Titanic")
+data(Titanic, package = "datasets")
 Titanic <- Titanic %>% as_tibble()
 Titanic
-
 ```
 :::
 :::{.column}
@@ -329,8 +274,7 @@ practically all this while. You will find examples of on the
 ```{r}
 #| label: titanic-plot
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ##
 Titanic %>% ggplot(data = .,
@@ -361,8 +305,7 @@ Titanic %>% ggplot(data = .,
 # Scales and Colours
   scale_x_discrete(limits = c("Class", "Sex", "Age", "Survived"), 
                    expand = c(0.1, 0.1)) +
-  
-  scale_fill_manual(values = c("red3", "springgreen3")) + 
+  scale_fill_brewer(palette = "Dark2") + 
   
   xlab("Demographic") +
   ggtitle("Passengers on the maiden voyage of the Titanic",
@@ -414,6 +357,7 @@ The `ggsankeyfier` also plots alluvial and sankey diagrams. This package takes d
 ```{r}
 #| label: titanic-long-sankeyfier
 #| eval: false
+
 Titanic %>% 
   as_tibble() %>% 
   ggsankeyfier::pivot_stages_longer(data=.,
@@ -443,13 +387,16 @@ Let us plot this now:
 ```{r}
 #| label: titanic-ggsankeyfier
 #| eval: false
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 Titanic_long %>% 
   ggplot(aes(x = stage, y = n, 
              group = node, connector = connector, 
              edge_id = edge_id)) +
     geom_sankeynode(v_space = "auto") +
     geom_sankeyedge(aes(fill = Survived), v_space = "auto") +
-  labs(x = "")
+    scale_fill_brewer(palette = "Set1") +
+    labs(x = "", title = "Titanic Survival")
 
 ```
 :::
@@ -557,8 +504,7 @@ Let us take our previously loaded `health` dataset and plot just the change in e
 ```{r}
 #| label: health-data
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ##
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018
@@ -592,8 +538,7 @@ health_2010_2018
 ```{r}
 #| label: health-plot-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ##
 health_2010_2018 %>%   
   # remove NA data across the data set
@@ -632,9 +577,7 @@ health_2010_2018 %>%
 #| label: health-plot-2
 #| eval: false
 ## Can we do better? Sort the bars, improve axis ticks, title..
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 health_2010_2018 %>%
     # remove NA data across the data set
   drop_na() %>%
@@ -691,8 +634,7 @@ caption = "And the X-Axis is in percentage"
 ```{r}
 #| layout-ncol: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 
 health_2010_2018 <- health %>%
@@ -748,10 +690,9 @@ health_2010_2018 %>%
                  colour = "2010"), size = 3) + 
     labs(x = "Health Expenditure as Percentage of GDP",
     y = "Country",title = "Healthcare Budgets", 
-    subtitle = "Changes between 2010 to 2018"
-  ) + 
+    subtitle = "Changes between 2010 to 2018") + 
   scale_x_continuous(
-    breaks = breaks_width(2), 
+    breaks = scales::breaks_width(2), 
     labels = scales::label_percent(suffix = "%", scale = 1)) + 
     
     scale_colour_manual(name = "Year",values = c("red", "green"))
@@ -867,7 +808,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("echarts4r", "ggalluvial", "ggstream", 
-           "ggsankey","ggsankeyfier", "networkD3")) %>%
+           "ggsankey","ggsankeyfier", "networkD3", "scales")) %>%
   knitr::kable(format = "simple")
 
 ```

@@ -52,7 +52,6 @@ library(tidyverse) # Tidy data processing and plotting
 library(ggformula) # Formula based plots
 library(mosaic) # Our go-to package
 library(skimr) # Another Data inspection package
-library(kableExtra) # Making good tables with data
 
 library(GGally) # Corr plots
 library(corrplot) # More corrplots
@@ -66,89 +65,61 @@ library(palmerpenguins) # A famous dataset
 library(easystats) # Easy Statistical Analysis and Charts
 library(correlation) # Different Types of Correlations
 # From the easystats collection of packages
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 ```
 
-
-#### Plot Theme
 ```{r}
-#| label: Plot-Sizing-and-theming
-#| code-fold: true
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",                
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-
-```
-
-
-```{r}
-#| label: Themes-and-Extra-Packages
+#| label: Extra-Pedagogical-Packages
 #| echo: false
 #| message: false
-library(MKdescr)
+
 library(checkdown)
 library(epoxy)
+library(TeachHist)
+library(TeachingDemos)
+library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
 library(grateful)
-library(sysfonts)
-library(gfonts)
+library(MKdescr)
 library(downloadthis)
 library(latex2exp)
+#devtools::install_github("mccarthy-m-g/embedr")
+library(embedr) # Embed multimedia in HTML files
+
+## Figures
+## A. Markdown
+##![A nice image.](foo/bar.png){width=300}{#fig-nice}
+# This is illustrated well by @fig-nice.
+##B. html
+##<img src="foo/bar.png" width="300">
+##C: knitr
+##```{r, out.width="300px"}
+##knitr::includegraphics("foo/bar.png")
+## ```
+## ## Markdown boiler plate stuff!!
+# ### Figure Panel Divs
+#     ::: {#fig-elephants layout-ncol=2}
+#     ![Surus](surus.png){#fig-surus}
+#     ![Hanno](hanno.png){#fig-hanno}
+#      Famous Elephants
+#     :::
+# Adding download buttons
+# Data that has been read in
+#     {{< downloadthis ../../../../materials/Data/housing_train.csv dname="house_prices" label="Download the House Prices Dataset" icon="database-fill-down" type="info" >}}
+# Existing file
+#    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
 ```
+
 
 ## {{< iconify material-symbols add-chart-outline >}} What graphs will we see today?
 
@@ -175,11 +146,10 @@ Some of the very basic and commonly used plots for data are:
 #| message: false
 #| echo: false
 #| warning: false
-library(tidyverse)
+
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "1") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 ```
 :::
@@ -228,22 +198,23 @@ as *the average of the products of two scaled variables*.
 #| warning: false
 #| message: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 set.rseed(1971)
 demo_dat <- MKdescr::simCorVars(n = 100, r = 0.8, mu1 = 2, sd1 = 1, mu2 = 0, sd2 = 1,plot = FALSE)
 mean_var1 <- mean(demo_dat$Var1)
 mean_var2 <- mean(demo_dat$Var2)
 demo_dat_sample <- slice_sample(demo_dat, n = 6)
 demo_dat %>% 
-  gf_point(Var2 ~ Var1, size = 0.2) %>% 
+  gf_point(Var2 ~ Var1, size = 0.5) %>% 
   gf_vline(xintercept = ~ mean(Var1)) %>% 
   gf_hline(yintercept =  ~ mean(Var2)) %>% 
   ## Segments
   gf_segment(data = demo_dat_sample, Var2 + Var2 ~ Var1 + mean_var1, color = "grey80") %>% 
   gf_segment(data = demo_dat_sample, mean_var2 + Var2 ~ Var1 + Var1,color = "grey80")  %>% 
   ## Points
-  gf_point(Var2 ~ Var1, data = demo_dat_sample, colour = "grey80", size = 4, shape = "X") %>% 
+  gf_point(Var2 ~ Var1, data = demo_dat_sample, colour = "grey80", 
+           size = 4, shape = "X") %>% 
   
   ## Emphasize point X1
   gf_segment(data = demo_dat_sample, 
@@ -259,7 +230,7 @@ demo_dat %>%
           x = "Variable X", y = "Variable Y") %>% 
   gf_refine(annotate(geom='text', x = 3, y= 2.5, 
                      label = TeX("$x_1 - \\mu_{X}$", output='character'), parse=TRUE),
-            annotate(geom='text', x = 2.2, y= -2, 
+            annotate(geom='text', x = 2.2, y = -2, 
                      label = TeX("$\\mu_{X}$", output='character'), parse=TRUE),
             annotate(geom='text', x = -0.5, y= 0.2, 
                      label = TeX("$\\mu_{Y}$", output='character'), parse=TRUE),
@@ -293,7 +264,7 @@ HollywoodMovies2011 %>% download_this(output_name = "HollywoodMovies2011", outpu
 
 ::: {.panel-tabset .nav-pills style="background: whitesmoke;"}
 
-### {{< iconify la r-project >}} R
+### {{< iconify la r-project >}} glimpse
 ```{r}
 #| label: glimpse-movies
 HollywoodMovies2011-> movies
@@ -301,6 +272,7 @@ glimpse(movies)
 
 ```
 
+### {{< iconify la r-project >}} skimr
 ```{r}
 #| label: skim-movies
 #| include: false
@@ -311,6 +283,7 @@ skimr::skim(movies) %>%
 
 ```
 
+### {{< iconify la r-project >}} mosaic
 ```{r}
 #| label: inspect-movies
 #| include: false
@@ -427,8 +400,7 @@ Now let us plot their relationships.
 #| label: scatter-plot-ggformula-1
 #| warning: false
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -452,8 +424,7 @@ movies %>%
 #| label: scatter-plot-ggformula-2
 #| warning: false
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 movies %>% 
   drop_na() %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
@@ -477,8 +448,7 @@ movies %>%
 #| label: scatter-plot-ggformula-3
 #| warning: false
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ##
 movies %>% 
 drop_na() %>% 
@@ -506,8 +476,7 @@ We can split some of the scatter plots using one or other of the Qual variables.
 #| label: scatter-plot-ggformula-4
 #| warning: false
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>%
   drop_na() %>%
@@ -535,8 +504,7 @@ movies %>%
 #| warning: false
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -563,9 +531,8 @@ movies %>%
 #| warning: false
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>% 
   drop_na() %>% 
   ggplot(aes(OpeningWeekend,Profitability)) + 
@@ -591,9 +558,8 @@ movies %>%
 #| warning: false
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>% 
   drop_na() %>% 
   ggplot(aes(AudienceScore,RottenTomatoes)) + 
@@ -619,9 +585,8 @@ movies %>%
 #| warning: false
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>%
   drop_na() %>%
   ggplot(aes(RottenTomatoes, AudienceScore, color = Genre)) + 
@@ -646,6 +611,8 @@ movies %>%
 
 ```{webr-r}
 
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>% 
   drop_na() %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
@@ -654,6 +621,8 @@ movies %>%
 ```
 
 ```{webr-r}
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -665,6 +634,8 @@ movies %>%
 
 ```{webr-r}
 
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>% 
   drop_na() %>% 
   gf_point(RottenTomatoes ~ AudienceScore) %>% 
@@ -675,6 +646,8 @@ movies %>%
 
 ```{webr-r}
 ## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>%
   drop_na() %>%
   gf_point(RottenTomatoes ~ AudienceScore, 
@@ -714,8 +687,7 @@ We have fitted a **trend line** to each of the scatter plots.
 ```{r}
 #| layout-ncol: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>%
@@ -737,8 +709,7 @@ movies %>%
 
 ```{r}
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>%
@@ -754,8 +725,7 @@ movies %>%
 ```{r}
 #| layout-ncol: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% drop_na() %>%
   ggplot(aes(DomesticGross, WorldGross)) + 
@@ -779,8 +749,7 @@ movies %>% drop_na() %>%
 
 ```{r}
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
@@ -848,8 +817,7 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 #| message: false
 #| warn: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 #names(movies_quant)
 
@@ -913,8 +881,7 @@ Let us also try a few other variables, related to budget and profits. For instan
 #| message: false
 #| warn: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 GGally::ggpairs(
   movies %>% drop_na(),
@@ -1083,8 +1050,7 @@ corrplot(mydata_cor, method = "color", ## US Spelling only
 #| eval: false
 #| warning: false
 #| message: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Heatmap with numbers
 corrplot.mixed(mydata_cor, 
@@ -1172,8 +1138,8 @@ We see correlation between **all pairs** of variables. We need to choose just th
 #| warning: false
 #| message: false
 
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 cor %>% 
 # Filter for target variable `mpg` and plot
   filter(Parameter1 == "mpg") %>% 
@@ -1221,8 +1187,7 @@ Sometimes, a simple scatter, or density alone, or viewed next to one another is 
 #| warning: false
 #| message: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 library(ggExtra)
 
@@ -1329,16 +1294,15 @@ mean_x    = mean(x),
 mean_y    = mean(y),
 std_dev_x = sd(x),
 std_dev_y = sd(y),
-corr_x_y  = cor(x, y)) %>% 
-kbl() %>% 
-kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+corr_x_y  = cor(x, y)) %>% tt(theme = "striped")
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 datasaurus_dozen %>%
-ggplot(aes(x, y)) +
-geom_point() +
-theme_minimal() +
-facet_wrap( ~ dataset, ncol = 6) +
-coord_fixed()
+  ggplot(aes(x, y)) +
+  geom_point() + theme_minimal() + 
+  facet_wrap(~ dataset, ncol = 6) + 
+  coord_fixed()
 
 ```
 
@@ -1394,7 +1358,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",cite.tidyverse = FALSE, dependencies = FALSE,
-  pkgs = c("corrplot", "GGally", "ggExtra")
+  pkgs = c("corrplot", "GGally", "ggExtra", "latex2exp")
 ) %>%
   knitr::kable(format = "simple")
 

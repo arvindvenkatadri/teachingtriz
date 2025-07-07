@@ -7,9 +7,17 @@ library(ggformula)
 #remotes::install_github("wilkelab/ggridges")
 library(ggridges)
 library(skimr)
-
 library(palmerpenguins) # Our new favourite dataset
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
 
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 library(checkdown)
 library(epoxy)
@@ -18,84 +26,20 @@ library(TeachingDemos)
 library(visualize) # Plot Densities, Histograms and Probabilities as areas under the curve
 library(grateful)
 library(MKdescr)
-library(shinylive) # To create a Shiny app in a Quarto HTML doc
-# Will not work if webr is also used in the SAME Quarto doc!
-library(sysfonts)
-library(gfonts)
-library(kableExtra)
-# library(conflicted)
-# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
 library(downloadthis)
 
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",               
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,               #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
-
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "1") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 lincoln_weather %>% 
   gf_density_ridges_gradient(Month ~ `Max Temperature [F]`,
                              group = ~ Month) %>% 
-  gf_refine(scale_fill_viridis_c(name = "Temperature [F]", option = "B")) %>% 
+  gf_refine(scale_fill_viridis_c(name = "Temperature [F]", 
+                                 option = "B")) %>% 
   gf_labs(title = "Weather in Lincoln, Nebraska")
 
 glimpse(penguins)
@@ -106,9 +50,7 @@ skim(penguins)
 
 inspect(penguins)
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # penguins <- penguins %>% drop_na()
 # 
 # gf_density( ~ body_mass_g, data = penguins) %>%
@@ -117,12 +59,19 @@ inspect(penguins)
 
 
 
-# penguins %>% gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
-#   gf_refine(scale_color_viridis_d(option = "magma", aesthetics = c("colour", "fill"))) %>%
-#   gf_labs(title = "Plot B: Penguin Body Mass by Species", caption = "ggformula")
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# penguins %>% gf_density( ~ body_mass_g,
+#                          fill = ~ species,
+#                          color = "black") %>%
+#   gf_refine(scale_color_viridis_d(option = "magma",
+#                                   aesthetics = c("colour", "fill"))) %>%
+#   gf_labs(title = "Plot B: Penguin Body Mass by Species",
+#           caption = "ggformula")
 
 
 
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # penguins %>%
 #   gf_density(
 #     ~ body_mass_g,
@@ -135,79 +84,97 @@ inspect(penguins)
 
 
 
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
 # penguins %>%
 #   gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
 #   gf_facet_wrap(vars(sex), scales = "free_y", nrow = 2) %>%
 #   gf_labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
 #           subtitle = "Free y-scale",
 #           caption = "ggformula") %>%
-#   gf_theme(theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+#   gf_refine(scale_fill_brewer(palette = "Set1")) %>%
+#   gf_theme(theme(axis.text.x = element_text(angle = 45,
+#                                             hjust = 1)))
 # 
 
 
 
-## Set graph theme
-theme_set(new = theme_custom())
-## Remove the rows containing NA (11 rows!)
-penguins <- penguins %>% drop_na()
-
-ggplot(data = penguins) + 
-  geom_density(aes(x = body_mass_g)) + 
-  labs(title = "Plot A: Penguin Masses",caption = "ggplot")
-
-###
-penguins %>% 
-  ggplot() + 
-  geom_density(aes(x = body_mass_g, fill = species),
-                   color = "black") + 
-  scale_color_viridis_d(option = "magma",
-                        aesthetics = c("colour", "fill")) +
-  labs(title = "Plot B: Penguin Body Mass by Species",
-       caption = "ggplot")
-
-###
-penguins %>% ggplot() + 
-  geom_density(aes(x = body_mass_g, fill = species),
-                   color = "black",
-                   alpha = 0.3) + 
-  facet_wrap(vars(sex)) + 
-  labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex",caption = "ggplot") 
-
-###
-penguins %>% ggplot() + 
-  geom_density(aes(x = body_mass_g, fill = species), 
-                   color = "black") + 
-  facet_wrap(vars(sex), scales = "free_y", nrow = 2) + 
-  labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex", 
-       subtitle = "Free y-scale", caption = "ggplot") %>%
-  theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
+# ## Remove the rows containing NA (11 rows!)
+# penguins <- penguins %>% drop_na()
+# 
+# ggplot(data = penguins) +
+#   geom_density(aes(x = body_mass_g)) +
+#   labs(title = "Plot A: Penguin Masses",caption = "ggplot")
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
+# penguins %>%
+#   ggplot() +
+#   geom_density(aes(x = body_mass_g, fill = species), alpha = 0.3,
+#                    color = "black") +
+#   scale_color_brewer(palette ="Set1",
+#                         aesthetics = c("colour", "fill")) +
+#   labs(title = "Plot B: Penguin Body Mass by Species",
+#        caption = "ggplot")
+
+
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
+# penguins %>% ggplot() +
+#   geom_density(aes(x = body_mass_g, fill = species),
+#                    color = "black",
+#                    alpha = 0.3) +
+#   facet_wrap(vars(sex)) +
+#   labs(title = "Plot C: Penguin Body Mass by Species and facetted by Sex",caption = "ggplot")
+
+
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# 
+# penguins %>% ggplot() +
+#   geom_density(aes(x = body_mass_g, fill = species),
+#                    alpha = 0.3,
+#                    color = "black") +
+#   facet_wrap(vars(sex), scales = "free_y", nrow = 2) +
+#   labs(title = "Plot D: Penguin Body Mass by Species and facetted by Sex",
+#        subtitle = "Free y-scale", caption = "ggplot") +
+#   scale_fill_brewer(palette = "Set1") +
+#   theme(theme(axis.text.x = element_text(angle = 45,hjust = 1)))
+# 
+
+
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # gf_density_ridges(drv ~ hwy, fill = ~ drv,
-#                   alpha = 0.3, # colour saturation
+#                   alpha = 0.5, # colour saturation
 #                   rel_min_height = 0.005, # separation between plots
 #                   data = mpg) %>%
 #   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-#             scale_x_continuous(expand = c(0.01, 0))) %>%
-#   gf_labs(title = "Ridge Plot")
+#             scale_x_continuous(expand = c(0.01, 0)),
+#             scale_fill_brewer(palette = "Spectral")) %>%
+#   gf_labs(title = "Ridge Plot", x = "Highway Mileage",
+#           y = "Drive Type")
 # 
 
 
 
-# ## Set graph theme
-# theme_set(new = theme_custom())
-# ##
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # gf_density_ridges(drv ~ hwy, fill = ~ drv,
-#                   alpha = 0.3,
+#                   alpha = 0.5, # colour saturation
 #                   rel_min_height = 0.005, data = mpg) %>%
 #   gf_refine(scale_y_discrete(expand = c(0.01, 0)),
-#             scale_x_continuous(expand = c(0.01, 0))) %>%
-#   gf_labs(title = "Ridge Plot")
+#             scale_x_continuous(expand = c(0.01, 0)),
+#             scale_fill_brewer(name = "Drive Type",
+# palette = "Spectral")) %>%
+#   gf_labs(title = "Ridge Plot", x = "Highway Mileage",
+#           y = "Drive Type")
 # 
 
 
@@ -235,7 +202,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("ggridges", "NHANES", "TeachHist",
-           "TeachingDemos", "visualize")
+           "TeachingDemos", "visualize", "tinytable", "tinyplot", "tidyplots")
 ) %>%
   knitr::kable(format = "simple")
 

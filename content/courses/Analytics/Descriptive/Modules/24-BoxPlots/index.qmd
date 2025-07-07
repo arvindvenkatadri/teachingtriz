@@ -56,7 +56,16 @@ library(mosaic)
 library(ggformula)
 library(visStatistics) # All in one plot + stats test package
 library(palmerpenguins) # Our new favourite dataset
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
 
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ```
 
 
@@ -69,84 +78,11 @@ library(checkdown)
 library(epoxy)
 library(grateful)
 library(MKdescr)
-library(shinylive) # To create a Shiny app in a Quarto HTML doc
-# Will not work if webr is also used in the SAME Quarto doc!
-library(sysfonts)
-library(gfonts)
-library(kableExtra)
-# library(conflicted)
-# conflicted::conflicts_prefer(dplyr::filter, dplyr::count, dplyr::last, dplyr::glimpse, base::max)
+
 library(downloadthis)
 #devtools::install_github("mccarthy-m-g/embedr")
 library(embedr) # Embed multimedia in HTML files
 ```
-
-#### Plot Theme
-```{r}
-#| label: Plot Sizing and theming
-#| code-fold: true
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),   
-      plot.title.position = "plot",            
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-#
-```
-
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
 
@@ -163,15 +99,14 @@ theme_set(new = theme_custom())
 #| warning: false
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "1" | No == "4") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 ```
 
 
 ## {{< iconify icons8 idea >}} Inspiration
 
-![Box Plot Inspiration](what-we-mean-when-we-say.jpeg){#fig-boxplot-inspiration}
+![Box Plot Inspiration](what-we-mean-when-we-say.jpeg){#fig-boxplot-inspiration height="400px"}
 
 [Alice said, "I say what I mean and I mean what I say!"](https://www.reddit.com/r/EnglishLearning/comments/1abf1dg/comment/kjn85an/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) Are the rest of us so sure? What do we mean when we use any of the phrases above? How definite are we? There is a range of "sureness" and "unsureness"...and this is where we can use box plots like @fig-boxplot-inspiration to show that range of opinion.
 
@@ -186,9 +121,8 @@ Box Plots are an extremely useful data visualization that gives us an idea of th
 #| echo: false
 #| fig-cap: "Box Plot Definitions"
 #| fig-height: 4
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 set.seed(123)
 data <- rt(150, df = 10)
 MKdescr::illustrate.boxplot(data)
@@ -236,8 +170,8 @@ Box plots can show skew in distributions, with a large number of outliers on one
 #| fig-cap:
 #| - "Skewed Distributions and Boxplots"
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 library(sn)
 rand_data <- tibble(
 #left  = rsn(n=5000, xi=0, omega=1, alpha=-8, tau=0, dp=NULL), 
@@ -447,9 +381,9 @@ wages_clean <-  wages %>% tidyr::drop_na(realinc)
 ```{r}
 #| label: realincome-ggformula
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
   gf_labs(title = "Plot 1A: Income has a skewed distribution",
@@ -468,9 +402,8 @@ wages_clean %>%
 ### Using ggplot
 ```{r}
 #| label: realincome-ggplot
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 wages_clean %>% 
   ggplot() + 
   geom_boxplot(aes(y = realrinc, x = "Income")) +  # Dummy X-axis "variable"
@@ -480,6 +413,8 @@ wages_clean %>%
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
   gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
@@ -517,9 +452,9 @@ wages %>%
 ```{r}
 #| label: fig-income-by-gender-ggformula-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(gender ~ realrinc) %>% 
   gf_labs(title = "Plot 2A: Income by Gender")
@@ -542,9 +477,7 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-gender-ggformula-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 wages_clean %>% 
   gf_boxplot(gender ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 2B: Log(Income) by Gender")
@@ -567,8 +500,7 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-gender-ggformula-3
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 wages_clean %>% 
   gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
   gf_refine(scale_x_log10()) %>% 
@@ -596,9 +528,7 @@ wages_clean %>%
 #|   - "Split by Gender"
 #|   - "With log income"
 #|   - "With log scale"
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 wages_clean %>% 
   ggplot() + 
   geom_boxplot(aes(y = gender, x = realrinc)) +
@@ -621,6 +551,7 @@ wages_clean %>%
 ### web-r
 
 ```{webr-r}
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
@@ -662,9 +593,8 @@ wages %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(educcat ~ realrinc) %>% 
   gf_labs(title = "Plot 3A: Income by Education Category")
@@ -686,9 +616,8 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(educcat ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 3B: Log(Income) by Education Category")
@@ -710,8 +639,8 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-3
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(
     reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
@@ -738,8 +667,8 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-4
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ realrinc, 
              fill = ~ educcat,
@@ -774,9 +703,8 @@ wages_clean %>%
 #|   - "Split by Education Category"
 #|   - "With log income"
 #|   - "With log scale"
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   ggplot() +
   geom_boxplot(aes(realrinc, educcat)) + # (x,y) format
@@ -812,6 +740,8 @@ wages_clean %>%
 ### web-r
 
 ```{webr-r}
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
   gf_boxplot(educcat ~ realrinc) %>% 
@@ -879,9 +809,8 @@ We will also drop NA values all around this time, to avoid seeing boxplots for u
 ```{r}
 #| label: fig-income-by-educcat-childs-ggformula-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   drop_na() %>% 
   gf_boxplot(reorder(educcat, realrinc) ~ log10(realrinc),
@@ -911,9 +840,9 @@ wages %>%
 ```{r}
 #| label: fig-income-by-educcat-childs-ggformula-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   drop_na() %>% 
   mutate(childs = as_factor(childs)) %>% 
@@ -949,9 +878,8 @@ wages %>%
 #| fig-subcap: 
 #|   - "Split by Education Category and Family Size"
 #|   - "Split by Gender and Family Size"
-# Set graph theme
-theme_set(new = theme_custom())
-#
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   drop_na() %>%
   ggplot() + 
@@ -982,9 +910,9 @@ wages %>%
 
 ```{webr-r}
 #| label: fig-income-by-educcat-childs-webr
-# Set graph theme
-theme_set(new = theme_custom())
-#
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages %>% 
   drop_na() %>% 
   gf_boxplot(reorder(educcat, realrinc) ~ log10(realrinc),
@@ -1099,7 +1027,7 @@ detectors %>% download_this(output_name = "AI_Dectectors", output_extension = ".
 
 What story can you tell, and deduction can you make from @fig-ai-detectors-are-biased below? How would you [replicate it](../28-Violins/index.qmd)? What would you add?
 
-![AI Detectors](../../../../../materials/images/ai-bias.png){#fig-ai-detectors-are-biased}
+![AI Detectors](../../../../../materials/images/ai-bias.png){#fig-ai-detectors-are-biased height="400px"}
 :::
 
 
@@ -1124,20 +1052,13 @@ embedr::embed_audio("../../../../../materials/audio/Groups.wav")
 ## {{< iconify ooui references-rtl >}} References
 
 1. Winston Chang (2024). *R Graphics Cookbook*. <https://r-graphics.org>
-
 1. Bevans, R. (2023, June 22). *An Introduction to t Tests | Definitions, Formula and Examples*. Scribbr. <https://www.scribbr.com/statistics/t-test/>
-
 1. Brown, Angus. (2008). *The Strange Origins of the t-test*. Physiology News | No. 71 | Summer 2008| <https://static.physoc.org/app/uploads/2019/03/22194755/71-a.pdf>
-
 1. Stephen T. Ziliak.(2008). *Guinnessometrics: The Economic
 Foundation of “Student’s” t*. Journal of Economic Perspectives—Volume 22, Number 4—Fall 2008—Pages 199–216. <https://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.22.4.199>
-
 1. <https://quillette.com/2024/08/03/xy-athletes-in-womens-olympic-boxing-paris-2024-controversy-explained-khelif-yu-ting/>
-
 1. Senefeld JW, Lambelet Coleman D, Johnson PW, Carter RE, Clayburn AJ, Joyner MJ. *Divergence in Timing and Magnitude of Testosterone Levels Between Male and Female Youths*. JAMA. 2020;324(1):99–101. doi:10.1001/jama.2020.5655. <https://jamanetwork.com/journals/jama/fullarticle/2767852>
-
 1. Doriane Lambelet Coleman.(2017) *Sex in Sport, 80 Law and Contemporary Problems*. Available at: <https://scholarship.law.duke.edu/lcp/vol80/iss4/5>
-
 1. Distributome - An Interactive Web-based Resource for Probability Distributions <https://distributome.org>
 
 [^1]:“Ah, Misha, he has a stormy spirit. His mind is in bondage. He is haunted by a great, unsolved doubt. He is one of those who don't want millions, but an answer to their questions.”
@@ -1157,7 +1078,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("ggridges", "NHANES", "TeachHist",
-           "TeachingDemos", "visualize", "visStatistics")
+           "TeachingDemos", "visualize", "visStatistics", "tidyplots", "tinyplot", "tinytable")
 ) %>%
   knitr::kable(format = "simple")
 

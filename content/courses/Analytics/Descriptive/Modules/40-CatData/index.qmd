@@ -56,10 +56,18 @@ library(ca) # Correspondence Analysis, for use some day
 
 library(ggmosaic) # Mosaic Plots
 library(ggpubr) # Colours, Themes and new geometries in ggplot
-## Making Tables
-library(kableExtra) # html styled tables
-library(gt)
-library(tinytable)
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+
 
 ```
 
@@ -77,72 +85,6 @@ library(grateful)
 
 ```
 
-#### Plot Theme
-```{r}
-#| label: Plot Sizing and theming
-#| code-fold: true
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      text = element_text(family = font),
-      
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",                
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
-
-```
 
 ## {{< iconify fe beginner >}} What graphs will we see today?
 
@@ -159,8 +101,7 @@ theme_set(new = theme_custom())
 #| warning: false
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "3") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 ```
 :::
@@ -892,14 +833,14 @@ gss2002
 #| eval: false
 #library(ggmosaic)
 #
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ##
 ggplot(data = gss2002) +
   ggmosaic::geom_mosaic(
       aes(x = product(DeathPenalty, Education), 
           fill = DeathPenalty)) +
-theme(legend.position = "top")
+theme(legend.position = "top") + 
+scale_fill_brewer(palette = "Set1")
 
 ```
 :::
@@ -930,10 +871,6 @@ post](https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mos
 # Reference
 # https://stackoverflow.com/questions/19233365/how-to-create-a-marimekko-mosaic-plot-in-ggplot2
 
-
-# Set graph theme
-theme_set(new = theme_custom())
-
 gss_summary <- gss2002 %>% 
   dplyr::group_by(Education, DeathPenalty) %>%
   dplyr::summarise(count = n()) %>% # This is good for a chisq test
@@ -954,6 +891,9 @@ gss_summary
 #| label: ggformula-marimekko
 #| eval: false
 # This works but is not very intuitive...
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 gf_col(edu_prop ~ Education, data = gss_summary,
        width = ~ edu_count, # Not typically used in a column chart
        fill = ~ DeathPenalty,
@@ -969,7 +909,7 @@ gf_col(edu_prop ~ Education, data = gss_summary,
                 scales = "free_x", 
                 space = "free_x") %>% 
   
-  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3")))
+  gf_theme(scale_fill_brewer(palette = "Set1"))
   
 ```
 :::
@@ -1262,9 +1202,8 @@ totals)!
 ```{r}
 #| label: balloon-plot-1
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
-##
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ggpubr::ggballoonplot(housetasks, 
         fill = "value", 
         ggtheme = theme_pubr()) +
@@ -1289,8 +1228,7 @@ And repeat with the familiar `HairEyeColor` dataset:
 ```{r}
 #| label: HairEyeColor-tibble
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 df <- as_tibble(HairEyeColor)
 df
@@ -1310,6 +1248,8 @@ df
 ```{r}
 #| label: balloon-plot-2
 #| eval: false
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ggballoonplot(df, x = "Hair", 
               y = "Eye", size = "n",
               fill = "n",
@@ -1333,6 +1273,8 @@ ggballoonplot(df, x = "Hair",
 ```{r}
 #| label: balloon-plot-3
 #| eval: false
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 # Balloon Plot with facetting
 ggballoonplot(df, x = "Hair", 
               y = "Eye", size = "n",
@@ -1478,8 +1420,8 @@ embedr::embed_audio("../../../../../materials/audio/change.wav")
     <https://www.datavis.ca/papers/corrgram.pdf>\
 8.  [Visualizing Categorical Data in
     R](https://homepage.divms.uiowa.edu/~luke/classes/STAT4580/catone.html)\
-9.  H. Riedwyl & M. Schüpbach (1994), Parquet diagram to plot
-    contingency tables. In F. Faulbaum (ed.), Softstat '93: Advances in
+9.  H. Riedwyl & M. Schüpbach (1994), *Parquet diagram to plot
+    contingency tables*. In F. Faulbaum (ed.), Softstat '93: Advances in
     Statistical Software, 293--299. Gustav Fischer, New York.
 
 ::: {#refs style="font-size: 60%;"}
@@ -1492,8 +1434,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggmosaic", "ggpubr", "janitor", "kableExtra", "resampledata", "sjPlot", "sjlabelled", "tinytable", "vcd",
-           "vcdExtra", "visStatistics")) %>%
+  pkgs = c("ggmosaic", "ggpubr", "tinytable", "vcd", "tidyplots", "tinyplot", "vcdExtra", "visStatistics")) %>%
   knitr::kable(format = "simple")
 
 ```

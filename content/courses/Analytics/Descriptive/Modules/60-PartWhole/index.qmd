@@ -56,6 +56,17 @@ library(echarts4r) # Interactive Charts
 
 library(patchwork) # Arrange your plots
 
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ```
 
 ```{r}
@@ -65,70 +76,6 @@ library(patchwork) # Arrange your plots
 library(checkdown)
 library(epoxy)
 library(grateful)
-
-```
-
-```{r}
-#| label: Plot Sizing and theming
-#| echo: false
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",                
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
 
 ```
 
@@ -215,29 +162,31 @@ Then the `coord_polar(theta = "y")` converts the bar plot into a pie.
 #| layout-ncol: 2
 #| layout-nrow: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Using gf_col since we have a count/value column already
 pie_data %>%
-  gf_col(sales ~ 1, fill = ~ labels, width = 1) 
+  gf_col(sales ~ 1, fill = ~ labels, width = 1, color = "black")  %>%  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 pie_data %>%
-  gf_col(sales ~ 1, fill = ~ labels, width = 1)  %>%
-  gf_refine(coord_polar(theta = "y"))
+  gf_col(sales ~ 1, fill = ~ labels, width = 1, color = "black")  %>%
+  gf_refine(coord_polar(theta = "y")) %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 # Using gf_bar since we don't have ready made counts
 gf_bar(data = mpg,
        ~ 1,
        fill = ~ drv,
        color = "black", # border for the bars/slices
-       width =  1)
+       width =  1) %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 gf_bar(data = mpg,
        ~ 0.5,
        fill = ~ drv,
        color = "black", # border for the bars/slices
        width =  1) %>%
+  gf_refine(scale_fill_brewer(palette = "Set1")) %>% 
   gf_theme(theme_minimal()) %>%
   gf_theme(theme(axis.line.y = element_blank(),
                  axis.text.y = element_blank(),
@@ -317,14 +266,13 @@ comparison:
 #| label: fan-plot
 #| eval: false
   
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 plotrix::fan.plot(
   x = pie_data$sales,
   labels = pie_data$labels,
   
-  col = grDevices::hcl.colors(palette = "Plasma", n = 6),
+  col = grDevices::hcl.colors(palette = "Lajolla", n = 6), # Try hcl.pals()
   shrink = 0.03,
   # How much to shrink each successive sector
 
@@ -366,8 +314,7 @@ Let us make some toy data:
 #| label:  donut-chart
 #| layout-ncol: 2
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Data
 df <- tibble(group = LETTERS[1:3],
@@ -408,7 +355,7 @@ df %>%
   # Now to create the hole
   # try to play with the "0"
   # Recall x = [2,4]
-  gf_refine(xlim(c(-2, 5))) %>% 
+  gf_refine(xlim(c(-2, 5)), scale_fill_brewer(palette = "Spectral")) %>% 
 
   gf_theme(theme = theme_void()) %>% 
   gf_theme(legend.position = "none")
@@ -466,8 +413,6 @@ and intuitive method that runs on **top** of `ggplot`.) We will use the
 ```{r}
 #| label: toy-data-waffle
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
 
 # install.packages("waffle", repos = "https://cinc.rud.is")
 library(waffle)
@@ -495,6 +440,9 @@ df
 #| eval: false
 # Waffle plot
 # Using ggplot, sadly not yet ggformula
+
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ggplot(df, aes(fill = group, values = value)) +
   geom_waffle(
     n_rows = 8,
@@ -532,8 +480,7 @@ a array of "seats" in a parliament. (There is also a package called
 #| label: using-ggpol
 #| eval: false
 
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Same toy dataset
 # df <- tibble(group = LETTERS[1:3],
@@ -645,8 +592,7 @@ mygraph1
 ```{r}
 #| label: dendrogram
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # Basic tree
 ggraph(mygraph1, layout = 'dendrogram', 
        circular = TRUE) + 
@@ -735,8 +681,8 @@ mygraph2
 ```{r}
 #| label: graph-2
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 # Now we can plot that
 ggraph(mygraph2, layout = 'dendrogram', circular = FALSE) + 
   geom_edge_diagonal() +
@@ -782,14 +728,13 @@ graph_flare
 ```{r}
 #| label: plot-flare
 #| eval: false
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 set.seed(1)
 ggraph(graph_flare, 'circlepack', weight = size) +
 geom_node_circle(aes(fill = as_factor(depth)), size = 0.25, n = 50) +
 coord_fixed() +
-scale_fill_discrete(name = "Depth") +
-theme_void()
+scale_fill_brewer(name = "Depth", palette = "Set1") 
 
 ```
 :::

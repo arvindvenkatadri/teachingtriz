@@ -52,6 +52,15 @@ library(sjPlot) #Another package for Likert Plots
 
 ## Making Tables
 library(kableExtra) # html styled tables
+library(tinytable) # Elegant Tables for our data
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ```
 
@@ -62,86 +71,6 @@ library(epoxy)
 # library(TeachHist)
 # library(TeachingDemos)
 library(grateful)
-
-```
-
-#### Plot Theme
-```{r}
-#| label: plot-theme
-#| echo: true
-#| code-fold: true
-#| message: false
-#| results: hide
-library(hrbrthemes)
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 10, base_family = font) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    plot.title.position = "plot",                
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8),                #font size,
-
-      legend.text = element_text(        #axis text
-                   family = font,            #axis family
-                   size = 6) #font size
-)
-    
-}
-
-
-## Set graph theme
-theme_set(new = theme_custom())
-## Set graph text annotations to same font
-hrbrthemes::update_geom_font_defaults(
-  family = "Roboto Condensed",
-  face = "plain",
-  size = 2,
-  color = "#2b2b2b"
-)
-
 
 ```
 
@@ -165,8 +94,7 @@ To be Found !!
 #| warning: false
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "3") %>% 
-  kbl() %>%
-  kable_paper("hover", full_width = T)
+  tt(theme = "striped")
   
 ```
 :::
@@ -260,6 +188,7 @@ plot** and it looks like this:
 
 ```{r}
 #| echo: false
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 quickez_data %>%
   gglikert(sort = "asc", width = 0.5, totals_size = 3,
@@ -267,7 +196,6 @@ quickez_data %>%
            reverse_likert = F, ) +
   labs(title = "QuickEZ App Survey Results") +
   geom_vline(xintercept = 0) +
-  theme_custom() + 
   theme(legend.position = "bottom")
 
 
@@ -342,6 +270,7 @@ survey.
 We can plot this data using the `gglikert` function from package `ggstats`:
 
 ```{r}
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 efc %>% 
   select(dplyr::contains("cop")) %>% 
@@ -350,7 +279,6 @@ efc %>%
   scale_fill_brewer(name = "Responses",
     labels = c("never", "sometimes", "often", "always"), 
     palette = "Set3", direction = -1) +
-  theme_custom() + 
   theme(legend.position = "bottom")
 
 ```
@@ -405,8 +333,7 @@ It is also possible to label the tibble, the columns, and the values in similar 
 
 ```{r}
 set.seed(42)
-# Set graph theme
-theme_set(new = theme_custom())
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 variable_labels <- c("Do you practice Analytics?",
                      "Do you code in R?",
@@ -436,10 +363,10 @@ my_survey_data <-
   # Set VARIABLE labels
   labelled::set_variable_labels(.data = ., 
                                 q1 = variable_labels[1],
-                               q2 = variable_labels[2],
-                               q3 = variable_labels[3],
-                             q4 = variable_labels[4],
-                             q5 = variable_labels[5]) 
+                                q2 = variable_labels[2],
+                                q3 = variable_labels[3],
+                                q4 = variable_labels[4],
+                                q5 = variable_labels[5]) 
   # Values within the variables are already labelled
 ###
 head(my_survey_data, 6)
@@ -456,7 +383,6 @@ my_survey_data %>%
     labels = c("never", "sometimes", "often", "always"),
       ) +
   geom_vline(xintercept = 0) +
-  theme_custom() + 
   theme(legend.position = "bottom")
 
 ```
@@ -500,32 +426,22 @@ There are several questions here for each "area" of preference for edible insect
 ## {{< iconify ooui references-ltr >}} References
 
 1. Winston Chang (2024). *R Graphics Cookbook*. <https://r-graphics.org>
-
 1. Shelomi. (2022). Dataset for: *Factors Affecting Willingness and Future Intention to Eat Insects in Students of an Edible Insect Course*. [Data set]. Zenodo. <https://doi.org/10.5281/zenodo.7379294>
-
 1. What is a Likert Scale? <https://www.surveymonkey.com/mp/likert-scale/>
-
 1. Rickards, G., Magee, C., & Artino, A. R., Jr (2012). *You Can't Fix by Analysis What You've Spoiled by Design: Developing Survey Instruments and Collecting Validity Evidence*. Journal of graduate medical education, 4(4), 407–410. <https://doi.org/10.4300/JGME-D-12-00239.1>
-
 1. Jamieson, S. (2004). Likert scales: how to (ab)use them. Medical Education, 38(12), 1217–1218. <https://doi:10.1111/j.1365-2929.2004.02012.x> 
-
 1. Mark Bounthavong. (May 16, 2019). *Communicating data effectively with data visualization – Part 15 (Diverging Stacked Bar Chart for Likert scales)*. <https://mbounthavong.com/blog/2019/5/16/communicating-data-effectively-with-data-visualization-part-15-divergent-stacked-bar-chart-for-likert-scales>
-
 1. Anthony R. Artino Jr., Jeffrey S. La Rochelle, Kent J. Dezee & Hunter
 Gehlbach (2014). *Developing questionnaires for educational research: AMEE Guide*. No. 87, Medical Teacher, 36:6, 463-474, DOI:10.3109/0142159X.2014.889814
 To link to this article: <https://doi.org/10.3109/0142159X.2014.889814>
-
 1. Naomi B. Robbins, Richard M. Heiberger. *Plotting Likert and Other Rating Scales*. Section on Survey Research Methods – JSM 2011. [PDF Available here](https://www.montana.edu/msse/Old_Data_analysis/Likert%20Survey%20Graphs.pdf)
 
 
 ## {{< iconify streamline book-reading >}} Additional Readings
 
 1. Daniel Lüdecke. (2024-05-13). *Plotting Likert Scales with sjPlot*. <https://cran.r-project.org/web/packages/sjPlot/vignettes/plot_likert_scales.html>
-
 1. Joseph Larmarange. *Plot Likert-type items with gglikert()*. <https://cran.r-project.org/web/packages/ggstats/vignettes/gglikert.html>
-
 1. Piping Hot Data. *Leveraging Labelled Data in R*. <https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/\>
-
 1. Bangdiwala, S.I., Shankar, V. *The agreement chart*. BMC Med Res Methodol 13, 97 (2013). <https://doi.org/10.1186/1471-2288-13-97>. Open Access. 
 
 ::: {#refs style="font-size: 60%;"}

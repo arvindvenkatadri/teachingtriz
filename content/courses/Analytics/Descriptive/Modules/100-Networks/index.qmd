@@ -34,31 +34,30 @@ citation: true
 #library(extrafont)
 #extrafont::font_import(paths = NULL, recursive = TRUE, prompt = TRUE,pattern = NULL)
 
-########################################
-# For General Data Manipulation
 library(tidyverse)
-
-########################################
-# Network Analysis Library (Handle data and Viz)
-library(igraph)
-
-########################################
-# For Network "Manipulation"
-library(tidygraph)
-
-# For Network Visualization
-library(ggraph)
-library(graphlayouts)
-library(visNetwork)
-
-# For "Network" Datasets
-library(igraphdata)
+library(igraph) # Network Analysis Library (Handle data and Viz)
+library(tidygraph) # For Network "Manipulation"
+library(ggraph) # For Network Visualization
+library(graphlayouts) # For Network Visualization, more layouts and themes
+library(visNetwork) # For Interactive Network Visualization
+library(igraphdata) # For "Network" Datasets
 library(sand) # Statistical Analysis of Networks Data
 
 # Fonts
-library(ggtext) # Claus Wilke's package
-library(showtext)
-library(fontawesome)
+# library(ggtext) # Claus Wilke's package
+# library(showtext)
+# library(fontawesome)
+##
+library(tidyplots) # Easily Produced Publication-Ready Plots
+library(tinyplot) # Plots with Base R
+library(tinytable) # Elegant Tables for our data
+
+## ggplot theme
+library(hrbrthemes)
+hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 # For repeatable layouts, some can be random!!
 set.seed(12345)
 
@@ -72,71 +71,6 @@ set.seed(12345)
 library(checkdown)
 library(epoxy)
 library(grateful)
-
-```
-
-```{r}
-#| label: Plot Sizing and theming
-#| echo: false
-#| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
-
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
-theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-    
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
-    
-    theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      
-      #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),    
-plot.title.position = "plot",                
-      
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
-      
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
-      
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
-      
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
-    )
-}
-
-# Set graph theme
-theme_set(new = theme_custom())
 
 ```
 
@@ -178,10 +112,14 @@ visualized as a network
 ```{r}
 #| echo: false
 #| warning: false
+ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 data(karate)
+karate <- karate %>% 
+  igraph::upgrade_graph() # Old format, convert to new
 set.seed(123)
 l <- layout.graphopt(karate)
-karate %>%
+karate %>% 
   as_tbl_graph() %>% # to access nodes and edges in tidygraph
   
   # parameters to decorate the nodes
@@ -218,13 +156,19 @@ karate %>%
                       )) +
   geom_node_text(aes(label = 
                        sub("Actor","",V(karate)$name)),repel = TRUE) + 
-  scale_size(range = c(2, 10)) +
-  scale_colour_manual(values = c("red", "dodgerblue")) +
-  scale_shape_manual(values = c(15, 19)) +
-  scale_edge_width(range = c(0.1, 4)) +
-  scale_edge_colour_manual(values = c("yellow", "pink", "lightblue", "grey")) +
-  theme_graph() + 
-  theme(legend.position = "none")
+  labs(title = "Zachary's Karate Club Network",
+       subtitle = "A network of friendships between members of a karate club",
+       caption = "Source: Zachary's Karate Club dataset") +
+  scale_size("Degree", range = c(2, 10)) +
+  scale_colour_manual("Faction", values = c("red", "dodgerblue")) +
+  scale_shape_manual(values = c(15, 19), guide = "none") +
+  scale_edge_width(range = c(0.1, 4), guide = "none") +
+  scale_edge_colour_manual(values = c("grey50", "pink", "lightblue", "grey"), guide = "none") +
+  guides(
+    color = guide_legend(title = "Faction",
+                              override.aes = list(size = 4)),
+  ) +
+  theme_graph() 
 
 ```
 
@@ -482,7 +426,7 @@ ggraph(graph = ga,  layout = "kk") +
        subtitle = "Why did I ever get in this course...",
        caption = "Bro, they are doing cool things in the other classes...\n And the show is even more cool!") +
   
-  set_graph_style(family = "Roboto")
+  set_graph_style(family = "Roboto Condensed")
 
 ```
 
@@ -510,7 +454,7 @@ ggraph(graph = ga,  layout = "kk") +
   labs(title = "Whoo Hoo! My next silly Grey's Anatomy graph in R!",
        subtitle = "Why did I ever get in this course...",
        caption = "Bro, they are doing cool things in the other classes...") + 
-set_graph_style(family = "Roboto")
+set_graph_style(family = "Roboto Condensed")
 
 ```
 
@@ -566,7 +510,7 @@ ggraph(graph = ga, layout = "fr") +
        caption = "Grey's Anatomy") +
   
   scale_edge_width(range = c(0.2,2)) +
-  set_graph_style(family = "roboto")
+  set_graph_style(family = "Roboto Condensed")
 
 
 ```
@@ -589,7 +533,7 @@ ggraph(ga, layout = "linear") +
   scale_edge_width(range = c(0.2, 2)) +
   geom_node_point(size = 2, colour = "red") +
   labs(edge_width = "Weight",title = "Grey's Anatomy", subtitle = "Arc Layout") +
-  set_graph_style(family = "Roboto")
+  set_graph_style(family = "Roboto Condensed")
 
 ```
 
@@ -613,7 +557,7 @@ ggraph(ga, layout = "linear", circular = TRUE) + # Note the layout!
                  max.overlaps = 25) +
   labs(edge_width = "Weight")  +
   theme(aspect.ratio = 1) +
-  set_graph_style(family = "Roboto")
+  set_graph_style(family = "Roboto Condensed")
 
 ```
 
@@ -653,7 +597,7 @@ graph <-  tbl_graph(edges = flare$edges, nodes = flare$vertices)
 #| column: body-outset-right
 #| warning: false
 ##
-set_graph_style(family = "Roboto")
+set_graph_style(family = "Roboto Condensed")
 ##
 
 # dendrogram
@@ -715,7 +659,7 @@ qualitative attribute on nodes or edges.
 #| column: body-outset-right
 #| layout-ncol: 2
 ##
-set_graph_style(family = "Roboto",size = 8)
+set_graph_style(family = "Roboto Condensed",size = 8)
 ##
 # facet edges by type
 ggraph(ga,layout = "linear", circular = TRUE) + 
@@ -794,26 +738,26 @@ and visualization tasks in one go.
 
 ```{r Using-Centrality}
 ##
-set_graph_style(family = "Roboto")
+set_graph_style(family = "Roboto Condensed", size = 8)
 ##
 ggraph(ga,layout = "nicely") +
-    geom_edge_link0(aes(alpha = centrality_edge_betweenness())) + 
+    geom_edge_link0(aes(width = centrality_edge_betweenness())) + 
     
     geom_node_point(aes(colour = centrality_degree(), 
                         size = centrality_degree())) +
     
-    geom_node_text(aes(label = name), repel = TRUE, size = 1.5) +
+    geom_node_text(aes(label = name), repel = TRUE, size = 2.5) +
     
-    scale_size(name = "Degree", range = c(0.5, 5)) + 
+    scale_size(name = "Degree", range = c(2, 5)) + 
     
-    scale_color_gradient(name = "Degree", # SAME NAME!!
-                         low = "blue", high = "red", 
-                         aesthetics = c("colour", "fill"), 
-                         guide = guide_legend(reverse = FALSE)) + 
+    scale_color_fermenter(name = "Degree", # USE SAME NAME to Merge legends!!
+                          palette = "Set1",
+                          aesthetics = c("colour", "fill"), 
+                          guide = guide_legend(reverse = FALSE)) + 
     
-    scale_edge_alpha(name = "Betweenness", range = c(0.05, 1)) +
+    scale_edge_width(name = "Betweenness", range = c(0.25, 1)) +
     labs(title = "Grey's Anatomy", 
-         subtitle = "Nodes Scaled by Degree, Edges shaded by Betweenness")
+         subtitle = "Nodes Scaled by Degree, Edge-width scaled by Betweenness")
 
 ```
 
@@ -833,7 +777,7 @@ Who is close to whom? Which are the groups you can see?
 ```{r}
 #| label: communities in networks
 ##
-set_graph_style(family = "Roboto")
+set_graph_style(family = "Roboto Condensed", size = 8)
 ##
 # visualize communities of nodes
 ga %>% 
@@ -841,7 +785,8 @@ ga %>%
   mutate(community = as.factor(group_louvain())) %>% 
   ggraph(layout = "graphopt") + 
   geom_edge_link0() + 
-  geom_node_point(aes(color = community), size = 3) +
+  geom_node_point(aes(fill = community), size = 3, shape = 21) +
+  scale_fill_brewer(palette = "Set1") +
   labs(title = "Grey's Anatomy", subtitle = "Nodes Coloured by Community Detection Algorithm (Louvain)")
 
 
