@@ -3,7 +3,7 @@ title: "\U0001F0CF Inference Test for Two Proportions"
 author: "Arvind V."
 date: 10/Nov/2022
 abstract: "Inference Test for Two Proportions"
-lastmod: "`r Sys.Date()`"
+date-modified: "`r Sys.Date()`"
 order: 190
 image: preview.jpg
 image-alt: From The Internet Archive
@@ -28,6 +28,7 @@ editor:
 #| label: setup
 #| include: true
 #| message: true
+#| warning: false
 library(tidyverse)
 library(mosaic)
 library(ggmosaic) # plotting mosaic plots for Categorical Data
@@ -42,6 +43,7 @@ library(vcd)
 #| label: Extra Pedagogical Packages
 #| echo: false
 #| message: false
+#| warning: false
 library(tinytable)
 library(checkdown)
 library(epoxy)
@@ -51,79 +53,94 @@ library(grateful)
 
 ```
 
-#### Plot Theme
+#### Plot Fonts and Theme
 
 ```{r}
-#| label: Plot Sizing and theming
+#| label: plot-theme
+#| echo: true
 #| code-fold: true
-#| message: false
-#| results: hide
+#| messages: false
+#| warning: false
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
 
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
 theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
-   
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
     
     theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
+      text = element_text(family = font),  #set base font family
+      
       #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
       
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
       
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
       
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
+      plot.caption.position = "plot",            #right align
       
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
     )
 }
 
-# Set graph theme
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
 theme_set(new = theme_custom())
-#
+
 ```
-
-:::: {.pa4}
-::: {.athelas .ml0 .mt0 .pl4 .black-90 .bl .bw2 .b--blue}
-[Early in life I had to choose between honest arrogance and hypocritical humility. I chose the former and have seen no reason to change.]{.f5 .f4-m .f3-l .lh-copy .measure .mt0}
-
-[ --- Frank Lloyd Wright]{.f6 .ttu .tracked .fs-normal}
-:::
-::::
 
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
@@ -269,7 +286,9 @@ theme_set(new = theme_custom())
 #
 ggplot(data = gss2002) +
   geom_mosaic(aes(x = product(DeathPenalty, Education), 
-                  fill = DeathPenalty))
+                  fill = DeathPenalty)) + 
+  scale_fill_brewer(name = "Death Penalty", palette = "Set1") +
+  labs(title = "Mosaic Plot of Death Penalty by Education")
 
 ```
 
@@ -317,7 +336,11 @@ gf_col(edu_prop ~ Education, data = gss_summary,
                 scales = "free_x", 
                 space = "free_x") %>% 
   
-  gf_theme(scale_fill_manual(values = c("orangered", "palegreen3"))) 
+  gf_refine(scale_fill_brewer(name = "Death Penalty",
+                              palette = "Set1")) %>% 
+  gf_labs(title = "Mosaic Plot of Death Penalty by Education",
+           x = "Education Level", 
+           y = "Proportion of Votes for Death Penalty")
 
 ```
 :::
@@ -369,13 +392,12 @@ that opinions about the `DeathPenalty` are related to `Education`.
 ```{r}
 #| echo: false
 mosaic::xqchisq(p = c(0.025, 0.975), 2, 2,
-               return = c("plot"), verbose = T,
+               return = c("plot"), verbose = F,
         system = "gg") %>%  
    gf_labs(title = "Critical Chi-Square Value", 
  x = "") %>% 
   gf_vline(xintercept = observedChi2, color = "red", linewidth = 1) %>%
-  gf_refine(annotate(x = 21, y = 0.15, geom = "text", label = "Observed\n Chi-Square")) %>% 
-   gf_theme(theme_classic())
+  gf_refine(annotate(x = 21, y = 0.15, geom = "text", label = "Observed\n Chi-Square")) 
  
 ```
 
@@ -498,8 +520,8 @@ vcd::assoc(counts_table,gp = shading_max)
 
 <br> 
 
-Now, the **Pearson Residual** in each cell is equivalent to the
-`z-score` of that cell. Recall the [z-score](../22-Histograms/index.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the `z-score`.
+Now, [the **Pearson Residual** in each cell is equivalent to the
+`z-score` of that cell]{.bg-light-red .black}. Recall the [z-score](../22-Histograms/index.qmd#z-scores) idea: we subtract the mean and divide by the std. deviation to get the `z-score`.
 
 In the Contingency Table, we have **counts** which are usually modeled
 as an (integer) *Poisson distribution*, for which **mean (i.e Expected
@@ -674,7 +696,7 @@ p0 <- data %>%
   geom_point(shape = 21, size = 8) +
   scale_fill_manual(
     name = NULL,
-    values = c("red", "blue"),
+    values = c("orangered", "dodgerblue"),
     labels = c("Rejected", "Selected")
   ) +
   
@@ -751,10 +773,21 @@ data_shuffled %>%
                  fill = as_factor(candidate_selected))) + 
       geom_point(shape = 21,size = 8) + 
       scale_fill_manual(name = NULL,
-                        values = c("red", "blue"),
-                        labels = c("Rejected","Selected")) + 
-      theme_void() + theme(legend.position = "top") +
-      ggtitle(label = "Pooled Evaluations, Permuted")
+                        values = c("orangered", "dodgerblue"),
+                        labels = c("Rejected","Selected")) +  
+  theme_void(base_family = "Alegreya", base_size = 14) + 
+      facet_wrap(~ evaluator, ncol = 1, scales = "free") +
+      expand_limits(y = c(0,28)) +
+      ggbrace::stat_brace(aes(label = evaluator),
+                          rotate = 90,
+                          labelrotate = 0,
+                          labelsize = 4,
+                          inherit.aes = TRUE) +
+      theme(legend.position = "top", 
+                       strip.background = element_blank(),
+                       strip.text.x = element_blank(),
+                       plot.title = element_text(hjust = 0.5)) +
+      ggtitle(label = "Pooled Evaluations, Permuted") 
 
 
 data_shuffled %>% 
@@ -772,7 +805,7 @@ data_shuffled %>%
              fill = as_factor(candidate_selected))) + 
   geom_point(shape = 21, size = 8) + # plot circles with borders
   scale_fill_manual(name = NULL,
-                    values = c("red", "blue"),
+                    values = c("orangered", "dodgerblue"),
                     labels = c("Rejected","Selected")) + 
   
   # Very important to have scales = "free" !!
@@ -784,7 +817,7 @@ data_shuffled %>%
                       labelrotate = 0,
                       labelsize = 4,
                       inherit.aes = TRUE) +
-  theme_void() + 
+  theme_void(base_family = "Alegreya", base_size = 14) + 
   theme(legend.position = "top", 
                        strip.background = element_blank(),
                        strip.text.x = element_blank(),
@@ -859,9 +892,13 @@ null_chisq <- do(4999) *
 head(null_chisq)
 
 gf_histogram( ~ X.squared, data = null_chisq) %>% 
-  
   gf_vline(xintercept = observedChi2, 
-           color = "red") 
+           color = "red") %>% 
+  gf_refine(annotate("text", y = 500, x = observedChi2, 
+           label = "Observed\n Chi-Square")) %>%
+  gf_labs(title = "Permutation Test on Chi-Square Statistic",
+           x = "Chi-Square Statistic",
+           y = "How Often?") 
 
 prop1(~ X.squared >= observedChi2, data = null_chisq)
 
@@ -874,7 +911,7 @@ opinion!
 
 ## {{< iconify grommet-icons test >}} {{< iconify lucide ratio >}} Inference for Proportions Case Study-2: TBD dataset
 
-To be Written Up.
+To be Written Up. Yes, but when, Arvind?
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 
@@ -897,27 +934,22 @@ variety.
 
 1.  [OpenIntro Modern Statistics: Chapter
     17](https://openintro-ims.netlify.app/inference-one-prop.html)\
-
-2.  Chapter 8: The Chi-Square Test, from *Statistics at Square One*. The
+1.  Chapter 8: The Chi-Square Test, from *Statistics at Square One*. The
     British Medical Journal.
     <https://www.bmj.com/about-bmj/resources-readers/publications/statistics-square-one/8-chi-squared-tests>.
     Very readable and easy to grasp. Especially if you like watching
     [Grey's
     Anatomy](https://www.hotstar.com/in/shows/greys-anatomy/14823) and
     [House](https://www.imdb.com/title/tt0412142/).
-
-3.  Exploring the underlying theory of the chi-square test through
+1.  Exploring the underlying theory of the chi-square test through
     simulation - part 1
     <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence/>\
-
-4.  Exploring the underlying theory of the chi-square test through
+1.  Exploring the underlying theory of the chi-square test through
     simulation - part 2
     <https://www.rdatagen.net/post/a-little-intuition-and-simulation-behind-the-chi-square-test-of-independence-part-2/>\
-
-5.  An Online $\Xi^2$-test calculator.
+1.  An Online $\Xi^2$-test calculator.
     <https://www.statology.org/chi-square-test-of-independence-calculator/>
-
-6.  <https://saylordotorg.github.io/text_introductory-statistics/s13-04-comparison-of-two-population-p.html>
+1.  <https://saylordotorg.github.io/text_introductory-statistics/s13-04-comparison-of-two-population-p.html>
 
 ::: {#refs style="font-size: 60%;"}
 ###### {{< iconify lucide package-check >}} R Package Citations

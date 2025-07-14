@@ -65,12 +65,8 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ```
+
 
 ```{r}
 #| label: Extra Pedagogical Packages
@@ -87,6 +83,97 @@ library(MKdescr)
 library(downloadthis)
 
 ```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
+
+```
+
+
 
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
@@ -113,13 +200,17 @@ read_csv("../../../../../materials/Data/pronouns.csv") %>%
 ## {{< iconify icons8 idea >}} Inspiration
 ```{r}
 #| echo: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#| warning: false
+#| message: false
+
+
 lincoln_weather %>% 
   gf_density_ridges_gradient(Month ~ `Max Temperature [F]`,
                              group = ~ Month) %>% 
   gf_refine(scale_fill_viridis_c(name = "Temperature [F]", 
                                  option = "B")) %>% 
   gf_labs(title = "Weather in Lincoln, Nebraska")
+
 ```
 [April is the cruelest month](https://www.poetryfoundation.org/poems/47311/the-waste-land), said T.S Eliot. But December in Nebraska must be tough.
 
@@ -239,7 +330,6 @@ skim(penguins)
 #| label: fig-ggformula-1
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 penguins <- penguins %>% drop_na()
 
 gf_density( ~ body_mass_g, data = penguins) %>%
@@ -263,7 +353,7 @@ gf_density( ~ body_mass_g, data = penguins) %>%
 ```{r}
 #| label: fig-ggformula-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 penguins %>% gf_density( ~ body_mass_g, 
                          fill = ~ species, 
                          color = "black") %>%
@@ -287,7 +377,6 @@ penguins %>% gf_density( ~ body_mass_g,
 ```{r}
 #| label: fig-ggformula-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>%
   gf_density(
@@ -315,7 +404,6 @@ penguins %>%
 ```{r}
 #| label: fig-ggformula-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>%
   gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
@@ -345,9 +433,7 @@ penguins %>%
 ```{r}
 #| label: fig-ggplot-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
-## Remove the rows containing NA (11 rows!)
 penguins <- penguins %>% drop_na()
 
 ggplot(data = penguins) + 
@@ -371,7 +457,6 @@ ggplot(data = penguins) +
 ```{r}
 #| label: fig-ggplot-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% 
   ggplot() + 
@@ -398,7 +483,6 @@ penguins %>%
 ```{r}
 #| label: fig-ggplot-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% ggplot() + 
   geom_density(aes(x = body_mass_g, fill = species),
@@ -423,7 +507,6 @@ penguins %>% ggplot() +
 ```{r}
 #| label: fig-ggplot-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% ggplot() + 
   geom_density(aes(x = body_mass_g, fill = species),
@@ -451,7 +534,6 @@ penguins %>% ggplot() +
 #### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
 #| label: density-charts-ggformula-webr
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins <- penguins %>% drop_na()
 
@@ -461,8 +543,6 @@ gf_density( ~ body_mass_g, data = penguins) %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 penguins %>% 
   gf_density( ~ body_mass_g, fill = ~ species, 
                              color = "black") %>%
@@ -474,7 +554,6 @@ penguins %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>%
   gf_density(
@@ -489,7 +568,6 @@ penguins %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>%
   gf_density( ~ body_mass_g, fill = ~ species, color = "black") %>%
@@ -504,7 +582,6 @@ penguins %>%
 
 ```{webr-r}
 #| label: density-charts-ggplot-webr
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins <- penguins %>% drop_na()
 
@@ -515,7 +592,6 @@ ggplot(data = penguins) +
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% 
   ggplot() + 
@@ -529,7 +605,6 @@ penguins %>%
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% ggplot() + 
   geom_density(aes(x = body_mass_g, fill = species),
@@ -541,7 +616,6 @@ penguins %>% ggplot() +
 ```
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 penguins %>% ggplot() + 
   geom_density(aes(x = body_mass_g, fill = species, 
@@ -575,7 +649,7 @@ variable. Or the `sales` of a particular line of products, across
 different shops or cities. We did this with both histograms and
 densities, by colouring based on a Qual variable, and by facetting using
 a Qual variable. There is a third way, using what is called a *ridge 
-plot*. `ggformula` support this plot by importing/depending upon the `ggridges` package. `ggridges` provides direct support for ridge plots, and can be used as an extension to `ggplot2` and `ggformula`.
+plot*. `ggformula` support this plot by importing/depending upon the `ggridges` package. `ggridges` provides direct support for ridge plots, and can be used as an extension to `# ggplot2` and `ggformula`.
 
 ::: {.column-page-inset-right}
 
@@ -587,8 +661,6 @@ plot*. `ggformula` support this plot by importing/depending upon the `ggridges` 
 ```{r}
 #| label: ridgeplot-ggformula
 #| eval: false
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.5, # colour saturation
@@ -621,8 +693,6 @@ gf_density_ridges(drv ~ hwy, fill = ~ drv,
 #| label: ridgeplot-ggplot
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.5, # colour saturation
                   rel_min_height = 0.005, data = mpg) %>% 
@@ -650,8 +720,6 @@ palette = "Spectral")) %>%
 
 ```{webr-r}
 #| label: more-charts-webr
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 gf_density_ridges(drv ~ hwy, fill = ~ drv, 
                   alpha = 0.3, 
@@ -725,20 +793,6 @@ MathAnxiety %>%
 ```
 :::
 
-
-## {{< iconify ri slash-commands-2>}} R Commands Used Here{.hidden}
-
-```{r}
-#| label: used-these
-#| echo: false
-#| include: false
-#| message: false
-#| warning: false
-library(usedthese)
-used_here()
-
-```
-
 ## {{< iconify ooui references-rtl >}} References
 
 1. Winston Chang (2024). *R Graphics Cookbook*. <https://r-graphics.org>
@@ -758,7 +812,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",
-  pkgs = c("ggridges", "NHANES", "TeachHist",
+  pkgs = c("ggridges", "NHANES", "TeachHist", "rtrek","resampledata3",
            "TeachingDemos", "visualize", "tinytable", "tinyplot", "tidyplots")
 ) %>%
   knitr::kable(format = "simple")

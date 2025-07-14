@@ -10,10 +10,10 @@ library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
 ## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# library(hrbrthemes)
+# hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
+# hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 library(checkdown)
 library(epoxy)
@@ -29,6 +29,65 @@ library(downloadthis)
 #devtools::install_github("mccarthy-m-g/embedr")
 library(embedr) # Embed multimedia in HTML files
 
+## Import all fonts from project "fonts" directory
+systemfonts::add_fonts("../../../../../../fonts/")
+
+theme_av <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 20, base_family = "Alegreya") %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = "Alegreya",          #set font family
+                   size = 18,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   vjust = 2),                   #raise slightly
+      
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = "Alegreya",          #font family
+                   size = 14),                   #font size
+      
+      plot.caption = element_text(               #caption
+                   family = "Alegreya",          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 10),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Alegreya",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_av())
+
 read_csv("../../../../../materials/Data/pronouns.csv") %>% 
   filter(No == "1") %>% 
   tt(theme = "striped")
@@ -43,7 +102,7 @@ skim(diamonds)
 inspect(diamonds)
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # gf_histogram(~ price, data = diamonds) %>%
 #   gf_labs(title = "Plot 1A: Diamond Prices",
@@ -51,7 +110,7 @@ inspect(diamonds)
 
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # ## More bins
 # gf_histogram(~ price, data = diamonds,
@@ -62,7 +121,7 @@ inspect(diamonds)
 
 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 
 ggplot(data = diamonds) + 
@@ -76,7 +135,7 @@ ggplot(data = diamonds) +
        caption = "ggplot")
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # diamonds %>%
 #   gf_histogram(~ carat) %>%
@@ -85,7 +144,7 @@ ggplot(data = diamonds) +
 
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # ## More bins
 # diamonds %>%
@@ -96,7 +155,7 @@ ggplot(data = diamonds) +
 
 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 diamonds %>% 
   ggplot() + 
@@ -111,7 +170,7 @@ diamonds %>%
           caption = "ggplot")
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # ##
 # gf_histogram(~ price, fill = ~ cut, data = diamonds) %>%
@@ -129,7 +188,7 @@ diamonds %>%
 
 
 # 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # diamonds %>%
 #   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
@@ -142,7 +201,7 @@ diamonds %>%
 
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # diamonds %>%
 #   gf_histogram(~ price, fill = ~ cut, color = "black", alpha = 0.3) %>%
@@ -156,7 +215,7 @@ diamonds %>%
 
 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 diamonds %>% ggplot() + 
   geom_histogram(aes(x = price, fill = cut), alpha = 0.3) + 
@@ -245,7 +304,7 @@ longest_races %>%
   count(nationality) %>% arrange(desc(n))
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # ##
 # 
@@ -256,14 +315,14 @@ longest_races %>%
 
 
 
-# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# #ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 # 
 # race_df %>%
 #   gf_histogram(~ distance, bins =  50) %>%
 #   gf_labs(title = "Histogram of Race Distances")
 # 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 race_df %>%
   gf_histogram(~ distance, bins =  50) %>%
@@ -281,7 +340,7 @@ race_times
 
 # Demo purposes only!
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 
 race_start_factor <- race_df %>%
@@ -338,7 +397,7 @@ pop
 inspect(pop)
 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 
 ##
@@ -347,7 +406,7 @@ gf_histogram(~ value, data = pop, title = "Long Tailed Histogram")
 gf_density(~ value, data = pop, title = "Long Tailed Density")
 
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 
 gf_histogram(~ log10(value), data = pop, title = "Histogram with Log transformed x-variable") 
@@ -358,7 +417,7 @@ gf_density(~ log10(value), data = pop, title = "Density with Log transformed x-v
 # Build dataset with different distributions
 library(hrbrthemes)
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+#ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 data <- data.frame(
   type = c( rep("edge peak", 1000), rep("comb", 1000), rep("normal", 1000), rep("uniform", 1000), rep("bimodal", 1000), rep("skewed", 1000) ),

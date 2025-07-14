@@ -54,6 +54,7 @@ webr:
 library(tidyverse)
 library(mosaic)
 library(ggformula)
+library(skimr)
 library(visStatistics) # All in one plot + stats test package
 library(palmerpenguins) # Our new favourite dataset
 ##
@@ -61,11 +62,6 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 ```
 
 
@@ -78,11 +74,104 @@ library(checkdown)
 library(epoxy)
 library(grateful)
 library(MKdescr)
-
+library(sn) # Normally distributed random data generation
 library(downloadthis)
 #devtools::install_github("mccarthy-m-g/embedr")
 library(embedr) # Embed multimedia in HTML files
+
 ```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
+
+```
+
+
+
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
 
@@ -122,10 +211,9 @@ Box Plots are an extremely useful data visualization that gives us an idea of th
 #| fig-cap: "Box Plot Definitions"
 #| fig-height: 4
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 set.seed(123)
 data <- rt(150, df = 10)
-MKdescr::illustrate.boxplot(data)
+MKdescr::illustrate.boxplot(data) + theme_custom()
 
 ```
 
@@ -170,9 +258,6 @@ Box plots can show skew in distributions, with a large number of outliers on one
 #| fig-cap:
 #| - "Skewed Distributions and Boxplots"
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-library(sn)
 rand_data <- tibble(
 #left  = rsn(n=5000, xi=0, omega=1, alpha=-8, tau=0, dp=NULL), 
 left_skew = rbeta(5000,3,1) * 10,
@@ -189,7 +274,7 @@ rand_data %>%
               dplyr::group_by(type) %>% 
               dplyr::summarise(mean = mean(value)), inherit = F,
            xintercept = ~ mean, linetype = "dashed", color = "black") %>%
-  gf_labs(title = "Distribution of Random Data",
+  gf_labs(title = "Distributions of Random Data",
           subtitle = "Left, Right, and Symmetric Skewed Distributions", caption = "Dotted Line = Mean") %>%
   gf_facet_wrap(~ type, ncol = 3) %>% 
   gf_theme(theme(plot.title.position = "plot",
@@ -382,8 +467,6 @@ wages_clean <-  wages %>% tidyr::drop_na(realinc)
 #| label: realincome-ggformula
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 wages_clean %>% 
   gf_boxplot(realrinc ~ "Income") %>% # Dummy X-axis "variable"
   gf_labs(title = "Plot 1A: Income has a skewed distribution",
@@ -403,7 +486,6 @@ wages_clean %>%
 ```{r}
 #| label: realincome-ggplot
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 wages_clean %>% 
   ggplot() + 
   geom_boxplot(aes(y = realrinc, x = "Income")) +  # Dummy X-axis "variable"
@@ -413,7 +495,6 @@ wages_clean %>%
 
 ### {{< iconify noto-v1 spider-web >}} web-r
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
@@ -453,8 +534,6 @@ wages %>%
 #| label: fig-income-by-gender-ggformula-1
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 wages_clean %>% 
   gf_boxplot(gender ~ realrinc) %>% 
   gf_labs(title = "Plot 2A: Income by Gender")
@@ -477,7 +556,7 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-gender-ggformula-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(gender ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 2B: Log(Income) by Gender")
@@ -500,10 +579,10 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-gender-ggformula-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
-  gf_refine(scale_x_log10()) %>% 
+  gf_refine(scale_x_log10(), scale_fill_brewer(palette = "Set1")) %>% 
   gf_labs(title = "Plot 2C: Income filled by Gender, log scale")
 
 ```
@@ -528,7 +607,7 @@ wages_clean %>%
 #|   - "Split by Gender"
 #|   - "With log income"
 #|   - "With log scale"
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 wages_clean %>% 
   ggplot() + 
   geom_boxplot(aes(y = gender, x = realrinc)) +
@@ -542,7 +621,7 @@ wages_clean %>%
 wages_clean %>% 
   ggplot() + 
   geom_boxplot(aes(y = gender, x = realrinc, fill = gender)) +
-  gf_refine(scale_x_log10()) +
+  scale_x_log10() + scale_fill_brewer(palette = "Set1") + 
   labs(title = "Plot 2C: Income filled by Gender, log scale")
 
 ```
@@ -551,7 +630,8 @@ wages_clean %>%
 ### web-r
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
@@ -566,7 +646,7 @@ wages %>%
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
   gf_boxplot(gender ~ realrinc, fill = ~ gender) %>% 
-  gf_refine(scale_x_log10()) %>% 
+  gf_refine(scale_x_log10(), scale_fill_brewer(palette = "Set1")) %>% 
   gf_labs(title = "Plot 2C: Income filled by Gender, log scale")
 
 ```
@@ -593,11 +673,13 @@ wages %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages_clean %>% 
   gf_boxplot(educcat ~ realrinc) %>% 
   gf_labs(title = "Plot 3A: Income by Education Category")
+
 ```
 :::
 ::: {.column}
@@ -616,11 +698,13 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages_clean %>% 
   gf_boxplot(educcat ~ log10(realrinc)) %>% 
   gf_labs(title = "Plot 3B: Log(Income) by Education Category")
+
 ```
 :::
 ::: {.column}
@@ -639,16 +723,16 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages_clean %>% 
   gf_boxplot(
     reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
             fill = ~ educcat,
-            alpha = 0.3) %>% 
-  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted") %>% 
-  gf_labs(x = "Log Income", 
-          y = "Education Category")
+            alpha = 0.5) %>% 
+  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted",
+          x = "Log Income", 
+          y = "Education Category") %>%
+  gf_refine(scale_fill_brewer(palette = "Set1"))
 
 ```
 :::
@@ -667,7 +751,8 @@ wages_clean %>%
 ```{r}
 #| label: fig-income-by-educcat-ggformula-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages_clean %>% 
   gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ realrinc, 
@@ -675,9 +760,10 @@ wages_clean %>%
              alpha = 0.5) %>% 
   gf_refine(scale_x_log10()) %>% 
   gf_labs(title = "Plot 3D: Income by Education Category, sorted",
-          subtitle = "Log Income") %>% 
-  gf_labs(x = "Income", 
-          y = "Education Category")
+          subtitle = "Log Income",
+          x = "Income", 
+          y = "Education Category") %>%
+  gf_refine(scale_fill_brewer(palette = "Set1"))
 
 ```
 
@@ -703,7 +789,6 @@ wages_clean %>%
 #|   - "Split by Education Category"
 #|   - "With log income"
 #|   - "With log scale"
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages_clean %>% 
   ggplot() +
@@ -720,7 +805,7 @@ wages_clean %>%
   geom_boxplot(aes(log(realrinc), 
                    reorder(educcat, realrinc, FUN = median), 
                    fill = educcat),
-               alpha = 0.3) + 
+               alpha = 0.5) + 
   labs(title = "Plot 3C: Log(Income) by Education Category, sorted",
        x = "Log Income", y = "Education Category")
 ##
@@ -729,7 +814,7 @@ wages_clean %>%
   geom_boxplot(aes(realrinc, 
                    reorder(educcat, realrinc, FUN = median), 
                    fill = educcat),
-               alpha = 0.3)+ 
+               alpha = 0.5)+ 
   scale_x_log10() + 
   labs(title = "Plot 3D: Income by Education Category, sorted",
        subtitle = "Log Income Scale",
@@ -740,7 +825,8 @@ wages_clean %>%
 ### web-r
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
@@ -756,8 +842,9 @@ wages %>%
   tidyr::drop_na(realrinc) %>% 
   gf_boxplot(reorder(educcat, realrinc, FUN = median) ~ log(realrinc), 
              fill = ~ educcat,
-             alpha = 0.3) %>% 
-  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted") %>% gf_labs(x = "Log Income", y = "Education Category")
+             alpha = 0.5) %>% 
+  gf_labs(title = "Plot 3C: Log(Income) by Education Category, sorted",
+          x = "Log Income", y = "Education Category")
 ##
 wages %>% 
   tidyr::drop_na(realrinc) %>% 
@@ -766,8 +853,8 @@ wages %>%
              alpha = 0.5) %>% 
   gf_refine(scale_x_log10()) %>% 
   gf_labs(title = "Plot 3D: Income by Education Category, sorted",
-          subtitle = "Log Income Scale") %>% 
-  gf_labs(x = "Income", y = "Education Category")
+          subtitle = "Log Income Scale",
+          x = "Income", y = "Education Category")
 
 ```
 
@@ -809,7 +896,6 @@ We will also drop NA values all around this time, to avoid seeing boxplots for u
 ```{r}
 #| label: fig-income-by-educcat-childs-ggformula-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   drop_na() %>% 
@@ -821,6 +907,7 @@ wages %>%
   gf_labs(title = "Plot 4A: Log Income by Education Category and Family Size", 
   x = "Log income", 
   y = "No. of Children")
+
 ```
 :::
 ::: {.column}
@@ -841,7 +928,7 @@ wages %>%
 #| label: fig-income-by-educcat-childs-ggformula-2
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+# ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   drop_na() %>% 
@@ -878,7 +965,6 @@ wages %>%
 #| fig-subcap: 
 #|   - "Split by Education Category and Family Size"
 #|   - "Split by Gender and Family Size"
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   drop_na() %>%
@@ -910,8 +996,6 @@ wages %>%
 
 ```{webr-r}
 #| label: fig-income-by-educcat-childs-webr
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 wages %>% 
   drop_na() %>% 
@@ -1078,7 +1162,7 @@ cite_packages(
   out.dir = ".",
   out.format = "html",
   pkgs = c("ggridges", "NHANES", "TeachHist",
-           "TeachingDemos", "visualize", "visStatistics", "tidyplots", "tinyplot", "tinytable")
+           "TeachingDemos", "visualize", "visStatistics", "tidyplots", "tinyplot", "tinytable", "sn")
 ) %>%
   knitr::kable(format = "simple")
 

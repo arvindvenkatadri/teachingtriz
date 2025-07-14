@@ -54,12 +54,6 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 ```
 
 ```{r}
@@ -102,6 +96,97 @@ library(embedr) # Embed multimedia in HTML files
 # Existing file
 #    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
 ```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
+
+```
+
+
 
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What graphs will we see today?
@@ -337,7 +422,8 @@ We will convert the `tip`, `company`, `dow`, `local`, `hour`, and `month` variab
 taxi_modified <- taxi %>%
   mutate(
     ##
-    tip = factor(tip, levels = c("yes", "no"), labels = c("yes", "no"),
+    tip = factor(tip, levels = c("yes", "no"), 
+                 labels = c("yes", "no"),
                  ordered = TRUE),
     ##
     company = factor(company), # Any order is OK. 
@@ -348,8 +434,8 @@ taxi_modified <- taxi %>%
     ordered = TRUE),
     ##
     local = factor(local,
-                   levels = c("no", "yes"),
-                   labels = c("no", "yes"),
+                   levels = c("yes", "no"),
+                   labels = c("yes", "no"),
                    ordered = TRUE),
     ##
     month = factor(month, 
@@ -428,7 +514,7 @@ choose **Qual** variables to count with! In each case, we will state a Hypothesi
 #| label: fig-bar-tip-ggformula
 #| code-fold: true
 #| 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 gf_bar(~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 1A: Counts of Tips")
@@ -442,7 +528,7 @@ gf_bar(~ tip, data = taxi_modified) %>%
 #| label: fig-bar-tip-ggplot
 #| code-fold: true
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 ggplot(taxi_modified)  + 
   geom_bar(aes(x = tip)) + 
@@ -527,7 +613,7 @@ ggplot(taxi_modified)  +
 #| label: fig-ggformula-2-1
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, 
@@ -552,7 +638,7 @@ taxi_modified %>%
 #| label: fig-ggformula-2-2
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, 
@@ -579,7 +665,7 @@ taxi_modified %>%
 #| label: fig-ggformula-2-3
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 ## Showing "per capita" percentages
 taxi_modified %>% 
@@ -608,7 +694,7 @@ taxi_modified %>%
 #| label: fig-ggformula-2-4
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis 
@@ -635,7 +721,7 @@ taxi_modified %>%
 ```{r}
 #| layout-ncol: 2
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 taxi_modified %>%
   ggplot() +
@@ -676,7 +762,7 @@ taxi_modified %>%
 ```{r}
 #| label: fig-tidyplots-2-1
 #| eval: false
-tidyplots::tidyplot(local, colour = tip, #<1>
+tidyplots::tidyplot(local, colour = tip,
                     data = taxi_modified) %>% 
   add_count_bar() %>% 
   add_title("Plot 2A: Dodged Bar Chart") %>% 
@@ -701,7 +787,7 @@ tidyplots::tidyplot(local, colour = tip, #<1>
 #| label: fig-tidyplots-2-2
 #| eval: false
 tidyplots::tidyplot(local, colour = tip, data = taxi_modified) %>% 
-  add_barstack_absolute() %>%                     # <1>
+  add_barstack_absolute() %>%                     
   add_title("Plot 2B: Stacked Bar Chart") %>% 
   adjust_size(height = 50, width = 80, unit = "mm") %>% 
   adjust_colors(colors_discrete_friendly) 
@@ -725,7 +811,7 @@ tidyplots::tidyplot(local, colour = tip, data = taxi_modified) %>%
 #| eval: false
 tidyplots::tidyplot(local, colour = tip,
                     data = taxi_modified) %>% 
-  add_barstack_relative() %>%  # <1>
+  add_barstack_relative() %>%  
   add_title("Plot 2C: Dodged Bar Chart") %>% 
   adjust_size(height = 50, width = 80, unit = "mm") %>% 
   adjust_colors(colors_discrete_friendly) 
@@ -776,7 +862,7 @@ tinyplot(~ local | tip, data = taxi_modified,
 
 tinyplot(~ local | tip, data = taxi_modified,
   type = "barplot", palette = "tableau",
-  beside = FALSE,                                  # <1>
+  beside = FALSE,                                  
   xlevels = c("no","yes"), # try reversing
   main = "Plot 2B: Stacked Bar Chart",
   sub = "Can we spot per group differences in proportions??",
@@ -800,7 +886,8 @@ tinyplot(~ local | tip, data = taxi_modified,
 
 #### {{< iconify noto-v1 spider-web >}} web-r-2
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ local, fill = ~ tip, position = "dodge") %>% 
@@ -852,13 +939,14 @@ taxi_modified %>%
 ```{r}
 #| label: fig-ggformula-3-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
   gf_labs(title = "Plot 3A: Dodged Bar Chart") %>% 
   gf_theme(theme(axis.text.x = element_text(size = 6, 
-                 angle = 45, hjust = 1))) %>%  gf_refine(scale_fill_brewer(palette = "Set1")) 
+                 angle = 45, hjust = 0.5))) %>%  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 ```
 :::
@@ -876,7 +964,8 @@ taxi_modified %>%
 ```{r}
 #| label: fig-ggformula-3-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "stack") %>% 
@@ -900,7 +989,8 @@ taxi_modified %>%
 ```{r}
 #| label: fig-ggformula-3-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 ## Showing "per capita" percentages
 taxi_modified %>% 
@@ -925,7 +1015,7 @@ taxi_modified %>%
 ```{r}
 #| label: fig-ggformula-3-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 ## Showing "per capita" percentages
 ## Better labelling of Y-axis
@@ -951,7 +1041,8 @@ taxi_modified %>%
 #### ggplot-3
 ```{r}
 #| layout-ncol: 2
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   ggplot() + 
@@ -992,7 +1083,7 @@ taxi_modified %>%
 ```{r}
 #| label: fig-tidyplots-3-1
 #| eval: false
-tidyplots::tidyplot(company, colour = tip, #<1>
+tidyplots::tidyplot(company, colour = tip,
                     data = taxi_modified) %>% 
   add_count_bar() %>% 
   add_title("Plot 3A: Dodged Bar Chart") %>% 
@@ -1016,7 +1107,7 @@ tidyplots::tidyplot(company, colour = tip, #<1>
 #| label: fig-tidyplots-3-2
 #| eval: false
 
-tidyplots::tidyplot(company, colour = tip, #<1>
+tidyplots::tidyplot(company, colour = tip,
                     data = taxi_modified) %>% 
   add_barstack_absolute() %>% 
   add_title("Plot 3B: Stacked Bar Chart") %>% 
@@ -1040,7 +1131,7 @@ tidyplots::tidyplot(company, colour = tip, #<1>
 #| eval: false
 tidyplots::tidyplot(company, colour = tip,
                     data = taxi_modified) %>% 
-  add_barstack_relative() %>% # <1>
+  add_barstack_relative() %>% 
   add_title("Plot 3C: Stacked Bar Chart") %>% 
   add_annotation_text(text = "Proportions of Tippers per Company", 
                       x = 4.25,  y = 1.25) %>% 
@@ -1068,7 +1159,8 @@ To be Coded!!
 
 #### {{< iconify noto-v1 spider-web >}} web-r-3
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 taxi_modified %>% 
   gf_bar(~ company, fill = ~ tip, position = "dodge") %>% 
@@ -1123,7 +1215,8 @@ taxi_modified %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4A: Counts of Tips by Hour") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
@@ -1148,7 +1241,8 @@ gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4B: Counts of Tips by Day of Week") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
@@ -1173,7 +1267,8 @@ gf_bar(~ dow, fill = ~ tip, data = taxi_modified) %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4C: Counts of Tips by Month") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
@@ -1198,7 +1293,8 @@ gf_bar(~ month, fill = ~ tip, data = taxi_modified) %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4D: Counts of Tips by Day of Week and Month") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
@@ -1223,12 +1319,14 @@ gf_bar(~ month | dow, fill = ~ tip, data = taxi_modified) %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-5
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 ## This may be too busy a graph...
 gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4E: Counts of Tips by Hour and Day of Week",
           subtitle = "Is this plot arrangement easy to grasp?") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
+
 ```
 :::
 
@@ -1249,12 +1347,14 @@ gf_bar(~ dow | hour, fill = ~ tip, data = taxi_modified) %>%
 ```{r}
 #| label: bar-tip-others-ggformula-4-6
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 ## This is better!
 gf_bar(~ hour | dow, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4F: Counts of Tips by Hour and Day of Week",
-          subtitle = "Swapped the Facets")  %>% gf_refine(scale_fill_brewer(palette = "Set1"))
+          subtitle = "Facetted by Day of Week")  %>% gf_refine(scale_fill_brewer(palette = "Set1"))
+
 ```
 :::
 
@@ -1273,7 +1373,8 @@ gf_bar(~ hour | dow, fill = ~ tip, data = taxi_modified) %>%
 #| label: bar-tip-others-ggplot
 #| layout-ncol: 2
 #| layout-nrow: 2
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4A: Counts of Tips by Hour") %>% gf_refine(scale_fill_brewer(palette = "Set1"))
@@ -1457,7 +1558,8 @@ To be Coded.
 #### {{< iconify noto-v1 spider-web >}} web-r-4
 
 ```{webr-r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_bar(~ hour, fill = ~ tip, data = taxi_modified) %>%
   gf_labs(title = "Plot 4A: Counts of Tips by Hour") %>% 
@@ -1524,7 +1626,7 @@ We have already seen `gf_props` in our two case studies above. Also check out `g
 ```{r}
 #| label: props-chart-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+theme_set(new = theme_custom())
 
 gf_props(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,
@@ -1532,6 +1634,7 @@ gf_props(~ substance,
   gf_labs(title = "Plotting Proportions using gf_props",
           subtitle = "Option = dodge") %>% 
   gf_refine(scale_fill_brewer(palette = "Set1"))
+
 ```
 :::
 
@@ -1552,7 +1655,8 @@ gf_props(~ substance,
 ```{r}
 #| label: props-chart-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_props(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,
@@ -1582,7 +1686,8 @@ gf_props(~ substance,
 ```{r}
 #| label: percents-chart
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
+theme_set(new = theme_custom())
 
 gf_percents(~ substance,
   data = mosaicData::HELPrct, fill = ~ sex,

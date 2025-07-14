@@ -87,12 +87,6 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 ```
 
 
@@ -104,6 +98,95 @@ ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set 
 library(checkdown)
 library(epoxy)
 library(grateful)
+
+```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -145,8 +228,6 @@ df1
 #| label: lollipop-1
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 ###
 gf_segment(0 + rank ~ product + product, data = df1) %>% 
 # A formula with shape y + yend ~ x + xend.
@@ -173,9 +254,7 @@ gf_segment(0 + rank ~ product + product, data = df1) %>%
 ```{r}
 #| label: lollipop-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
-###
 gf_segment(0 + rank ~ fct_reorder(product, - rank) + 
              fct_reorder(product, - rank), 
            data = df1) %>%
@@ -206,9 +285,6 @@ We have flipped the chart horizontally *and* reordered the $x$ categories in ord
 ```{r}
 #| layout-ncol: 2
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-###
 ggplot(df1) +
   geom_segment(aes(y = 0, yend = rank, 
                    x = product, 
@@ -236,9 +312,6 @@ Yes, R has ( nearly) everything, including a `geom_lollipop` command: Here!
 ```{r}
 #| label: ggalt-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-#library(ggalt)
 
 ggplot(df1) +
   geom_lollipop(aes(x = rank, y = product), 
@@ -261,7 +334,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ggplot(df1) +
   geom_lollipop(aes(y = rank, x = product), 
                 point.size = 3, horizontal = T) +
@@ -281,8 +354,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-3
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-###
+
 ggplot(df1) +
   geom_lollipop(aes(y = rank, x = product), 
                 point.size = 3,, horizontal = F) +
@@ -305,8 +377,7 @@ ggplot(df1) +
 ```{r}
 #| label: ggalt-4
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-##
+
 ggplot(df1) +
   geom_lollipop(aes(x = rank, 
                     y = reorder(product,rank),
@@ -395,7 +466,6 @@ A cool visualization of this operation was created by [Garrick Aden-Buie](https:
 ```{r}
 #| label: dumbbell-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ## With Wide Form Data
 ## 
@@ -429,7 +499,7 @@ df2 %>%
 ```{r}
 #| label: dumbbell-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 ## Rearranging `product` in order of rank_year2
 df2 %>% 
   gf_segment(
@@ -462,9 +532,7 @@ df2 %>%
 ### Using ggplot
 
 ```{r}
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed"))
-# Set consistent graph theme
-# 
+
 ## With Wide Format Data
 ggplot(df2, aes(y = product, yend = product, x = rank_year1, xend = rank_year2)) + 
   geom_segment(size = 3, color="#e3e2e1",
@@ -496,7 +564,6 @@ ggplot(df2, aes(y = reorder(product,rank_year2), yend = reorder(product,rank_yea
 ```{r}
 #| label: ggalt-dumbbell-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 df2 %>% ggplot() + 
   geom_dumbbell(aes(y = reorder(product,rank_year2),
@@ -534,7 +601,6 @@ df2 %>% ggplot() +
 ```{r}
 #| label: barplot-for-comparison
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 df2_long %>% 
   gf_col(product ~ scores, group = ~ year, 
@@ -606,7 +672,7 @@ Note the `+` syntax with `ggplot` code!!
 ```{r}
 #| label: bump-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 df3 %>%  
   ggplot() +
   geom_bump(aes(x = year, y = position, color = product)) +
@@ -638,9 +704,7 @@ altogether:
 ```{r}
 #| label: bump-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
-###
 ggplot(df3) +
   geom_bump(aes(x = year, y = position, color = product)) +
   geom_point(aes(x = year, y = position, color = product),
@@ -737,7 +801,6 @@ And now plot it with both packages.
 ```{r}
 #| label: radar-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ggradar::ggradar(plot.data = df4,
                  axis.label.size = 3, # Titles of Params
@@ -778,9 +841,6 @@ From the `ggiraphExtra` website:
 ```{r}
 #| label: radar-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-# library(ggiraphExtra)
 
 ggiraphExtra::ggRadar(data = df4,
         aes(colour = Product),

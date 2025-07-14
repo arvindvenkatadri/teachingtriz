@@ -44,14 +44,13 @@ library(MKdescr)
 
 ```
 
-#### Plot Theme
+#### Plot Fonts and Theme
+
 ```{r}
-#| label: Plot-Sizing-and-theming
+#| label: Plot Sizing and theming
 #| code-fold: true
 #| message: false
-#| results: hide
-
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+#| warning: true
 
 # Chunk options
 knitr::opts_chunk$set(
@@ -62,53 +61,90 @@ knitr::opts_chunk$set(
 )
 ### Ggplot Theme
 ### https://rpubs.com/mclaire19/ggplot2-custom-themes
+### https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+
+# We have locally downloaded the `Alegreya` and `Roboto Condensed` fonts.
+# This ensures we are GDPR-compliant, and not using Google Fonts directly.
+# Let us import these local fonts into our session and use them to define our ggplot theme. 
+library(sysfonts)
+
+sysfonts::font_add(family = "Alegreya", 
+                   regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+                   italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+                   bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+                   bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+                   regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+                   italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+                   bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+                   bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+
 
 theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
+    font <- "Alegreya"   #assign font family up front
     
     theme_classic(base_size = 14) %+replace%    #replace elements we want to change
     
     theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
+      
+      text = element_text(family = "Alegreya"), #set default font family for all text
+      
       #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
+      plot.title = element_text(                 #title
+                   family = "Alegreya",          #set font family
+                   size = 18,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   vjust = 2),                   #raise slightly
       
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
+      plot.title.position = "plot", 
       
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
+      plot.subtitle = element_text(              #subtitle
+                   family = "Alegreya",          #font family
+                   size = 14),                   #font size
       
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
+      plot.caption = element_text(               #caption
+                   family = "Alegreya",          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
       
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 10),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
     )
 }
 
-# Set graph theme
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
 theme_set(new = theme_custom())
-#
 
 ```
+
+
+
+
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction to Inference for Paired Data
 
@@ -206,6 +242,7 @@ Diving2017_long %>%
               fill = ~ race,
               alpha = 0.5,
               title = "Diving Scores") %>%
+  gf_refine(scale_fill_brewer(palette = "Set1")) %>%
   gf_facet_grid( ~ race) %>%
   gf_fitdistr(dist = "dnorm")
   
@@ -237,7 +274,8 @@ Diving2017_long %>%
     xlab = "Scores",
     ylab = "Name",
     title = "Diving Scores"
-  )
+  )  %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) %>%
 ```
 :::
 :::{.column}
@@ -264,7 +302,8 @@ Diving2017_long %>%
     xlab = "Race",
     ylab = "Scores",
     title = "Diving Scores"
-  ) 
+  ) %>% 
+    gf_refine(scale_fill_brewer(palette = "Set1")) %>%
 
 ```
 :::
@@ -331,11 +370,12 @@ Diving2017 %>%
                names_to = "score_type", values_to = "value") %>% 
   gf_boxplot(value ~ score_type, fill = ~ score_type, 
              show.legend = FALSE) %>% 
-  gf_labs(title = "Comparing Data and Normal Boxplots")
+  gf_labs(title = "Comparing Data and Normal Boxplots") %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 ###
 Diving2017_long %>% 
   gf_qq(~ scores | race, size = 2) %>% 
-  gf_qqline(ylab = "scores", xlab = "theoretical normal")
+  gf_qqline(ylab = "scores", xlab = "theoretical normal") 
 
 ```
 
@@ -679,7 +719,8 @@ Groceries_long %>%
               alpha = 0.5,
               title = "Grocery Costs") %>%
   gf_facet_grid( ~ store) %>%
-  gf_fitdistr(dist = "dnorm")
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 ```
 :::
 :::{.column }
@@ -701,7 +742,8 @@ Groceries_long %>%
               alpha = 0.5,
               title = "Grocery Costs") %>%
   gf_facet_grid( ~ store) %>%
-  gf_fitdistr(dist = "dnorm")
+  gf_fitdistr(dist = "dnorm") %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 ```
 :::
@@ -730,7 +772,8 @@ theme_set(new = theme_custom())
 ##
 Groceries_long %>% 
   gf_boxplot(prices~ store, 
-             fill = ~ store) 
+             fill = ~ store) %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 ```
 :::
 :::{.column }
@@ -765,7 +808,8 @@ Groceries_long %>%
       Product == "Quaker Oats Life Cereal Original"), 
          fct_reorder(Product, prices) ~ prices, 
          fill = ~ store, 
-         position = "dodge")
+         position = "dodge") %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 ```
 
@@ -1041,6 +1085,9 @@ Try to do a regular parametric t.test with this reduced data!
 
 ## {{< iconify mingcute thought-line >}} Wait, But Why?
 
+`Paired` data is a special case of dependent data, where the observations are paired in some way. This can be due to repeated measures on the same subjects, or matched subjects in a case-control study. The paired t-test and the Wilcoxon signed-rank test are both designed for paired data, and take into account the fact that the observations are not independent.
+
+Can you think of an underlying experiment where the data may be paired?
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusion
 

@@ -70,13 +70,6 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-
 ```
 
 ```{r}
@@ -119,6 +112,97 @@ library(embedr) # Embed multimedia in HTML files
 # Existing file
 #    {{< downloadthis Orange/grouped-summaries.ows dname="grouped_summaries" label="Download the Orange Workflow" icon="database-fill-down" type="info" >}} 
 ```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
+
+```
+
+
 
 
 ## {{< iconify material-symbols add-chart-outline >}} What graphs will we see today?
@@ -198,8 +282,6 @@ as *the average of the products of two scaled variables*.
 #| warning: false
 #| message: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 set.rseed(1971)
 demo_dat <- MKdescr::simCorVars(n = 100, r = 0.8, mu1 = 2, sd1 = 1, mu2 = 0, sd2 = 1,plot = FALSE)
 mean_var1 <- mean(demo_dat$Var1)
@@ -278,8 +360,7 @@ glimpse(movies)
 #| include: false
 skimr::skim(movies)
 skimr::skim(movies) %>% 
-  kableExtra::kbl() %>% 
-  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
+  tt(theme = "striped")
 
 ```
 
@@ -291,12 +372,10 @@ skimr::skim(movies) %>%
 movies_describe <- inspect(movies)
 ##
 movies_describe$categorical %>%
-  kableExtra::kbl() %>% 
-  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
+  tt(theme = "striped")
 ##
 movies_describe$quantitative %>%
-  kableExtra::kbl() %>% 
-  kable_styling(bootstrap_options = c("hover", "striped", "responsive"))
+  tt(theme = "striped")
 
 ```
 
@@ -400,7 +479,6 @@ Now let us plot their relationships.
 #| label: scatter-plot-ggformula-1
 #| warning: false
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -424,7 +502,7 @@ movies %>%
 #| label: scatter-plot-ggformula-2
 #| warning: false
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 movies %>% 
   drop_na() %>% 
   gf_point(Profitability ~ OpeningWeekend) %>% 
@@ -448,8 +526,7 @@ movies %>%
 #| label: scatter-plot-ggformula-3
 #| warning: false
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-##
+
 movies %>% 
 drop_na() %>% 
   gf_point(RottenTomatoes ~ AudienceScore) %>% 
@@ -476,7 +553,6 @@ We can split some of the scatter plots using one or other of the Qual variables.
 #| label: scatter-plot-ggformula-4
 #| warning: false
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>%
   drop_na() %>%
@@ -504,8 +580,6 @@ movies %>%
 #| warning: false
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>% 
   ggplot(aes(x = DomesticGross,y = WorldGross)) + 
@@ -530,8 +604,6 @@ movies %>%
 #| label: scatter-plot-ggplot-2
 #| warning: false
 #| eval: false
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -558,8 +630,6 @@ movies %>%
 #| warning: false
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>% 
   ggplot(aes(AudienceScore,RottenTomatoes)) + 
@@ -585,8 +655,6 @@ movies %>%
 #| warning: false
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>%
   drop_na() %>%
   ggplot(aes(RottenTomatoes, AudienceScore, color = Genre)) + 
@@ -611,8 +679,6 @@ movies %>%
 
 ```{webr-r}
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>% 
   gf_point(DomesticGross ~ WorldGross) %>% 
@@ -621,8 +687,6 @@ movies %>%
 ```
 
 ```{webr-r}
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% 
   drop_na() %>% 
@@ -634,8 +698,6 @@ movies %>%
 
 ```{webr-r}
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>% 
   gf_point(RottenTomatoes ~ AudienceScore) %>% 
@@ -646,7 +708,6 @@ movies %>%
 
 ```{webr-r}
 ## We can split some of the scatter plots using one or other of the Qual variables. For instance, is the relationship between the two ratings the same, regardless of movie genre?
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>%
   drop_na() %>%
@@ -687,8 +748,6 @@ We have fitted a **trend line** to each of the scatter plots.
 ```{r}
 #| layout-ncol: 2
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>%
   gf_density_2d(WorldGross ~ DomesticGross) %>% 
@@ -709,8 +768,6 @@ movies %>%
 
 ```{r}
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 movies %>% 
   drop_na() %>%
   gf_density_2d(RottenTomatoes ~ AudienceScore) %>% 
@@ -724,8 +781,6 @@ movies %>%
 
 ```{r}
 #| layout-ncol: 2
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% drop_na() %>%
   ggplot(aes(DomesticGross, WorldGross)) + 
@@ -748,8 +803,6 @@ movies %>% drop_na() %>%
 ### 2D Densities with Stat Ellipese
 
 ```{r}
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 movies %>% drop_na() %>%
   ggplot(aes(AudienceScore, RottenTomatoes)) + 
@@ -817,10 +870,6 @@ By default, [`GGally::ggpairs()`](https://ggobi.github.io/ggally/reference/ggpa
 #| message: false
 #| warn: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-#names(movies_quant)
-
 GGally::ggpairs(
   movies %>% drop_na(),
   # Select Quant variables only for now
@@ -880,8 +929,6 @@ Let us also try a few other variables, related to budget and profits. For instan
 #| eval: false
 #| message: false
 #| warn: false
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 GGally::ggpairs(
   movies %>% drop_na(),
@@ -1050,7 +1097,6 @@ corrplot(mydata_cor, method = "color", ## US Spelling only
 #| eval: false
 #| warning: false
 #| message: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Heatmap with numbers
 corrplot.mixed(mydata_cor, 
@@ -1138,8 +1184,6 @@ We see correlation between **all pairs** of variables. We need to choose just th
 #| warning: false
 #| message: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 cor %>% 
 # Filter for target variable `mpg` and plot
   filter(Parameter1 == "mpg") %>% 
@@ -1176,20 +1220,12 @@ cor %>%
 
 Sometimes, a simple scatter, or density alone, or viewed next to one another is not adequate to develop, or convey, our insight. We might just need a combination density + scatter plot. Such a plot can be be constructed from the ground up using `ggformula` or `ggplot`; however, there is a nice package called `ggExtra` that allows the creation of a powerful combination plot:
 
-::: {.column-page-inset-right}
-
-:::: {.columns}
-:::{.column}
-
 ```{r}
 #| label: Scatter-Plot-with-Marginal-Densities
-#| eval: false
 #| warning: false
 #| message: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-library(ggExtra)
+theme_set(theme_custom())
 
 penguins %>% 
   drop_na() %>% 
@@ -1203,21 +1239,6 @@ penguins %>%
 
 
 ```
-
-:::
-
-:::{.column}
-```{r}
-#| ref.label: Scatter-Plot-with-Marginal-Densities
-#| echo: false
-```
-:::
-::::
-
-:::
-
-
-:::
 
 
 ## An Interactive Correlation Game
@@ -1296,8 +1317,6 @@ std_dev_x = sd(x),
 std_dev_y = sd(y),
 corr_x_y  = cor(x, y)) %>% tt(theme = "striped")
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 datasaurus_dozen %>%
   ggplot(aes(x, y)) +
   geom_point() + theme_minimal() + 
@@ -1358,7 +1377,7 @@ cite_packages(
   output = "table",
   out.dir = ".",
   out.format = "html",cite.tidyverse = FALSE, dependencies = FALSE,
-  pkgs = c("corrplot", "GGally", "ggExtra", "latex2exp")
+  pkgs = c("corrplot", "datasauRus","GGally", "ggExtra", "latex2exp")
 ) %>%
   knitr::kable(format = "simple")
 

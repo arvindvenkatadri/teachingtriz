@@ -27,7 +27,7 @@ library(infer) # Statistical Inference, Permutation/Bootstrap
 library(patchwork) # Arranging Plots
 library(ggprism) # Interesting Categorical Axes
 library(supernova) # Beginner-Friendly ANOVA Tables 
-
+library(paletteer) # Color Palettes
 ```
 
 ```{r}
@@ -45,71 +45,95 @@ library(tinytable) # Easy-to-make tables for data
 ```
 
 
-#### Plot Theme
+#### Plot Fonts and Theme
 
 ```{r}
-#| label: Plot-Sizing-and-theming
+#| label: plot-theme
+#| echo: true
 #| code-fold: true
-#| message: false
-#| results: hide
+#| messages: false
+#| warning: false
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
 
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
 theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
+    font <- "Alegreya"   #assign font family up front
     
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
     
     theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
+      text = element_text(family = font),  #set base font family
+      
       #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
       
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
       
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
       
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
+      plot.caption.position = "plot",            #right align
       
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
     )
 }
 
-# Set graph theme
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
 theme_set(new = theme_custom())
-#
+
 ```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -210,7 +234,8 @@ gf_histogram(~ Time, fill = ~ TempFac,
           x = "Hatching Time", y = "Count") %>%
   gf_text(7 ~ (mean(Time) + 2),
           label = "Overall Mean") %>%
-  gf_refine(guides(fill = guide_legend(title = "Temperature level (°C)")))
+  gf_refine(scale_fill_paletteer_d("ggthemes::colorblind"), 
+            guides(fill = guide_legend(title = "Temperature level (°C)")))
 
 ```
 
@@ -230,7 +255,8 @@ gf_boxplot(data = frogs_long,
   gf_labs(title = "Boxplots of Hatching Time Distributions vs Temperature",
           x = "Temperature", y = "Hatching Time", 
           caption = "Using ggprism") %>%
-  gf_refine(scale_x_discrete(guide = "prism_bracket"),
+  gf_refine(scale_fill_paletteer_d("ggthemes::colorblind"),
+            scale_x_discrete(guide = "prism_bracket"),
             guides(fill = guide_legend(title = "Temperature level (°C)"))) 
 
 ```
@@ -354,6 +380,7 @@ p2 <- gf_point(
   gf_text(1 ~ 38,
           label = expression(paste(mu, "_A")),
           inherit = F) %>% 
+  gf_refine(scale_colour_brewer(palette = "Set1")) %>%
 gf_labs(title = "Fig B: SSE")
 
 #cowplot::plot_grid(p1, p2, labels = c("Fig A: SST", "Fig B: SSE"))
@@ -438,6 +465,10 @@ gf_point(Time ~ index,
          color = ~ TempFac,
          data = frogs_plot,title = "Calculating SST Overall Sum of Squares") %>% 
   
+    gf_refine(scale_colour_paletteer_d("ggthemes::colorblind"),
+              
+            guides(colour = guide_legend(title = "Temperature level (°C)"))) %>% 
+  
  gf_hline(yintercept =  ~ overall_mean,
              data = frogs_mean) %>% 
   
@@ -461,6 +492,10 @@ gf_point(Time ~ index,
          group = ~ TempFac, 
          colour = ~ TempFac, 
          data = frogs_plot, title = "Calculating SSE Error Sum of Squares") %>% 
+  
+    gf_refine(scale_colour_paletteer_d("ggthemes::colorblind"),
+              
+            guides(colour = guide_legend(title = "Temperature level (°C)"))) %>% 
   
   gf_hline(yintercept = ~ grouped_means, 
            colour = ~ TempFac,
@@ -649,8 +684,8 @@ gf_dist("f", df1 = df_SSA, df2 = df_SSE,
   gf_vline(xintercept = F_stat,
            color = "dodgerblue") %>%
   gf_text( 0.25 ~ 360, label = "F_stat", colour = "dodgerblue") %>%
-  gf_text( 0.25 ~ 20, label = "F_crit", colour = "red")  %>%
-  gf_theme(theme=theme_classic())
+  gf_text( 0.25 ~ 20, label = "F_crit", colour = "red") 
+
 ```
 
 
@@ -663,7 +698,7 @@ mosaic::xpf(q = F_crit,
             log.p = FALSE,lower.tail = TRUE, 
             return = "plot") %>% 
   gf_vline(xintercept = F_crit) %>% 
-  gf_label(0.75 ~ 5, label = "F_critical", 
+  gf_label(0.75 ~ 5.5, label = "F_critical", 
            inherit = F, show.legend = F) %>% 
   gf_labs(title = "F distribution for Frogs Data",
           subtitle = "F_critical = 4.403")
@@ -783,12 +818,16 @@ theme_set(new = theme_custom())
 frogs_anova$residuals %>% 
   as_tibble() %>% 
   gf_dhistogram(~ value,data = .) %>% 
+  gf_labs(title = "Residuals Histogram",
+          x = "Residuals", y = "Count") %>%
   gf_fitdistr() 
 ##
 frogs_anova$residuals %>%
   as_tibble() %>% 
   gf_qq(~ value, data = .) %>% 
   gf_qqstep() %>% 
+  gf_labs(title = "Residuals Q-Q Plot",
+          x = "Theoretical Quantiles", y = "Sample Quantiles") %>%
   gf_qqline() 
 ##
 shapiro.test(frogs_anova$residuals)
@@ -884,8 +923,12 @@ tidy_anova %>%
   gf_point(estimate ~ term,
            color = "red", 
            size = 3.5) %>% 
-  gf_refine(scale_x_discrete("Temp Values", 
-                             labels = c("13°C", "18°C", "25°C")))
+  gf_refine(scale_x_discrete("Temperature (°C)", 
+                             labels = c("13°C", "18°C", "25°C"))) %>% 
+  gf_labs(title = "Effect Size of Temperature on Spawn Time",
+          subtitle = "ANOVA: Frogs Spawn Time vs Temperature Setting",
+          caption = "Relative Effect Values",
+          x = "Temperature (°C)", y = "Effect Size (Spawn Time)")
 
   
 ```
@@ -916,8 +959,12 @@ frogs_long %>%
   gf_point(mean ~ TempFac, 
            color = "red", 
            size = 3.5) %>% 
-  gf_refine(scale_x_discrete("Temp Values", 
-                             labels = c("13°C", "18°C", "25°C")))
+  gf_refine(scale_x_discrete("Temperature (°C)", 
+                             labels = c("13°C", "18°C", "25°C"))) %>% 
+  gf_labs(title = "Effect Size of Temperature on Spawn Time",
+          subtitle = "ANOVA: Frogs Spawn Time vs Temperature Setting",
+          caption = "Absolute Effect Values",
+          x = "Temperature (°C)", y = "Effect Size (Spawn Time)")
 
 ```
 
@@ -946,11 +993,28 @@ theme_set(new = theme_custom())
 #
 library(ggstatsplot)
 frogs_long %>%
-  ggstatsplot::ggbetweenstats(x = TempFac, y = Time,
-                              title = "ANOVA : Frogs Spawn Time vs Temperature Setting")
+  ggstatsplot::ggbetweenstats(x = TempFac, y = Time, 
+                             colour = TempFac, alpha = 0.8,
+                             type = "parametric",
+                             pairwise.comparisons = TRUE,
+                             p.adjust.method = "bonferroni",
+                             conf.level = 0.95,
+# Plot parameters for the points
+  point.args = list(position = ggplot2::position_jitterdodge(dodge.width = 0.6), alpha =
+    0.8, size = 3, stroke = 0, na.rm = TRUE),
+
+# Plot parameters for the boxplots
+  boxplot.args = list(width = 0.3, alpha = 0.2, na.rm = TRUE),
+
+# Plot parameters for the violin plots
+  violin.args = list(width = 0.5, alpha = 0.2, na.rm = TRUE),
+                             title = "ANOVA : Frogs Spawn Time vs Temperature Setting") + 
+  scale_colour_paletteer_d("ggthemes::colorblind") +
+  labs(x = "Temperature (°C)", y = "Spawn Time (seconds)")
 
 
 ```
+Probably a case of too much in one plot, but it does give us a lot of information, including the pairwise comparisons and the effect sizes. The `ggstatsplot` package is very useful for quick visualizations of statistical tests.
 
 ### Using supernova
 

@@ -61,11 +61,6 @@ library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
 
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ```
 
@@ -78,6 +73,97 @@ library(epoxy)
 library(grateful)
 
 ```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
+
+```
+
+
 
 
 ## {{< iconify fxemoji japanesesymbolforbeginner >}} What Graphs will we see today?
@@ -117,7 +203,6 @@ toy data first:
 ::: {.column}
 ```{r}
 #| label: base-pie
-#| eval: false
 pie_data <- tibble(
   sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
   
@@ -162,7 +247,6 @@ Then the `coord_polar(theta = "y")` converts the bar plot into a pie.
 #| layout-ncol: 2
 #| layout-nrow: 2
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Using gf_col since we have a count/value column already
 pie_data %>%
@@ -186,12 +270,8 @@ gf_bar(data = mpg,
        fill = ~ drv,
        color = "black", # border for the bars/slices
        width =  1) %>%
-  gf_refine(scale_fill_brewer(palette = "Set1")) %>% 
-  gf_theme(theme_minimal()) %>%
-  gf_theme(theme(axis.line.y = element_blank(),
-                 axis.text.y = element_blank(),
-                 axis.title.y = element_blank())) %>%
-  gf_refine(coord_polar(theta = "y"))
+  gf_refine(coord_polar(theta = "y")) %>% 
+  gf_refine(scale_fill_brewer(palette = "Set1")) 
 
 ```
 
@@ -223,6 +303,7 @@ Nightingale `rosechart` out of it:
 ```{r}
 #| label: rose chart
 #| layout-ncol: 2
+
 pie_data <- tibble(
   sales = c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12), 
 
@@ -265,8 +346,7 @@ comparison:
 ```{r}
 #| label: fan-plot
 #| eval: false
-  
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 
 plotrix::fan.plot(
   x = pie_data$sales,
@@ -314,7 +394,6 @@ Let us make some toy data:
 #| label:  donut-chart
 #| layout-ncol: 2
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Data
 df <- tibble(group = LETTERS[1:3],
@@ -341,7 +420,7 @@ df %>%
           fill = ~ group, colour = "black") %>%
   
   gf_label(labelPosition ~ 3.5, 
-           label = ~ label,
+           label = ~ label, colour = "black",
            size = 4) %>%
 
 # When switching to polar coords:
@@ -441,7 +520,6 @@ df
 # Waffle plot
 # Using ggplot, sadly not yet ggformula
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ggplot(df, aes(fill = group, values = value)) +
   geom_waffle(
@@ -455,8 +533,11 @@ ggplot(df, aes(fill = group, values = value)) +
     values = c("#BA182A", "#FF8288", "#FFDBDD"),
     labels = c("A", "B", "C")
   ) +
-  coord_equal() +
-  theme_void()
+  labs(
+    title = "Waffle Chart",
+    subtitle = "A square pie chart",
+    caption = "Source: Toy Data") +
+  coord_equal()
 
 ```
 :::
@@ -480,8 +561,6 @@ a array of "seats" in a parliament. (There is also a package called
 #| label: using-ggpol
 #| eval: false
 
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 # Same toy dataset
 # df <- tibble(group = LETTERS[1:3],
 #                  value = c(25, 20, 35))
@@ -496,9 +575,10 @@ ggplot(df) +
   scale_fill_manual(name = NULL,
                     values = c("#BA182A", "#FF8288", "#FFDBDD"),
                     labels = c("A", "B", "C")) +
-  coord_equal() +
-  theme_void() 
-
+  labs(title = "Parliament Chart",
+       subtitle = "A circular array of seats",
+       caption = "Source: Toy Data") +
+  coord_equal() 
 
 ```
 :::
@@ -552,6 +632,7 @@ d1 <- tibble(from = "origin", to = paste("group", seq(1,5), sep = ""))
 d2 <- tibble(from = rep(d1$to, each=5), to = paste("subgroup", seq(1,25), sep="_"))
 edges <- rbind(d1, d2)
 edges
+
 ```
 :::
 ::: {.column}
@@ -571,6 +652,7 @@ edges
 # Create a graph object 
 mygraph1 <- tidygraph::as_tbl_graph(edges)
 mygraph1
+
 ```
 :::
 
@@ -592,7 +674,7 @@ mygraph1
 ```{r}
 #| label: dendrogram
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 # Basic tree
 ggraph(mygraph1, layout = 'dendrogram', 
        circular = TRUE) + 
@@ -681,7 +763,6 @@ mygraph2
 ```{r}
 #| label: graph-2
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # Now we can plot that
 ggraph(mygraph2, layout = 'dendrogram', circular = FALSE) + 
@@ -728,7 +809,6 @@ graph_flare
 ```{r}
 #| label: plot-flare
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 set.seed(1)
 ggraph(graph_flare, 'circlepack', weight = size) +

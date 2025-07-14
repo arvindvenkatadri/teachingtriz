@@ -59,14 +59,6 @@ library(echarts4r) # Interactive graphs
 library(tidyplots) # Easily Produced Publication-Ready Plots
 library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
-
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
-
 ```
 
 ```{r}
@@ -77,6 +69,95 @@ ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set 
 library(checkdown)
 library(epoxy)
 library(grateful)
+
+```
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -123,8 +204,6 @@ health_filtered <- health %>%
 ```{r}
 #| layout-ncol: 2
 #| results: hold
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 gf_point(data = health_filtered,
              public_health_expenditure_pc_gdp ~ Year, 
@@ -274,7 +353,6 @@ practically all this while. You will find examples of on the
 ```{r}
 #| label: titanic-plot
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 ##
 Titanic %>% ggplot(data = .,
@@ -305,7 +383,7 @@ Titanic %>% ggplot(data = .,
 # Scales and Colours
   scale_x_discrete(limits = c("Class", "Sex", "Age", "Survived"), 
                    expand = c(0.1, 0.1)) +
-  scale_fill_brewer(palette = "Dark2") + 
+  scale_fill_brewer(palette = "Set1") + 
   
   xlab("Demographic") +
   ggtitle("Passengers on the maiden voyage of the Titanic",
@@ -387,7 +465,6 @@ Let us plot this now:
 ```{r}
 #| label: titanic-ggsankeyfier
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 Titanic_long %>% 
   ggplot(aes(x = stage, y = n, 
@@ -504,8 +581,7 @@ Let us take our previously loaded `health` dataset and plot just the change in e
 ```{r}
 #| label: health-data
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-##
+
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018
   filter(Year %in% c(2010, 2018)) %>%
@@ -538,8 +614,7 @@ health_2010_2018
 ```{r}
 #| label: health-plot-1
 #| eval: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-##
+
 health_2010_2018 %>%   
   # remove NA data across the data set
   drop_na() %>%
@@ -577,7 +652,7 @@ health_2010_2018 %>%
 #| label: health-plot-2
 #| eval: false
 ## Can we do better? Sort the bars, improve axis ticks, title..
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
+
 health_2010_2018 %>%
     # remove NA data across the data set
   drop_na() %>%
@@ -633,9 +708,6 @@ caption = "And the X-Axis is in percentage"
 
 ```{r}
 #| layout-ncol: 2
-
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
-
 
 health_2010_2018 <- health %>%
   # select Years 2010 and 2018

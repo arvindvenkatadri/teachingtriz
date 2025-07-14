@@ -51,71 +51,95 @@ library(grateful)
 
 ```
 
-#### Plot Theme
+#### Plot Fonts and Theme
 
 ```{r}
-#| label: Plot-Sizing-and-theming
+#| label: plot-theme
+#| echo: true
 #| code-fold: true
-#| message: false
-#| results: hide
+#| messages: false
+#| warning: false
 
-# https://stackoverflow.com/questions/74491138/ggplot-custom-fonts-not-working-in-quarto
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
 
-# Chunk options
-knitr::opts_chunk$set(
- fig.width = 7,
- fig.asp = 0.618, # Golden Ratio
- #out.width = "80%",
- fig.align = "center"
-)
-### Ggplot Theme
-### https://rpubs.com/mclaire19/ggplot2-custom-themes
-
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
 theme_custom <- function(){ 
-    font <- "Roboto Condensed"   #assign font family up front
+    font <- "Alegreya"   #assign font family up front
     
-    theme_classic(base_size = 14) %+replace%    #replace elements we want to change
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
     
     theme(
-      panel.grid.minor = element_blank(),    #strip minor gridlines
-      text = element_text(family = font),
+      text = element_text(family = font),  #set base font family
+      
       #text elements
-      plot.title = element_text(             #title
-                   family = font,            #set font family
-                   #size = 20,               #set font size
-                   face = 'bold',            #bold typeface
-                   hjust = 0,                #left align
-                   #vjust = 2                #raise slightly
-                   margin=margin(0,0,10,0)
-),               
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
       
-      plot.subtitle = element_text(          #subtitle
-                   family = font,            #font family
-                   #size = 14,                #font size
-                   hjust = 0,
-                   margin=margin(2,0,5,0)
-),               
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
       
-      plot.caption = element_text(           #caption
-                   family = font,            #font family
-                   size = 8,                 #font size
-                   hjust = 1),               #right align
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
       
-      axis.title = element_text(             #axis titles
-                   family = font,            #font family
-                   size = 10                 #font size
-),
+      plot.caption.position = "plot",            #right align
       
-      axis.text = element_text(              #axis text
-                   family = font,            #axis family
-                   size = 8)               #font size
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
     )
 }
 
-# Set graph theme
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
 theme_set(new = theme_custom())
-#
+
 ```
+
 
 ## {{< iconify openmoji japanese-symbol-for-beginner >}} Introduction
 
@@ -128,7 +152,7 @@ even be more than two categories such as `voted for Congress`, `BJP`, or
 
 ## {{< iconify radix-icons box-model >}} The Logistic Regression Model
 
-We saw with the **General Linear Model** that it models the **mean** of
+We saw with the [**General Linear Model**](../LinReg/index.qmd#assumptions-in-linear-models) that it models the **mean** of
 a target *Quantitative* variable as a linear weighted sum of the
 predictor variables:
 
@@ -721,7 +745,7 @@ cancer_modified %>%
   lower = list(continuous = wrap("points", alpha = 0.3)),
   
   title = "Cancer Pairs Plot #1") + 
-  scale_color_manual(values = c("forestgreen","red2"), 
+  scale_color_brewer(palette = "Set1", 
                      aesthetics = c("color", "fill"))
   
 ```
@@ -817,8 +841,7 @@ cancer_modified %>%
     x = decision_point + 0.45,
     y = 0.4,
     angle = -90
-  ),
-  scale_color_manual(values = c("forestgreen","red2"))) %>%
+  ), scale_color_brewer(palette = "Set1")) %>%
   gf_hline(yintercept = 0.5) %>% 
   gf_theme(theme(plot.title.position = "plot")) %>% 
   gf_refine(xlim(5, 30))
@@ -839,7 +862,7 @@ ggplot(cancer_modified, aes(radius_mean, diagnosis_malignant)) +
   geom_point(aes(color = diagnosis, shape = diagnosis), alpha = 0.5, size = 3) + 
   geom_smooth(method = glm, method.args = list(family = "binomial"), se = FALSE, color = "black") +
   geom_vline(xintercept = decision_point, linetype = "dashed") +
-  scale_color_manual(values = c("forestgreen", "red2")) +
+  scale_color_brewer(palette = "Set1") +
   guides(color = "none", shape = "none") +
   labs(title = "diagnosis ~ radius_mean",
        x = "Average radius",
@@ -861,6 +884,7 @@ cancer_fit_2<- glm(diagnosis_malignant ~ radius_mean + concave_points_mean,
                   family = binomial(link = "logit")) 
 
 cancer_fit_2 %>% broom::tidy()
+
 ```
 
 The equation for the more complex model is:
@@ -919,9 +943,10 @@ cancer_modified %>%
   gf_abline(slope = decision_slope, intercept = decision_intercept, 
             linetype = "dashed") %>% 
   gf_refine(
-  scale_color_manual(values = c("forestgreen", "red2")),
+  scale_color_brewer(palette = "Set1"),
   annotate("text", label = paste0("q = ", qthresh), x = 10, y = c(0.08, 0.1, 0.115), angle = -17.155)) %>% 
   gf_theme(theme(plot.title.position = "plot"))
+
 ```
 
 
@@ -1004,6 +1029,7 @@ beta1_sample = coef(glm_sample_model)[2]
 ## Set graph theme
 theme_set(new = theme_custom())
 ##
+colors <- RColorBrewer::brewer.pal(3, "Set1")
 cancer_modified_sample %>% 
   gf_point(diagnosis_malignant ~ radius_mean, 
            colour = ~ diagnosis, size = 4, 
@@ -1013,17 +1039,18 @@ cancer_modified_sample %>%
     method = glm,
     method.args = list(family = "binomial"),
     se = FALSE,
-    color = "black"
+    color = "black", linewidth = 1.5
   ) %>%
+  gf_refine(scale_colour_brewer(palette = "Set1")) %>%
 ## Overlaid regression curves
-    gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, xlim = c(10,20), color = "red") %>% 
-  gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "green")
+    gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, xlim = c(10,20), color = "orange") %>% 
+  gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "limegreen")
 
 
 ```
 
 In @fig-multiple-models, we see three models: the "optimum" one in
-black, and two others in [green]{.black .bg-green} and [red]{.black .bg-red} respectively.
+black, and two others in [green]{.black .bg-green} and [orange]{.black .bg-gold} respectively.
 
 We now project the actual points on to the regression curve, to obtain
 the predicted probability for each point.
@@ -1051,9 +1078,9 @@ plot_dat %>%
     se = FALSE,
     color = "grey"
   ) %>%
-
+  gf_refine(scale_color_brewer(palette = "Set1")) %>%
 ## Overlaid regression curves
-    gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, xlim = c(10,20), color = "red") %>% 
+    gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, xlim = c(10,20), color = "orange",linewidth = 2) %>% 
   gf_point(curve1 ~ radius_mean, size = 4) %>% 
   gf_segment(curve1 + diagnosis_malignant ~ radius_mean + radius_mean, arrow = arrow(ends = "first", angle = 15, type = "closed", length = unit(0.125, "inches")))
 
@@ -1071,7 +1098,10 @@ plot_dat %>%
     se = FALSE,
     color = "grey"
   ) %>%
-gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, xlim = c(10,20), color = "red") %>% 
+  gf_refine(scale_color_brewer(palette = "Set1")) %>%
+  
+gf_fun(ilogit(x * (beta1_sample - 0.002) + beta0_sample - 1) ~ x, 
+       xlim = c(10,20), color = "orange", linewidth = 2) %>% 
   gf_point(curve1 ~ radius_mean, size = 4) %>% 
   #gf_segment(curve1 + diagnosis_malignant ~ radius_mean + radius_mean) %>% 
   gf_segment(curve1 + curve1 ~ radius_mean + 10, 
@@ -1092,9 +1122,9 @@ plot_dat %>%
     se = FALSE,
     color = "grey"
   ) %>%
-
+  gf_refine(scale_color_brewer(palette = "Set1")) %>%
   ## Overlaid regression curves
-    gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "green") %>% 
+    gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "limegreen", linewidth = 2) %>% 
   gf_point(curve2 ~ radius_mean, size = 4) %>% 
   gf_segment(curve2 + diagnosis_malignant ~ radius_mean + radius_mean) %>%  gf_segment(curve2 + diagnosis_malignant ~ radius_mean + radius_mean, arrow = arrow(ends = "first", angle = 15, type = "closed", length = unit(0.125, "inches")))
 
@@ -1103,13 +1133,14 @@ plot_dat %>%
   gf_point(diagnosis_malignant ~ radius_mean, 
            colour = ~ diagnosis, size = 4, alpha = 0.3,
            title = "Predicted Probability Lookup") %>% 
+    gf_refine(scale_color_brewer(palette = "Set1")) %>%
     gf_smooth(
     method = glm,
     method.args = list(family = "binomial"),
     se = FALSE,
     color = "grey"
   ) %>%
-gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "green") %>% 
+gf_fun(ilogit(x * (beta1_sample + 0.0075) + beta0_sample + 1) ~ x, xlim = c(10,20), color = "limegreen", linewidth = 2) %>% 
   gf_point(curve2 ~ radius_mean, size = 4) %>% 
   #gf_segment(curve2 + diagnosis_malignant ~ radius_mean + radius_mean) %>% 
   gf_segment(curve2 + curve2 ~ radius_mean + 10, arrow = arrow(ends = "last", angle = 15, length = unit(0.1, "inches")))
@@ -1292,6 +1323,7 @@ To be written up:
 - Formula for gradient of LL
 - Convergence of Newton- Raphson method for Maximum Likelihood
 - Hand Calculation of all steps (!!)
+
 
 ## {{< iconify fluent-mdl2 decision-solid >}} Conclusions
 

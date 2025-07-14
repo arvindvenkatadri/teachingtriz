@@ -26,13 +26,8 @@ citation: true
 ```{r}
 #| label: setup
 #| include: true
-#| results: hold
-
-# Fonts
-# Run these next few commands IN YOUR CONSOLE once. 
-#install.packages("extrafontdb")
-#library(extrafont)
-#extrafont::font_import(paths = NULL, recursive = TRUE, prompt = TRUE,pattern = NULL)
+#| warning: false
+#| message: false
 
 library(tidyverse)
 library(igraph) # Network Analysis Library (Handle data and Viz)
@@ -43,20 +38,7 @@ library(visNetwork) # For Interactive Network Visualization
 library(igraphdata) # For "Network" Datasets
 library(sand) # Statistical Analysis of Networks Data
 
-# Fonts
-# library(ggtext) # Claus Wilke's package
-# library(showtext)
-# library(fontawesome)
-##
-library(tidyplots) # Easily Produced Publication-Ready Plots
-library(tinyplot) # Plots with Base R
 library(tinytable) # Elegant Tables for our data
-
-## ggplot theme
-library(hrbrthemes)
-hrbrthemes::import_roboto_condensed() # Import Roboto Condensed font for use in charts
-hrbrthemes::update_geom_font_defaults() #Update matching font defaults for text geoms
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 # For repeatable layouts, some can be random!!
 set.seed(12345)
@@ -71,6 +53,96 @@ set.seed(12345)
 library(checkdown)
 library(epoxy)
 library(grateful)
+
+```
+
+
+#### Plot Fonts and Theme
+
+```{r}
+#| label: plot-theme
+#| echo: true
+#| code-fold: true
+#| messages: false
+#| warning: false
+
+library(systemfonts)
+library(showtext)
+## Clean the slate
+systemfonts::clear_local_fonts()
+systemfonts::clear_registry()
+##
+showtext_opts(dpi = 96) #set DPI for showtext
+sysfonts::font_add(family = "Alegreya",
+  regular = "../../../../../../fonts/Alegreya-Regular.ttf",
+  bold = "../../../../../../fonts/Alegreya-Bold.ttf",
+  italic = "../../../../../../fonts/Alegreya-Italic.ttf",
+  bolditalic = "../../../../../../fonts/Alegreya-BoldItalic.ttf")
+
+sysfonts::font_add(family = "Roboto Condensed", 
+  regular = "../../../../../../fonts/RobotoCondensed-Regular.ttf",
+  bold = "../../../../../../fonts/RobotoCondensed-Bold.ttf",
+  italic = "../../../../../../fonts/RobotoCondensed-Italic.ttf",
+  bolditalic = "../../../../../../fonts/RobotoCondensed-BoldItalic.ttf")
+showtext_auto(enable = TRUE) #enable showtext
+##
+theme_custom <- function(){ 
+    font <- "Alegreya"   #assign font family up front
+    
+    theme_classic(base_size = 14, base_family = font) %+replace%    #replace elements we want to change
+    
+    theme(
+      text = element_text(family = font),  #set base font family
+      
+      #text elements
+      plot.title = element_text(                 #title
+                   family = font,          #set font family
+                   size = 24,                    #set font size
+                   face = 'bold',                #bold typeface
+                   hjust = 0,                    #left align
+                   margin = margin(t = 5, r = 0, b = 5, l = 0)), #margin
+      plot.title.position = "plot", 
+      
+      plot.subtitle = element_text(              #subtitle
+                   family = font,          #font family
+                   size = 14,                   #font size
+                   hjust = 0,                   #left align
+                   margin = margin(t = 5, r = 0, b = 10, l = 0)), #margin
+      
+      plot.caption = element_text(               #caption
+                   family = font,          #font family
+                   size = 9,                     #font size
+                   hjust = 1),                   #right align
+      
+      plot.caption.position = "plot",            #right align
+      
+      axis.title = element_text(                 #axis titles
+                   family = "Roboto Condensed",  #font family
+                   size = 12),                   #font size
+      
+      axis.text = element_text(                  #axis text
+                   family = "Roboto Condensed",  #font family
+                   size = 9),                    #font size
+      
+      axis.text.x = element_text(                #margin for axis text
+                    margin = margin(5, b = 10))
+      
+      #since the legend often requires manual tweaking 
+      #based on plot content, don't define it here
+    )
+}
+
+## Use available fonts in ggplot text geoms too!
+update_geom_defaults(geom = "text",new = list(
+  family = "Roboto Condensed",
+  face = "plain",
+  size = 3.5,
+  color = "#2b2b2b"
+)
+)
+
+## Set the theme
+theme_set(new = theme_custom())
 
 ```
 
@@ -112,13 +184,13 @@ visualized as a network
 ```{r}
 #| echo: false
 #| warning: false
-ggplot2::theme_set(new = theme_classic(base_family = "Roboto Condensed")) # Set consistent graph theme
 
 data(karate)
 karate <- karate %>% 
   igraph::upgrade_graph() # Old format, convert to new
 set.seed(123)
 l <- layout.graphopt(karate)
+set_graph_style(family = "Roboto Condensed", size = 16)
 karate %>% 
   as_tbl_graph() %>% # to access nodes and edges in tidygraph
   
@@ -167,8 +239,7 @@ karate %>%
   guides(
     color = guide_legend(title = "Faction",
                               override.aes = list(size = 4)),
-  ) +
-  theme_graph() 
+  ) 
 
 ```
 
@@ -426,7 +497,7 @@ ggraph(graph = ga,  layout = "kk") +
        subtitle = "Why did I ever get in this course...",
        caption = "Bro, they are doing cool things in the other classes...\n And the show is even more cool!") +
   
-  set_graph_style(family = "Roboto Condensed")
+  set_graph_style(family = "Roboto Condensed", size = 16)
 
 ```
 
@@ -454,7 +525,7 @@ ggraph(graph = ga,  layout = "kk") +
   labs(title = "Whoo Hoo! My next silly Grey's Anatomy graph in R!",
        subtitle = "Why did I ever get in this course...",
        caption = "Bro, they are doing cool things in the other classes...") + 
-set_graph_style(family = "Roboto Condensed")
+set_graph_style(family = "Roboto Condensed", size = 16)
 
 ```
 
@@ -503,14 +574,15 @@ information.
 ggraph(graph = ga, layout = "fr") +
   geom_edge_link0(aes(width = weight)) + # change variable here
   
-  geom_node_point(aes(color = race), size = 6) + # change variable here
+  geom_node_point(aes(fill = race), colour = "black", 
+                  size = 4, shape = 21) + # change variable here
 
   labs(title = "Whoo Hoo! Yet another Grey's Anatomy graph in R!",
        subtitle = "Colouring Nodes by Attribute",
        caption = "Grey's Anatomy") +
   
   scale_edge_width(range = c(0.2,2)) +
-  set_graph_style(family = "Roboto Condensed")
+  set_graph_style(family = "Roboto Condensed", size = 16)
 
 
 ```
@@ -532,8 +604,9 @@ ggraph(ga, layout = "linear") +
   geom_edge_arc0(aes(width = weight), alpha = 0.8) +
   scale_edge_width(range = c(0.2, 2)) +
   geom_node_point(size = 2, colour = "red") +
-  labs(edge_width = "Weight",title = "Grey's Anatomy", subtitle = "Arc Layout") +
-  set_graph_style(family = "Roboto Condensed")
+  labs(edge_width = "Weight",title = "Grey's Anatomy", 
+       subtitle = "Arc Layout") +
+  set_graph_style(family = "Roboto Condensed", size = 16)
 
 ```
 
@@ -555,9 +628,11 @@ ggraph(ga, layout = "linear", circular = TRUE) + # Note the layout!
   geom_node_text(aes(label = name),
                  repel = TRUE, size = 2,check_overlap = TRUE, 
                  max.overlaps = 25) +
-  labs(edge_width = "Weight")  +
+  labs(edge_width = "Weight", 
+       title = "Grey's Anatomy", 
+       subtitle = "Arc Layout") +
   theme(aspect.ratio = 1) +
-  set_graph_style(family = "Roboto Condensed")
+  set_graph_style(family = "Roboto Condensed", size = 16)
 
 ```
 
@@ -597,7 +672,7 @@ graph <-  tbl_graph(edges = flare$edges, nodes = flare$vertices)
 #| column: body-outset-right
 #| warning: false
 ##
-set_graph_style(family = "Roboto Condensed")
+set_graph_style(family = "Roboto Condensed", size = 16)
 ##
 
 # dendrogram
@@ -658,9 +733,9 @@ qualitative attribute on nodes or edges.
 #| label:  faceting
 #| column: body-outset-right
 #| layout-ncol: 2
-##
-set_graph_style(family = "Roboto Condensed",size = 8)
-##
+
+set_graph_style(family = "Roboto Condensed",size = 16)
+
 # facet edges by type
 ggraph(ga,layout = "linear", circular = TRUE) + 
   geom_edge_link0(aes(color = type)) + 
@@ -738,7 +813,7 @@ and visualization tasks in one go.
 
 ```{r Using-Centrality}
 ##
-set_graph_style(family = "Roboto Condensed", size = 8)
+set_graph_style(family = "Roboto Condensed", size = 16)
 ##
 ggraph(ga,layout = "nicely") +
     geom_edge_link0(aes(width = centrality_edge_betweenness())) + 
@@ -777,7 +852,7 @@ Who is close to whom? Which are the groups you can see?
 ```{r}
 #| label: communities in networks
 ##
-set_graph_style(family = "Roboto Condensed", size = 8)
+set_graph_style(family = "Roboto Condensed", size = 16)
 ##
 # visualize communities of nodes
 ga %>% 
@@ -997,7 +1072,13 @@ visNetwork(nodes = starwars_nodes_vis,
   visNodes(font = list(size = 30), shape = "icon", 
            icon = list(code = "f1e3", size = 75)) %>% 
   visEdges(color = list(color = "red", hover = "green", highlight = "black")) %>% 
-  visInteraction(hover = TRUE) %>% 
+  visInteraction(
+    navigationButtons = TRUE,
+    hover = TRUE,
+    selectConnectedEdges = TRUE,
+    hoverConnectedEdges = TRUE,
+    zoomView = TRUE
+  ) %>%
   addFontAwesome(version = "4.7.0")
 
 ```
