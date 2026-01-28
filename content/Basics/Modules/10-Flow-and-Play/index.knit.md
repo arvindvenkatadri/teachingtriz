@@ -1,7 +1,7 @@
 ---
 date: "2021-04-22"
 title: "I am Water"
-date-modified: "`r Sys.Date()`"
+date-modified: "2026-01-28"
 order: 10
 image: featured.jpg
 tags:
@@ -13,15 +13,19 @@ editor:
     wrap: 72
 ---
 
-```{r,echo = FALSE, eval = TRUE, fig.alt="Petr Slováček on Unsplash", fig.align='center',out.height="50%", out.width="50%"}
-knitr::include_graphics("featured.jpg")
-```
 
-```{r echo=FALSE}
-library(blogdown)
-#devtools::install_github("mccarthy-m-g/embedr")
-library(embedr) # Embed multimedia in HTML files
-```
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](featured.jpg){fig-align='center' fig-alt='Petr Slováček on Unsplash' width=50% height=50%}
+:::
+:::
+
+
+
+::: {.cell}
+
+:::
+
 
 ## Introduction
 
@@ -66,16 +70,20 @@ Let us quickly review the [four central ideas in Play by Robert Caillois](https:
 
 ## What is Flow?
 
-```{r, echo=FALSE,fig.align='center',out.height="100%", out.width="100%"}
-knitr::include_graphics("Flow.png")
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](Flow.png){fig-align='center' width=100% height=100%}
+:::
+:::
+
 
 We will understand **Flow** from:
 
 1.  The book the book by Mihaly Csikszentmihalyi, titled [**Flow: The Psychology of Happiness**](Flow_%20The%20Psychology%20of%20Happiness%20-%20Csikszentmihalyi,%20Mihaly.pdf). First, let us learn to say his name!!
 
 <center>
-`r embedr::embed_audio("https://upload.wikimedia.org/wikipedia/commons/5/59/Mih%C3%A1ly_Cs%C3%ADkszentmih%C3%A1lyi.ogg")` 
+`<audio controls> <source src='https://upload.wikimedia.org/wikipedia/commons/5/59/Mih%C3%A1ly_Cs%C3%ADkszentmih%C3%A1lyi.ogg' type='audio/mpeg'> Your browser does not support the audio tag;  for browser support, please see:  https://www.w3schools.com/tags/tag_audio.asp </audio>`{=html} 
 </center>
 
   Let us read the relevant pages (pp. 72-76, *Flow Activities*). This section nicely juxtaposes Csikszentmihalyi's ideas of `Flow` and Caillois ideas of `Play`, and states, as a finding of their research, that:
@@ -154,8 +162,13 @@ No, that is not a bad spelling....why not? Go find me in this picture !! <br>
 
 ## Postscript
 
-```{r, echo=FALSE,fig.align='center',out.height="100%", out.width="100%"}
-knitr::include_graphics("tweet.png")
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](tweet.png){fig-align='center' width=100% height=100%}
+:::
+:::
+
+
 
 
