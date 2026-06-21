@@ -12,10 +12,13 @@ categories:
 ---
 
 <br>
-```{r,echo=FALSE, fig.align='center',fig.alt="Image by Arsanandha Aphisitworachorch on Unsplash", out.height="100%", out.width="70%"}
-knitr::include_graphics("featured.jpg")
 
-```
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](featured.jpg){fig-align='center' fig-alt='Image by Arsanandha Aphisitworachorch on Unsplash' width=70% height=100%}
+:::
+:::
+
 
 ## Introduction
 
@@ -96,15 +99,13 @@ Each group had $5 and 2 hours to make the highest return on the money.
 At the end, they'd give a short presentation on their strategy.
 What happened next was fascinating:
 
-```{r}
-#| echo: false
-#| out-width: 70%
-#| out-height: 70%
-#| fig-align: center
 
-knitr::include_graphics("../../../materials/images/Stanford-SOB-Building.jpeg")
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../../materials/images/Stanford-SOB-Building.jpeg){fig-align='center' width=70% height=70%}
+:::
+:::
 
-```
 
 
 > Most of the groups followed a simple approach:
@@ -133,7 +134,8 @@ The winning group thought differently ( about resources ) and achieved an asymme
 
 ## {{< iconify streamline book-reading >}} Reading Writing Assignment
 
-Head off to [Count Your Blessings](../7777-WritingAssignments/#assignment-9.-count-your-blessings).
+Head off to [Count Your Blessings](../7777-WritingAssignments/#assignment-9.-count-your-blessings)
+https://teaching-triz.netlify.app/content/triz/modules/7777-writingassignments/#assignment-10.-six-impossible-things-before-breakfast).
 
 ## References
 
@@ -145,3 +147,4 @@ Head off to [Count Your Blessings](../7777-WritingAssignments/#assignment-9.-cou
 1. Stan Kaplan, ***An Introduction to TRIZ*** [(PDF)](./pdf/TRIZ/Stan Kaplan-Intro-to-TRIZ.pdf)
 This is a simple and short introduction to *all* aspects of Classical TRIZ.
 1. Jack Hipple, "The Ideal Result: What it is and how to achieve it", Springer, 2012.
+
